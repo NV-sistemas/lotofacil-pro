@@ -108,7 +108,7 @@
   .chartTitle b{font-size:13px}
   .chartHint{color:var(--muted);font-size:12px;font-weight:800}
   .chartRow{display:flex;align-items:center;gap:10px;margin:10px 0}
-  .chartLabel{width:54px;color:var(--text);font-weight:900}
+  .chartLabel{width:70px;color:var(--text);font-weight:900}
   .chartBarWrap{flex:1;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);border-radius:999px;overflow:hidden;height:16px}
   .chartBar{height:100%;width:0%;background:linear-gradient(90deg,var(--blue),var(--green))}
   .chartVal{width:56px;text-align:right;color:var(--text);font-weight:900}
@@ -177,7 +177,7 @@
   <div class="footerNote">Aviso: análise estatística não garante premiação. Jogo responsável ✅</div>
 </div>
 
-<!-- MODAL -->
+<!-- MODAL LISTA -->
 <div id="modalBack" class="modalBack">
   <div class="modal">
     <div class="modalHeader">
@@ -190,10 +190,24 @@
   </div>
 </div>
 
+<!-- MODAL GRAFICO BLOCOS -->
+<div id="modalBlocosBack" class="modalBack">
+  <div class="modal" style="max-width:520px">
+    <div class="modalHeader">
+      <b>📊 Gráfico de Blocos (A–E)</b>
+      <button class="closeBtn" onclick="fecharGraficoBlocos()">Fechar</button>
+    </div>
+    <div class="modalBody">
+      <div id="graficoBlocosArea"></div>
+      <div class="mini" style="margin-top:10px">
+        Interpretação: quantas dezenas do seu jogo caíram em cada faixa (01–05, 06–10, 11–15, 16–20, 21–25).
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
-/* =========================
-   CONFIG
-========================= */
+/* CONFIG */
 const WORKER = "https://shy-silence-06b9.nvtranspelogistica.workers.dev";
 
 const PROVIDERS = [
@@ -219,9 +233,7 @@ const PROVIDERS = [
   }
 ];
 
-/* =========================
-   UI
-========================= */
+/* UI */
 function setStatus(on, text){
   const st = document.getElementById("status");
   document.getElementById("statusText").textContent = text || "";
@@ -236,10 +248,10 @@ function entrar(){
 }
 function abrirModal(){ document.getElementById("modalBack").style.display = "flex"; }
 function fecharModal(){ document.getElementById("modalBack").style.display = "none"; }
+function abrirGraficoBlocos(){ abrirGraficoBlocosImpl(); }
+function fecharGraficoBlocos(){ document.getElementById("modalBlocosBack").style.display = "none"; }
 
-/* =========================
-   CACHE
-========================= */
+/* CACHE */
 function cacheKey(providerIdx, concurso){ return `lf_${providerIdx}_${concurso}`; }
 function saveCache(providerIdx, concurso, data){
   try{ localStorage.setItem(cacheKey(providerIdx, concurso), JSON.stringify({ts: Date.now(), data})); }catch(e){}
@@ -263,9 +275,7 @@ function limparCache(){
   alert("Cache limpo! Agora tente gerar novamente.");
 }
 
-/* =========================
-   FETCH via Worker
-========================= */
+/* FETCH via Worker */
 async function fetchJsonViaWorker(url){
   const proxied = `${WORKER}/?url=${encodeURIComponent(url)}`;
   const r = await fetch(proxied, { cache: "no-store" });
@@ -273,9 +283,7 @@ async function fetchJsonViaWorker(url){
   return await r.json();
 }
 
-/* =========================
-   DADOS (fallback)
-========================= */
+/* DADOS (fallback) */
 async function getLatestWithFallback(){
   let lastErr = null;
   for(let i=0;i<PROVIDERS.length;i++){
@@ -291,7 +299,6 @@ async function getLatestWithFallback(){
   }
   throw lastErr || new Error("Falha ao buscar latest");
 }
-
 async function getConcurso(providerIdx, concurso){
   const cached = loadCache(providerIdx, concurso);
   if(cached) return cached;
@@ -302,9 +309,7 @@ async function getConcurso(providerIdx, concurso){
   return data;
 }
 
-/* =========================
-   RANGE
-========================= */
+/* RANGE */
 async function fetchRange(providerIdx, inicio, fim, onProgress){
   const total = (fim - inicio + 1);
   const concurrency = 8;
@@ -328,9 +333,7 @@ async function fetchRange(providerIdx, inicio, fim, onProgress){
   return results;
 }
 
-/* =========================
-   STATS
-========================= */
+/* STATS */
 function toNum(d){ return Number(String(d).replace(/^0+/,"")) || Number(d); }
 function calcularFrequencias(concursos){
   const freq = {};
@@ -362,7 +365,6 @@ function gerarJogoPorFreq(freq){
   while(set.size<15) set.add(Math.floor(Math.random()*25)+1);
   return sortNum(Array.from(set));
 }
-
 function classificarDezenas(freq, jogo){
   const ord = ordenarPorFreq(freq);
   const rank = {};
@@ -376,19 +378,25 @@ function classificarDezenas(freq, jogo){
   });
   return {hot:sortNum(hot), warm:sortNum(warm), cold:sortNum(cold)};
 }
-
 function contarParesImpares(jogo){
   const pares = jogo.filter(n=>n%2===0).length;
   return {pares, impares: jogo.length - pares};
 }
 function somaDezenas(jogo){ return jogo.reduce((a,b)=>a+b,0); }
+
+/* NOVA DISTRIBUIÇÃO A–E */
 function distribuicaoBlocos(jogo){
-  const b={A:0,B:0,C:0,D:0};
+  const b={A:0,B:0,C:0,D:0,E:0};
   jogo.forEach(n=>{
-    if(n<=6) b.A++; else if(n<=12) b.B++; else if(n<=18) b.C++; else b.D++;
+    if(n>=1 && n<=5) b.A++;
+    else if(n>=6 && n<=10) b.B++;
+    else if(n>=11 && n<=15) b.C++;
+    else if(n>=16 && n<=20) b.D++;
+    else b.E++;
   });
   return b;
 }
+
 function format2(n){ return String(n).padStart(2,"0"); }
 
 /* repetidas do concurso anterior */
@@ -398,9 +406,7 @@ function repetidasDoUltimo(jogo, ultimoDezenas){
   return sortNum(reps);
 }
 
-/* =========================
-   RENDER
-========================= */
+/* RENDER */
 function renderListaConcursos(concursos){
   const rows = concursos.map(c=>{
     const dezenas = (c.dezenas||[]).map(d=>format2(toNum(d))).join(" - ");
@@ -447,9 +453,34 @@ function renderTop10(freq, totalConcursos){
   `;
 }
 
-/* =========================
-   MAIN
-========================= */
+/* MODAL GRAFICO BLOCOS */
+function abrirGraficoBlocosImpl(){
+  if(!lastContext || !lastContext._blocos) return;
+  const b = lastContext._blocos;
+  const max = Math.max(b.A,b.B,b.C,b.D,b.E,1);
+
+  function row(label, val){
+    const pct = Math.round((val/max)*100);
+    return `
+      <div class="chartRow">
+        <div class="chartLabel">${label}</div>
+        <div class="chartBarWrap"><div class="chartBar" style="width:${pct}%"></div></div>
+        <div class="chartVal">${val}</div>
+      </div>
+    `;
+  }
+
+  document.getElementById("graficoBlocosArea").innerHTML =
+    row("A (01–05)", b.A) +
+    row("B (06–10)", b.B) +
+    row("C (11–15)", b.C) +
+    row("D (16–20)", b.D) +
+    row("E (21–25)", b.E);
+
+  document.getElementById("modalBlocosBack").style.display = "flex";
+}
+
+/* MAIN */
 let lastContext = null;
 
 async function gerarAnalise(){
@@ -485,13 +516,12 @@ async function gerarAnalise(){
     const soma = somaDezenas(jogo);
     const blocos = distribuicaoBlocos(jogo);
 
-    // repetidas do último concurso real
     const reps = repetidasDoUltimo(jogo, latest.dezenas || []);
 
     setStatus(false, "");
     setProgress(0);
 
-    lastContext = { providerName, inicio, ultimo, qtd, concursos, freq, latest };
+    lastContext = { providerName, inicio, ultimo, qtd, concursos, freq, latest, _blocos: blocos };
 
     const numerosFmt = jogo.map(format2).join(" - ");
 
@@ -506,46 +536,56 @@ async function gerarAnalise(){
       <div class="grid">
         <div class="box">
           <div class="pill rep">🔁 Repetidas do último concurso (${latest.concurso})</div>
-          <p>
-            <b class="highlightRep">${reps.length ? reps.map(format2).join(", ") : "Nenhuma repetida"}</b>
-          </p>
-          <div class="mini">Motivo: muitas sequências têm repetição parcial; aqui mostramos as dezenas do seu jogo que já saíram no último concurso.</div>
+          <p><b class="highlightRep">${reps.length ? reps.map(format2).join(", ") : "Nenhuma repetida"}</b></p>
+          <div class="mini">Mostra quais dezenas do seu jogo já saíram no último concurso real.</div>
         </div>
 
         <div class="box">
           <div class="pill hot">🔥 Quentes (no seu jogo)</div>
           <p><b>${cls.hot.map(format2).join(", ") || "—"}</b></p>
-          <div class="mini">Motivo: aparecem mais vezes no intervalo analisado.</div>
+          <div class="mini">Motivo: mais frequentes no intervalo analisado.</div>
         </div>
 
         <div class="box">
           <div class="pill warm">🌡️ Mornas (no seu jogo)</div>
           <p><b>${cls.warm.map(format2).join(", ") || "—"}</b></p>
-          <div class="mini">Motivo: estabilidade para equilibrar o padrão.</div>
+          <div class="mini">Motivo: estabilidade para equilibrar.</div>
         </div>
 
         <div class="box">
           <div class="pill cold">❄️ Frias (no seu jogo)</div>
           <p><b>${cls.cold.map(format2).join(", ") || "—"}</b></p>
-          <div class="mini">Motivo: menor incidência — adiciona diversidade.</div>
+          <div class="mini">Motivo: menor incidência — diversificação.</div>
         </div>
 
         <div class="box">
           <div class="pill info">⚖️ Pares x Ímpares</div>
           <p><b>${pi.pares}</b> pares • <b>${pi.impares}</b> ímpares</p>
-          <div class="mini">Resumo: balanceamento automático para evitar extremos.</div>
+          <div class="mini">Balanceamento automático para evitar extremos.</div>
         </div>
 
         <div class="box">
           <div class="pill info">➕ Soma total</div>
           <p><b>${soma}</b></p>
-          <div class="mini">Resumo: ajuda a evitar combinações fora do padrão.</div>
+          <div class="mini">Ajuda a evitar combinações fora do padrão.</div>
         </div>
 
         <div class="box">
-          <div class="pill info">🧩 Distribuição por blocos</div>
-          <p>A(01–06): <b>${blocos.A}</b> • B(07–12): <b>${blocos.B}</b> • C(13–18): <b>${blocos.C}</b> • D(19–25): <b>${blocos.D}</b></p>
-          <div class="mini">Resumo: cobre faixas do volante para reduzir “buracos”.</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+            <div class="pill info">🧩 Distribuição por blocos</div>
+            <button class="secondary" type="button" style="width:auto;min-width:auto;padding:8px 10px;border-radius:10px"
+              onclick="abrirGraficoBlocos()">
+              📊 Ver gráfico
+            </button>
+          </div>
+          <p>
+            A(01–05): <b>${blocos.A}</b> •
+            B(06–10): <b>${blocos.B}</b> •
+            C(11–15): <b>${blocos.C}</b> •
+            D(16–20): <b>${blocos.D}</b> •
+            E(21–25): <b>${blocos.E}</b>
+          </p>
+          <div class="mini">Cobertura do volante por faixas (01–05, 06–10, 11–15, 16–20, 21–25).</div>
         </div>
 
         <div class="box">
@@ -566,7 +606,7 @@ async function gerarAnalise(){
       <div class="box">
         <div class="pill info">Detalhe</div>
         <p>${String(e?.message || e)}</p>
-        <div class="mini">Tente novamente em alguns segundos. Se persistir, pode ser queda geral das fontes públicas.</div>
+        <div class="mini">Tente novamente em alguns segundos.</div>
       </div>
     `;
   }finally{
@@ -585,8 +625,12 @@ document.addEventListener("DOMContentLoaded", ()=>{
   document.getElementById("btnEntrar").addEventListener("click", entrar);
   document.getElementById("btnGerar").addEventListener("click", gerarAnalise);
   document.getElementById("btnLimpar").addEventListener("click", limparCache);
+
   document.getElementById("modalBack").addEventListener("click", (e)=>{
     if(e.target.id === "modalBack") fecharModal();
+  });
+  document.getElementById("modalBlocosBack").addEventListener("click", (e)=>{
+    if(e.target.id === "modalBlocosBack") fecharGraficoBlocos();
   });
 });
 </script>
