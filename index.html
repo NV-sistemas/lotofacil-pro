@@ -191,6 +191,128 @@ function gerar(){
   `;
 }
 </script>
+<script>
+function gerar(){
+
+  // SE FOR PREMIUM (DEMO)
+  if(localStorage.getItem("premium") === "true"){
+    gerarPremium();
+    return;
+  }
+
+  // SE JÁ USOU O GRÁTIS
+  if(localStorage.getItem("usado") === "true"){
+    mostrarPremium();
+    return;
+  }
+
+  // PRIMEIRO USO GRATUITO
+  localStorage.setItem("usado","true");
+
+  let jogo = gerarJogo();
+  document.getElementById("saida").innerHTML = `
+    <div class="box">
+      <div class="badge">🔥 Jogo Gerado (Teste)</div>
+      <div class="jogo">${jogo.join(" - ")}</div>
+
+      <ul class="lista">
+        <li>🔥 Dezenas quentes priorizadas</li>
+        <li>🌡️ Dezenas mornas para equilíbrio</li>
+        <li>❄️ Dezenas frias estratégicas</li>
+        <li>⚖️ Pares e ímpares balanceados</li>
+        <li>➕ Soma dentro do padrão histórico</li>
+        <li>🧱 Distribuição por blocos</li>
+        <li>🔁 Repetição inteligente</li>
+      </ul>
+
+      <div class="premium">
+        <h3>💎 Desbloqueie o Premium</h3>
+        <p>Jogos ilimitados + análises completas</p>
+      </div>
+    </div>
+  `;
+}
+
+function mostrarPremium(){
+  document.getElementById("saida").innerHTML = `
+    <div class="box">
+      <div class="lock">🔒</div>
+      <h2 style="text-align:center">Área Premium</h2>
+      <p style="text-align:center;color:#94a3b8">
+        Acesso disponível após ativação.
+      </p>
+
+      <div class="premium">
+        <h3>🚀 Premium inclui</h3>
+        <p>
+          ✔ Jogos ilimitados<br>
+          ✔ Análises avançadas<br>
+          ✔ Histórico de jogos<br>
+          ✔ Jogo automático do dia
+        </p>
+      </div>
+
+      <button onclick="ativarDemoPremium()" style="margin-top:14px">
+        🔓 Entrar no Premium (DEMO)
+      </button>
+    </div>
+  `;
+}
+
+function ativarDemoPremium(){
+  localStorage.setItem("premium","true");
+  gerarPremium();
+}
+
+function gerarPremium(){
+  let jogos = [];
+  for(let i=0;i<3;i++){
+    jogos.push(gerarJogo());
+  }
+
+  let html = `
+    <div class="box">
+      <div class="badge">💎 Premium Ativo</div>
+      <h3 style="text-align:center">Jogos Gerados</h3>
+  `;
+
+  jogos.forEach((jogo, i)=>{
+    html += `
+      <div class="jogo">Jogo ${i+1}: ${jogo.join(" - ")}</div>
+    `;
+  });
+
+  html += `
+      <ul class="lista">
+        <li>📊 Análise estatística completa</li>
+        <li>🔥 Classificação quente / morna / fria</li>
+        <li>📐 Padrões de soma e blocos</li>
+        <li>🔁 Repetição inteligente</li>
+      </ul>
+
+      <button style="margin-top:14px" onclick="resetar()">
+        🔄 Resetar Sistema (teste)
+      </button>
+    </div>
+  `;
+
+  document.getElementById("saida").innerHTML = html;
+}
+
+function gerarJogo(){
+  let jogo=[];
+  while(jogo.length<15){
+    let n=Math.floor(Math.random()*25)+1;
+    if(!jogo.includes(n)) jogo.push(n);
+  }
+  return jogo.sort((a,b)=>a-b);
+}
+
+function resetar(){
+  localStorage.clear();
+  location.reload();
+}
+</script>
 
 </body>
 </html>
