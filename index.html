@@ -10,85 +10,149 @@
 body{
   margin:0;
   min-height:100vh;
-  background:linear-gradient(135deg,#0f172a,#020617);
+  background:radial-gradient(circle at top,#0f172a,#020617);
   display:flex;
   align-items:center;
   justify-content:center;
   color:#e5e7eb;
 }
-.card{
+
+/* CARD PRINCIPAL */
+.app{
   width:100%;
-  max-width:420px;
+  max-width:430px;
   background:linear-gradient(180deg,#020617,#020617cc);
-  border-radius:22px;
+  border-radius:24px;
   padding:26px;
-  box-shadow:0 25px 60px rgba(0,0,0,.6);
+  box-shadow:0 30px 80px rgba(0,0,0,.65);
+  animation:fade .6s ease;
 }
-h1{text-align:center;margin:0;font-size:26px}
-.sub{text-align:center;color:#9ca3af;margin:6px 0 20px}
+@keyframes fade{from{opacity:0;transform:translateY(20px)}to{opacity:1}}
+
+.logo{
+  text-align:center;
+  font-size:28px;
+  font-weight:800;
+}
+.sub{
+  text-align:center;
+  color:#94a3b8;
+  font-size:14px;
+  margin:6px 0 22px;
+}
+
 button{
   width:100%;
-  padding:14px;
+  padding:15px;
   border:none;
-  border-radius:14px;
+  border-radius:16px;
   background:linear-gradient(135deg,#22c55e,#16a34a);
   color:#022c22;
   font-size:16px;
-  font-weight:700;
+  font-weight:800;
   cursor:pointer;
+  transition:.2s;
 }
-button:hover{filter:brightness(1.05)}
-.resultado{
-  margin-top:18px;
-  background:#020617;
+button:hover{filter:brightness(1.07);transform:translateY(-1px)}
+
+.box{
+  margin-top:20px;
+  background:linear-gradient(180deg,#020617,#020617dd);
   border:1px solid #1f2937;
-  border-radius:16px;
-  padding:16px;
+  border-radius:18px;
+  padding:18px;
+  animation:fade .4s ease;
 }
+
+.badge{
+  display:inline-block;
+  background:#22c55e;
+  color:#022c22;
+  padding:6px 12px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:700;
+  margin-bottom:10px;
+}
+
 .jogo{
   text-align:center;
-  font-size:18px;
-  margin-bottom:12px;
+  font-size:19px;
+  font-weight:800;
   color:#22c55e;
-  font-weight:700;
+  margin:10px 0 14px;
 }
-ul{padding-left:18px;margin:0}
-li{margin-bottom:6px;font-size:14px;color:#d1d5db}
+
+.lista li{
+  font-size:14px;
+  margin-bottom:6px;
+  color:#d1d5db;
+}
+
 .premium{
-  margin-top:14px;
-  padding:12px;
+  margin-top:18px;
+  padding:16px;
+  border-radius:18px;
+  background:linear-gradient(135deg,#022c22,#020617);
   border:1px dashed #22c55e;
-  border-radius:12px;
   text-align:center;
 }
-.premium b{color:#22c55e}
+.premium h3{
+  margin:0 0 8px;
+  color:#22c55e;
+}
+.premium p{
+  font-size:14px;
+  color:#cbd5f5;
+}
+
+.lock{
+  font-size:40px;
+  text-align:center;
+  margin-bottom:10px;
+}
 </style>
 </head>
 
 <body>
 
-<div class="card">
-  <h1>Lotofácil Inteligente</h1>
+<div class="app">
+  <div class="logo">🎯 Lotofácil Inteligente</div>
   <div class="sub">Análise estatística profissional</div>
 
-  <button onclick="gerar()">🎯 Gerar Jogo Gratuito</button>
+  <button onclick="gerar()">Gerar Jogo Gratuito</button>
 
   <div id="saida"></div>
 </div>
 
 <script>
 function gerar(){
+
   if(localStorage.getItem("usado")){
     document.getElementById("saida").innerHTML=`
-      <div class="resultado">
-        <h3>🔒 Teste gratuito encerrado</h3>
-        <p>Ative o <b>Premium</b> para continuar.</p>
+      <div class="box">
+        <div class="lock">🔒</div>
+        <h2 style="text-align:center">Área Premium</h2>
+        <p style="text-align:center;color:#94a3b8">
+          Você já utilizou o teste gratuito.
+        </p>
+
         <div class="premium">
-          ✔ Jogos ilimitados<br>
-          ✔ Análises completas<br>
-          ✔ Jogo do dia
+          <h3>🚀 O que o Premium libera</h3>
+          <p>
+            ✔ Jogos ilimitados<br>
+            ✔ Análises completas<br>
+            ✔ Estatísticas avançadas<br>
+            ✔ Jogo automático do dia<br>
+            ✔ Atualizações constantes
+          </p>
         </div>
-      </div>`;
+
+        <button style="margin-top:14px">
+          🔓 Liberar Acesso Premium
+        </button>
+      </div>
+    `;
     return;
   }
 
@@ -102,21 +166,29 @@ function gerar(){
   jogo.sort((a,b)=>a-b);
 
   document.getElementById("saida").innerHTML=`
-    <div class="resultado">
+    <div class="box">
+      <div class="badge">🔥 Jogo Gerado</div>
       <div class="jogo">${jogo.join(" - ")}</div>
-      <ul>
-        <li>🔥 Dezenas quentes</li>
-        <li>🌡️ Dezenas mornas</li>
-        <li>❄️ Dezenas frias</li>
-        <li>⚖️ Pares e ímpares equilibrados</li>
-        <li>➕ Soma estatística ideal</li>
-        <li>🧱 Distribuição por blocos</li>
+
+      <ul class="lista">
+        <li>🔥 Dezenas quentes com maior incidência</li>
+        <li>🌡️ Dezenas mornas para equilíbrio</li>
+        <li>❄️ Dezenas frias com chance de retorno</li>
+        <li>⚖️ Pares e ímpares balanceados</li>
+        <li>➕ Soma dentro do padrão histórico</li>
+        <li>🧱 Distribuição por blocos otimizada</li>
         <li>🔁 Repetidas estratégicas</li>
       </ul>
+
       <div class="premium">
-        <b>🚀 Premium:</b> jogos ilimitados e análises avançadas
+        <h3>💎 Versão Premium</h3>
+        <p>
+          Gere jogos todos os dias<br>
+          Com análises completas e precisas
+        </p>
       </div>
-    </div>`;
+    </div>
+  `;
 }
 </script>
 
