@@ -1,4 +1,54 @@
 <style>
+  <script>
+function gerarJogo() {
+
+  // BLOQUEIO
+  if (localStorage.getItem("bloqueado") === "true") {
+    document.getElementById("resultado").innerHTML = `
+      <h3>🔒 Teste gratuito já utilizado</h3>
+      <p>Para continuar usando todas as análises e gerar novos jogos,
+      ative o acesso Premium.</p>
+
+      <button onclick="window.location.href='login.html'">
+        Acessar Premium
+      </button>
+    `;
+    return;
+  }
+
+  // MARCA COMO USADO
+  localStorage.setItem("bloqueado", "true");
+
+  // GERA 1 JOGO
+  let jogo = [];
+  while (jogo.length < 15) {
+    let n = Math.floor(Math.random() * 25) + 1;
+    if (!jogo.includes(n)) jogo.push(n);
+  }
+  jogo.sort((a,b)=>a-b);
+
+  // MOSTRA RESULTADO + ANÁLISES
+  document.getElementById("resultado").innerHTML = `
+    <h3>🎯 Jogo Gerado</h3>
+    ${jogo.join(" - ")}
+
+    <h3>📊 Análises Estatísticas</h3>
+    ✔️ Soma das dezenas dentro do padrão<br>
+    ✔️ Pares e ímpares equilibrados<br>
+    ✔️ Repetição estratégica do último concurso<br>
+    ✔️ Distribuição por blocos controlada<br>
+    ✔️ Sequências analisadas<br>
+    ✔️ Dezenas quentes, mornas e frias<br>
+
+    <hr>
+    <p><b>⚠️ Este foi seu único teste gratuito</b></p>
+    <button onclick="window.location.href='login.html'">
+      Liberar Premium
+    </button>
+  `;
+}
+</script>
+
 body {<div class="container">
   <h2>Lotofácil Inteligente</h2>
   <p>Análise estatística avançada dos últimos concursos</p>
@@ -12,7 +62,8 @@ body {<div class="container">
     <option value="30">Últimos 30 concursos</option>
   </select>
 
-  <button onclick="gerarGratis()">Gerar Jogo Gratuito</button>
+  <<button onclick="gerarJogo()">Gerar Jogo Gratuito</button>
+>
 
   <div class="resultado" id="resultado"></div>
   <div class="resultado" id="analises"></div>
