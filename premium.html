@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Área Premium</title>
+</head>
+<body>
+
+<h1>Bem-vindo ao Premium</h1>
+
+<div id="conteudo"></div>
+
+<button onclick="logout()">Sair</button>
+
+<script>
+if (localStorage.getItem("premium") !== "true") {
+  window.location.href = "login.html";
+}
+
+document.getElementById("conteudo").innerHTML = `
+✅ 5 jogos premium<br>
+✅ Análise estatística completa<br>
+✅ Pares e ímpares<br>
+✅ Quentes, mornos e frios<br>
+`;
+
+function logout() {
+  localStorage.removeItem("premium");
+  window.location.href = "index.html";
+}
+</script>
+
+</body>
+</html>
