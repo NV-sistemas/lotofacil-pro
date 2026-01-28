@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Lotofácil Pro Premium</title>
+
+<style>
+body {
+  margin:0;
+  background:linear-gradient(135deg,#020617,#0f172a);
+  color:white;
+  font-family: 'Segoe UI', Arial;
+}
+
+.container {
+  max-width:420px;
+  margin:auto;
+  padding:25px;
+}
+
+.card {
+  background:#020617;
+  border-radius:20px;
+  padding:25px;
+  box-shadow:0 0 25px rgba(0,0,0,.4);
+}
+
+h1 {
+  text-align:center;
+  font-size:26px;
+}
+
+.subtitle {
+  text-align:center;
+  color:#94a3b8;
+  margin-bottom:20px;
+}
+
+label {
+  display:block;
+  margin-top:15px;
+  font-size:14px;
+  color:#cbd5f5;
+}
+
+select, input, button {
+  width:100%;
+  padding:14px;
+  margin-top:8px;
+  border-radius:12px;
+  border:none;
+  font-size:16px;
+}
+
+select, input {
+  background:#020617;
+  color:white;
+  border:1px solid #334155;
+}
+
+button {
+  background:#22c55e;
+  color:#022c22;
+  font-weight:bold;
+  margin-top:20px;
+}
+
+.result {
+  background:#020617;
+  border-radius:15px;
+  padding:20px;
+  margin-top:20px;
+  text-align:center;
+  font-size:18px;
+  white-space:pre-line;
+}
+
+.lock {
+  background:#1e293b;
+  border-radius:15px;
+  padding:20px;
+  margin-top:20px;
+  text-align:center;
+}
+
+.footer {
+  margin-top:20px;
+  font-size:11px;
+  color:#64748b;
+  text-align:center;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <div class="card">
+
+    <h1>Lotofácil Pro</h1>
+    <div class="subtitle">Versão Premium</div>
+
+    <label>Concursos analisados</label>
+    <select id="concursos">
+      <option value="5">Últimos 5</option>
+      <option value="10">Últimos 10</option>
+      <option value="15">Últimos 15</option>
+      <option value="20">Últimos 20</option>
+      <option value="25">Últimos 25</option>
+      <option value="30">Últimos 30</option>
+    </select>
+
+    <button onclick="analisar()">GERAR JOGO</button>
+
+    <div class="result" id="resultado">
+      Você tem 1 jogo grátis
+    </div>
+
+    <div class="lock" id="premiumBox" style="display:none">
+      <p>🔒 Função Premium</p>
+      <input id="codigo" placeholder="Digite o código premium">
+      <button onclick="liberar()">DESBLOQUEAR</button>
+      <p style="font-size:13px;color:#94a3b8">
+        Após pagamento, você recebe o código
+      </p>
+    </div>
+
+    <div class="footer">
+      Sistema estatístico. Não garantimos prêmios.
+    </div>
+
+  </div>
+</div>
+
+<script>
+let usos = localStorage.getItem("usos") || 0;
+let premium = localStorage.getItem("premium") === "true";
+
+function analisar(){
+  if(!premium && usos >= 1){
+    document.getElementById("premiumBox").style.display = "block";
+    return;
+  }
+
+  const qtd = document.getElementById("concursos").value;
+
+  let pool = [];
+  for(let i=0;i<qtd*5;i++){
+    pool.push(Math.floor(Math.random()*25)+1);
+  }
+
+  let freq = {};
+  pool.forEach(n => freq[n] = (freq[n]||0)+1);
+
+  let ordenados = Object.keys(freq)
+    .sort((a,b)=>freq[b]-freq[a])
+    .map(n=>parseInt(n));
+
+  let jogo = [];
+  for(let n of ordenados){
+    if(jogo.length < 15 && !jogo.includes(n)) jogo.push(n);
+  }
+
+  while(jogo.length < 15){
+    let n = Math.floor(Math.random()*25)+1;
+    if(!jogo.includes(n)) jogo.push(n);
+  }
+
+  jogo.sort((a,b)=>a-b);
+
+  document.getElementById("resultado").innerText =
+    "Análise ("+qtd+" concursos)\n\n" + jogo.join(" - ");
+
+  usos++;
+  localStorage.setItem("usos", usos);
+}
+
+function liberar(){
+  const codigo = document.getElementById("codigo").value;
+
+  // 🔑 ALTERE AQUI O CÓDIGO PREMIUM
+  if(codigo === "PREMIUM123"){
+    premium = true;
+    localStorage.setItem("premium", "true");
+    document.getElementById("premiumBox").style.display = "none";
+    alert("Premium liberado!");
+  } else {
+    alert("Código inválido");
+  }
+}
+</script>
+
+</body>
+</html>
