@@ -8,8 +8,7 @@
 <style>
   :root{
     --bg1:#050b1a; --bg2:#0b1636;
-    --card:#07122a; --card2:#0a1b3f;
-    --text:#f8fafc; --muted:#cbd5e1; --muted2:#94a3b8;
+    --card:#07122a; --text:#f8fafc; --muted:#cbd5e1; --muted2:#94a3b8;
 
     --green:#22c55e; --green2:#16a34a;
     --blue:#38bdf8; --blue2:#0ea5e9;
@@ -19,10 +18,10 @@
 
     --stroke: rgba(255,255,255,.10);
     --stroke2: rgba(255,255,255,.16);
-
     --shadow: 0 22px 70px rgba(0,0,0,.45);
     --glowBlue: 0 0 0 1px rgba(56,189,248,.18), 0 12px 40px rgba(56,189,248,.10);
     --glowGreen: 0 0 0 1px rgba(34,197,94,.18), 0 12px 40px rgba(34,197,94,.10);
+    --glowGold: 0 0 0 1px rgba(250,204,21,.22), 0 18px 60px rgba(250,204,21,.18);
   }
 
   *{box-sizing:border-box;font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif}
@@ -39,17 +38,15 @@
   .center{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:18px}
   .wrap{max-width:1180px;margin:0 auto;padding:18px}
 
-  /* ===== Header centralizado ===== */
+  /* Header */
   .header{
-    display:grid;
-    grid-template-columns: 1fr auto 1fr;
-    align-items:center;
-    gap:12px;
+    display:flex;justify-content:center;align-items:center;
     margin-bottom:14px
   }
   .title{font-size:26px;font-weight:1000;margin:0;letter-spacing:.2px;text-align:center}
+
+  /* Chip (status) vai para o rodapé do app */
   .chip{
-    justify-self:end;
     display:inline-flex;align-items:center;gap:8px;padding:10px 12px;border-radius:999px;
     background:rgba(255,255,255,.06);
     border:1px solid var(--stroke);
@@ -59,10 +56,6 @@
     white-space:nowrap;
   }
   .chip .dot{width:7px;height:7px;border-radius:999px;background:rgba(34,197,94,.85);display:inline-block}
-  .chip .btnMini{
-    padding:6px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.14);
-    background:rgba(255,255,255,.05);color:var(--text);font-weight:900;cursor:pointer
-  }
 
   .card{
     background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
@@ -72,6 +65,7 @@
     margin-bottom:14px;
     backdrop-filter: blur(10px);
   }
+
   .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:12px}
   .box{
     background:rgba(255,255,255,.045);
@@ -81,6 +75,7 @@
   .box p{margin:0;color:var(--text);font-size:13px;line-height:1.5}
   .mini{color:var(--muted);font-size:12px;margin-top:8px;line-height:1.45}
   .mini strong{color:var(--text)}
+
   .row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
   .col{flex:1;min-width:240px}
 
@@ -93,7 +88,6 @@
   input::placeholder{color:rgba(203,213,225,.65)}
   select{cursor:pointer}
 
-  /* ===== Botões ===== */
   .btn{
     padding:12px 14px;border:none;border-radius:14px;
     color:#07131a;font-weight:1000;cursor:pointer;
@@ -101,7 +95,7 @@
     box-shadow: 0 18px 45px rgba(0,0,0,.35);
   }
   .btn:hover{filter:brightness(1.05);transform:translateY(-1px)}
-  .btn:active{transform:translateY(0px);filter:brightness(0.98)}
+  .btn:active{transform:translateY(0px);filter:brightness(.98)}
   .btn:disabled{opacity:.55;cursor:not-allowed;transform:none;box-shadow:none}
   .btnPrimary{background:linear-gradient(135deg,var(--green),var(--green2));box-shadow: var(--glowGreen)}
   .btnBlue{background:linear-gradient(135deg,var(--blue),var(--blue2));box-shadow: var(--glowBlue);color:#041018}
@@ -110,20 +104,96 @@
   .btnGhost{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14);color:var(--text);box-shadow:none}
   .btnFull{width:100%}
 
-  .msg{
-    margin-top:12px;padding:12px;border-radius:14px;
-    background:rgba(56,189,248,.10);border:1px solid rgba(56,189,248,.22);
-    color:#e6f8ff;font-size:13px;font-weight:900;display:none;
-  }
-  .msg.err{background:rgba(251,113,133,.12);border:1px solid rgba(251,113,133,.28);color:#ffe7ec}
+  .status{display:none;margin-top:10px;padding:12px;border-radius:14px;background:rgba(56,189,248,.10);
+          border:1px solid rgba(56,189,248,.22);color:#e6f8ff;font-size:13px;font-weight:950;}
+  .bar{height:10px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.08);margin-top:10px}
+  .bar>div{height:100%;width:0%;background:linear-gradient(90deg,var(--blue),var(--green));transition:width .2s ease}
 
-  .pill{display:inline-block;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:950;margin-bottom:8px}
-  .pill.hot{background:rgba(34,197,94,.16);color:#b7ffd2;border:1px solid rgba(34,197,94,.28)}
-  .pill.warm{background:rgba(250,204,21,.14);color:#fff2b0;border:1px solid rgba(250,204,21,.28)}
-  .pill.cold{background:rgba(251,113,133,.14);color:#ffd3da;border:1px solid rgba(251,113,133,.28)}
-  .pill.info{background:rgba(56,189,248,.14);color:#dff6ff;border:1px solid rgba(56,189,248,.28)}
-  .pill.rep{background:rgba(34,197,94,.12);color:#b7ffd2;border:1px solid rgba(34,197,94,.24)}
-  .pill.extra{background:rgba(250,204,21,.14);color:#fff2b0;border:1px solid rgba(250,204,21,.28)}
+  /* Views */
+  .view{display:none}
+  .view.on{display:block}
+  .topNav{
+    display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;
+    margin-bottom:10px;
+  }
+  .topNav .left{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .topNav .right{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+
+  /* Opções */
+  .actionGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-top:12px}
+  .actionCard{
+    text-align:left;border:1px solid rgba(255,255,255,.14);
+    background:rgba(255,255,255,.055);
+    border-radius:20px;padding:18px 18px;
+    cursor:pointer;transition:.15s;
+    position:relative;min-height:126px;
+    box-shadow: 0 18px 55px rgba(0,0,0,.38);
+  }
+  .actionCard:hover{transform:translateY(-2px);background:rgba(255,255,255,.07)}
+  .actionCard:active{transform:translateY(0px)}
+  .actionCard.disabled{opacity:.55;cursor:not-allowed;transform:none;box-shadow:none}
+  .actionTitle{font-weight:1000;font-size:16px;margin:0 0 8px}
+  .actionDesc{margin:0;color:var(--muted);font-size:13px;line-height:1.55}
+
+  .badge{
+    position:absolute;top:14px;right:14px;
+    font-size:11px;font-weight:1000;
+    padding:6px 10px;border-radius:999px;
+    border:1px solid rgba(255,255,255,.14);
+    background:rgba(255,255,255,.06);
+    color:var(--text);
+  }
+  .badge.premium{border-color:rgba(56,189,248,.30);background:rgba(56,189,248,.14);color:#e6f8ff}
+  .badge.free{border-color:rgba(34,197,94,.30);background:rgba(34,197,94,.14);color:#eafff4}
+
+  /* EXTRA mega chamativo */
+  .extraCard{
+    border:1px solid rgba(250,204,21,.30);
+    background: radial-gradient(900px 240px at 30% 20%, rgba(250,204,21,.18), transparent 60%),
+                radial-gradient(900px 240px at 70% 20%, rgba(251,146,60,.18), transparent 60%),
+                rgba(255,255,255,.055);
+    box-shadow: var(--glowGold), 0 22px 70px rgba(0,0,0,.40);
+    transform: translateZ(0);
+  }
+  .extraBadge{
+    position:absolute;top:14px;right:14px;
+    font-size:11px;font-weight:1000;
+    padding:6px 10px;border-radius:999px;
+    border:1px solid rgba(250,204,21,.35);
+    background:rgba(250,204,21,.18);
+    color:#fff2b0;
+  }
+  .extraHeadline{
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+    margin-bottom:6px
+  }
+  .extraHighlight{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:6px 10px;border-radius:999px;
+    border:1px solid rgba(250,204,21,.35);
+    background:rgba(250,204,21,.14);
+    color:#fff2b0;
+    font-weight:1000;font-size:12px;
+  }
+
+  /* Cartão Lotofácil (5x5) */
+  .cartaoWrap{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
+  @media (max-width: 820px){ .cartaoWrap{grid-template-columns:1fr} }
+
+  .cartao{
+    display:grid;grid-template-columns: repeat(5, 44px);
+    gap:8px;justify-content:center;margin:10px 0 0;
+  }
+  .cel{
+    width:44px;height:44px;border-radius:12px;
+    display:flex;align-items:center;justify-content:center;
+    border:1px solid rgba(255,255,255,.14);
+    background:rgba(255,255,255,.05);
+    color:var(--text);font-weight:1000;
+  }
+  .cel.on{background:rgba(34,197,94,.14);border:1px solid rgba(34,197,94,.30);color:#eafff4;box-shadow:0 12px 30px rgba(0,0,0,.25)}
+  .cel.inv{background:rgba(56,189,248,.14);border:1px solid rgba(56,189,248,.30);color:#e6f8ff;box-shadow:0 12px 30px rgba(0,0,0,.25)}
+  .cel.tech{background:rgba(250,204,21,.14);border:1px solid rgba(250,204,21,.30);color:#fff2b0;box-shadow:0 12px 30px rgba(0,0,0,.25)}
 
   .numbers{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0 6px}
   .ball{
@@ -133,29 +203,20 @@
     color:#eafff4;font-weight:1000;letter-spacing:.4px;
     box-shadow:0 14px 34px rgba(0,0,0,.35);
   }
-  .range{text-align:center;color:var(--muted);font-size:13px;font-weight:900;margin:0 0 10px}
+  .hr{height:1px;background:rgba(255,255,255,.10);margin:12px 0;border-radius:999px}
 
-  .chartCard{
+  /* Painel “verificar jogos gerados” */
+  .panelCheck{
     margin-top:12px;
-    background:rgba(255,255,255,.045);
-    border:1px solid rgba(255,255,255,.10);
+    border:1px dashed rgba(56,189,248,.30);
+    background: rgba(56,189,248,.08);
     border-radius:18px;
     padding:14px;
   }
-  .chartTitle{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center}
-  .chartTitle b{font-size:13px}
-  .chartHint{color:var(--muted);font-size:12px;font-weight:950}
-  .chartRow{display:flex;align-items:center;gap:10px;margin:10px 0}
-  .chartLabel{width:90px;color:var(--text);font-weight:950}
-  .chartBarWrap{flex:1;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.12);border-radius:999px;overflow:hidden;height:16px}
-  .chartBar{height:100%;width:0%;background:linear-gradient(90deg,var(--blue),var(--green))}
-  .chartVal{width:56px;text-align:right;color:var(--text);font-weight:950}
+  .panelCheck b{font-size:13px}
+  .btnRow{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
 
-  .status{display:none;margin-top:10px;padding:12px;border-radius:14px;background:rgba(56,189,248,.10);
-          border:1px solid rgba(56,189,248,.22);color:#e6f8ff;font-size:13px;font-weight:950;}
-  .bar{height:10px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.08);margin-top:10px}
-  .bar>div{height:100%;width:0%;background:linear-gradient(90deg,var(--blue),var(--green));transition:width .2s ease}
-
+  /* Modal */
   .modalBack{display:none;position:fixed;inset:0;background:rgba(0,0,0,.62);backdrop-filter: blur(7px);
              align-items:center;justify-content:center;padding:16px;z-index:999}
   .modal{width:100%;max-width:980px;background:linear-gradient(180deg,var(--card),rgba(255,255,255,.03));
@@ -173,84 +234,19 @@
   .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
   .footerNote{text-align:center;color:var(--muted2);font-size:11px;margin-top:10px}
 
-  /* ====== VIEWS ====== */
-  .view{display:none}
-  .view.on{display:block}
-  .topNav{
-    display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;
-    margin-bottom:10px;
+  /* Rodapé do app (chip centralizado) */
+  .appFooter{
+    margin-top:8px;
+    display:flex;justify-content:center;
   }
-  .topNav .left{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-  .topNav .right{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 
-  /* ====== Opções maiores / mais legíveis ====== */
-  .actionGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-top:12px}
-  .actionCard{
-    text-align:left;border:1px solid rgba(255,255,255,.14);
-    background:rgba(255,255,255,.055);
-    border-radius:20px;padding:18px 18px;
-    cursor:pointer;transition:.15s;
-    position:relative;min-height:130px;
-    box-shadow: 0 18px 55px rgba(0,0,0,.38);
+  /* Rodapé da tela 15p (fonte + modo) */
+  .tinyFoot{
+    margin-top:12px;
+    text-align:center;
+    color:rgba(203,213,225,.75);
+    font-size:11px;
   }
-  .actionCard:hover{transform:translateY(-2px);background:rgba(255,255,255,.07)}
-  .actionCard:active{transform:translateY(0px)}
-  .actionCard.disabled{opacity:.55;cursor:not-allowed;transform:none;box-shadow:none}
-  .actionTitle{font-weight:1000;font-size:16px;margin:0 0 8px}
-  .actionDesc{margin:0;color:var(--muted);font-size:13px;line-height:1.55}
-  .badge{
-    position:absolute;top:14px;right:14px;
-    font-size:11px;font-weight:1000;
-    padding:6px 10px;border-radius:999px;
-    border:1px solid rgba(255,255,255,.14);
-    background:rgba(255,255,255,.06);
-    color:var(--text);
-  }
-  .badge.premium{border-color:rgba(56,189,248,.30);background:rgba(56,189,248,.14);color:#e6f8ff}
-  .badge.extra{border-color:rgba(250,204,21,.30);background:rgba(250,204,21,.14);color:#fff2b0}
-  .badge.free{border-color:rgba(34,197,94,.30);background:rgba(34,197,94,.14);color:#eafff4}
-
-  /* ====== Cartão Lotofácil ====== */
-  .cartaoWrap{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
-  @media (max-width: 820px){ .cartaoWrap{grid-template-columns:1fr} }
-  .cartao{
-    display:grid;grid-template-columns: repeat(5, 44px);
-    gap:8px;justify-content:center;margin:10px 0 0;
-  }
-  .cel{
-    width:44px;height:44px;border-radius:12px;
-    display:flex;align-items:center;justify-content:center;
-    border:1px solid rgba(255,255,255,.14);
-    background:rgba(255,255,255,.05);
-    color:var(--text);font-weight:1000;
-  }
-  .cel.on{background:rgba(34,197,94,.14);border:1px solid rgba(34,197,94,.30);color:#eafff4;box-shadow:0 12px 30px rgba(0,0,0,.25)}
-  .cel.inv{background:rgba(56,189,248,.14);border:1px solid rgba(56,189,248,.30);color:#e6f8ff;box-shadow:0 12px 30px rgba(0,0,0,.25)}
-  .cel.tech{background:rgba(250,204,21,.14);border:1px solid rgba(250,204,21,.30);color:#fff2b0;box-shadow:0 12px 30px rgba(0,0,0,.25)}
-
-  .hr{height:1px;background:rgba(255,255,255,.10);margin:12px 0;border-radius:999px}
-
-  /* ===== Jogos (salvar / conferir) ===== */
-  .gameList{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-top:12px}
-  .gameCard{border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);border-radius:18px;padding:14px}
-  .gameCard b{font-size:13px}
-  .scoreTag{
-    display:inline-flex;align-items:center;gap:8px;
-    padding:7px 10px;border-radius:999px;
-    background:rgba(255,255,255,.06);
-    border:1px solid rgba(255,255,255,.14);
-    color:var(--text);
-    font-weight:1000;font-size:12px;
-  }
-  .hitTag{
-    display:inline-flex;align-items:center;gap:8px;
-    padding:7px 10px;border-radius:999px;
-    background:rgba(34,197,94,.14);
-    border:1px solid rgba(34,197,94,.28);
-    color:#eafff4;
-    font-weight:1000;font-size:12px;
-  }
-  .btnRow{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
 </style>
 </head>
 
@@ -272,9 +268,6 @@ const MASTER_PASS  = "prime123";
 
 const FREE_LIMIT_KEY = "lf_free_used_v1";
 const ADDON15_KEY = "lf_addon15";
-
-/* “Pasta” de jogos salvos (localStorage) */
-const SAVED_GAMES_KEY = "lf_saved_games_v1";
 </script>
 
 <!-- LOGIN -->
@@ -300,25 +293,17 @@ const SAVED_GAMES_KEY = "lf_saved_games_v1";
 
     <button id="btnEntrar" class="btn btnPrimary btnFull" type="button">Entrar</button>
 
-    <div id="msgOk" class="msg"></div>
-    <div id="msgErr" class="msg err"></div>
+    <div id="msgOk" class="status" style="display:none"></div>
+    <div id="msgErr" class="status" style="display:none;background:rgba(251,113,133,.12);border:1px solid rgba(251,113,133,.28);color:#ffe7ec"></div>
 
-    <div class="footerNote">
-      Dica: use o login master para testar Premium + 15P e ver a tela completa.
-    </div>
+    <div class="footerNote">Dica: use o login master para testar Premium + 15P.</div>
   </div>
 </div>
 
 <!-- APP -->
 <div class="wrap" id="app" style="display:none">
   <div class="header">
-    <div></div>
     <div class="title">🎯 <span id="appName2"></span></div>
-    <div class="chip" id="chipUser">
-      <span class="dot"></span>
-      <span id="chipText">👤</span>
-      <button class="btnMini" type="button" onclick="goView('viewSaved'); renderSavedGames()">Meus jogos</button>
-    </div>
   </div>
 
   <!-- PREMIUM GATE -->
@@ -337,9 +322,6 @@ const SAVED_GAMES_KEY = "lf_saved_games_v1";
         <button class="btn btnGhost" id="btnSair" type="button">Sair</button>
       </div>
     </div>
-    <div class="mini" style="margin-top:10px">
-      ✅ Após pagar, volte aqui e clique em <b>Já comprei</b> para ativar.
-    </div>
   </div>
 
   <!-- EXTRA 15P UPSELL -->
@@ -348,11 +330,10 @@ const SAVED_GAMES_KEY = "lf_saved_games_v1";
       <div>
         <div style="font-weight:1000;font-size:16px">✨ Recurso Extra: 15 pontos garantido</div>
         <div class="mini">
-          Esse recurso é um <b>EXTRA comprado separadamente</b>. Ele abre uma tela própria com análise de <b>5 linhas</b> (5 dezenas em cada) e geração dos <b>10 jogos</b>.
+          Esse recurso é um <b>EXTRA comprado separadamente</b> e abre uma tela própria.
         </div>
       </div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-        <span class="pill extra" style="margin:0">EXTRA</span>
         <button class="btn btnDanger" id="btnComprar15p" type="button">Comprar 15 pontos</button>
         <button class="btn btnGhost" id="btnAtivar15p" type="button">Já comprei</button>
       </div>
@@ -362,7 +343,7 @@ const SAVED_GAMES_KEY = "lf_saved_games_v1";
   <!-- ===== TELAS ===== -->
   <div class="view on" id="viewHome">
     <div class="card">
-      <!-- Quantidade acima das opções -->
+      <!-- Quantidade acima -->
       <div class="row">
         <div class="col" style="min-width:320px">
           <label>Quantidade de concursos para análise</label>
@@ -397,25 +378,28 @@ const SAVED_GAMES_KEY = "lf_saved_games_v1";
 
       <div class="hr"></div>
 
-      <!-- Opções maiores -->
+      <!-- ORDEM: FREE -> PREMIUM -> EXTRA -->
       <label>Opções</label>
-      <div class="actionGrid">
-        <div class="actionCard" id="btnHomeAnalise" role="button" tabindex="0">
-          <span class="badge premium">PREMIUM</span>
-          <p class="actionTitle">📈 Gerar análise</p>
-          <p class="actionDesc">Gera toda a análise do período selecionado (sem jogo).</p>
-        </div>
 
+      <div class="actionGrid">
+        <!-- FREE -->
         <div class="actionCard" id="btnHomePrincipal" role="button" tabindex="0">
           <span class="badge free">FREE 1x</span>
           <p class="actionTitle">🎯 Jogo principal</p>
           <p class="actionDesc">Gera 15 dezenas + resumo. Depois você cria Invertida e Técnica a partir dele.</p>
         </div>
 
+        <!-- PREMIUM -->
+        <div class="actionCard" id="btnHomeAnalise" role="button" tabindex="0">
+          <span class="badge premium">PREMIUM</span>
+          <p class="actionTitle">📈 Gerar análise</p>
+          <p class="actionDesc">Gera toda a análise do período selecionado (sem jogo).</p>
+        </div>
+
         <div class="actionCard" id="btnHomeInvertida" role="button" tabindex="0">
           <span class="badge premium">PREMIUM</span>
           <p class="actionTitle">🔄 Gerar invertida</p>
-          <p class="actionDesc">Usa o Jogo Principal e inverte A↔E, B↔D, C fixo (com cartão 5×5).</p>
+          <p class="actionDesc">Usa o Jogo Principal e inverte por blocos no cartão 5×5.</p>
         </div>
 
         <div class="actionCard" id="btnHomeTecnica" role="button" tabindex="0">
@@ -424,9 +408,13 @@ const SAVED_GAMES_KEY = "lf_saved_games_v1";
           <p class="actionDesc">Gera 2 jogos extras a partir do Principal (reordenação por blocos).</p>
         </div>
 
-        <div class="actionCard" id="btnHome15p" role="button" tabindex="0">
-          <span class="badge extra">EXTRA</span>
-          <p class="actionTitle">✅ 15 pontos garantido <span class="mini" style="display:inline;margin:0;color:var(--muted)">(com somente 10 jogos)</span></p>
+        <!-- EXTRA (diferenciado) -->
+        <div class="actionCard extraCard" id="btnHome15p" role="button" tabindex="0">
+          <span class="extraBadge">EXTRA</span>
+          <div class="extraHeadline">
+            <p class="actionTitle" style="margin:0">✅ 15 pontos garantido</p>
+            <span class="extraHighlight">COM SOMENTE 10 JOGOS</span>
+          </div>
           <p class="actionDesc">Tela separada: 5 linhas (5 dezenas cada) + análise detalhada e 10 jogos automáticos.</p>
         </div>
       </div>
@@ -435,6 +423,14 @@ const SAVED_GAMES_KEY = "lf_saved_games_v1";
     <div class="card" id="resultadoHome">
       <div class="footerNote">Selecione a janela e escolha uma opção acima.</div>
     </div>
+
+    <!-- Chip centralizado no FINAL da página (melhor no celular) -->
+    <div class="appFooter">
+      <div class="chip" id="chipUser">
+        <span class="dot"></span>
+        <span id="chipText">—</span>
+      </div>
+    </div>
   </div>
 
   <!-- TELA: ANÁLISE -->
@@ -442,7 +438,6 @@ const SAVED_GAMES_KEY = "lf_saved_games_v1";
     <div class="topNav">
       <div class="left">
         <button class="btn btnGhost" type="button" onclick="goView('viewHome')">⬅ Voltar</button>
-        <span class="pill info" style="margin:0">📈 Análise completa</span>
       </div>
       <div class="right">
         <button class="btn btnGhost" type="button" onclick="verConcursos()">📅 Ver concursos</button>
@@ -459,11 +454,11 @@ const SAVED_GAMES_KEY = "lf_saved_games_v1";
     <div class="topNav">
       <div class="left">
         <button class="btn btnGhost" type="button" onclick="goView('viewHome')">⬅ Voltar</button>
-        <span class="pill info" style="margin:0">🎯 Jogo Principal</span>
       </div>
       <div class="right">
-        <button class="btn btnBlue" type="button" onclick="goView('viewInvertida'); gerarInvertida()">🔄 Gerar Invertida</button>
-        <button class="btn btnPurple" type="button" onclick="goView('viewTecnica'); gerarTecnicaPremiada()">🏆 Gerar Técnica</button>
+        <button class="btn btnBlue" type="button" onclick="goView('viewInvertida'); gerarInvertida()">🔄 Invertida</button>
+        <button class="btn btnPurple" type="button" onclick="goView('viewTecnica'); gerarTecnicaPremiada()">🏆 Técnica</button>
+        <button class="btn btnGhost" id="btnVerificarGeradosFromPrincipal" type="button" style="display:none" onclick="goView('viewCheck')">✅ Verificar jogos gerados</button>
       </div>
     </div>
 
@@ -477,10 +472,9 @@ const SAVED_GAMES_KEY = "lf_saved_games_v1";
     <div class="topNav">
       <div class="left">
         <button class="btn btnGhost" type="button" onclick="goView('viewPrincipal')">⬅ Voltar</button>
-        <span class="pill info" style="margin:0">🔄 Jogo Invertido (A↔E, B↔D, C fixo)</span>
       </div>
       <div class="right">
-        <button class="btn btnBlue" type="button" onclick="gerarInvertida()">Atualizar invertida</button>
+        <button class="btn btnPurple" type="button" onclick="goView('viewTecnica'); gerarTecnicaPremiada()">🏆 Ir para Técnica</button>
       </div>
     </div>
 
@@ -494,10 +488,9 @@ const SAVED_GAMES_KEY = "lf_saved_games_v1";
     <div class="topNav">
       <div class="left">
         <button class="btn btnGhost" type="button" onclick="goView('viewPrincipal')">⬅ Voltar</button>
-        <span class="pill info" style="margin:0">🏆 Técnica Premiada (2 jogos extras)</span>
       </div>
       <div class="right">
-        <button class="btn btnPurple" type="button" onclick="gerarTecnicaPremiada()">Atualizar técnica</button>
+        <button class="btn btnBlue" type="button" onclick="goView('viewInvertida'); gerarInvertida()">🔄 Ir para Invertida</button>
       </div>
     </div>
 
@@ -506,12 +499,27 @@ const SAVED_GAMES_KEY = "lf_saved_games_v1";
     </div>
   </div>
 
+  <!-- TELA: CHECK (verificar jogos gerados com base no principal) -->
+  <div class="view" id="viewCheck">
+    <div class="topNav">
+      <div class="left">
+        <button class="btn btnGhost" type="button" onclick="goView('viewPrincipal')">⬅ Voltar</button>
+      </div>
+      <div class="right">
+        <button class="btn btnGhost" type="button" onclick="conferirGerados()">Conferir com último concurso</button>
+      </div>
+    </div>
+
+    <div class="card" id="checkArea">
+      <div class="footerNote">Gere Principal + Invertida + Técnica para liberar esta tela.</div>
+    </div>
+  </div>
+
   <!-- TELA: 15 PONTOS -->
   <div class="view" id="view15p">
     <div class="topNav">
       <div class="left">
         <button class="btn btnGhost" type="button" onclick="goView('viewHome')">⬅ Voltar</button>
-        <span class="pill extra" style="margin:0">✅ 15 pontos garantido (com somente 10 jogos)</span>
       </div>
       <div class="right">
         <button class="btn btnPrimary" type="button" onclick="gerar15P()">Gerar análise 15P</button>
@@ -520,41 +528,6 @@ const SAVED_GAMES_KEY = "lf_saved_games_v1";
 
     <div class="card" id="p15Area">
       <div class="footerNote">Clique em “Gerar análise 15P”. Essa tela exige o EXTRA ativado (ou login master).</div>
-    </div>
-  </div>
-
-  <!-- TELA: MEUS JOGOS SALVOS -->
-  <div class="view" id="viewSaved">
-    <div class="topNav">
-      <div class="left">
-        <button class="btn btnGhost" type="button" onclick="goView('viewHome')">⬅ Voltar</button>
-        <span class="pill info" style="margin:0">📂 Meus jogos salvos</span>
-      </div>
-      <div class="right">
-        <button class="btn btnGhost" type="button" onclick="renderSavedGames()">🔄 Atualizar</button>
-        <button class="btn btnDanger" type="button" onclick="clearSavedGames()">Apagar tudo</button>
-      </div>
-    </div>
-
-    <div class="card">
-      <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap">
-        <div class="col" style="min-width:280px">
-          <label>Conferir com qual concurso?</label>
-          <input id="checkConcursoInput" placeholder="Opcional: digite um número de concurso (ex: 3200)" />
-          <div class="mini">Se deixar vazio, o sistema confere automaticamente com o <b>último concurso disponível</b>.</div>
-        </div>
-        <div class="col" style="min-width:240px">
-          <button class="btn btnBlue btnFull" type="button" onclick="checkAllSaved()">Conferir todos agora</button>
-          <div class="mini" style="margin-top:10px">
-            Ao conferir, o app busca o resultado online (ou demo) e mostra quantos números cada jogo acertou.
-          </div>
-        </div>
-      </div>
-
-      <div class="hr"></div>
-      <div id="savedArea">
-        <div class="footerNote">Você ainda não salvou nenhum jogo.</div>
-      </div>
     </div>
   </div>
 
@@ -627,8 +600,18 @@ const SAVED_GAMES_KEY = "lf_saved_games_v1";
 document.getElementById("appName1").textContent = APP_NAME;
 document.getElementById("appName2").textContent = APP_NAME;
 
-function showOk(t){ const a=document.getElementById("msgOk"); a.style.display="block"; a.textContent=t; document.getElementById("msgErr").style.display="none"; }
-function showErr(t){ const a=document.getElementById("msgErr"); a.style.display="block"; a.textContent=t; document.getElementById("msgOk").style.display="none"; }
+function showOk(t){
+  const a=document.getElementById("msgOk");
+  a.style.display="block";
+  a.textContent=t;
+  document.getElementById("msgErr").style.display="none";
+}
+function showErr(t){
+  const a=document.getElementById("msgErr");
+  a.style.display="block";
+  a.textContent=t;
+  document.getElementById("msgOk").style.display="none";
+}
 
 function setStatus(on, text){
   const st=document.getElementById("status");
@@ -686,7 +669,7 @@ function isMaster(){
 function updateChip(){
   const s=getSession();
   const addon = hasAddon15() || isMaster();
-  const base = (s.premium ? "Premium" : "Free") + " • " + (s.email || "visitante");
+  const base = (s.premium ? "👑 Premium" : "👤 Free") + " • " + (s.email || "visitante");
   document.getElementById("chipText").textContent = addon ? (base + " • ✅ 15P") : base;
 }
 
@@ -718,7 +701,6 @@ function aplicarAcessos(){
     goView("viewTecnica"); gerarTecnicaPremiada();
   }, "🔒 Técnica premiada exige Premium.");
 
-  // Principal (free 1x)
   if(!s.premium && isFreeUsed()){
     btnPrincipal.classList.add("disabled");
     btnPrincipal.onclick = ()=>alert("🔒 Você já usou a geração grátis. Para liberar, ative o Premium.");
@@ -727,7 +709,6 @@ function aplicarAcessos(){
     btnPrincipal.onclick = ()=>acaoPrincipal();
   }
 
-  // 15P extra
   if(!addon){
     btn15.classList.add("disabled");
     btn15.onclick = ()=>alert("🔒 O recurso '15 pontos garantido' é um EXTRA comprado separadamente.");
@@ -792,7 +773,6 @@ function ativarAddon15(){
   aplicarAcessos();
 }
 
-/* Auto abrir modais */
 (function(){
   const p = new URLSearchParams(location.search);
   if(p.get("hotmart")==="ok"){
@@ -842,16 +822,6 @@ function contarSequencias(jogo){
     prev=n;
   }
   return { temSequencia: maxLen>=2, maxLen };
-}
-function finaisMaisFreq(concursos){
-  const fin={}; for(let i=0;i<=9;i++) fin[i]=0;
-  concursos.forEach(c=>{
-    c.dezenas.forEach(d=>{
-      const n=toNum(d);
-      fin[n%10]+=1;
-    });
-  });
-  return fin;
 }
 function distribuicaoBlocos(jogo){
   const b={A:0,B:0,C:0,D:0,E:0};
@@ -929,48 +899,28 @@ function renderTop10(freq, totalConcursos){
   const bars = ord.map(x=>{
     const pct = Math.round((x.f/max)*100);
     return `
-      <div class="chartRow">
-        <div class="chartLabel">Dezena ${format2(x.dez)}</div>
-        <div class="chartBarWrap"><div class="chartBar" style="width:${pct}%"></div></div>
-        <div class="chartVal">${x.f}x</div>
+      <div style="display:flex;align-items:center;gap:10px;margin:10px 0">
+        <div style="width:90px;color:var(--text);font-weight:950">Dezena ${format2(x.dez)}</div>
+        <div style="flex:1;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.12);border-radius:999px;overflow:hidden;height:16px">
+          <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--blue),var(--green))"></div>
+        </div>
+        <div style="width:56px;text-align:right;color:var(--text);font-weight:950">${x.f}x</div>
       </div>
     `;
   }).join("");
+
   return `
-    <div class="chartCard">
-      <div class="chartTitle">
+    <div class="box" style="margin-top:12px">
+      <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center">
         <b>📊 Top 10 dezenas mais frequentes</b>
-        <span class="chartHint">Base: ${totalConcursos} concursos</span>
+        <span class="mini" style="margin:0">Base: <b>${totalConcursos}</b> concursos</span>
       </div>
       <div class="mini">Barras maiores = dezenas que mais apareceram no período analisado.</div>
       <div style="margin-top:10px">${bars}</div>
     </div>
   `;
 }
-function renderFinaisChart(fin){
-  const arr = Object.entries(fin).map(([k,v])=>({k:Number(k), v})).sort((a,b)=>b.v-a.v);
-  const max = arr[0]?.v || 1;
-  const rows = arr.map(x=>{
-    const pct = Math.round((x.v/max)*100);
-    return `
-      <div class="chartRow">
-        <div class="chartLabel">Final ${x.k}</div>
-        <div class="chartBarWrap"><div class="chartBar" style="width:${pct}%"></div></div>
-        <div class="chartVal">${x.v}x</div>
-      </div>
-    `;
-  }).join("");
-  return `
-    <div class="chartCard">
-      <div class="chartTitle">
-        <b>🏁 Finais mais frequentes (0–9)</b>
-        <span class="chartHint">Base: período</span>
-      </div>
-      <div class="mini">Ajuda a compor dezenas com finais mais fortes no histórico recente.</div>
-      <div style="margin-top:10px">${rows}</div>
-    </div>
-  `;
-}
+
 function renderListaConcursos(concursos){
   const rows = concursos.map(c=>{
     const dezenas = (c.dezenas||[]).map(d=>format2(toNum(d))).join(" - ");
@@ -988,15 +938,18 @@ function renderListaConcursos(concursos){
     </table>
   `;
 }
+
 function abrirGraficoBlocos(blocos){
   const max = Math.max(blocos.A,blocos.B,blocos.C,blocos.D,blocos.E,1);
   function row(label, val){
     const pct = Math.round((val/max)*100);
     return `
-      <div class="chartRow">
-        <div class="chartLabel">${label}</div>
-        <div class="chartBarWrap"><div class="chartBar" style="width:${pct}%"></div></div>
-        <div class="chartVal">${val}</div>
+      <div style="display:flex;align-items:center;gap:10px;margin:10px 0">
+        <div style="width:90px;color:var(--text);font-weight:950">${label}</div>
+        <div style="flex:1;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.12);border-radius:999px;overflow:hidden;height:16px">
+          <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--blue),var(--green))"></div>
+        </div>
+        <div style="width:56px;text-align:right;color:var(--text);font-weight:950">${val}</div>
       </div>`;
   }
   document.getElementById("graficoBlocosArea").innerHTML =
@@ -1012,7 +965,7 @@ function abrirGraficoBlocos(blocos){
 
 <script>
 /* =========================
-   DADOS ONLINE / DEMO
+   DADOS ONLINE / DEMO + BUSCA DE RESULTADO
 ========================= */
 const SOURCES = [
   {
@@ -1034,6 +987,7 @@ async function tryFetchJson(url){
   if(!r.ok) throw new Error("HTTP "+r.status);
   return await r.json();
 }
+
 async function getOnlineConcursos(qtd){
   let lastErr=null;
   for(const src of SOURCES){
@@ -1057,6 +1011,7 @@ async function getOnlineConcursos(qtd){
   }
   throw lastErr || new Error("Falha online");
 }
+
 function buildDemo(qtd){
   const ultimo = 3600;
   const inicio = ultimo - qtd + 1;
@@ -1070,217 +1025,39 @@ function buildDemo(qtd){
   return { mode:"demo", source:"Demonstração (offline)", latest, concursos, inicio, ultimo };
 }
 
-async function fetchResultadoPorConcurso(concursoNum){
+async function fetchUltimoResultado(){
   let lastErr=null;
   for(const src of SOURCES){
     try{
-      if(!concursoNum){
-        const latestRaw = await tryFetchJson(src.latest);
-        return { ...src.adapt(latestRaw), source: src.name };
-      }
-      const raw = await tryFetchJson(src.byId(concursoNum));
-      return { ...src.adapt(raw), source: src.name };
+      const latestRaw = await tryFetchJson(src.latest);
+      const latest = src.adapt(latestRaw);
+      return { ...latest, source: src.name, mode: "online" };
     }catch(e){
       lastErr=e;
     }
   }
-  // fallback demo
-  if(!concursoNum){
-    const demo = buildDemo(1);
-    const latest = demo.latest;
-    return { concurso: latest.concurso, data: latest.data, dezenas: latest.dezenas, source:"DEMO" };
-  }
-  throw lastErr || new Error("Falha ao buscar concurso");
+  const demo = buildDemo(1);
+  return { ...demo.latest, source:"DEMO", mode:"demo" };
 }
+</script>
 
+<script>
 /* =========================
    Estado global
 ========================= */
 let lastPayload=null;
 let lastCtx=null;
+
 let lastPrincipalGame=null;
 let lastPrincipalMeta=null;
+
 let lastInvertidaGame=null;
 let lastTecnicaGames=null;
 </script>
 
 <script>
 /* =========================
-   “PASTA” DE JOGOS (localStorage)
-========================= */
-function uuid(){
-  return "id_" + Math.random().toString(16).slice(2) + "_" + Date.now().toString(16);
-}
-function getSavedGames(){
-  try{ return JSON.parse(localStorage.getItem(SAVED_GAMES_KEY) || "[]"); }
-  catch{ return []; }
-}
-function setSavedGames(arr){
-  localStorage.setItem(SAVED_GAMES_KEY, JSON.stringify(arr || []));
-}
-function isSameGame(aNums, bNums){
-  const a = sortNum(aNums.map(Number)).join("-");
-  const b = sortNum(bNums.map(Number)).join("-");
-  return a===b;
-}
-function saveGame(kind, nums, meta){
-  const saved = getSavedGames();
-  // evitar duplicar o mesmo jogo (mesma dezena)
-  if(saved.some(g=>isSameGame(g.nums, nums))) return { ok:false, msg:"Este jogo já está salvo." };
-
-  const item = {
-    id: uuid(),
-    createdAt: new Date().toISOString(),
-    email: (getSession().email || ""),
-    kind,
-    nums: sortNum(nums.map(Number)),
-    meta: meta || null,
-    lastCheck: null
-  };
-  saved.unshift(item);
-  setSavedGames(saved);
-  return { ok:true, msg:"Jogo salvo ✅" };
-}
-function removeSaved(id){
-  const saved = getSavedGames().filter(g=>g.id!==id);
-  setSavedGames(saved);
-}
-function clearSavedGames(){
-  if(!confirm("Apagar todos os jogos salvos?")) return;
-  setSavedGames([]);
-  renderSavedGames();
-}
-function hitsAgainst(gameNums, resultNums){
-  const setR = new Set(resultNums.map(toNum));
-  const hits = sortNum(gameNums.filter(n=>setR.has(Number(n))).map(Number));
-  return { count: hits.length, hits };
-}
-
-function renderGameCardForSave(title, nums, meta){
-  const saved = getSavedGames();
-  const already = saved.some(g=>isSameGame(g.nums, nums));
-  const balls = nums.map(n=>`<div class="ball">${format2(n)}</div>`).join("");
-  return `
-    <div class="gameCard">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
-        <b>${title}</b>
-        <span class="scoreTag">${already ? "✅ Salvo" : "💾 Não salvo"}</span>
-      </div>
-      <div class="numbers" style="justify-content:flex-start">${balls}</div>
-      <div class="btnRow">
-        <button class="btn btnPrimary" type="button" ${already ? "disabled":""}
-          onclick="(function(){
-            const res = saveGame('${title.replace(/'/g,"\\'")}', ${JSON.stringify(nums)}, ${JSON.stringify(meta || null)});
-            alert(res.msg);
-            renderApostasPanelIfReady();
-            renderSavedGames();
-          })()">
-          Salvar jogo
-        </button>
-        <button class="btn btnGhost" type="button"
-          onclick="goView('viewSaved'); renderSavedGames();">
-          Ver na pasta
-        </button>
-      </div>
-      <div class="mini">Salvar é opcional. Se salvar, o app consegue conferir automaticamente com concursos futuros.</div>
-    </div>
-  `;
-}
-
-async function checkAllSaved(){
-  const manual = (document.getElementById("checkConcursoInput").value || "").trim();
-  const concursoNum = manual ? Number(manual) : null;
-
-  let result;
-  try{
-    result = await fetchResultadoPorConcurso(concursoNum);
-  }catch(e){
-    alert("Falha ao buscar resultado: " + String(e?.message||e));
-    return;
-  }
-
-  const saved = getSavedGames();
-  if(!saved.length){ renderSavedGames(); return; }
-
-  const rNums = (result.dezenas||[]).map(toNum);
-  const now = new Date().toISOString();
-  const updated = saved.map(g=>{
-    const h = hitsAgainst(g.nums, rNums);
-    return {
-      ...g,
-      lastCheck: {
-        at: now,
-        concurso: result.concurso,
-        data: result.data || "",
-        source: result.source || "",
-        hits: h.count,
-        hitsNums: h.hits
-      }
-    };
-  });
-
-  setSavedGames(updated);
-  renderSavedGames(result);
-}
-
-function renderSavedGames(lastResult){
-  const saved = getSavedGames();
-  const area = document.getElementById("savedArea");
-  if(!saved.length){
-    area.innerHTML = `<div class="footerNote">Você ainda não salvou nenhum jogo.</div>`;
-    return;
-  }
-
-  const header = lastResult ? `
-    <div class="box">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
-        <div class="pill info" style="margin:0">📌 Resultado usado na conferência</div>
-        <span class="scoreTag">Fonte: <b>${lastResult.source || "—"}</b></span>
-      </div>
-      <div class="mini" style="margin-top:8px">
-        Concurso <b>${lastResult.concurso}</b> • Data: <b>${lastResult.data || "—"}</b> • Dezenas: <span class="mono">${(lastResult.dezenas||[]).map(d=>format2(toNum(d))).join(" - ")}</span>
-      </div>
-    </div>
-  ` : "";
-
-  const cards = saved.map(g=>{
-    const balls = g.nums.map(n=>`<div class="ball">${format2(n)}</div>`).join("");
-    const check = g.lastCheck;
-    const hitUI = check ? `
-      <div class="mini" style="margin-top:8px">
-        Conferido em: <b>${new Date(check.at).toLocaleString()}</b> • Concurso: <b>${check.concurso}</b>
-      </div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;align-items:center">
-        <span class="hitTag">✅ Acertos: <b>${check.hits}</b></span>
-        <span class="scoreTag">Acertou: <b>${(check.hitsNums||[]).map(format2).join(", ") || "—"}</b></span>
-      </div>
-    ` : `<div class="mini" style="margin-top:8px">Ainda não conferido. Clique em “Conferir todos agora”.</div>`;
-
-    return `
-      <div class="gameCard">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
-          <b>${g.kind}</b>
-          <span class="scoreTag">${new Date(g.createdAt).toLocaleString()}</span>
-        </div>
-        <div class="numbers" style="justify-content:flex-start">${balls}</div>
-        ${hitUI}
-        <div class="btnRow">
-          <button class="btn btnGhost" type="button" onclick="removeSaved('${g.id}'); renderSavedGames()">Remover</button>
-        </div>
-      </div>
-    `;
-  }).join("");
-
-  area.innerHTML = `
-    ${header}
-    <div class="gameList" style="margin-top:12px">${cards}</div>
-  `;
-}
-</script>
-
-<script>
-/* =========================
-   Fluxo: preparar contexto
+   Base: preparar contexto
 ========================= */
 function qtdSelecionada(){ return Number(document.getElementById("qtdConcursos").value); }
 
@@ -1301,16 +1078,14 @@ async function prepararContextoBase(qtd){
   setProgress(62);
 
   const freq = calcularFrequencias(payload.concursos);
-  const fin = finaisMaisFreq(payload.concursos);
-  const finaisRank = Object.entries(fin).sort((a,b)=>b[1]-a[1]).map(x=>Number(x[0]));
 
   lastPayload = payload;
-  lastCtx = { freq, fin, finaisRank };
+  lastCtx = { freq };
 
   setStatus(false,"");
   setProgress(0);
 
-  return { payload, freq, fin, finaisRank };
+  return { payload, freq };
 }
 
 function verConcursos(){
@@ -1322,7 +1097,7 @@ function verConcursos(){
 
 <script>
 /* =========================
-   AÇÃO: ANÁLISE
+   AÇÃO: ANÁLISE (sem finais 0–9)
 ========================= */
 async function acaoAnalise(){
   const s=getSession();
@@ -1332,15 +1107,14 @@ async function acaoAnalise(){
   try{
     await prepararContextoBase(qtd);
     const payload = lastPayload;
-    const {freq, fin} = lastCtx;
+    const {freq} = lastCtx;
 
     document.getElementById("analiseArea").innerHTML = `
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
         <div>
           <div style="font-weight:1000;font-size:16px">📈 Análise do período selecionado</div>
           <div class="mini">
-            Janela: <b>${payload.inicio}</b> a <b>${payload.ultimo}</b> (${payload.concursos.length} concursos) •
-            Fonte: <b>${payload.source}</b> • Modo: <b>${payload.mode.toUpperCase()}</b>
+            Janela: <b>${payload.inicio}</b> a <b>${payload.ultimo}</b> (${payload.concursos.length} concursos)
           </div>
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
@@ -1349,15 +1123,14 @@ async function acaoAnalise(){
       </div>
 
       ${renderTop10(freq, payload.concursos.length)}
-      ${renderFinaisChart(fin)}
     `;
     goView("viewAnalise");
   }catch(e){
     setStatus(false,""); setProgress(0);
     document.getElementById("analiseArea").innerHTML = `
       <div class="box">
-        <div class="pill info">⚠️ Erro</div>
-        <p>${String(e?.message || e)}</p>
+        <b>⚠️ Erro</b>
+        <div class="mini" style="margin-top:8px">${String(e?.message || e)}</div>
       </div>
     `;
     goView("viewAnalise");
@@ -1379,7 +1152,7 @@ async function acaoPrincipal(){
   try{
     await prepararContextoBase(qtd);
     const payload = lastPayload;
-    const {freq, fin} = lastCtx;
+    const {freq} = lastCtx;
 
     setStatus(true,"Gerando jogo principal (15 dezenas)…");
     setProgress(80);
@@ -1396,7 +1169,7 @@ async function acaoPrincipal(){
     const blocos = distribuicaoBlocos(jogo);
     const reps = repetidasDoUltimo(jogo, payload.latest.dezenas);
 
-    lastPrincipalMeta = { cls, pi, soma, seq, blocos, reps, payloadRef: payload };
+    lastPrincipalMeta = { cls, pi, soma, seq, blocos, reps };
 
     setStatus(false,""); setProgress(0);
 
@@ -1426,10 +1199,7 @@ async function acaoPrincipal(){
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
         <div>
           <div style="font-weight:1000;font-size:16px">🎯 Jogo Principal gerado (15 dezenas)</div>
-          <div class="mini">
-            Janela: <b>${payload.inicio}</b> a <b>${payload.ultimo}</b> (${payload.concursos.length} concursos) •
-            Fonte: <b>${payload.source}</b> • Modo: <b>${payload.mode.toUpperCase()}</b>
-          </div>
+          <div class="mini">Janela: <b>${payload.inicio}</b> a <b>${payload.ultimo}</b> (${payload.concursos.length} concursos)</div>
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
           <button class="btn btnGhost" type="button" onclick="verConcursos()">📅 Ver concursos</button>
@@ -1439,73 +1209,58 @@ async function acaoPrincipal(){
 
       <div class="numbers">${balls}</div>
 
-      <div class="btnRow">
-        <button class="btn btnPrimary" type="button"
-          onclick="(function(){
-            const m = {base:'Principal', janela:{inicio:lastPayload.inicio, ultimo:lastPayload.ultimo, qtd:lastPayload.concursos.length}, fonte:lastPayload.source};
-            const res = saveGame('Jogo Principal', lastPrincipalGame, m);
-            alert(res.msg);
-            renderSavedGames();
-          })()">
-          Salvar este jogo
-        </button>
-        <button class="btn btnGhost" type="button" onclick="goView('viewSaved'); renderSavedGames()">Ir para meus jogos</button>
-      </div>
-
-      <div class="chartCard">
-        <div class="chartTitle">
-          <b>🧾 Resumo</b>
-          <span class="chartHint">compacto</span>
-        </div>
-
-        <div class="grid">
+      <div class="box" style="margin-top:12px">
+        <b>🧾 Resumo</b>
+        <div class="grid" style="margin-top:12px">
           <div class="box">
-            <div class="pill rep">🔁 Repetidas do último</div>
-            <p><b>${reps.length ? reps.map(format2).join(", ") : "Nenhuma"}</b></p>
+            <b>🔁 Repetidas do último</b>
+            <div class="mini" style="margin-top:8px"><b>${reps.length ? reps.map(format2).join(", ") : "Nenhuma"}</b></div>
             <div class="mini">${resumoRep}</div>
           </div>
           <div class="box">
-            <div class="pill info">⚖️ Pares x Ímpares</div>
-            <p><b>${pi.pares}</b> pares • <b>${pi.impares}</b> ímpares</p>
+            <b>⚖️ Pares x Ímpares</b>
+            <div class="mini" style="margin-top:8px"><b>${pi.pares}</b> pares • <b>${pi.impares}</b> ímpares</div>
             <div class="mini">${resumoPares}</div>
           </div>
           <div class="box">
-            <div class="pill info">➕ Soma</div>
-            <p><b>${soma}</b></p>
+            <b>➕ Soma</b>
+            <div class="mini" style="margin-top:8px"><b>${soma}</b></div>
             <div class="mini">${resumoSoma}</div>
           </div>
           <div class="box">
-            <div class="pill info">🧩 Blocos A–E</div>
-            <p>
-              A: <b>${blocos.A}</b> • B: <b>${blocos.B}</b> • C: <b>${blocos.C}</b> • D: <b>${blocos.D}</b> • E: <b>${blocos.E}</b>
-            </p>
+            <b>🧩 Blocos A–E</b>
+            <div class="mini" style="margin-top:8px">A: <b>${blocos.A}</b> • B: <b>${blocos.B}</b> • C: <b>${blocos.C}</b> • D: <b>${blocos.D}</b> • E: <b>${blocos.E}</b></div>
             <div class="mini">${resumoBlocos}</div>
           </div>
           <div class="box">
-            <div class="pill info">🔗 Sequências</div>
-            <p><b>${seq.temSequencia ? "Sim" : "Não"}</b> • Máx: <b>${seq.maxLen}</b></p>
+            <b>🔗 Sequências</b>
+            <div class="mini" style="margin-top:8px"><b>${seq.temSequencia ? "Sim" : "Não"}</b> • Máx: <b>${seq.maxLen}</b></div>
             <div class="mini">${resumoSeq}</div>
           </div>
         </div>
       </div>
 
       ${renderTop10(freq, payload.concursos.length)}
-      ${renderFinaisChart(fin)}
 
-      <div class="hr"></div>
-      <div id="apostasPanel">
-        <div class="footerNote">Para aparecer aqui os <b>4 jogos prontos</b>, gere também a <b>Invertida</b> e a <b>Técnica</b>.</div>
+      <div class="panelCheck" id="panelGerados">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+          <b>✅ Verificar jogos gerados (base: Jogo Principal)</b>
+          <button class="btn btnGhost" type="button" id="btnVerificarGeradosInline" style="display:none" onclick="goView('viewCheck')">Abrir verificação</button>
+        </div>
+        <div class="mini" style="margin-top:8px">
+          Gere também a <b>Invertida</b> e a <b>Técnica</b> para liberar a verificação automática de acertos.
+        </div>
       </div>
     `;
 
     goView("viewPrincipal");
-    renderApostasPanelIfReady();
+    updateCheckButtons();
   }catch(e){
     setStatus(false,""); setProgress(0);
     document.getElementById("principalArea").innerHTML = `
       <div class="box">
-        <div class="pill info">⚠️ Erro</div>
-        <p>${String(e?.message || e)}</p>
+        <b>⚠️ Erro</b>
+        <div class="mini" style="margin-top:8px">${String(e?.message || e)}</div>
       </div>
     `;
     goView("viewPrincipal");
@@ -1515,7 +1270,7 @@ async function acaoPrincipal(){
 
 <script>
 /* =========================
-   INVERTIDA + TÉCNICA
+   INVERTIDA + TÉCNICA (sem regra exibida)
 ========================= */
 function blocoIndex(n){ return Math.floor((n-1)/5)+1; }
 function offsetNoBloco(n){ return ((n-1)%5)+1; }
@@ -1551,41 +1306,21 @@ function gerarInvertida(){
   lastInvertidaGame = inv.slice();
 
   document.getElementById("invertidaArea").innerHTML = `
-    <div class="box">
-      <div class="pill info">Regra</div>
-      <div class="mini">
-        A(01–05)→E(21–25), B(06–10)→D(16–20), C(11–15) fixo, D→B, E→A.
-        Ex: 02→22, 04→24, 05→25, 07→17, 10→20, 12→12.
-      </div>
-    </div>
-
     <div class="cartaoWrap">
       <div class="box">
-        <div class="pill info">🎯 Principal</div>
+        <b>🎯 Principal</b>
         <div class="numbers" style="justify-content:flex-start">${lastPrincipalGame.map(n=>`<div class="ball">${format2(n)}</div>`).join("")}</div>
         ${renderCartao(lastPrincipalGame, "on")}
       </div>
 
       <div class="box">
-        <div class="pill info">🔄 Invertida</div>
+        <b>🔄 Invertida</b>
         <div class="numbers" style="justify-content:flex-start">${inv.map(n=>`<div class="ball">${format2(n)}</div>`).join("")}</div>
         ${renderCartao(inv, "inv")}
-        <div class="btnRow">
-          <button class="btn btnPrimary" type="button"
-            onclick="(function(){
-              const m = {base:'Invertida', janela:{inicio:lastPayload?.inicio, ultimo:lastPayload?.ultimo, qtd:lastPayload?.concursos?.length}, fonte:lastPayload?.source};
-              const res = saveGame('Jogo Invertida', lastInvertidaGame, m);
-              alert(res.msg);
-              renderSavedGames();
-            })()">
-            Salvar invertida
-          </button>
-        </div>
       </div>
     </div>
   `;
-
-  renderApostasPanelIfReady();
+  updateCheckButtons();
 }
 
 function gerarTecnicaPremiada(){
@@ -1601,91 +1336,145 @@ function gerarTecnicaPremiada(){
   lastTecnicaGames = { g1, g2 };
 
   document.getElementById("tecnicaArea").innerHTML = `
-    <div class="box">
-      <div class="pill info">Como funciona</div>
-      <div class="mini">
-        A técnica reordena os blocos (A–E) mantendo a posição dentro do bloco.
-        Isso cria 2 variações consistentes do jogo principal.
-      </div>
-    </div>
-
     <div class="grid">
       <div class="box">
-        <div class="pill info">🏆 Técnica 1 — [3,4,5,1,2]</div>
-        <div class="numbers" style="justify-content:flex-start">${g1.map(n=>`<div class="ball">${format2(n)}</div>`).join("")}</div>
+        <b>🏆 Jogo 1</b>
+        <div class="numbers" style="justify-content:flex-start;margin-top:10px">${g1.map(n=>`<div class="ball">${format2(n)}</div>`).join("")}</div>
         ${renderCartao(g1, "tech")}
-        <div class="btnRow">
-          <button class="btn btnPrimary" type="button"
-            onclick="(function(){
-              const m = {base:'Técnica 1', janela:{inicio:lastPayload?.inicio, ultimo:lastPayload?.ultimo, qtd:lastPayload?.concursos?.length}, fonte:lastPayload?.source};
-              const res = saveGame('Técnica 1', lastTecnicaGames.g1, m);
-              alert(res.msg);
-              renderSavedGames();
-            })()">
-            Salvar técnica 1
-          </button>
-        </div>
       </div>
 
       <div class="box">
-        <div class="pill info">🏆 Técnica 2 — [3,1,5,2,4]</div>
-        <div class="numbers" style="justify-content:flex-start">${g2.map(n=>`<div class="ball">${format2(n)}</div>`).join("")}</div>
+        <b>🏆 Jogo 2</b>
+        <div class="numbers" style="justify-content:flex-start;margin-top:10px">${g2.map(n=>`<div class="ball">${format2(n)}</div>`).join("")}</div>
         ${renderCartao(g2, "tech")}
-        <div class="btnRow">
-          <button class="btn btnPrimary" type="button"
-            onclick="(function(){
-              const m = {base:'Técnica 2', janela:{inicio:lastPayload?.inicio, ultimo:lastPayload?.ultimo, qtd:lastPayload?.concursos?.length}, fonte:lastPayload?.source};
-              const res = saveGame('Técnica 2', lastTecnicaGames.g2, m);
-              alert(res.msg);
-              renderSavedGames();
-            })()">
-            Salvar técnica 2
-          </button>
-        </div>
       </div>
     </div>
   `;
-
-  renderApostasPanelIfReady();
+  updateCheckButtons();
 }
 
-/* painel de 4 jogos (quando o usuário gerou Principal + Invertida + Técnica) */
-function renderApostasPanelIfReady(){
-  const panel = document.getElementById("apostasPanel");
-  if(!panel) return;
+/* mostra botões de verificação quando tiver Principal + Invertida + Técnica */
+function updateCheckButtons(){
+  const ready = !!(lastPrincipalGame && lastInvertidaGame && lastTecnicaGames?.g1 && lastTecnicaGames?.g2);
 
-  if(lastPrincipalGame && lastInvertidaGame && lastTecnicaGames?.g1 && lastTecnicaGames?.g2){
-    const metaBase = { janela:{inicio:lastPayload?.inicio, ultimo:lastPayload?.ultimo, qtd:lastPayload?.concursos?.length}, fonte:lastPayload?.source };
-    panel.innerHTML = `
-      <div class="chartCard">
-        <div class="chartTitle">
-          <b>✅ Seus 4 jogos prontos para apostar</b>
-          <span class="chartHint">salvar é opcional</span>
-        </div>
-        <div class="mini">
-          Aqui estão as 4 apostas (Principal, Invertida, Técnica 1 e Técnica 2). Você pode salvar cada uma para conferir automaticamente quando saírem os concursos.
-        </div>
-        <div class="gameList" style="margin-top:12px">
-          ${renderGameCardForSave("Jogo Principal", lastPrincipalGame, {...metaBase, base:"Principal"})}
-          ${renderGameCardForSave("Jogo Invertida", lastInvertidaGame, {...metaBase, base:"Invertida"})}
-          ${renderGameCardForSave("Técnica 1", lastTecnicaGames.g1, {...metaBase, base:"Técnica 1"})}
-          ${renderGameCardForSave("Técnica 2", lastTecnicaGames.g2, {...metaBase, base:"Técnica 2"})}
-        </div>
-      </div>
-    `;
-  }else{
-    panel.innerHTML = `<div class="footerNote">Para aparecer aqui os <b>4 jogos prontos</b>, gere também a <b>Invertida</b> e a <b>Técnica</b>.</div>`;
+  const btnTop = document.getElementById("btnVerificarGeradosFromPrincipal");
+  const btnInline = document.getElementById("btnVerificarGeradosInline");
+
+  if(btnTop) btnTop.style.display = ready ? "inline-flex" : "none";
+  if(btnInline) btnInline.style.display = ready ? "inline-flex" : "none";
+
+  const panel = document.getElementById("panelGerados");
+  if(panel){
+    panel.querySelector(".mini").innerHTML = ready
+      ? `Pronto ✅ Agora você pode conferir automaticamente os <b>4 jogos gerados</b> (Principal, Invertida, Técnica 1 e Técnica 2) com base no resultado do concurso.`
+      : `Gere também a <b>Invertida</b> e a <b>Técnica</b> para liberar a verificação automática de acertos.`;
   }
+
+  if(ready){
+    montarTelaCheck();
+  }
+}
+
+async function conferirGerados(){
+  if(!(lastPrincipalGame && lastInvertidaGame && lastTecnicaGames?.g1 && lastTecnicaGames?.g2)){
+    alert("Gere Principal + Invertida + Técnica primeiro.");
+    return;
+  }
+
+  let res;
+  try{
+    res = await fetchUltimoResultado();
+  }catch(e){
+    alert("Falha ao buscar o último resultado.");
+    return;
+  }
+  const resultNums = (res.dezenas||[]).map(toNum);
+
+  function hits(gameNums){
+    const setR=new Set(resultNums);
+    const h = sortNum(gameNums.filter(n=>setR.has(Number(n))).map(Number));
+    return {count:h.length, hits:h};
+  }
+
+  const hP = hits(lastPrincipalGame);
+  const hI = hits(lastInvertidaGame);
+  const hT1 = hits(lastTecnicaGames.g1);
+  const hT2 = hits(lastTecnicaGames.g2);
+
+  document.getElementById("checkArea").innerHTML = `
+    <div class="box">
+      <b>📌 Resultado usado para conferência</b>
+      <div class="mini" style="margin-top:8px">
+        Concurso <b>${res.concurso}</b> • Data: <b>${res.data || "—"}</b> • Dezenas:
+        <span class="mono">${resultNums.map(format2).join(" - ")}</span>
+      </div>
+    </div>
+
+    <div class="grid" style="margin-top:12px">
+      <div class="box">
+        <b>🎯 Principal • Acertos: ${hP.count}</b>
+        <div class="mini" style="margin-top:8px">Acertou: <b>${hP.hits.map(format2).join(", ") || "—"}</b></div>
+        <div class="numbers" style="justify-content:flex-start;margin-top:10px">${lastPrincipalGame.map(n=>`<div class="ball">${format2(n)}</div>`).join("")}</div>
+      </div>
+
+      <div class="box">
+        <b>🔄 Invertida • Acertos: ${hI.count}</b>
+        <div class="mini" style="margin-top:8px">Acertou: <b>${hI.hits.map(format2).join(", ") || "—"}</b></div>
+        <div class="numbers" style="justify-content:flex-start;margin-top:10px">${lastInvertidaGame.map(n=>`<div class="ball">${format2(n)}</div>`).join("")}</div>
+      </div>
+
+      <div class="box">
+        <b>🏆 Técnica 1 • Acertos: ${hT1.count}</b>
+        <div class="mini" style="margin-top:8px">Acertou: <b>${hT1.hits.map(format2).join(", ") || "—"}</b></div>
+        <div class="numbers" style="justify-content:flex-start;margin-top:10px">${lastTecnicaGames.g1.map(n=>`<div class="ball">${format2(n)}</div>`).join("")}</div>
+      </div>
+
+      <div class="box">
+        <b>🏆 Técnica 2 • Acertos: ${hT2.count}</b>
+        <div class="mini" style="margin-top:8px">Acertou: <b>${hT2.hits.map(format2).join(", ") || "—"}</b></div>
+        <div class="numbers" style="justify-content:flex-start;margin-top:10px">${lastTecnicaGames.g2.map(n=>`<div class="ball">${format2(n)}</div>`).join("")}</div>
+      </div>
+    </div>
+
+    <div class="tinyFoot">Fonte: ${res.source || "—"} • Modo: ${String(res.mode||"—").toUpperCase()}</div>
+  `;
+}
+
+function montarTelaCheck(){
+  document.getElementById("checkArea").innerHTML = `
+    <div class="box">
+      <b>✅ Seus 4 jogos gerados (base: Jogo Principal)</b>
+      <div class="mini" style="margin-top:8px">
+        Clique em <b>“Conferir com último concurso”</b> para ver quantos números cada jogo acertou.
+      </div>
+    </div>
+
+    <div class="grid" style="margin-top:12px">
+      <div class="box">
+        <b>🎯 Principal</b>
+        <div class="numbers" style="justify-content:flex-start;margin-top:10px">${lastPrincipalGame.map(n=>`<div class="ball">${format2(n)}</div>`).join("")}</div>
+      </div>
+      <div class="box">
+        <b>🔄 Invertida</b>
+        <div class="numbers" style="justify-content:flex-start;margin-top:10px">${lastInvertidaGame.map(n=>`<div class="ball">${format2(n)}</div>`).join("")}</div>
+      </div>
+      <div class="box">
+        <b>🏆 Técnica 1</b>
+        <div class="numbers" style="justify-content:flex-start;margin-top:10px">${lastTecnicaGames.g1.map(n=>`<div class="ball">${format2(n)}</div>`).join("")}</div>
+      </div>
+      <div class="box">
+        <b>🏆 Técnica 2</b>
+        <div class="numbers" style="justify-content:flex-start;margin-top:10px">${lastTecnicaGames.g2.map(n=>`<div class="ball">${format2(n)}</div>`).join("")}</div>
+      </div>
+    </div>
+  `;
 }
 </script>
 
 <script>
 /* =========================
-   15 Pontos Garantido (mantém modelo forte + salvamento)
-   (Para manter a resposta enxuta: a lógica 15P detalhada continua como antes e já vem com botões de salvar por jogo)
+   15P (ajustes de texto: sem lista de combinações / nomes simples / fonte no rodapé)
 ========================= */
-
-/* ---- matriz coocorrência ---- */
 function calcCoocAndStats(concursos){
   const n = concursos.length;
   const freq = Array(26).fill(0);
@@ -1875,7 +1664,7 @@ function explainLine(lineIdx, line, stats, kind){
   const pairs = (kind==="forte") ? topPairsInGroup(line, stats, 3) : worstPairsInGroup(line, stats, 3);
   const pairsTxt = pairs.map(p=>{
     const sign = (kind==="forte") ? "↑" : "↓";
-    return `<span class="scoreTag">${sign} ${format2(p.a)}-${format2(p.b)} • juntos: <b>${p.co}</b>x • lift: <b>${p.lift.toFixed(2)}</b></span>`;
+    return `<span class="chip" style="padding:7px 10px;font-size:12px">${sign} ${format2(p.a)}-${format2(p.b)} • juntos: <b>${p.co}</b>x • lift: <b>${p.lift.toFixed(2)}</b></span>`;
   }).join(" ");
 
   const resumo = (kind==="forte")
@@ -1885,14 +1674,12 @@ function explainLine(lineIdx, line, stats, kind){
   return `
     <div class="box">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
-        <div class="pill ${kind==="forte" ? "info" : "warm"}" style="margin:0">
-          ${kind==="forte" ? "🔥 Linha " + lineIdx + " (FORTE – saem juntas)" : "🧊 Linha " + lineIdx + " (DIVERSA – menos juntas)"}
-        </div>
+        <b>${kind==="forte" ? "🔥 Linha " + lineIdx + " (FORTE)" : "🧊 Linha " + lineIdx + " (DIVERSA)"}</b>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <span class="scoreTag">Força: <b>${gs.sum.toFixed(1)}</b></span>
-          <span class="scoreTag">Média co: <b>${co.avg.toFixed(2)}</b></span>
-          <span class="scoreTag">Média lift: <b>${lf.avg.toFixed(2)}</b></span>
-          <span class="scoreTag">Soma freq: <b>${fs}</b></span>
+          <span class="chip" style="padding:7px 10px;font-size:12px">Força: <b>${gs.sum.toFixed(1)}</b></span>
+          <span class="chip" style="padding:7px 10px;font-size:12px">Lift médio: <b>${lf.avg.toFixed(2)}</b></span>
+          <span class="chip" style="padding:7px 10px;font-size:12px">Co médio: <b>${co.avg.toFixed(2)}</b></span>
+          <span class="chip" style="padding:7px 10px;font-size:12px">Soma freq: <b>${fs}</b></span>
         </div>
       </div>
 
@@ -1900,7 +1687,7 @@ function explainLine(lineIdx, line, stats, kind){
       <div class="mini"><b>Por que se juntaram:</b> ${resumo}</div>
 
       <div class="mini" style="margin-top:10px">
-        <b>${kind==="forte" ? "Pares mais fortes" : "Pares mais fracos (diversificação)"}:</b>
+        <b>${kind==="forte" ? "Pares mais fortes" : "Pares mais fracos"}:</b>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">${pairsTxt}</div>
       </div>
     </div>
@@ -1925,6 +1712,7 @@ async function gerar15P(){
     lines = optimizeLines(lines, stats);
 
     const jogos = gerarJogos15P(lines);
+    const sourceInfo = { source: payload.source, mode: payload.mode };
 
     setStatus(false,"");
     setProgress(0);
@@ -1940,27 +1728,10 @@ async function gerar15P(){
     }));
 
     const jogosHtml = jogos.map((j, idx)=>{
-      const comb = combos3de5()[idx];
-      const title = `15P Jogo ${idx+1} (linhas ${comb.join("+")})`;
       return `
-        <div class="gameCard">
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
-            <b>${title}</b>
-            <span class="scoreTag">C(5,3)</span>
-          </div>
+        <div class="box">
+          <b>Jogo ${idx+1}</b>
           <div class="numbers" style="justify-content:flex-start;margin-top:10px">${renderBallsInline(j)}</div>
-          <div class="btnRow">
-            <button class="btn btnPrimary" type="button"
-              onclick="(function(){
-                const meta = {base:'15P', linhas: ${JSON.stringify(comb)}, janela:{inicio:lastPayload?.inicio, ultimo:lastPayload?.ultimo, qtd:lastPayload?.concursos?.length}, fonte:lastPayload?.source};
-                const res = saveGame('${title.replace(/'/g,"\\'")}', ${JSON.stringify(j)}, meta);
-                alert(res.msg);
-                renderSavedGames();
-              })()">
-              Salvar jogo
-            </button>
-            <button class="btn btnGhost" type="button" onclick="goView('viewSaved'); renderSavedGames()">Ver na pasta</button>
-          </div>
         </div>
       `;
     }).join("");
@@ -1968,24 +1739,18 @@ async function gerar15P(){
     document.getElementById("p15Area").innerHTML = `
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
         <div>
-          <div style="font-weight:1000;font-size:16px">✅ 15 Pontos Garantido (com somente 10 jogos)</div>
-          <div class="mini">
-            Janela: <b>${payload.inicio}</b> a <b>${payload.ultimo}</b> (${payload.concursos.length} concursos) •
-            Fonte: <b>${payload.source}</b> • Modo: <b>${payload.mode.toUpperCase()}</b>
-          </div>
-        </div>
-        <div class="mini">
-          Você pode <b>salvar</b> qualquer jogo para o app conferir automaticamente depois.
+          <div style="font-weight:1000;font-size:16px">✅ 15 Pontos Garantido • 10 jogos</div>
+          <div class="mini">Janela: <b>${payload.inicio}</b> a <b>${payload.ultimo}</b> (${payload.concursos.length} concursos)</div>
         </div>
       </div>
 
       <div class="box" style="margin-top:12px">
-        <div class="pill extra" style="margin:0">📌 Linhas 1 a 5 (5 dezenas por linha)</div>
+        <b>📌 Linhas 1 a 5 (5 dezenas por linha)</b>
         <div style="margin-top:12px;overflow:auto">
           <table class="table">
             <thead>
               <tr>
-                <th>Linha</th><th>Tipo</th><th>Dezenas</th><th>Força</th><th>Média co</th><th>Média lift</th><th>Soma freq</th>
+                <th>Linha</th><th>Tipo</th><th>Dezenas</th><th>Força</th><th>Co médio</th><th>Lift médio</th><th>Soma freq</th>
               </tr>
             </thead>
             <tbody>
@@ -2005,8 +1770,8 @@ async function gerar15P(){
         </div>
       </div>
 
-      <div class="chartCard">
-        <div class="chartTitle"><b>🔍 Explicação detalhada das linhas</b><span class="chartHint">por que se juntaram</span></div>
+      <div class="box" style="margin-top:12px">
+        <b>🔍 Explicação detalhada das linhas</b>
         <div class="grid" style="margin-top:12px">
           ${explainLine(1, lines[0], stats, "forte")}
           ${explainLine(2, lines[1], stats, "forte")}
@@ -2016,23 +1781,21 @@ async function gerar15P(){
         </div>
       </div>
 
-      <div class="hr"></div>
-
-      <div class="box">
-        <div class="pill info" style="margin:0">🧾 Os 10 jogos (combinações 3 de 5)</div>
-        <div class="mini" style="margin-top:8px">
-          Combinações: 1+2+3, 1+2+4, 1+2+5, 1+3+4, 1+3+5, 1+4+5, 2+3+4, 2+3+5, 2+4+5, 3+4+5.
-        </div>
-        <div class="gameList" style="margin-top:12px">${jogosHtml}</div>
+      <div class="box" style="margin-top:12px">
+        <b>🎯 Seus 10 jogos</b>
+        <div class="grid" style="margin-top:12px">${jogosHtml}</div>
       </div>
+
+      <div class="tinyFoot">Fonte: ${sourceInfo.source || "—"} • Modo: ${String(sourceInfo.mode||"—").toUpperCase()}</div>
     `;
+
     goView("view15p");
   }catch(e){
     setStatus(false,""); setProgress(0);
     document.getElementById("p15Area").innerHTML = `
       <div class="box">
-        <div class="pill info">⚠️ Erro</div>
-        <p>${String(e?.message || e)}</p>
+        <b>⚠️ Erro</b>
+        <div class="mini" style="margin-top:8px">${String(e?.message || e)}</div>
       </div>
     `;
     goView("view15p");
@@ -2052,20 +1815,9 @@ document.getElementById("btnSair").addEventListener("click", sair);
 document.getElementById("btnComprar15p").addEventListener("click", comprar15p);
 document.getElementById("btnAtivar15p").addEventListener("click", abrirAtivar15p);
 
-document.getElementById("btnHomeAnalise").addEventListener("click", ()=>{});
-document.getElementById("btnHomePrincipal").addEventListener("click", ()=>{});
-document.getElementById("btnHomeInvertida").addEventListener("click", ()=>{});
-document.getElementById("btnHomeTecnica").addEventListener("click", ()=>{});
-document.getElementById("btnHome15p").addEventListener("click", ()=>{});
-
-document.getElementById("modalBack").addEventListener("click", (e)=>{ if(e.target.id==="modalBack") fecharModal(); });
-document.getElementById("modalBlocosBack").addEventListener("click", (e)=>{ if(e.target.id==="modalBlocosBack") fecharGraficoBlocos(); });
-document.getElementById("modalAtivar15pBack").addEventListener("click", (e)=>{ if(e.target.id==="modalAtivar15pBack") fecharAtivar15p(); });
-
-/* binds reais (cards) */
+/* binds principais */
 document.getElementById("btnHomeAnalise").onclick = acaoAnalise;
 document.getElementById("btnHomePrincipal").onclick = acaoPrincipal;
-// invertida / técnica / 15p são controlados por aplicarAcessos()
 
 document.addEventListener("DOMContentLoaded", ()=>{
   const s=getSession();
