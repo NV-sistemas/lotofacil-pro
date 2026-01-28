@@ -7,183 +7,209 @@
 
 <style>
   :root{
-    --bg1:#020617; --bg2:#0f172a;
+    --bg1:#020617; --bg2:#0b1227;
     --card:#071023; --card2:#061028;
     --text:#e5e7eb; --muted:#94a3b8;
     --green:#22c55e; --green2:#16a34a;
     --yellow:#facc15; --blue:#38bdf8; --red:#fb7185;
+    --stroke: rgba(255,255,255,.08);
+    --stroke2: rgba(255,255,255,.12);
   }
-  *{box-sizing:border-box;font-family:Arial,Helvetica,sans-serif}
-  body{margin:0;color:var(--text);background:linear-gradient(135deg,var(--bg1),var(--bg2));min-height:100vh}
+  *{box-sizing:border-box;font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif}
+  body{margin:0;color:var(--text);background:radial-gradient(800px 600px at 10% 10%, rgba(56,189,248,.12), transparent 50%),
+                                    radial-gradient(800px 600px at 90% 10%, rgba(34,197,94,.12), transparent 50%),
+                                    linear-gradient(135deg,var(--bg1),var(--bg2));
+       min-height:100vh}
 
+  /* Layout */
   .center{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:18px}
-  .login{
-    width:100%;max-width:440px;
-    background:linear-gradient(180deg,var(--card),rgba(255,255,255,.02));
-    border:1px solid rgba(255,255,255,.06);
-    border-radius:18px;padding:22px;
-    box-shadow:0 30px 80px rgba(0,0,0,.55);
-  }
-  .brand{text-align:center;font-weight:900;letter-spacing:.5px;font-size:18px}
-  .brand small{display:block;color:var(--muted);font-weight:600;margin-top:6px}
-
-  input, select{
-    width:100%;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,.10);
-    background:#020617;color:var(--text);outline:none;margin-top:12px;
-  }
-
-  button{
-    width:100%;margin-top:12px;padding:13px 14px;border:none;border-radius:12px;
-    background:linear-gradient(135deg,var(--green),var(--green2));
-    color:#022c22;font-weight:900;cursor:pointer;transition:.15s;
-  }
-  button:hover{filter:brightness(1.05);transform:translateY(-1px)}
-  button.secondary{background:transparent;border:1px solid rgba(255,255,255,.12);color:var(--text)}
-  button.danger{background:linear-gradient(135deg,#fb7185,#ef4444);color:#2b0b0b}
-  button:disabled{opacity:.55;cursor:not-allowed;transform:none}
-
-  .msg{
-    margin-top:12px;
-    padding:12px;border-radius:14px;
-    background:rgba(56,189,248,.08);
-    border:1px solid rgba(56,189,248,.18);
-    color:#cdefff;font-size:13px;font-weight:700;
-    display:none;
-  }
-  .msg.err{
-    background:rgba(251,113,133,.10);
-    border:1px solid rgba(251,113,133,.25);
-    color:#ffd3da;
-  }
-
-  #app{display:none;max-width:1100px;margin:0 auto;padding:18px}
+  .wrap{max-width:1180px;margin:0 auto;padding:18px}
   .header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
-  .title{font-size:20px;font-weight:900;margin:0}
-  .subtitle{margin:6px 0 0;color:var(--muted);font-size:13px;font-weight:600}
+  .title{font-size:22px;font-weight:950;margin:0;letter-spacing:.2px}
+  .subtitle{margin:6px 0 0;color:var(--muted);font-size:13px;font-weight:650}
   .chip{
     display:inline-flex;align-items:center;gap:8px;padding:10px 12px;border-radius:999px;
-    background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07);
-    color:var(--muted);font-size:12px;font-weight:700;
+    background:rgba(255,255,255,.05);border:1px solid var(--stroke);
+    color:var(--muted);font-size:12px;font-weight:750;
   }
 
   .card{
-    background:linear-gradient(180deg,var(--card2),rgba(255,255,255,.02));
-    border:1px solid rgba(255,255,255,.06);
+    background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
+    border:1px solid var(--stroke);
     border-radius:18px;padding:16px;
     box-shadow:0 18px 50px rgba(0,0,0,.35);
     margin-bottom:14px;
   }
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:12px}
+  .box{
+    background:rgba(255,255,255,.03);
+    border:1px solid var(--stroke);
+    border-radius:16px;padding:12px;
+  }
+  .box p{margin:0;color:var(--text);font-size:13px;line-height:1.45}
+  .mini{color:var(--muted);font-size:12px;margin-top:8px;line-height:1.4}
+
   .row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
-  label{display:block;font-size:12px;color:var(--muted);font-weight:800;margin-bottom:6px}
   .col{flex:1;min-width:240px}
 
-  .status{
-    display:none;margin-top:10px;padding:12px;border-radius:14px;
-    background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.18);
-    color:#cdefff;font-size:13px;font-weight:700;
+  label{display:block;font-size:12px;color:var(--muted);font-weight:850;margin-bottom:6px}
+  input, select{
+    width:100%;padding:12px;border-radius:12px;border:1px solid var(--stroke2);
+    background:#020617;color:var(--text);outline:none;
   }
-  .bar{height:10px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.06);margin-top:10px}
-  .bar>div{height:100%;width:0%;background:linear-gradient(90deg,var(--blue),var(--green));transition:width .2s ease}
 
-  .numbers{text-align:center;color:var(--green);font-weight:900;letter-spacing:1px;font-size:18px;margin:10px 0 4px}
-  .range{text-align:center;color:var(--muted);font-size:13px;font-weight:700;margin:0 0 10px}
+  button{
+    padding:12px 14px;border:none;border-radius:14px;
+    background:linear-gradient(135deg,var(--green),var(--green2));
+    color:#052e1b;font-weight:950;cursor:pointer;transition:.15s;
+  }
+  button:hover{filter:brightness(1.05);transform:translateY(-1px)}
+  button.secondary{background:transparent;border:1px solid var(--stroke2);color:var(--text)}
+  button.danger{background:linear-gradient(135deg,#fb7185,#ef4444);color:#2b0b0b}
+  button:disabled{opacity:.55;cursor:not-allowed;transform:none}
+  .btnFull{width:100%}
 
-  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:10px}
-  .box{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:12px}
-  .box p{margin:0;color:var(--text);font-size:13px;line-height:1.45}
-  .pill{display:inline-block;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:900;margin-bottom:8px}
+  .msg{
+    margin-top:12px;padding:12px;border-radius:14px;
+    background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.18);
+    color:#cdefff;font-size:13px;font-weight:750;display:none;
+  }
+  .msg.err{background:rgba(251,113,133,.10);border:1px solid rgba(251,113,133,.25);color:#ffd3da}
+
+  /* Pills */
+  .pill{display:inline-block;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:950;margin-bottom:8px}
   .pill.hot{background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.25)}
   .pill.warm{background:rgba(250,204,21,.12);color:var(--yellow);border:1px solid rgba(250,204,21,.25)}
   .pill.cold{background:rgba(251,113,133,.12);color:var(--red);border:1px solid rgba(251,113,133,.25)}
   .pill.info{background:rgba(56,189,248,.10);color:var(--blue);border:1px solid rgba(56,189,248,.22)}
   .pill.rep{background:rgba(34,197,94,.10);color:#7CFFB0;border:1px solid rgba(34,197,94,.20)}
-  .mini{color:var(--muted);font-size:12px;margin-top:8px;line-height:1.4}
-  .footerNote{text-align:center;color:var(--muted);font-size:11px;margin-top:10px}
 
-  .actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:10px}
-  .actions button{width:auto;min-width:240px}
+  /* Result numbers */
+  .numbers{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0 6px}
+  .ball{
+    width:44px;height:44px;border-radius:999px;display:flex;align-items:center;justify-content:center;
+    background:rgba(34,197,94,.10);border:1px solid rgba(34,197,94,.20);
+    color:#b7ffd2;font-weight:950;letter-spacing:.4px;
+    box-shadow:0 12px 30px rgba(0,0,0,.35);
+  }
+  .range{text-align:center;color:var(--muted);font-size:13px;font-weight:750;margin:0 0 10px}
 
+  /* Charts */
   .chartCard{
     margin-top:12px;
     background:rgba(255,255,255,.03);
-    border:1px solid rgba(255,255,255,.08);
+    border:1px solid var(--stroke);
     border-radius:16px;
     padding:14px;
   }
   .chartTitle{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center}
   .chartTitle b{font-size:13px}
-  .chartHint{color:var(--muted);font-size:12px;font-weight:800}
+  .chartHint{color:var(--muted);font-size:12px;font-weight:850}
   .chartRow{display:flex;align-items:center;gap:10px;margin:10px 0}
-  .chartLabel{width:70px;color:var(--text);font-weight:900}
+  .chartLabel{width:70px;color:var(--text);font-weight:950}
   .chartBarWrap{flex:1;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);border-radius:999px;overflow:hidden;height:16px}
   .chartBar{height:100%;width:0%;background:linear-gradient(90deg,var(--blue),var(--green))}
-  .chartVal{width:56px;text-align:right;color:var(--text);font-weight:900}
+  .chartVal{width:56px;text-align:right;color:var(--text);font-weight:950}
 
-  /* Modais */
-  .modalBack{display:none;position:fixed;inset:0;background:rgba(0,0,0,.60);backdrop-filter: blur(6px);align-items:center;justify-content:center;padding:16px;z-index:999}
-  .modal{width:100%;max-width:900px;background:linear-gradient(180deg,var(--card),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.10);border-radius:18px;box-shadow:0 40px 120px rgba(0,0,0,.65);overflow:hidden}
+  /* Status */
+  .status{display:none;margin-top:10px;padding:12px;border-radius:14px;background:rgba(56,189,248,.08);
+          border:1px solid rgba(56,189,248,.18);color:#cdefff;font-size:13px;font-weight:750;}
+  .bar{height:10px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.06);margin-top:10px}
+  .bar>div{height:100%;width:0%;background:linear-gradient(90deg,var(--blue),var(--green));transition:width .2s ease}
+
+  /* Modals */
+  .modalBack{display:none;position:fixed;inset:0;background:rgba(0,0,0,.60);backdrop-filter: blur(6px);
+             align-items:center;justify-content:center;padding:16px;z-index:999}
+  .modal{width:100%;max-width:980px;background:linear-gradient(180deg,var(--card),rgba(255,255,255,.02));
+         border:1px solid rgba(255,255,255,.10);border-radius:18px;box-shadow:0 40px 120px rgba(0,0,0,.65);
+         overflow:hidden}
   .modalHeader{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.08)}
   .modalHeader b{font-size:14px}
-  .closeBtn{width:auto;min-width:auto;padding:8px 10px;border-radius:10px;background:transparent;border:1px solid rgba(255,255,255,.14);color:var(--text);cursor:pointer}
+  .closeBtn{padding:8px 10px;border-radius:10px;background:transparent;border:1px solid rgba(255,255,255,.14);
+            color:var(--text);cursor:pointer}
   .modalBody{padding:14px 16px}
 
   .table{width:100%;border-collapse:collapse;font-size:13px}
   .table th,.table td{padding:10px 8px;border-bottom:1px solid rgba(255,255,255,.08);text-align:left;vertical-align:top}
-  .table th{color:var(--muted);font-weight:900;font-size:12px}
+  .table th{color:var(--muted);font-weight:950;font-size:12px}
   .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
+
+  .footerNote{text-align:center;color:var(--muted);font-size:11px;margin-top:10px}
 </style>
 </head>
 
 <body>
 
+<script>
+/* =========================
+   CONFIG (troque aqui)
+========================= */
+const APP_NAME = "LOTOFÁCIL PRIME ANALYTICS";
+const BUY_LINK = "https://wa.me/55SEUNUMERO?text=Quero%20comprar%20o%20Premium%20do%20Lotof%C3%A1cil%20Prime"; // troque depois
+const MASTER_EMAIL = "admin@lotofacilprime.com"; // seu login master
+const MASTER_PASS  = "prime123"; // sua senha master
+
+/* 1 geração grátis por dispositivo (vitrine) */
+const FREE_LIMIT_KEY = "lf_free_used_v1";
+</script>
+
 <!-- LOGIN -->
 <div class="center" id="loginWrap">
-  <div class="login">
-    <div class="brand">🎯 LOTOFÁCIL PRIME ANALYTICS
-      <small>Versão simples (sem Cloudflare) — pronta pra vender</small>
+  <div class="card" style="max-width:520px;width:100%">
+    <div style="text-align:center">
+      <div class="title" style="margin:0">🎯 <span id="appName1"></span></div>
+      <div class="subtitle">Entre para acessar o painel. Premium libera a geração completa.</div>
     </div>
 
-    <input id="email" type="email" placeholder="Email" />
-    <input id="senha" type="password" placeholder="Senha" />
+    <div style="margin-top:12px" class="row">
+      <div class="col">
+        <label>Email</label>
+        <input id="email" type="email" placeholder="seuemail@gmail.com" />
+      </div>
+      <div class="col">
+        <label>Senha</label>
+        <input id="senha" type="password" placeholder="sua senha" />
+      </div>
+    </div>
 
-    <button id="btnEntrar" type="button">Entrar</button>
+    <button id="btnEntrar" class="btnFull" type="button">Entrar</button>
 
     <div id="msgOk" class="msg"></div>
     <div id="msgErr" class="msg err"></div>
 
     <div class="footerNote">
-      <b>Conta Premium:</b> admin@lotofacilprime.com • Senha: prime123<br/>
-      (Depois você muda isso)
+      Dica: use seu login master para testar o Premium. Depois você altera.
     </div>
   </div>
 </div>
 
 <!-- APP -->
-<div id="app">
+<div class="wrap" id="app" style="display:none">
   <div class="header">
     <div>
-      <div class="title">🎯 LOTOFÁCIL PRIME ANALYTICS</div>
-      <div class="subtitle">Análises estatísticas + explicações para um jogo mais “forte”.</div>
+      <div class="title">🎯 <span id="appName2"></span></div>
+      <div class="subtitle">Painel de análises estatísticas + justificativas das dezenas + gráficos.</div>
     </div>
-    <div class="chip" id="chipUser">👤 Não logado</div>
+    <div class="chip" id="chipUser">👤</div>
   </div>
 
+  <!-- PREMIUM GATE -->
   <div class="card" id="premiumGate" style="display:none">
     <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
       <div>
-        <div style="font-weight:900;font-size:16px">🔒 Área Premium</div>
-        <div class="mini">Para gerar análises reais e jogos avançados, ative o Premium.</div>
+        <div style="font-weight:950;font-size:16px">🔒 Área Premium</div>
+        <div class="mini">
+          Você pode testar <b>1 geração grátis</b>. Depois, para gerar novamente, precisa Premium.
+        </div>
       </div>
       <div style="display:flex;gap:10px;flex-wrap:wrap">
         <button class="danger" id="btnComprar" type="button">Comprar Premium</button>
-        <button class="secondary" id="btnSair" type="button" style="width:auto;min-width:auto;padding:10px 12px;border-radius:10px">Sair</button>
+        <button class="secondary" id="btnSair" type="button">Sair</button>
       </div>
-    </div>
-    <div class="mini" style="margin-top:10px">
-      Dica: grave um vídeo mostrando as análises e depois “desbloqueie” no Premium.
     </div>
   </div>
 
+  <!-- CONTROLS -->
   <div class="card">
     <div class="row">
       <div class="col">
@@ -201,24 +227,35 @@
       </div>
 
       <div class="col">
-        <label>Gerar jogo com base em concursos reais (demonstração)</label>
-        <button id="btnGerar" type="button">📊 Gerar Jogo + Análise</button>
+        <label>Gerar jogo e análises</label>
+        <button id="btnGerar" type="button" class="btnFull">📊 Gerar Jogo + Análise Completa</button>
       </div>
+    </div>
+
+    <div id="status" class="status">
+      <div id="statusText">Carregando…</div>
+      <div class="bar"><div id="barFill"></div></div>
+    </div>
+
+    <div class="mini" style="margin-top:10px">
+      Observação: sem backend, alguns sites de resultado podem bloquear CORS. Se isso ocorrer, o app mostra um aviso e usa modo “demonstrativo”.
+      (O Premium visual e as análises continuam funcionando.)
     </div>
   </div>
 
+  <!-- RESULT -->
   <div class="card" id="resultado">
-    <div class="footerNote">Entre com seu login. Premium libera “Gerar”.</div>
+    <div class="footerNote">Selecione a janela de concursos e clique em “Gerar”.</div>
   </div>
 
   <div class="footerNote">Aviso: análise estatística não garante premiação. Jogo responsável ✅</div>
 </div>
 
-<!-- MODAL LISTA -->
+<!-- MODAL LISTA CONCURSOS -->
 <div id="modalBack" class="modalBack">
   <div class="modal">
     <div class="modalHeader">
-      <b>📌 Concursos analisados (lista + datas + dezenas)</b>
+      <b>📌 Concursos analisados (datas + dezenas)</b>
       <button class="closeBtn" onclick="fecharModal()">Fechar</button>
     </div>
     <div class="modalBody">
@@ -227,26 +264,48 @@
   </div>
 </div>
 
+<!-- MODAL GRAFICO BLOCOS -->
+<div id="modalBlocosBack" class="modalBack">
+  <div class="modal" style="max-width:560px">
+    <div class="modalHeader">
+      <b>📊 Gráfico de Blocos A–E</b>
+      <button class="closeBtn" onclick="fecharGraficoBlocos()">Fechar</button>
+    </div>
+    <div class="modalBody">
+      <div id="graficoBlocosArea"></div>
+      <div class="mini" style="margin-top:10px">
+        Blocos: A(01–05), B(06–10), C(11–15), D(16–20), E(21–25).
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 /* =========================
-   LOGIN SUPER SIMPLES (SEM BACKEND)
+   UI Helpers
 ========================= */
+document.getElementById("appName1").textContent = APP_NAME;
+document.getElementById("appName2").textContent = APP_NAME;
 
-// ✅ Login premium fixo (você pode trocar depois)
-const ADMIN_EMAIL = "admin@lotofacilprime.com";
-const ADMIN_PASS  = "prime123";
+function showOk(t){ const a=document.getElementById("msgOk"); a.style.display="block"; a.textContent=t; document.getElementById("msgErr").style.display="none"; }
+function showErr(t){ const a=document.getElementById("msgErr"); a.style.display="block"; a.textContent=t; document.getElementById("msgOk").style.display="none"; }
 
-function showOk(text){
-  const el=document.getElementById("msgOk");
-  el.style.display="block"; el.textContent=text;
-  document.getElementById("msgErr").style.display="none";
+function setStatus(on, text){
+  const st=document.getElementById("status");
+  document.getElementById("statusText").textContent = text || "";
+  st.style.display = on ? "block" : "none";
 }
-function showErr(text){
-  const el=document.getElementById("msgErr");
-  el.style.display="block"; el.textContent=text;
-  document.getElementById("msgOk").style.display="none";
+function setProgress(p){
+  document.getElementById("barFill").style.width = Math.max(0, Math.min(100, p)) + "%";
 }
 
+function abrirModal(){ document.getElementById("modalBack").style.display="flex"; }
+function fecharModal(){ document.getElementById("modalBack").style.display="none"; }
+function fecharGraficoBlocos(){ document.getElementById("modalBlocosBack").style.display="none"; }
+
+/* =========================
+   Login (sem backend)
+========================= */
 function setSession(email, premium){
   localStorage.setItem("lf_email", email);
   localStorage.setItem("lf_premium", premium ? "1":"0");
@@ -256,58 +315,47 @@ function clearSession(){
   localStorage.removeItem("lf_premium");
 }
 function getSession(){
-  return {
-    email: localStorage.getItem("lf_email") || "",
-    premium: localStorage.getItem("lf_premium")==="1"
-  };
+  return { email: localStorage.getItem("lf_email") || "", premium: localStorage.getItem("lf_premium")==="1" };
+}
+function isFreeUsed(){ return localStorage.getItem(FREE_LIMIT_KEY)==="1"; }
+function markFreeUsed(){ localStorage.setItem(FREE_LIMIT_KEY,"1"); }
+
+function abrirApp(){
+  const s=getSession();
+  document.getElementById("loginWrap").style.display="none";
+  document.getElementById("app").style.display="block";
+
+  document.getElementById("chipUser").textContent = (s.premium ? "👑 Premium: " : "👤 Free: ") + s.email;
+
+  // gate card
+  document.getElementById("premiumGate").style.display = s.premium ? "none" : "block";
+
+  // botão gerar: free só 1 vez
+  if(s.premium) {
+    document.getElementById("btnGerar").disabled = false;
+  } else {
+    document.getElementById("btnGerar").disabled = isFreeUsed();
+  }
 }
 
 function entrar(){
-  const email = (document.getElementById("email").value || "").trim().toLowerCase();
-  const senha = (document.getElementById("senha").value || "");
+  const email=(document.getElementById("email").value||"").trim().toLowerCase();
+  const senha=(document.getElementById("senha").value||"");
 
-  if(!email || !senha){
-    showErr("Digite email e senha.");
-    return;
-  }
+  if(!email || !senha){ showErr("Digite email e senha."); return; }
 
-  // ✅ Premium (você)
-  if(email === ADMIN_EMAIL.toLowerCase() && senha === ADMIN_PASS){
+  // master premium
+  if(email === MASTER_EMAIL.toLowerCase() && senha === MASTER_PASS){
     setSession(email, true);
     showOk("Bem-vindo! Premium liberado ✅");
     abrirApp();
     return;
   }
 
-  // ✅ Usuário comum (free)
+  // usuário comum (free)
   setSession(email, false);
-  showOk("Entrou no modo Free. Para gerar análises, compre o Premium.");
+  showOk("Entrou no modo Free. Você pode gerar 1 vez gratuitamente.");
   abrirApp();
-}
-
-function abrirApp(){
-  const s = getSession();
-  document.getElementById("loginWrap").style.display="none";
-  document.getElementById("app").style.display="block";
-
-  document.getElementById("chipUser").textContent =
-    (s.premium ? "👑 Premium: " : "👤 Free: ") + s.email;
-
-  document.getElementById("premiumGate").style.display = s.premium ? "none" : "block";
-  document.getElementById("btnGerar").disabled = !s.premium;
-
-  if(!s.premium){
-    document.getElementById("resultado").innerHTML = `
-      <div style="text-align:center;font-weight:900;font-size:16px">🔒 Conteúdo Premium</div>
-      <div class="mini" style="text-align:center;margin-top:8px">
-        Ao comprar o Premium você libera:<br/>
-        ✅ Jogo com explicação de dezenas escolhidas<br/>
-        ✅ Repetidas do último concurso<br/>
-        ✅ Pares/Ímpares, Soma, Blocos (A–E)<br/>
-        ✅ Top 10 dezenas mais frequentes + lista de concursos<br/>
-      </div>
-    `;
-  }
 }
 
 function sair(){
@@ -316,29 +364,22 @@ function sair(){
 }
 
 function comprarPremium(){
-  // 👉 Aqui você coloca seu link depois (Kiwify/Hotmart/WhatsApp)
-  alert("Para comprar Premium: coloque aqui seu link de pagamento ou WhatsApp.\n\nEx: https://seulink.com");
+  window.open(BUY_LINK, "_blank");
 }
 
 /* =========================
-   SEU SISTEMA (análises) - sem backend
-   (mantive simples; como é premium, só você testa)
+   Análises Lotofácil
 ========================= */
-
-function abrirModal(){ document.getElementById("modalBack").style.display = "flex"; }
-function fecharModal(){ document.getElementById("modalBack").style.display = "none"; }
-
 function format2(n){ return String(n).padStart(2,"0"); }
 function toNum(d){ return Number(String(d).replace(/^0+/,"")) || Number(d); }
-function sortNum(a){ return a.slice().sort((x,y)=>x-y); }
+function sortNum(arr){ return arr.slice().sort((a,b)=>a-b); }
 
 function calcularFrequencias(concursos){
-  const freq = {};
-  for(let i=1;i<=25;i++) freq[i] = 0;
+  const freq={}; for(let i=1;i<=25;i++) freq[i]=0;
   concursos.forEach(c=>{
     (c.dezenas||[]).forEach(d=>{
-      const n = toNum(d);
-      if(n>=1 && n<=25) freq[n] += 1;
+      const n=toNum(d);
+      if(n>=1 && n<=25) freq[n]+=1;
     });
   });
   return freq;
@@ -346,38 +387,38 @@ function calcularFrequencias(concursos){
 function ordenarPorFreq(freq){
   return Object.entries(freq).map(([k,v])=>({dez:Number(k), f:v})).sort((a,b)=>b.f-a.f);
 }
-function gerarJogoPorFreq(freq){
-  const ord = ordenarPorFreq(freq);
-  const quentesTop = sortNum(ord.slice(0,6).map(x=>x.dez));
-  const friasBot   = sortNum(ord.slice(-4).map(x=>x.dez));
-  const meioPool   = ord.slice(6,-4).map(x=>x.dez);
 
-  const set = new Set([...quentesTop, ...friasBot]);
-  for(const n of meioPool){
-    if(set.size>=15) break;
-    set.add(n);
-  }
-  while(set.size<15) set.add(Math.floor(Math.random()*25)+1);
-  return sortNum(Array.from(set));
-}
-function classificarDezenas(freq, jogo){
-  const ord = ordenarPorFreq(freq);
-  const rank = {};
-  ord.forEach((x,i)=> rank[x.dez]=i+1);
-  const hot=[], warm=[], cold=[];
-  jogo.forEach(n=>{
-    const r = rank[n]||999;
-    if(r<=8) hot.push(n);
-    else if(r<=17) warm.push(n);
-    else cold.push(n);
-  });
-  return {hot:sortNum(hot), warm:sortNum(warm), cold:sortNum(cold)};
-}
 function contarParesImpares(jogo){
   const pares = jogo.filter(n=>n%2===0).length;
   return {pares, impares: jogo.length - pares};
 }
 function somaDezenas(jogo){ return jogo.reduce((a,b)=>a+b,0); }
+
+function contarSequencias(jogo){
+  const s = new Set(jogo);
+  let seqs=0, maxLen=1, curLen=0, prev=null;
+  const sorted = sortNum(jogo);
+  for(const n of sorted){
+    if(prev!==null && n===prev+1){ curLen++; }
+    else { curLen=1; }
+    if(curLen===2) seqs++; // conta início de sequência
+    if(curLen>maxLen) maxLen=curLen;
+    prev=n;
+  }
+  return { temSequencia: seqs>0, maxLen };
+}
+
+function finaisMaisFreq(concursos){
+  const fin={}; for(let i=0;i<=9;i++) fin[i]=0;
+  concursos.forEach(c=>{
+    c.dezenas.forEach(d=>{
+      const n=toNum(d);
+      fin[n%10]+=1;
+    });
+  });
+  return fin;
+}
+
 function distribuicaoBlocos(jogo){
   const b={A:0,B:0,C:0,D:0,E:0};
   jogo.forEach(n=>{
@@ -385,83 +426,502 @@ function distribuicaoBlocos(jogo){
     else if(n>=6 && n<=10) b.B++;
     else if(n>=11 && n<=15) b.C++;
     else if(n>=16 && n<=20) b.D++;
-    else b.E++;
+    else if(n>=21 && n<=25) b.E++;
   });
   return b;
 }
 
-async function gerarAnalise(){
-  const s = getSession();
-  if(!s.premium){
-    alert("🔒 Premium necessário.");
+function repetidasDoUltimo(jogo, ultimoDezenas){
+  const setUlt = new Set((ultimoDezenas||[]).map(toNum));
+  return sortNum(jogo.filter(n=>setUlt.has(n)));
+}
+
+function classificarDezenas(freq, jogo){
+  const ord = ordenarPorFreq(freq);
+  const rank={}; ord.forEach((x,i)=>rank[x.dez]=i+1);
+  const hot=[], warm=[], cold=[];
+  jogo.forEach(n=>{
+    const r=rank[n]||999;
+    if(r<=8) hot.push(n);
+    else if(r<=17) warm.push(n);
+    else cold.push(n);
+  });
+  return {hot:sortNum(hot), warm:sortNum(warm), cold:sortNum(cold), rank};
+}
+
+function gerarJogoForte(freq, concursos){
+  // composição: quentes + mornas + 2 frias + balancear blocos/pares
+  const ord = ordenarPorFreq(freq);
+  const hotPool = ord.slice(0,10).map(x=>x.dez);
+  const warmPool = ord.slice(10,18).map(x=>x.dez);
+  const coldPool = ord.slice(-7).map(x=>x.dez);
+
+  function pickUnique(pool, count, set){
+    const shuffled = pool.slice().sort(()=>Math.random()-0.5);
+    for(const n of shuffled){
+      if(set.size>=15) break;
+      if(!set.has(n)){
+        set.add(n);
+        if([...set].filter(x=>pool.includes(x)).length>=count) break;
+      }
+    }
+  }
+
+  let best=null;
+
+  // tenta várias combinações e escolhe a melhor pontuação
+  for(let t=0;t<500;t++){
+    const set=new Set();
+    // 6 quentes, 7 mornas, 2 frias (ajusta automático)
+    pickUnique(hotPool, 6, set);
+    pickUnique(warmPool, 7, set);
+    pickUnique(coldPool, 2, set);
+    while(set.size<15) set.add(Math.floor(Math.random()*25)+1);
+
+    const jogo = sortNum([...set]);
+    const pi = contarParesImpares(jogo);
+    const soma = somaDezenas(jogo);
+    const blocos = distribuicaoBlocos(jogo);
+    const seq = contarSequencias(jogo);
+
+    // score: equilíbrio
+    let score=0;
+
+    // pares/ímpares ideal 7/8 ou 8/7
+    score += (pi.pares===7 || pi.pares===8) ? 25 : 0;
+
+    // soma faixa "central" (aprox) — não é regra fixa, mas evita extremos
+    score += (soma>=170 && soma<=230) ? 20 : 0;
+
+    // blocos: evitar concentração (máx 5 em um bloco)
+    const maxBlock = Math.max(blocos.A,blocos.B,blocos.C,blocos.D,blocos.E);
+    score += (maxBlock<=5) ? 20 : 0;
+
+    // sequência: evitar sequência muito grande (>=5)
+    score += (seq.maxLen<=4) ? 15 : 0;
+
+    // quentes presentes (pelo rank)
+    const ranks = jogo.map(n=>freq[n]||0);
+    score += Math.min(20, Math.round(ranks.reduce((a,b)=>a+b,0)/10));
+
+    if(!best || score>best.score){
+      best={jogo, score};
+    }
+  }
+
+  return best.jogo;
+}
+
+function explainDezena(n, ctx){
+  const { freq, rank, totalConcursos, ultimoDezenas, finaisRank, blocoIdeal } = ctx;
+
+  const f = freq[n] || 0;
+  const r = rank[n] || 999;
+  const isHot = r<=8;
+  const isWarm = r>8 && r<=17;
+  const isCold = r>17;
+
+  const rep = (ultimoDezenas||[]).map(toNum).includes(n);
+
+  const fin = n % 10;
+  const finPos = finaisRank.indexOf(fin) + 1; // 1 = mais forte
+
+  const bloco = (n<=5) ? "A(01–05)" : (n<=10) ? "B(06–10)" : (n<=15) ? "C(11–15)" : (n<=20) ? "D(16–20)" : "E(21–25)";
+
+  const tags = [];
+  if(isHot) tags.push("🔥 quente");
+  if(isWarm) tags.push("🌡️ morna");
+  if(isCold) tags.push("❄️ fria");
+  if(rep) tags.push("🔁 repetida do último");
+  if(finPos<=3) tags.push("🎯 final forte");
+  tags.push("🧩 bloco " + bloco);
+
+  const txt =
+    `Frequência: ${f}x em ${totalConcursos} concursos • Rank: #${r}. ` +
+    (rep ? "Entrou por repetição do último concurso + consistência. " : "Entrou por consistência e composição equilibrada. ") +
+    (finPos<=3 ? `Final (${fin}) está entre os mais frequentes no período. ` : `Final (${fin}) está dentro da média do período. `) +
+    `Bloco ${blocoIdeal ? "ajudou a equilibrar " : ""}${bloco}.`;
+
+  return { tags, txt };
+}
+
+function renderTop10(freq, totalConcursos){
+  const ord = ordenarPorFreq(freq).slice(0,10);
+  const max = ord[0]?.f || 1;
+
+  const bars = ord.map(x=>{
+    const pct = Math.round((x.f/max)*100);
+    return `
+      <div class="chartRow">
+        <div class="chartLabel">${format2(x.dez)}</div>
+        <div class="chartBarWrap"><div class="chartBar" style="width:${pct}%"></div></div>
+        <div class="chartVal">${x.f}x</div>
+      </div>
+    `;
+  }).join("");
+
+  return `
+    <div class="chartCard">
+      <div class="chartTitle">
+        <b>📊 Top 10 dezenas mais frequentes</b>
+        <span class="chartHint">Base: ${totalConcursos} concursos</span>
+      </div>
+      <div class="mini">Barras maiores = dezenas que mais apareceram no período analisado.</div>
+      <div style="margin-top:10px">${bars}</div>
+    </div>
+  `;
+}
+
+function renderFinaisChart(fin){
+  const arr = Object.entries(fin).map(([k,v])=>({k:Number(k), v})).sort((a,b)=>b.v-a.v);
+  const max = arr[0]?.v || 1;
+  const rows = arr.map(x=>{
+    const pct = Math.round((x.v/max)*100);
+    return `
+      <div class="chartRow">
+        <div class="chartLabel">Final ${x.k}</div>
+        <div class="chartBarWrap"><div class="chartBar" style="width:${pct}%"></div></div>
+        <div class="chartVal">${x.v}x</div>
+      </div>
+    `;
+  }).join("");
+
+  return `
+    <div class="chartCard">
+      <div class="chartTitle">
+        <b>🏁 Finais mais frequentes (0–9)</b>
+        <span class="chartHint">Base: período</span>
+      </div>
+      <div class="mini">Ajuda a compor dezenas com finais que aparecem mais no histórico recente.</div>
+      <div style="margin-top:10px">${rows}</div>
+    </div>
+  `;
+}
+
+function renderListaConcursos(concursos){
+  const rows = concursos.map(c=>{
+    const dezenas = (c.dezenas||[]).map(d=>format2(toNum(d))).join(" - ");
+    const data = c.data ? String(c.data) : "—";
+    return `<tr>
+      <td><b>${c.concurso}</b></td>
+      <td>${data}</td>
+      <td class="mono">${dezenas}</td>
+    </tr>`;
+  }).join("");
+
+  return `
+    <table class="table">
+      <thead><tr><th>Concurso</th><th>Data</th><th>Dezenas</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  `;
+}
+
+function abrirGraficoBlocos(blocos){
+  const max = Math.max(blocos.A,blocos.B,blocos.C,blocos.D,blocos.E,1);
+  function row(label, val){
+    const pct = Math.round((val/max)*100);
+    return `
+      <div class="chartRow">
+        <div class="chartLabel">${label}</div>
+        <div class="chartBarWrap"><div class="chartBar" style="width:${pct}%"></div></div>
+        <div class="chartVal">${val}</div>
+      </div>`;
+  }
+  document.getElementById("graficoBlocosArea").innerHTML =
+    row("A (01–05)", blocos.A) +
+    row("B (06–10)", blocos.B) +
+    row("C (11–15)", blocos.C) +
+    row("D (16–20)", blocos.D) +
+    row("E (21–25)", blocos.E);
+
+  document.getElementById("modalBlocosBack").style.display="flex";
+}
+
+/* =========================
+   Dados (sem backend): tenta online, se falhar usa demo
+========================= */
+const SOURCES = [
+  // Essas APIs podem falhar por CORS em alguns navegadores. Se falhar, cai no demo.
+  {
+    name: "loteriascaixa-api (público)",
+    latest: "https://loteriascaixa-api.herokuapp.com/api/lotofacil/latest",
+    byId: (n)=>`https://loteriascaixa-api.herokuapp.com/api/lotofacil/${n}`,
+    adapt: (j)=>({ concurso:Number(j.concurso), data:j.data||"", dezenas:(j.dezenas||[]).map(String) })
+  },
+  {
+    name: "api.guidi.dev.br (fallback)",
+    latest: "https://api.guidi.dev.br/loteria/lotofacil/ultimo",
+    byId: (n)=>`https://api.guidi.dev.br/loteria/lotofacil/${n}`,
+    adapt: (j)=>({ concurso:Number(j.numero), data:j.dataApuracao||"", dezenas:(j.listaDezenas||[]).map(String) })
+  }
+];
+
+async function tryFetchJson(url){
+  const r = await fetch(url, { cache:"no-store" });
+  if(!r.ok) throw new Error("HTTP "+r.status);
+  return await r.json();
+}
+
+async function getOnlineConcursos(qtd){
+  let lastErr=null;
+  for(const src of SOURCES){
+    try{
+      const latestRaw = await tryFetchJson(src.latest);
+      const latest = src.adapt(latestRaw);
+      if(!latest.concurso || !latest.dezenas?.length) throw new Error("Resposta inválida");
+
+      const ultimo = latest.concurso;
+      const inicio = Math.max(1, ultimo - qtd + 1);
+
+      const concursos=[];
+      // baixa sequencial pra reduzir falhas
+      for(let c=inicio;c<=ultimo;c++){
+        const raw = await tryFetchJson(src.byId(c));
+        concursos.push(src.adapt(raw));
+      }
+      return { mode:"online", source:src.name, latest, concursos, inicio, ultimo };
+    }catch(e){
+      lastErr=e;
+    }
+  }
+  throw lastErr || new Error("Falha online");
+}
+
+function buildDemo(qtd){
+  // demo “coerente”: cria histórico simulado e um “último” simulado
+  const ultimo = 3600;
+  const inicio = ultimo - qtd + 1;
+  const concursos=[];
+  for(let c=inicio;c<=ultimo;c++){
+    const dezenas=new Set();
+    while(dezenas.size<15) dezenas.add(Math.floor(Math.random()*25)+1);
+    concursos.push({ concurso:c, data:"—", dezenas:[...dezenas].map(n=>format2(n)) });
+  }
+  const latest = concursos[concursos.length-1];
+  return { mode:"demo", source:"Demonstração (offline)", latest, concursos, inicio, ultimo };
+}
+
+/* =========================
+   Render principal
+========================= */
+let lastPayload=null;
+
+async function gerar(){
+  const s=getSession();
+  const btn=document.getElementById("btnGerar");
+
+  // premium gate: free 1x
+  if(!s.premium && isFreeUsed()){
+    alert("🔒 Você já usou a geração grátis. Para liberar, compre o Premium.");
     return;
   }
 
   const qtd = Number(document.getElementById("qtdConcursos").value);
 
-  // ✅ Simulação local (pra você testar sem backend)
-  // (depois a gente volta a usar concursos reais, mas já sem Cloudflare)
-  const concursos = [];
-  const ultimo = 3600;
-  const inicio = ultimo - qtd + 1;
+  try{
+    btn.disabled=true;
+    setStatus(true,"Carregando concursos…");
+    setProgress(10);
 
-  for(let c=inicio;c<=ultimo;c++){
-    const dezenas = new Set();
-    while(dezenas.size<15) dezenas.add(Math.floor(Math.random()*25)+1);
-    concursos.push({ concurso:c, data:"—", dezenas:[...dezenas].map(n=>format2(n)) });
-  }
+    let payload;
+    try{
+      setStatus(true,"Buscando concursos reais…");
+      setProgress(15);
+      payload = await getOnlineConcursos(qtd);
+    }catch(e){
+      // cai no demo
+      payload = buildDemo(qtd);
+    }
 
-  const freq = calcularFrequencias(concursos);
-  const jogo = gerarJogoPorFreq(freq);
-  const cls = classificarDezenas(freq, jogo);
-  const pi = contarParesImpares(jogo);
-  const soma = somaDezenas(jogo);
-  const blocos = distribuicaoBlocos(jogo);
+    setStatus(true,"Calculando frequências e criando jogo forte…");
+    setProgress(60);
 
-  document.getElementById("resultado").innerHTML = `
-    <div class="numbers">${jogo.map(format2).join(" - ")}</div>
-    <div class="range">📌 Análise dos concursos <b>${inicio}</b> a <b>${ultimo}</b> (${qtd} concursos)</div>
+    const freq = calcularFrequencias(payload.concursos);
+    const jogo = gerarJogoForte(freq, payload.concursos);
+    const cls = classificarDezenas(freq, jogo);
+    const pi = contarParesImpares(jogo);
+    const soma = somaDezenas(jogo);
+    const seq = contarSequencias(jogo);
+    const blocos = distribuicaoBlocos(jogo);
+    const reps = repetidasDoUltimo(jogo, payload.latest.dezenas);
 
-    <div class="actions">
-      <button class="secondary" type="button" onclick="verConcursos(${inicio},${ultimo})">📅 Ver concursos analisados (lista)</button>
-    </div>
+    const fin = finaisMaisFreq(payload.concursos);
+    const finaisRank = Object.entries(fin).sort((a,b)=>b[1]-a[1]).map(x=>Number(x[0]));
 
-    <div class="grid">
-      <div class="box"><div class="pill hot">🔥 Quentes</div><p><b>${cls.hot.map(format2).join(", ")}</b></p><div class="mini">Mais frequentes no período.</div></div>
-      <div class="box"><div class="pill warm">🌡️ Mornas</div><p><b>${cls.warm.map(format2).join(", ")}</b></p><div class="mini">Equilíbrio.</div></div>
-      <div class="box"><div class="pill cold">❄️ Frias</div><p><b>${cls.cold.map(format2).join(", ")}</b></p><div class="mini">Diversificação.</div></div>
-      <div class="box"><div class="pill info">⚖️ Pares x Ímpares</div><p><b>${pi.pares}</b> pares • <b>${pi.impares}</b> ímpares</p><div class="mini">Evita extremos.</div></div>
-      <div class="box"><div class="pill info">➕ Soma total</div><p><b>${soma}</b></p><div class="mini">Faixa típica.</div></div>
-      <div class="box"><div class="pill info">🧩 Blocos (A–E)</div>
-        <p>A:${blocos.A} • B:${blocos.B} • C:${blocos.C} • D:${blocos.D} • E:${blocos.E}</p>
-        <div class="mini">A(01–05) B(06–10) C(11–15) D(16–20) E(21–25)</div>
+    // Contexto p/ explicação individual
+    const ctxExplain = {
+      freq, rank: cls.rank, totalConcursos: payload.concursos.length,
+      ultimoDezenas: payload.latest.dezenas,
+      finaisRank,
+      blocoIdeal: true
+    };
+
+    // Resumos detalhados (sempre)
+    const resumoPares = (pi.pares===7||pi.pares===8)
+      ? `Distribuição ideal (${pi.pares} pares / ${pi.impares} ímpares).`
+      : `Distribuição fora do ideal (melhor: 7/8).`;
+
+    const resumoSoma = (soma>=170 && soma<=230)
+      ? `Soma ${soma} dentro da faixa estatística mais comum (evita extremos).`
+      : `Soma ${soma} fora da faixa mais comum — combinação mais “arriscada”.`;
+
+    const resumoSeq = seq.temSequencia
+      ? `Possui sequência, máximo de ${seq.maxLen} números seguidos (controle de padrão).`
+      : `Sem sequência (padrão mais “quebrado”).`;
+
+    const maxBlock = Math.max(blocos.A,blocos.B,blocos.C,blocos.D,blocos.E);
+    const resumoBlocos = (maxBlock<=5)
+      ? `Blocos equilibrados (máx ${maxBlock} em um bloco).`
+      : `Concentração alta em blocos (máx ${maxBlock}).`;
+
+    const resumoRep = reps.length
+      ? `${reps.length} repetidas do último concurso (${payload.latest.concurso}).`
+      : `Sem repetidas do último concurso (${payload.latest.concurso}).`;
+
+    // Explicação por dezena
+    const explainCards = jogo.map(n=>{
+      const ex = explainDezena(n, ctxExplain);
+      const tags = ex.tags.map(t=>`<span class="pill info" style="margin:0 6px 6px 0">${t}</span>`).join("");
+      return `
+        <div class="box">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+            <div class="pill info">✅ Dezena ${format2(n)} — motivo</div>
+            <div style="font-weight:950;color:#b7ffd2">#${cls.rank[n] || "—"}</div>
+          </div>
+          <div style="margin-top:8px">${tags}</div>
+          <p>${ex.txt}</p>
+        </div>
+      `;
+    }).join("");
+
+    setStatus(false,"");
+    setProgress(0);
+
+    // free used mark
+    if(!s.premium) markFreeUsed();
+    // ajustar botão após uso free
+    if(!s.premium) document.getElementById("btnGerar").disabled = true;
+
+    lastPayload = { ...payload, freq, jogo, blocos };
+
+    const balls = jogo.map(n=>`<div class="ball">${format2(n)}</div>`).join("");
+
+    document.getElementById("resultado").innerHTML = `
+      <div class="numbers">${balls}</div>
+      <div class="range">
+        📌 Janela: <b>${payload.inicio}</b> a <b>${payload.ultimo}</b> (${payload.concursos.length} concursos) •
+        Fonte: <b>${payload.source}</b> • Modo: <b>${payload.mode.toUpperCase()}</b>
       </div>
-    </div>
-  `;
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:8px">
+        <button class="secondary" type="button" onclick="verConcursos()">📅 Ver concursos analisados (lista)</button>
+        <button class="secondary" type="button" onclick="abrirGraficoBlocos(lastPayload.blocos)">📊 Ver gráfico de blocos</button>
+      </div>
+
+      <div class="grid">
+        <div class="box">
+          <div class="pill rep">🔁 Repetidas do último</div>
+          <p><b>${reps.length ? reps.map(format2).join(", ") : "Nenhuma"}</b></p>
+          <div class="mini">${resumoRep}</div>
+        </div>
+
+        <div class="box">
+          <div class="pill info">⚖️ Pares x Ímpares</div>
+          <p><b>${pi.pares}</b> pares • <b>${pi.impares}</b> ímpares</p>
+          <div class="mini">${resumoPares}</div>
+        </div>
+
+        <div class="box">
+          <div class="pill info">➕ Soma das dezenas</div>
+          <p><b>${soma}</b></p>
+          <div class="mini">${resumoSoma}</div>
+        </div>
+
+        <div class="box">
+          <div class="pill info">🧩 Distribuição por blocos</div>
+          <p>
+            A(01–05): <b>${blocos.A}</b> •
+            B(06–10): <b>${blocos.B}</b> •
+            C(11–15): <b>${blocos.C}</b> •
+            D(16–20): <b>${blocos.D}</b> •
+            E(21–25): <b>${blocos.E}</b>
+          </p>
+          <div class="mini">${resumoBlocos}</div>
+        </div>
+
+        <div class="box">
+          <div class="pill info">🔗 Sequências</div>
+          <p><b>${seq.temSequencia ? "Sim" : "Não"}</b> • Máx: <b>${seq.maxLen}</b></p>
+          <div class="mini">${resumoSeq}</div>
+        </div>
+
+        <div class="box">
+          <div class="pill hot">🔥 Quentes</div>
+          <p><b>${cls.hot.map(format2).join(", ") || "—"}</b></p>
+          <div class="mini">Dezenas com maior frequência (top do ranking).</div>
+        </div>
+
+        <div class="box">
+          <div class="pill warm">🌡️ Mornas</div>
+          <p><b>${cls.warm.map(format2).join(", ") || "—"}</b></p>
+          <div class="mini">Dezenas “meio do ranking” para equilíbrio.</div>
+        </div>
+
+        <div class="box">
+          <div class="pill cold">❄️ Frias</div>
+          <p><b>${cls.cold.map(format2).join(", ") || "—"}</b></p>
+          <div class="mini">Dezenas menos frequentes (diversificação).</div>
+        </div>
+      </div>
+
+      ${renderTop10(freq, payload.concursos.length)}
+      ${renderFinaisChart(fin)}
+
+      <div class="card" style="margin-top:14px">
+        <div style="font-weight:950;font-size:16px">🎯 Por que cada dezena foi escolhida</div>
+        <div class="mini">Explicação individual baseada em frequência, ranking, finais, repetição do último e equilíbrio de blocos.</div>
+        <div class="grid" style="margin-top:12px">
+          ${explainCards}
+        </div>
+      </div>
+    `;
+
+  }catch(e){
+    setStatus(false,"");
+    setProgress(0);
+    document.getElementById("resultado").innerHTML = `
+      <div class="box">
+        <div class="pill info">⚠️ Erro</div>
+        <p>${String(e?.message || e)}</p>
+        <div class="mini">Se APIs externas bloquearem o navegador, o app cai no modo demonstração automaticamente.</div>
+      </div>
+    `;
+  }finally{
+    btn.disabled=false;
+  }
 }
 
-function verConcursos(inicio, ultimo){
-  let html = `<table class="table"><thead><tr><th>Concurso</th><th>Data</th><th>Dezenas</th></tr></thead><tbody>`;
-  for(let c=inicio;c<=ultimo;c++){
-    html += `<tr><td><b>${c}</b></td><td>—</td><td class="mono">Simulado</td></tr>`;
-  }
-  html += `</tbody></table>`;
-  document.getElementById("listaConcursos").innerHTML = html;
+function verConcursos(){
+  if(!lastPayload) return;
+  document.getElementById("listaConcursos").innerHTML = renderListaConcursos(lastPayload.concursos);
   abrirModal();
 }
 
+/* =========================
+   Events
+========================= */
+document.getElementById("btnEntrar").addEventListener("click", entrar);
+document.getElementById("btnComprar").addEventListener("click", comprarPremium);
+document.getElementById("btnSair").addEventListener("click", sair);
+document.getElementById("btnGerar").addEventListener("click", gerar);
+
+document.getElementById("modalBack").addEventListener("click", (e)=>{ if(e.target.id==="modalBack") fecharModal(); });
+document.getElementById("modalBlocosBack").addEventListener("click", (e)=>{ if(e.target.id==="modalBlocosBack") fecharGraficoBlocos(); });
+
 document.addEventListener("DOMContentLoaded", ()=>{
-  const s = getSession();
+  const s=getSession();
   if(s.email) abrirApp();
-
-  document.getElementById("btnEntrar").addEventListener("click", entrar);
-  document.getElementById("btnGerar").addEventListener("click", gerarAnalise);
-  document.getElementById("btnComprar").addEventListener("click", comprarPremium);
-  document.getElementById("btnSair").addEventListener("click", sair);
-
-  document.getElementById("modalBack").addEventListener("click", (e)=>{
-    if(e.target.id === "modalBack") fecharModal();
-  });
 });
 </script>
 
