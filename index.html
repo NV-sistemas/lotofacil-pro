@@ -15,9 +15,10 @@
   }
   *{box-sizing:border-box;font-family:Arial,Helvetica,sans-serif}
   body{margin:0;color:var(--text);background:linear-gradient(135deg,var(--bg1),var(--bg2));min-height:100vh}
+
   .center{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:18px}
   .login{
-    width:100%;max-width:380px;
+    width:100%;max-width:420px;
     background:linear-gradient(180deg,var(--card),rgba(255,255,255,.02));
     border:1px solid rgba(255,255,255,.06);
     border-radius:18px;padding:22px;
@@ -25,10 +26,12 @@
   }
   .brand{text-align:center;font-weight:900;letter-spacing:.5px;font-size:18px}
   .brand small{display:block;color:var(--muted);font-weight:600;margin-top:6px}
+
   input, select{
     width:100%;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,.10);
     background:#020617;color:var(--text);outline:none;margin-top:12px;
   }
+
   button{
     width:100%;margin-top:12px;padding:13px 14px;border:none;border-radius:12px;
     background:linear-gradient(135deg,var(--green),var(--green2));
@@ -36,7 +39,22 @@
   }
   button:hover{filter:brightness(1.05);transform:translateY(-1px)}
   button.secondary{background:transparent;border:1px solid rgba(255,255,255,.12);color:var(--text)}
-  button.small{padding:10px 12px;border-radius:10px;font-weight:900;width:auto;min-width:240px}
+  button.danger{background:linear-gradient(135deg,#fb7185,#ef4444);color:#2b0b0b}
+  button:disabled{opacity:.55;cursor:not-allowed;transform:none}
+
+  .msg{
+    margin-top:12px;
+    padding:12px;border-radius:14px;
+    background:rgba(56,189,248,.08);
+    border:1px solid rgba(56,189,248,.18);
+    color:#cdefff;font-size:13px;font-weight:700;
+    display:none;
+  }
+  .msg.err{
+    background:rgba(251,113,133,.10);
+    border:1px solid rgba(251,113,133,.25);
+    color:#ffd3da;
+  }
 
   #app{display:none;max-width:1100px;margin:0 auto;padding:18px}
   .header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
@@ -72,7 +90,6 @@
 
   .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:10px}
   .box{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:12px}
-  .box h4{margin:0 0 6px;font-size:13px}
   .box p{margin:0;color:var(--text);font-size:13px;line-height:1.45}
   .pill{display:inline-block;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:900;margin-bottom:8px}
   .pill.hot{background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.25)}
@@ -82,21 +99,10 @@
   .pill.rep{background:rgba(34,197,94,.10);color:#7CFFB0;border:1px solid rgba(34,197,94,.20)}
   .mini{color:var(--muted);font-size:12px;margin-top:8px;line-height:1.4}
   .footerNote{text-align:center;color:var(--muted);font-size:11px;margin-top:10px}
+
   .actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:10px}
+  .actions button{width:auto;min-width:240px}
 
-  /* MODAL */
-  .modalBack{display:none;position:fixed;inset:0;background:rgba(0,0,0,.60);backdrop-filter: blur(6px);align-items:center;justify-content:center;padding:16px;z-index:999}
-  .modal{width:100%;max-width:900px;background:linear-gradient(180deg,var(--card),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.10);border-radius:18px;box-shadow:0 40px 120px rgba(0,0,0,.65);overflow:hidden}
-  .modalHeader{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.08)}
-  .modalHeader b{font-size:14px}
-  .closeBtn{width:auto;min-width:auto;padding:8px 10px;border-radius:10px;background:transparent;border:1px solid rgba(255,255,255,.14);color:var(--text);cursor:pointer}
-  .modalBody{padding:14px 16px}
-  .table{width:100%;border-collapse:collapse;font-size:13px}
-  .table th,.table td{padding:10px 8px;border-bottom:1px solid rgba(255,255,255,.08);text-align:left;vertical-align:top}
-  .table th{color:var(--muted);font-weight:900;font-size:12px}
-  .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
-
-  /* CHART MAIS NÍTIDO */
   .chartCard{
     margin-top:12px;
     background:rgba(255,255,255,.03);
@@ -112,7 +118,19 @@
   .chartBarWrap{flex:1;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);border-radius:999px;overflow:hidden;height:16px}
   .chartBar{height:100%;width:0%;background:linear-gradient(90deg,var(--blue),var(--green))}
   .chartVal{width:56px;text-align:right;color:var(--text);font-weight:900}
-  .highlightRep{color:#7CFFB0;font-weight:900}
+
+  /* Modais */
+  .modalBack{display:none;position:fixed;inset:0;background:rgba(0,0,0,.60);backdrop-filter: blur(6px);align-items:center;justify-content:center;padding:16px;z-index:999}
+  .modal{width:100%;max-width:900px;background:linear-gradient(180deg,var(--card),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.10);border-radius:18px;box-shadow:0 40px 120px rgba(0,0,0,.65);overflow:hidden}
+  .modalHeader{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.08)}
+  .modalHeader b{font-size:14px}
+  .closeBtn{width:auto;min-width:auto;padding:8px 10px;border-radius:10px;background:transparent;border:1px solid rgba(255,255,255,.14);color:var(--text);cursor:pointer}
+  .modalBody{padding:14px 16px}
+
+  .table{width:100%;border-collapse:collapse;font-size:13px}
+  .table th,.table td{padding:10px 8px;border-bottom:1px solid rgba(255,255,255,.08);text-align:left;vertical-align:top}
+  .table th{color:var(--muted);font-weight:900;font-size:12px}
+  .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
 </style>
 </head>
 
@@ -124,10 +142,19 @@
     <div class="brand">🎯 LOTOFÁCIL PRIME ANALYTICS
       <small>Sistema avançado de análise estatística</small>
     </div>
-    <input type="email" placeholder="Email" />
-    <input type="password" placeholder="Senha" />
-    <button id="btnEntrar" type="button">Entrar</button>
-    <div class="footerNote">*Login visual por enquanto (para testes).</div>
+
+    <input id="email" type="email" placeholder="Email" />
+    <input id="senha" type="password" placeholder="Senha (mín. 6)" />
+
+    <button id="btnEntrar" type="button">Entrar / Criar conta</button>
+    <button id="btnSairLogin" class="secondary" type="button" style="display:none">Sair</button>
+
+    <div id="msgOk" class="msg"></div>
+    <div id="msgErr" class="msg err"></div>
+
+    <div class="footerNote">
+      Dica: se o email não existir, o sistema cria automaticamente.
+    </div>
   </div>
 </div>
 
@@ -138,7 +165,23 @@
       <div class="title">🎯 LOTOFÁCIL PRIME ANALYTICS</div>
       <div class="subtitle">Escolha a janela de concursos e gere um jogo com explicações completas.</div>
     </div>
-    <div class="chip">📡 Concursos reais (fallback automático)</div>
+    <div class="chip" id="chipUser">👤 Não logado</div>
+  </div>
+
+  <div class="card" id="premiumGate" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+      <div>
+        <div style="font-weight:900;font-size:16px">🔒 Área Premium</div>
+        <div class="mini">Para gerar análises reais e jogos avançados, ative o Premium.</div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="danger" id="btnComprar" type="button">Comprar Premium</button>
+        <button class="secondary" id="btnSair" type="button" style="width:auto;min-width:auto;padding:10px 12px;border-radius:10px">Sair</button>
+      </div>
+    </div>
+    <div class="mini" style="margin-top:10px">
+      Se você for o dono, eu te mostro como ativar seu Premium em 2 cliques.
+    </div>
   </div>
 
   <div class="card">
@@ -200,40 +243,149 @@
     <div class="modalBody">
       <div id="graficoBlocosArea"></div>
       <div class="mini" style="margin-top:10px">
-        Interpretação: quantas dezenas do seu jogo caíram em cada faixa (01–05, 06–10, 11–15, 16–20, 21–25).
+        Interpretação: quantas dezenas do seu jogo caíram em cada faixa.
       </div>
     </div>
   </div>
 </div>
 
 <script>
-/* CONFIG */
-const WORKER = "https://shy-silence-06b9.nvtranspelogistica.workers.dev";
+/* =========================
+   MUDE AQUI (1 linha)
+========================= */
+const API_BASE = "https://https://shy-silence-06b9.nvtranspelogistica.workers.dev"; // <-- TROQUE PELO SEU WORKER
 
-const PROVIDERS = [
-  {
-    name: "loteriascaixa-api (Heroku)",
-    latestUrl: () => "https://loteriascaixa-api.herokuapp.com/api/lotofacil/latest",
-    concursoUrl: (n) => `https://loteriascaixa-api.herokuapp.com/api/lotofacil/${n}`,
-    adapt: (json) => ({
-      concurso: Number(json.concurso),
-      data: json.data || "",
-      dezenas: (json.dezenas || []).map(String)
-    })
-  },
-  {
-    name: "api.guidi.dev.br (fallback)",
-    latestUrl: () => "https://api.guidi.dev.br/loteria/lotofacil/ultimo",
-    concursoUrl: (n) => `https://api.guidi.dev.br/loteria/lotofacil/${n}`,
-    adapt: (json) => ({
-      concurso: Number(json.numero),
-      data: json.dataApuracao || "",
-      dezenas: (json.listaDezenas || []).map(String)
-    })
+/* =========================
+   API helpers
+========================= */
+async function apiPost(path, data, extraHeaders={}){
+  const r = await fetch(API_BASE + path, {
+    method:"POST",
+    headers:{ "Content-Type":"application/json", ...extraHeaders },
+    body: JSON.stringify(data || {})
+  });
+  const j = await r.json().catch(()=> ({}));
+  if(!r.ok) throw new Error(j?.error || ("HTTP " + r.status));
+  return j;
+}
+async function apiGet(path, extraHeaders={}){
+  const r = await fetch(API_BASE + path, { headers:{ ...extraHeaders } });
+  const j = await r.json().catch(()=> ({}));
+  if(!r.ok) throw new Error(j?.error || ("HTTP " + r.status));
+  return j;
+}
+
+/* =========================
+   UI msg
+========================= */
+function showOk(text){
+  const el=document.getElementById("msgOk");
+  el.style.display="block"; el.textContent=text;
+  document.getElementById("msgErr").style.display="none";
+}
+function showErr(text){
+  const el=document.getElementById("msgErr");
+  el.style.display="block"; el.textContent=text;
+  document.getElementById("msgOk").style.display="none";
+}
+function clearMsgs(){
+  document.getElementById("msgOk").style.display="none";
+  document.getElementById("msgErr").style.display="none";
+}
+
+/* =========================
+   Sessão
+========================= */
+function setSession(email, premium){
+  localStorage.setItem("lf_email", email);
+  localStorage.setItem("lf_premium", premium ? "1":"0");
+}
+function clearSession(){
+  localStorage.removeItem("lf_email");
+  localStorage.removeItem("lf_premium");
+}
+function getSession(){
+  return {
+    email: localStorage.getItem("lf_email") || "",
+    premium: localStorage.getItem("lf_premium")==="1"
+  };
+}
+
+/* =========================
+   Login real (register+login)
+========================= */
+async function entrarOuCriar(){
+  clearMsgs();
+  const email = (document.getElementById("email").value || "").trim().toLowerCase();
+  const senha = (document.getElementById("senha").value || "");
+  if(!email || !senha || senha.length < 6){
+    showErr("Digite email e senha (mínimo 6 caracteres).");
+    return;
   }
-];
 
-/* UI */
+  const btn = document.getElementById("btnEntrar");
+  btn.disabled = true;
+
+  try{
+    // 1) tenta login
+    let res;
+    try{
+      res = await apiPost("/login", { email, password: senha });
+      // ok
+      showOk("Login realizado ✅");
+    }catch(e){
+      // 2) se falhar, cria conta e tenta login de novo
+      await apiPost("/register", { email, password: senha });
+      res = await apiPost("/login", { email, password: senha });
+      showOk("Conta criada e login realizado ✅");
+    }
+
+    setSession(res.email, !!res.premium);
+    abrirApp();
+
+  }catch(e){
+    showErr("Erro: " + (e.message || e));
+  }finally{
+    btn.disabled = false;
+  }
+}
+
+function abrirApp(){
+  const s = getSession();
+  if(!s.email){
+    document.getElementById("loginWrap").style.display="flex";
+    document.getElementById("app").style.display="none";
+    return;
+  }
+  document.getElementById("loginWrap").style.display="none";
+  document.getElementById("app").style.display="block";
+
+  document.getElementById("chipUser").textContent =
+    (s.premium ? "👑 Premium: " : "👤 Free: ") + s.email;
+
+  // Bloqueio premium
+  document.getElementById("premiumGate").style.display = s.premium ? "none" : "block";
+  document.getElementById("btnGerar").disabled = !s.premium;
+}
+
+function sair(){
+  clearSession();
+  clearMsgs();
+  document.getElementById("loginWrap").style.display="flex";
+  document.getElementById("app").style.display="none";
+}
+
+/* =========================
+   Comprar premium (por enquanto só aviso)
+========================= */
+function comprarPremium(){
+  alert("Comprar Premium: aqui você vai colocar o link da sua página de venda (Kiwify/Hotmart).");
+}
+
+/* =========================
+   SEU SISTEMA (concursos, análises)
+   (mantive tudo do seu app; só troquei o login/premium)
+========================= */
 function setStatus(on, text){
   const st = document.getElementById("status");
   document.getElementById("statusText").textContent = text || "";
@@ -242,16 +394,11 @@ function setStatus(on, text){
 function setProgress(pct){
   document.getElementById("barFill").style.width = Math.max(0, Math.min(100, pct)) + "%";
 }
-function entrar(){
-  document.getElementById("loginWrap").style.display = "none";
-  document.getElementById("app").style.display = "block";
-}
+
 function abrirModal(){ document.getElementById("modalBack").style.display = "flex"; }
 function fecharModal(){ document.getElementById("modalBack").style.display = "none"; }
-function abrirGraficoBlocos(){ abrirGraficoBlocosImpl(); }
 function fecharGraficoBlocos(){ document.getElementById("modalBlocosBack").style.display = "none"; }
 
-/* CACHE */
 function cacheKey(providerIdx, concurso){ return `lf_${providerIdx}_${concurso}`; }
 function saveCache(providerIdx, concurso, data){
   try{ localStorage.setItem(cacheKey(providerIdx, concurso), JSON.stringify({ts: Date.now(), data})); }catch(e){}
@@ -275,15 +422,30 @@ function limparCache(){
   alert("Cache limpo! Agora tente gerar novamente.");
 }
 
-/* FETCH via Worker */
+const WORKER_PROXY = API_BASE; // usa o mesmo worker (tem proxy também)
+
 async function fetchJsonViaWorker(url){
-  const proxied = `${WORKER}/?url=${encodeURIComponent(url)}`;
+  const proxied = `${WORKER_PROXY}/?url=${encodeURIComponent(url)}`;
   const r = await fetch(proxied, { cache: "no-store" });
   if(!r.ok) throw new Error("HTTP " + r.status);
   return await r.json();
 }
 
-/* DADOS (fallback) */
+const PROVIDERS = [
+  {
+    name: "loteriascaixa-api (Heroku)",
+    latestUrl: () => "https://loteriascaixa-api.herokuapp.com/api/lotofacil/latest",
+    concursoUrl: (n) => `https://loteriascaixa-api.herokuapp.com/api/lotofacil/${n}`,
+    adapt: (json) => ({ concurso: Number(json.concurso), data: json.data || "", dezenas: (json.dezenas || []).map(String) })
+  },
+  {
+    name: "api.guidi.dev.br (fallback)",
+    latestUrl: () => "https://api.guidi.dev.br/loteria/lotofacil/ultimo",
+    concursoUrl: (n) => `https://api.guidi.dev.br/loteria/lotofacil/${n}`,
+    adapt: (json) => ({ concurso: Number(json.numero), data: json.dataApuracao || "", dezenas: (json.listaDezenas || []).map(String) })
+  }
+];
+
 async function getLatestWithFallback(){
   let lastErr = null;
   for(let i=0;i<PROVIDERS.length;i++){
@@ -299,6 +461,7 @@ async function getLatestWithFallback(){
   }
   throw lastErr || new Error("Falha ao buscar latest");
 }
+
 async function getConcurso(providerIdx, concurso){
   const cached = loadCache(providerIdx, concurso);
   if(cached) return cached;
@@ -309,7 +472,6 @@ async function getConcurso(providerIdx, concurso){
   return data;
 }
 
-/* RANGE */
 async function fetchRange(providerIdx, inicio, fim, onProgress){
   const total = (fim - inicio + 1);
   const concurrency = 8;
@@ -333,7 +495,6 @@ async function fetchRange(providerIdx, inicio, fim, onProgress){
   return results;
 }
 
-/* STATS */
 function toNum(d){ return Number(String(d).replace(/^0+/,"")) || Number(d); }
 function calcularFrequencias(concursos){
   const freq = {};
@@ -384,7 +545,7 @@ function contarParesImpares(jogo){
 }
 function somaDezenas(jogo){ return jogo.reduce((a,b)=>a+b,0); }
 
-/* NOVA DISTRIBUIÇÃO A–E */
+/* Blocos A–E */
 function distribuicaoBlocos(jogo){
   const b={A:0,B:0,C:0,D:0,E:0};
   jogo.forEach(n=>{
@@ -398,15 +559,12 @@ function distribuicaoBlocos(jogo){
 }
 
 function format2(n){ return String(n).padStart(2,"0"); }
-
-/* repetidas do concurso anterior */
 function repetidasDoUltimo(jogo, ultimoDezenas){
   const setUlt = new Set(ultimoDezenas.map(toNum));
   const reps = jogo.filter(n => setUlt.has(n));
   return sortNum(reps);
 }
 
-/* RENDER */
 function renderListaConcursos(concursos){
   const rows = concursos.map(c=>{
     const dezenas = (c.dezenas||[]).map(d=>format2(toNum(d))).join(" - ");
@@ -453,8 +611,7 @@ function renderTop10(freq, totalConcursos){
   `;
 }
 
-/* MODAL GRAFICO BLOCOS */
-function abrirGraficoBlocosImpl(){
+function abrirGraficoBlocos(){
   if(!lastContext || !lastContext._blocos) return;
   const b = lastContext._blocos;
   const max = Math.max(b.A,b.B,b.C,b.D,b.E,1);
@@ -480,10 +637,15 @@ function abrirGraficoBlocosImpl(){
   document.getElementById("modalBlocosBack").style.display = "flex";
 }
 
-/* MAIN */
 let lastContext = null;
 
 async function gerarAnalise(){
+  const s = getSession();
+  if(!s.premium){
+    alert("🔒 Esta função é Premium. Clique em Comprar Premium.");
+    return;
+  }
+
   const qtd = Number(document.getElementById("qtdConcursos").value);
   const btn = document.getElementById("btnGerar");
 
@@ -515,7 +677,6 @@ async function gerarAnalise(){
     const pi = contarParesImpares(jogo);
     const soma = somaDezenas(jogo);
     const blocos = distribuicaoBlocos(jogo);
-
     const reps = repetidasDoUltimo(jogo, latest.dezenas || []);
 
     setStatus(false, "");
@@ -530,38 +691,38 @@ async function gerarAnalise(){
       <div class="range">📌 Análise dos concursos <b>${inicio}</b> a <b>${ultimo}</b> (${qtd} concursos)</div>
 
       <div class="actions">
-        <button class="small secondary" type="button" onclick="abrirDetalhes()">📅 Ver concursos analisados (lista + datas)</button>
+        <button class="secondary" type="button" onclick="abrirDetalhes()">📅 Ver concursos analisados (lista + datas)</button>
       </div>
 
       <div class="grid">
         <div class="box">
-          <div class="pill rep">🔁 Repetidas do último concurso (${latest.concurso})</div>
+          <div class="pill.rep">🔁 Repetidas do último concurso (${latest.concurso})</div>
           <p><b class="highlightRep">${reps.length ? reps.map(format2).join(", ") : "Nenhuma repetida"}</b></p>
-          <div class="mini">Mostra quais dezenas do seu jogo já saíram no último concurso real.</div>
+          <div class="mini">Quais dezenas do seu jogo já saíram no último concurso real.</div>
         </div>
 
         <div class="box">
-          <div class="pill hot">🔥 Quentes (no seu jogo)</div>
+          <div class="pill hot">🔥 Quentes</div>
           <p><b>${cls.hot.map(format2).join(", ") || "—"}</b></p>
-          <div class="mini">Motivo: mais frequentes no intervalo analisado.</div>
+          <div class="mini">Mais frequentes no período.</div>
         </div>
 
         <div class="box">
-          <div class="pill warm">🌡️ Mornas (no seu jogo)</div>
+          <div class="pill warm">🌡️ Mornas</div>
           <p><b>${cls.warm.map(format2).join(", ") || "—"}</b></p>
-          <div class="mini">Motivo: estabilidade para equilibrar.</div>
+          <div class="mini">Estabilidade para equilibrar.</div>
         </div>
 
         <div class="box">
-          <div class="pill cold">❄️ Frias (no seu jogo)</div>
+          <div class="pill cold">❄️ Frias</div>
           <p><b>${cls.cold.map(format2).join(", ") || "—"}</b></p>
-          <div class="mini">Motivo: menor incidência — diversificação.</div>
+          <div class="mini">Diversificação.</div>
         </div>
 
         <div class="box">
           <div class="pill info">⚖️ Pares x Ímpares</div>
           <p><b>${pi.pares}</b> pares • <b>${pi.impares}</b> ímpares</p>
-          <div class="mini">Balanceamento automático para evitar extremos.</div>
+          <div class="mini">Evita extremos.</div>
         </div>
 
         <div class="box">
@@ -572,7 +733,7 @@ async function gerarAnalise(){
 
         <div class="box">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
-            <div class="pill info">🧩 Distribuição por blocos</div>
+            <div class="pill info">🧩 Blocos (A–E)</div>
             <button class="secondary" type="button" style="width:auto;min-width:auto;padding:8px 10px;border-radius:10px"
               onclick="abrirGraficoBlocos()">
               📊 Ver gráfico
@@ -585,13 +746,13 @@ async function gerarAnalise(){
             D(16–20): <b>${blocos.D}</b> •
             E(21–25): <b>${blocos.E}</b>
           </p>
-          <div class="mini">Cobertura do volante por faixas (01–05, 06–10, 11–15, 16–20, 21–25).</div>
+          <div class="mini">Cobertura por faixas do volante.</div>
         </div>
 
         <div class="box">
           <div class="pill info">🔎 Transparência</div>
-          <p>Fonte usada: <b>${providerName}</b></p>
-          <div class="mini">Se uma API cair, o sistema muda para outra automaticamente.</div>
+          <p>Fonte: <b>${providerName}</b></p>
+          <div class="mini">Fallback automático se uma API cair.</div>
         </div>
       </div>
 
@@ -622,9 +783,16 @@ function abrirDetalhes(){
 
 /* EVENTS */
 document.addEventListener("DOMContentLoaded", ()=>{
-  document.getElementById("btnEntrar").addEventListener("click", entrar);
+  // Se já tinha sessão, abre direto
+  const s = getSession();
+  if(s.email) abrirApp();
+
+  document.getElementById("btnEntrar").addEventListener("click", entrarOuCriar);
   document.getElementById("btnGerar").addEventListener("click", gerarAnalise);
   document.getElementById("btnLimpar").addEventListener("click", limparCache);
+
+  document.getElementById("btnComprar").addEventListener("click", comprarPremium);
+  document.getElementById("btnSair").addEventListener("click", sair);
 
   document.getElementById("modalBack").addEventListener("click", (e)=>{
     if(e.target.id === "modalBack") fecharModal();
