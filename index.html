@@ -7,20 +7,33 @@
 
 <style>
   :root{
-    --bg1:#020617; --bg2:#0b1227;
-    --card:#071023; --card2:#061028;
-    --text:#e5e7eb; --muted:#94a3b8;
+    /* ======= NOVO TEMA (mais contraste e “premium”) ======= */
+    --bg1:#050b1a; --bg2:#0b1636;
+    --card:#07122a; --card2:#0a1b3f;
+    --text:#f8fafc; --muted:#cbd5e1;
+    --muted2:#94a3b8;
+
     --green:#22c55e; --green2:#16a34a;
-    --yellow:#facc15; --blue:#38bdf8; --red:#fb7185;
-    --stroke: rgba(255,255,255,.08);
-    --stroke2: rgba(255,255,255,.12);
+    --blue:#38bdf8; --blue2:#0ea5e9;
+    --purple:#a78bfa; --purple2:#7c3aed;
+    --yellow:#facc15; --orange:#fb923c;
+    --red:#fb7185; --red2:#ef4444;
+
+    --stroke: rgba(255,255,255,.10);
+    --stroke2: rgba(255,255,255,.16);
+
+    --shadow: 0 22px 70px rgba(0,0,0,.45);
+    --glowBlue: 0 0 0 1px rgba(56,189,248,.18), 0 12px 40px rgba(56,189,248,.10);
+    --glowGreen: 0 0 0 1px rgba(34,197,94,.18), 0 12px 40px rgba(34,197,94,.10);
   }
+
   *{box-sizing:border-box;font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif}
   body{
     margin:0;color:var(--text);
     background:
-      radial-gradient(800px 600px at 10% 10%, rgba(56,189,248,.12), transparent 50%),
-      radial-gradient(800px 600px at 90% 10%, rgba(34,197,94,.12), transparent 50%),
+      radial-gradient(900px 650px at 10% 10%, rgba(56,189,248,.16), transparent 55%),
+      radial-gradient(900px 650px at 90% 10%, rgba(34,197,94,.14), transparent 55%),
+      radial-gradient(900px 650px at 50% 90%, rgba(167,139,250,.14), transparent 55%),
       linear-gradient(135deg,var(--bg1),var(--bg2));
     min-height:100vh
   }
@@ -28,112 +41,150 @@
   .center{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:18px}
   .wrap{max-width:1180px;margin:0 auto;padding:18px}
   .header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
-  .title{font-size:22px;font-weight:950;margin:0;letter-spacing:.2px}
-  .subtitle{margin:6px 0 0;color:var(--muted);font-size:13px;font-weight:650}
+  .title{font-size:24px;font-weight:1000;margin:0;letter-spacing:.2px}
+  .subtitle{margin:6px 0 0;color:var(--muted);font-size:13px;font-weight:700}
+
   .chip{
     display:inline-flex;align-items:center;gap:8px;padding:10px 12px;border-radius:999px;
-    background:rgba(255,255,255,.05);border:1px solid var(--stroke);
-    color:var(--muted);font-size:12px;font-weight:750;
+    background:rgba(255,255,255,.06);
+    border:1px solid var(--stroke);
+    color:var(--text);
+    font-size:12px;font-weight:850;
+    box-shadow: 0 10px 30px rgba(0,0,0,.25);
   }
 
   .card{
-    background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
+    background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
     border:1px solid var(--stroke);
-    border-radius:18px;padding:16px;
-    box-shadow:0 18px 50px rgba(0,0,0,.35);
+    border-radius:20px;padding:16px;
+    box-shadow:var(--shadow);
     margin-bottom:14px;
+    backdrop-filter: blur(10px);
   }
   .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:12px}
   .box{
-    background:rgba(255,255,255,.03);
-    border:1px solid var(--stroke);
+    background:rgba(255,255,255,.045);
+    border:1px solid rgba(255,255,255,.10);
     border-radius:16px;padding:12px;
   }
-  .box p{margin:0;color:var(--text);font-size:13px;line-height:1.45}
-  .mini{color:var(--muted);font-size:12px;margin-top:8px;line-height:1.4}
-
+  .box p{margin:0;color:var(--text);font-size:13px;line-height:1.5}
+  .mini{color:var(--muted);font-size:12px;margin-top:8px;line-height:1.45}
+  .mini strong{color:var(--text)}
   .row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
   .col{flex:1;min-width:240px}
 
-  label{display:block;font-size:12px;color:var(--muted);font-weight:850;margin-bottom:6px}
+  label{display:block;font-size:12px;color:var(--muted);font-weight:900;margin-bottom:6px}
   input, select{
-    width:100%;padding:12px;border-radius:12px;border:1px solid var(--stroke2);
-    background:#020617;color:var(--text);outline:none;
+    width:100%;padding:12px 12px;border-radius:14px;border:1px solid var(--stroke2);
+    background:rgba(2,6,23,.65);
+    color:var(--text);outline:none;
+  }
+  input::placeholder{color:rgba(203,213,225,.65)}
+  select{cursor:pointer}
+
+  /* ===== Botões modernizados ===== */
+  .btn{
+    padding:12px 14px;border:none;border-radius:14px;
+    color:#07131a;font-weight:1000;cursor:pointer;
+    transition:.15s;
+    box-shadow: 0 18px 45px rgba(0,0,0,.35);
+    position:relative;
+  }
+  .btn:hover{filter:brightness(1.05);transform:translateY(-1px)}
+  .btn:active{transform:translateY(0px);filter:brightness(0.98)}
+  .btn:disabled{opacity:.55;cursor:not-allowed;transform:none;box-shadow:none}
+
+  .btnPrimary{
+    background:linear-gradient(135deg,var(--green),var(--green2));
+    box-shadow: var(--glowGreen);
+  }
+  .btnBlue{
+    background:linear-gradient(135deg,var(--blue),var(--blue2));
+    box-shadow: var(--glowBlue);
+    color:#041018;
+  }
+  .btnPurple{
+    background:linear-gradient(135deg,var(--purple),var(--purple2));
+    color:#0b0720;
+    box-shadow: 0 0 0 1px rgba(167,139,250,.18), 0 12px 40px rgba(167,139,250,.12);
+  }
+  .btnDanger{
+    background:linear-gradient(135deg,var(--red),var(--red2));
+    color:#2b0b0b;
+    box-shadow: 0 0 0 1px rgba(251,113,133,.18), 0 12px 40px rgba(251,113,133,.12);
+  }
+  .btnGhost{
+    background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.14);
+    color:var(--text);
+    box-shadow:none;
   }
 
-  button{
-    padding:12px 14px;border:none;border-radius:14px;
-    background:linear-gradient(135deg,var(--green),var(--green2));
-    color:#052e1b;font-weight:950;cursor:pointer;transition:.15s;
-  }
-  button:hover{filter:brightness(1.05);transform:translateY(-1px)}
-  button.secondary{background:transparent;border:1px solid var(--stroke2);color:var(--text)}
-  button.danger{background:linear-gradient(135deg,#fb7185,#ef4444);color:#2b0b0b}
-  button:disabled{opacity:.55;cursor:not-allowed;transform:none}
   .btnFull{width:100%}
 
   .msg{
     margin-top:12px;padding:12px;border-radius:14px;
-    background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.18);
-    color:#cdefff;font-size:13px;font-weight:750;display:none;
+    background:rgba(56,189,248,.10);border:1px solid rgba(56,189,248,.22);
+    color:#e6f8ff;font-size:13px;font-weight:850;display:none;
   }
-  .msg.err{background:rgba(251,113,133,.10);border:1px solid rgba(251,113,133,.25);color:#ffd3da}
+  .msg.err{background:rgba(251,113,133,.12);border:1px solid rgba(251,113,133,.28);color:#ffe7ec}
 
   .pill{display:inline-block;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:950;margin-bottom:8px}
-  .pill.hot{background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.25)}
-  .pill.warm{background:rgba(250,204,21,.12);color:var(--yellow);border:1px solid rgba(250,204,21,.25)}
-  .pill.cold{background:rgba(251,113,133,.12);color:var(--red);border:1px solid rgba(251,113,133,.25)}
-  .pill.info{background:rgba(56,189,248,.10);color:var(--blue);border:1px solid rgba(56,189,248,.22)}
-  .pill.rep{background:rgba(34,197,94,.10);color:#7CFFB0;border:1px solid rgba(34,197,94,.20)}
-  .pill.extra{background:rgba(250,204,21,.10);color:#ffe48a;border:1px solid rgba(250,204,21,.22)}
+  .pill.hot{background:rgba(34,197,94,.16);color:#b7ffd2;border:1px solid rgba(34,197,94,.28)}
+  .pill.warm{background:rgba(250,204,21,.14);color:#fff2b0;border:1px solid rgba(250,204,21,.28)}
+  .pill.cold{background:rgba(251,113,133,.14);color:#ffd3da;border:1px solid rgba(251,113,133,.28)}
+  .pill.info{background:rgba(56,189,248,.14);color:#dff6ff;border:1px solid rgba(56,189,248,.28)}
+  .pill.rep{background:rgba(34,197,94,.12);color:#b7ffd2;border:1px solid rgba(34,197,94,.24)}
+  .pill.extra{background:rgba(250,204,21,.14);color:#fff2b0;border:1px solid rgba(250,204,21,.28)}
 
   .numbers{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0 6px}
   .ball{
     width:44px;height:44px;border-radius:999px;display:flex;align-items:center;justify-content:center;
-    background:rgba(34,197,94,.10);border:1px solid rgba(34,197,94,.20);
-    color:#b7ffd2;font-weight:950;letter-spacing:.4px;
-    box-shadow:0 12px 30px rgba(0,0,0,.35);
+    background:rgba(34,197,94,.14);
+    border:1px solid rgba(34,197,94,.28);
+    color:#eafff4;font-weight:1000;letter-spacing:.4px;
+    box-shadow:0 14px 34px rgba(0,0,0,.35);
   }
-  .range{text-align:center;color:var(--muted);font-size:13px;font-weight:750;margin:0 0 10px}
+  .range{text-align:center;color:var(--muted);font-size:13px;font-weight:850;margin:0 0 10px}
 
   .chartCard{
     margin-top:12px;
-    background:rgba(255,255,255,.03);
-    border:1px solid var(--stroke);
-    border-radius:16px;
+    background:rgba(255,255,255,.045);
+    border:1px solid rgba(255,255,255,.10);
+    border-radius:18px;
     padding:14px;
   }
   .chartTitle{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center}
   .chartTitle b{font-size:13px}
-  .chartHint{color:var(--muted);font-size:12px;font-weight:850}
+  .chartHint{color:var(--muted);font-size:12px;font-weight:900}
   .chartRow{display:flex;align-items:center;gap:10px;margin:10px 0}
   .chartLabel{width:90px;color:var(--text);font-weight:950}
-  .chartBarWrap{flex:1;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);border-radius:999px;overflow:hidden;height:16px}
+  .chartBarWrap{flex:1;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.12);border-radius:999px;overflow:hidden;height:16px}
   .chartBar{height:100%;width:0%;background:linear-gradient(90deg,var(--blue),var(--green))}
   .chartVal{width:56px;text-align:right;color:var(--text);font-weight:950}
 
-  .status{display:none;margin-top:10px;padding:12px;border-radius:14px;background:rgba(56,189,248,.08);
-          border:1px solid rgba(56,189,248,.18);color:#cdefff;font-size:13px;font-weight:750;}
-  .bar{height:10px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.06);margin-top:10px}
+  .status{display:none;margin-top:10px;padding:12px;border-radius:14px;background:rgba(56,189,248,.10);
+          border:1px solid rgba(56,189,248,.22);color:#e6f8ff;font-size:13px;font-weight:900;}
+  .bar{height:10px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.08);margin-top:10px}
   .bar>div{height:100%;width:0%;background:linear-gradient(90deg,var(--blue),var(--green));transition:width .2s ease}
 
-  .modalBack{display:none;position:fixed;inset:0;background:rgba(0,0,0,.60);backdrop-filter: blur(6px);
+  .modalBack{display:none;position:fixed;inset:0;background:rgba(0,0,0,.62);backdrop-filter: blur(7px);
              align-items:center;justify-content:center;padding:16px;z-index:999}
-  .modal{width:100%;max-width:980px;background:linear-gradient(180deg,var(--card),rgba(255,255,255,.02));
-         border:1px solid rgba(255,255,255,.10);border-radius:18px;box-shadow:0 40px 120px rgba(0,0,0,.65);
+  .modal{width:100%;max-width:980px;background:linear-gradient(180deg,var(--card),rgba(255,255,255,.03));
+         border:1px solid rgba(255,255,255,.12);border-radius:20px;box-shadow:0 40px 120px rgba(0,0,0,.70);
          overflow:hidden}
-  .modalHeader{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.08)}
+  .modalHeader{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.10)}
   .modalHeader b{font-size:14px}
-  .closeBtn{padding:8px 10px;border-radius:10px;background:transparent;border:1px solid rgba(255,255,255,.14);
-            color:var(--text);cursor:pointer}
+  .closeBtn{padding:9px 11px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14);
+            color:var(--text);cursor:pointer;font-weight:900}
   .modalBody{padding:14px 16px}
 
   .table{width:100%;border-collapse:collapse;font-size:13px}
-  .table th,.table td{padding:10px 8px;border-bottom:1px solid rgba(255,255,255,.08);text-align:left;vertical-align:top}
-  .table th{color:var(--muted);font-weight:950;font-size:12px}
+  .table th,.table td{padding:10px 8px;border-bottom:1px solid rgba(255,255,255,.10);text-align:left;vertical-align:top}
+  .table th{color:var(--muted);font-weight:1000;font-size:12px}
   .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
 
-  .footerNote{text-align:center;color:var(--muted);font-size:11px;margin-top:10px}
+  .footerNote{text-align:center;color:var(--muted2);font-size:11px;margin-top:10px}
 
   /* ====== VIEWS (telas) ====== */
   .view{display:none}
@@ -144,33 +195,33 @@
   }
   .topNav .left{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
   .topNav .right{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-  .smallBtn{padding:10px 12px;border-radius:12px;font-weight:950}
-  .smallBtn.secondary{background:transparent;border:1px solid var(--stroke2);color:var(--text)}
-  .smallBtn.danger{background:linear-gradient(135deg,#fb7185,#ef4444);color:#2b0b0b}
 
   /* ====== Botões modernos (tela principal) ====== */
-  .actionGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin-top:10px}
+  .actionGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px;margin-top:10px}
   .actionCard{
-    text-align:left;border:1px solid var(--stroke);
-    background:rgba(255,255,255,.03);
-    border-radius:16px;padding:14px;cursor:pointer;
-    transition:.15s;position:relative;min-height:92px;
+    text-align:left;border:1px solid rgba(255,255,255,.12);
+    background:rgba(255,255,255,.05);
+    border-radius:18px;padding:16px 16px;
+    cursor:pointer;transition:.15s;
+    position:relative;min-height:110px;
+    box-shadow: 0 18px 50px rgba(0,0,0,.35);
   }
-  .actionCard:hover{transform:translateY(-1px);box-shadow:0 18px 45px rgba(0,0,0,.35);background:rgba(255,255,255,.045)}
-  .actionCard:disabled,.actionCard.disabled{opacity:.55;cursor:not-allowed;transform:none;box-shadow:none}
-  .actionTitle{font-weight:950;font-size:14px;margin:0 0 6px}
-  .actionDesc{margin:0;color:var(--muted);font-size:12px;line-height:1.35}
+  .actionCard:hover{transform:translateY(-2px);background:rgba(255,255,255,.065)}
+  .actionCard:active{transform:translateY(0px)}
+  .actionCard.disabled{opacity:.55;cursor:not-allowed;transform:none;box-shadow:none}
+  .actionTitle{font-weight:1000;font-size:15px;margin:0 0 6px}
+  .actionDesc{margin:0;color:var(--muted);font-size:12px;line-height:1.45}
   .badge{
-    position:absolute;top:12px;right:12px;
-    font-size:11px;font-weight:950;
-    padding:5px 9px;border-radius:999px;
-    border:1px solid rgba(255,255,255,.12);
+    position:absolute;top:14px;right:14px;
+    font-size:11px;font-weight:1000;
+    padding:5px 10px;border-radius:999px;
+    border:1px solid rgba(255,255,255,.14);
     background:rgba(255,255,255,.06);
     color:var(--text);
   }
-  .badge.premium{border-color:rgba(56,189,248,.24);background:rgba(56,189,248,.10);color:#cdefff}
-  .badge.extra{border-color:rgba(250,204,21,.22);background:rgba(250,204,21,.10);color:#ffe48a}
-  .badge.free{border-color:rgba(34,197,94,.22);background:rgba(34,197,94,.10);color:#b7ffd2}
+  .badge.premium{border-color:rgba(56,189,248,.28);background:rgba(56,189,248,.14);color:#e6f8ff}
+  .badge.extra{border-color:rgba(250,204,21,.28);background:rgba(250,204,21,.14);color:#fff2b0}
+  .badge.free{border-color:rgba(34,197,94,.28);background:rgba(34,197,94,.14);color:#eafff4}
 
   /* ====== Cartão Lotofácil (5x5) ====== */
   .cartaoWrap{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
@@ -186,38 +237,48 @@
   .cel{
     width:44px;height:44px;border-radius:12px;
     display:flex;align-items:center;justify-content:center;
-    border:1px solid rgba(255,255,255,.12);
-    background:rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.14);
+    background:rgba(255,255,255,.05);
     color:var(--text);
-    font-weight:950;
+    font-weight:1000;
   }
   .cel.on{
-    background:rgba(34,197,94,.10);
+    background:rgba(34,197,94,.14);
     border:1px solid rgba(34,197,94,.30);
-    color:#b7ffd2;
+    color:#eafff4;
     box-shadow:0 12px 30px rgba(0,0,0,.25);
   }
   .cel.inv{
-    background:rgba(56,189,248,.10);
+    background:rgba(56,189,248,.14);
     border:1px solid rgba(56,189,248,.30);
-    color:#cdefff;
+    color:#e6f8ff;
     box-shadow:0 12px 30px rgba(0,0,0,.25);
   }
   .cel.tech{
-    background:rgba(250,204,21,.10);
-    border:1px solid rgba(250,204,21,.28);
-    color:#ffe48a;
+    background:rgba(250,204,21,.14);
+    border:1px solid rgba(250,204,21,.30);
+    color:#fff2b0;
     box-shadow:0 12px 30px rgba(0,0,0,.25);
   }
 
   /* ===== 15P ===== */
   .twoCols{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
   @media (max-width: 920px){ .twoCols{grid-template-columns:1fr} }
-  .line5{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-  .miniBtns{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:center;margin-top:10px}
-  .gameList{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px;margin-top:12px}
-  .gameCard{border:1px solid var(--stroke);background:rgba(255,255,255,.03);border-radius:16px;padding:12px}
+
+  .gameList{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-top:12px}
+  .gameCard{border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);border-radius:18px;padding:14px}
   .gameCard b{font-size:13px}
+
+  .scoreTag{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:7px 10px;border-radius:999px;
+    background:rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.14);
+    color:var(--text);
+    font-weight:1000;font-size:12px;
+  }
+
+  .hr{height:1px;background:rgba(255,255,255,.10);margin:12px 0;border-radius:999px}
 </style>
 </head>
 
@@ -267,13 +328,13 @@ const ADDON15_KEY = "lf_addon15";
       </div>
     </div>
 
-    <button id="btnEntrar" class="btnFull" type="button">Entrar</button>
+    <button id="btnEntrar" class="btn btnPrimary btnFull" type="button">Entrar</button>
 
     <div id="msgOk" class="msg"></div>
     <div id="msgErr" class="msg err"></div>
 
     <div class="footerNote">
-      Dica: use o login master para testar o Premium. Depois você troca.
+      Dica: use o login master para testar o Premium e o EXTRA 15P.
     </div>
   </div>
 </div>
@@ -292,16 +353,16 @@ const ADDON15_KEY = "lf_addon15";
   <div class="card" id="premiumGate" style="display:none">
     <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
       <div>
-        <div style="font-weight:950;font-size:16px">🔒 Área Premium</div>
+        <div style="font-weight:1000;font-size:16px">🔒 Área Premium</div>
         <div class="mini">
           No modo Free você pode gerar <b>1 vez</b> apenas no <b>Jogo Principal</b>.
           Para liberar <b>Análise</b>, <b>Invertida</b> e <b>Técnica Premiada</b>, ative o Premium.
         </div>
       </div>
       <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <button class="danger" id="btnComprar" type="button">Comprar Premium</button>
-        <button class="secondary" id="btnJaComprei" type="button">Já comprei</button>
-        <button class="secondary" id="btnSair" type="button">Sair</button>
+        <button class="btn btnDanger" id="btnComprar" type="button">Comprar Premium</button>
+        <button class="btn btnGhost" id="btnJaComprei" type="button">Já comprei</button>
+        <button class="btn btnGhost" id="btnSair" type="button">Sair</button>
       </div>
     </div>
     <div class="mini" style="margin-top:10px">
@@ -313,15 +374,15 @@ const ADDON15_KEY = "lf_addon15";
   <div class="card" id="addon15Card" style="display:none">
     <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
       <div>
-        <div style="font-weight:950;font-size:16px">✨ Recurso Extra: 15 pontos garantido</div>
+        <div style="font-weight:1000;font-size:16px">✨ Recurso Extra: 15 pontos garantido</div>
         <div class="mini">
-          Esse recurso é um <b>EXTRA comprado separadamente</b>. Ele abre uma tela própria com análise de <b>5 linhas</b> e geração dos <b>10 jogos</b> (combinações 3 de 5).
+          Esse recurso é um <b>EXTRA comprado separadamente</b>. Ele abre uma tela própria com análise de <b>5 linhas</b> (5 dezenas em cada) e geração dos <b>10 jogos</b> (combinações 3 de 5).
         </div>
       </div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
         <span class="pill extra" style="margin:0">EXTRA</span>
-        <button class="danger" id="btnComprar15p" type="button">Comprar 15 pontos</button>
-        <button class="secondary" id="btnAtivar15p" type="button">Já comprei</button>
+        <button class="btn btnDanger" id="btnComprar15p" type="button">Comprar 15 pontos</button>
+        <button class="btn btnGhost" id="btnAtivar15p" type="button">Já comprei</button>
       </div>
     </div>
   </div>
@@ -344,43 +405,43 @@ const ADDON15_KEY = "lf_addon15";
           </select>
 
           <div class="mini" style="margin-top:10px">
-            Dica: quanto maior o período, mais “robusto” o histórico. Se APIs bloquearem, o app entra em modo demonstração automaticamente.
+            Dica: quanto maior o período, mais “robusta” fica a estatística. Se APIs bloquearem, o app entra em modo demonstração automaticamente.
           </div>
         </div>
 
         <div class="col">
-          <label>Opções principais</label>
+          <label>Opções</label>
 
           <div class="actionGrid">
-            <button class="actionCard" id="btnHomeAnalise" type="button">
+            <div class="actionCard" id="btnHomeAnalise" role="button" tabindex="0">
               <span class="badge premium">PREMIUM</span>
               <p class="actionTitle">📈 Gerar análise</p>
               <p class="actionDesc">Gera toda a análise do período selecionado (sem jogo).</p>
-            </button>
+            </div>
 
-            <button class="actionCard" id="btnHomePrincipal" type="button">
+            <div class="actionCard" id="btnHomePrincipal" role="button" tabindex="0">
               <span class="badge free">FREE 1x</span>
               <p class="actionTitle">🎯 Jogo principal</p>
-              <p class="actionDesc">Gera 15 dezenas + resumo das análises. Dentro desta tela você gera Invertida e Técnica.</p>
-            </button>
+              <p class="actionDesc">Gera 15 dezenas + resumo. Dentro desta tela você gera Invertida e Técnica.</p>
+            </div>
 
-            <button class="actionCard" id="btnHomeInvertida" type="button">
+            <div class="actionCard" id="btnHomeInvertida" role="button" tabindex="0">
               <span class="badge premium">PREMIUM</span>
               <p class="actionTitle">🔄 Gerar invertida</p>
-              <p class="actionDesc">Usa o Jogo Principal já gerado e inverte A↔E, B↔D, C fixo (com cartão 5×5).</p>
-            </button>
+              <p class="actionDesc">Usa o Jogo Principal e inverte A↔E, B↔D, C fixo (com cartão 5×5).</p>
+            </div>
 
-            <button class="actionCard" id="btnHomeTecnica" type="button">
+            <div class="actionCard" id="btnHomeTecnica" role="button" tabindex="0">
               <span class="badge premium">PREMIUM</span>
               <p class="actionTitle">🏆 Técnica premiada</p>
-              <p class="actionDesc">Gera 2 jogos extras a partir do Principal (reordenação de blocos seguindo as sequências definidas).</p>
-            </button>
+              <p class="actionDesc">Gera 2 jogos extras a partir do Principal (reordenação por blocos).</p>
+            </div>
 
-            <button class="actionCard" id="btnHome15p" type="button">
+            <div class="actionCard" id="btnHome15p" role="button" tabindex="0">
               <span class="badge extra">EXTRA</span>
               <p class="actionTitle">✅ 15 pontos garantido</p>
-              <p class="actionDesc">Tela separada: 5 linhas de 5 dezenas + geração automática dos 10 jogos (1+2+3…)</p>
-            </button>
+              <p class="actionDesc">Tela separada: 5 linhas (5 dezenas cada) + análise detalhada e 10 jogos automáticos.</p>
+            </div>
           </div>
 
           <div id="status" class="status" style="margin-top:12px">
@@ -389,9 +450,9 @@ const ADDON15_KEY = "lf_addon15";
           </div>
 
           <div class="mini" style="margin-top:10px">
-            Regras do Premium: <b>Análise</b>, <b>Invertida</b>, <b>Técnica Premiada</b>. <br/>
-            Regra do Free: <b>Jogo Principal</b> pode ser gerado <b>1 vez</b>. <br/>
-            Regra do EXTRA: <b>15P Garantido</b> exige ativação separada.
+            <strong>Premium:</strong> Análise, Invertida e Técnica Premiada. <br/>
+            <strong>Free:</strong> Jogo Principal (1 geração). <br/>
+            <strong>EXTRA:</strong> 15P Garantido (comprado separadamente). O login master tem acesso para teste.
           </div>
         </div>
       </div>
@@ -406,11 +467,11 @@ const ADDON15_KEY = "lf_addon15";
   <div class="view" id="viewAnalise">
     <div class="topNav">
       <div class="left">
-        <button class="smallBtn secondary" type="button" onclick="goView('viewHome')">⬅ Voltar</button>
+        <button class="btn btnGhost" type="button" onclick="goView('viewHome')">⬅ Voltar</button>
         <span class="pill info" style="margin:0">📈 Análise completa</span>
       </div>
       <div class="right">
-        <button class="smallBtn secondary" type="button" onclick="verConcursos()">📅 Ver concursos (lista)</button>
+        <button class="btn btnGhost" type="button" onclick="verConcursos()">📅 Ver concursos</button>
       </div>
     </div>
 
@@ -423,12 +484,12 @@ const ADDON15_KEY = "lf_addon15";
   <div class="view" id="viewPrincipal">
     <div class="topNav">
       <div class="left">
-        <button class="smallBtn secondary" type="button" onclick="goView('viewHome')">⬅ Voltar</button>
+        <button class="btn btnGhost" type="button" onclick="goView('viewHome')">⬅ Voltar</button>
         <span class="pill info" style="margin:0">🎯 Jogo Principal</span>
       </div>
       <div class="right">
-        <button class="smallBtn secondary" type="button" onclick="goView('viewInvertida')">🔄 Invertida</button>
-        <button class="smallBtn secondary" type="button" onclick="goView('viewTecnica')">🏆 Técnica</button>
+        <button class="btn btnBlue" type="button" onclick="goView('viewInvertida')">🔄 Invertida</button>
+        <button class="btn btnPurple" type="button" onclick="goView('viewTecnica')">🏆 Técnica</button>
       </div>
     </div>
 
@@ -441,11 +502,11 @@ const ADDON15_KEY = "lf_addon15";
   <div class="view" id="viewInvertida">
     <div class="topNav">
       <div class="left">
-        <button class="smallBtn secondary" type="button" onclick="goView('viewPrincipal')">⬅ Voltar</button>
+        <button class="btn btnGhost" type="button" onclick="goView('viewPrincipal')">⬅ Voltar</button>
         <span class="pill info" style="margin:0">🔄 Jogo Invertido (A↔E, B↔D, C fixo)</span>
       </div>
       <div class="right">
-        <button class="smallBtn secondary" type="button" onclick="gerarInvertida()">Gerar Invertida agora</button>
+        <button class="btn btnBlue" type="button" onclick="gerarInvertida()">Gerar Invertida agora</button>
       </div>
     </div>
 
@@ -458,11 +519,11 @@ const ADDON15_KEY = "lf_addon15";
   <div class="view" id="viewTecnica">
     <div class="topNav">
       <div class="left">
-        <button class="smallBtn secondary" type="button" onclick="goView('viewPrincipal')">⬅ Voltar</button>
+        <button class="btn btnGhost" type="button" onclick="goView('viewPrincipal')">⬅ Voltar</button>
         <span class="pill info" style="margin:0">🏆 Técnica Premiada (2 jogos extras)</span>
       </div>
       <div class="right">
-        <button class="smallBtn secondary" type="button" onclick="gerarTecnicaPremiada()">Gerar Técnica agora</button>
+        <button class="btn btnPurple" type="button" onclick="gerarTecnicaPremiada()">Gerar Técnica agora</button>
       </div>
     </div>
 
@@ -475,16 +536,16 @@ const ADDON15_KEY = "lf_addon15";
   <div class="view" id="view15p">
     <div class="topNav">
       <div class="left">
-        <button class="smallBtn secondary" type="button" onclick="goView('viewHome')">⬅ Voltar</button>
+        <button class="btn btnGhost" type="button" onclick="goView('viewHome')">⬅ Voltar</button>
         <span class="pill extra" style="margin:0">✅ 15 pontos garantido (EXTRA)</span>
       </div>
       <div class="right">
-        <button class="smallBtn secondary" type="button" onclick="gerar15P()">Gerar análise 15P</button>
+        <button class="btn btnPrimary" type="button" onclick="gerar15P()">Gerar análise 15P</button>
       </div>
     </div>
 
     <div class="card" id="p15Area">
-      <div class="footerNote">Clique em “Gerar análise 15P”. Essa tela exige o EXTRA ativado.</div>
+      <div class="footerNote">Clique em “Gerar análise 15P”. Essa tela exige o EXTRA ativado (ou login master).</div>
     </div>
   </div>
 
@@ -529,10 +590,10 @@ const ADDON15_KEY = "lf_addon15";
     </div>
     <div class="modalBody">
       <div class="mini">
-        Se você já pagou na Hotmart, cole aqui o <b>Código de Ativação</b> que aparece na página de obrigado.
+        Se você já pagou na Hotmart, cole aqui o <b>Código de Ativação</b>.
       </div>
       <input id="codigoAtivacao" placeholder="Ex: PRIME-2026" style="margin-top:10px"/>
-      <button type="button" style="margin-top:10px" onclick="ativarPremium()">Ativar</button>
+      <button class="btn btnPrimary" type="button" style="margin-top:10px" onclick="ativarPremium()">Ativar</button>
       <div class="mini" style="margin-top:10px">
         Ainda não comprou? Clique em <b>Comprar Premium</b>.
       </div>
@@ -549,10 +610,10 @@ const ADDON15_KEY = "lf_addon15";
     </div>
     <div class="modalBody">
       <div class="mini">
-        Se você já comprou o EXTRA, cole aqui o <b>Código de Ativação</b> do <b>15 pontos garantido</b>.
+        Se você já comprou o EXTRA, cole aqui o <b>Código de Ativação</b>.
       </div>
       <input id="codigoAtivacao15p" placeholder="Ex: 15P-2026" style="margin-top:10px"/>
-      <button type="button" style="margin-top:10px" onclick="ativarAddon15()">Ativar</button>
+      <button class="btn btnPrimary" type="button" style="margin-top:10px" onclick="ativarAddon15()">Ativar</button>
       <div class="mini" style="margin-top:10px">
         Ainda não comprou? Clique em <b>Comprar 15 pontos</b>.
       </div>
@@ -617,24 +678,33 @@ function markFreeUsed(){ localStorage.setItem(FREE_LIMIT_KEY,"1"); }
 function hasAddon15(){ return localStorage.getItem(ADDON15_KEY)==="1"; }
 function setAddon15(v){ localStorage.setItem(ADDON15_KEY, v ? "1":"0"); }
 
+function isMaster(){
+  const s=getSession();
+  return (s.email||"").toLowerCase() === MASTER_EMAIL.toLowerCase() && s.premium;
+}
+
 function updateChip(){
   const s=getSession();
-  const addon = hasAddon15();
+  const addon = hasAddon15() || isMaster();
   const base = (s.premium ? "👑 Premium" : "👤 Free") + ": " + (s.email || "visitante");
   document.getElementById("chipUser").textContent = addon ? (base + " • ✅ 15P") : base;
 }
 
+function setCardEnabled(el, enabled, onClick, msg){
+  el.classList.toggle("disabled", !enabled);
+  el.onclick = enabled ? onClick : ()=>alert(msg);
+}
+
 function aplicarAcessos(){
   const s=getSession();
-  const addon = hasAddon15();
+  const addon = hasAddon15() || isMaster();
 
   // Gate premium
   document.getElementById("premiumGate").style.display = s.premium ? "none" : "block";
 
-  // Card do EXTRA: aparece quando NÃO tem addon
+  // Card EXTRA aparece quando NÃO tem addon e NÃO é master
   document.getElementById("addon15Card").style.display = addon ? "none" : "block";
 
-  // Botões da Home (cards)
   const btnAnalise = document.getElementById("btnHomeAnalise");
   const btnPrincipal = document.getElementById("btnHomePrincipal");
   const btnInvertida = document.getElementById("btnHomeInvertida");
@@ -642,9 +712,15 @@ function aplicarAcessos(){
   const btn15 = document.getElementById("btnHome15p");
 
   // Premium inicial
-  toggleAction(btnAnalise, s.premium, "🔒 Esta opção exige Premium.");
-  toggleAction(btnInvertida, s.premium, "🔒 Esta opção exige Premium e um Jogo Principal já gerado.");
-  toggleAction(btnTecnica, s.premium, "🔒 Esta opção exige Premium e um Jogo Principal já gerado.");
+  setCardEnabled(btnAnalise, s.premium, acaoAnalise, "🔒 Gerar análise exige Premium.");
+  setCardEnabled(btnInvertida, s.premium, ()=>{
+    if(!lastPrincipalGame) return alert("Gere primeiro um Jogo Principal.");
+    goView("viewInvertida"); gerarInvertida();
+  }, "🔒 Invertida exige Premium.");
+  setCardEnabled(btnTecnica, s.premium, ()=>{
+    if(!lastPrincipalGame) return alert("Gere primeiro um Jogo Principal.");
+    goView("viewTecnica"); gerarTecnicaPremiada();
+  }, "🔒 Técnica premiada exige Premium.");
 
   // Free: principal 1x
   if(!s.premium && isFreeUsed()){
@@ -655,22 +731,13 @@ function aplicarAcessos(){
     btnPrincipal.onclick = ()=>acaoPrincipal();
   }
 
-  // Extra 15P
+  // Extra 15P: liberado se addon OU master
   if(!addon){
     btn15.classList.add("disabled");
     btn15.onclick = ()=>alert("🔒 O recurso '15 pontos garantido' é um EXTRA comprado separadamente.");
   }else{
     btn15.classList.remove("disabled");
-    btn15.onclick = ()=>acao15P();
-  }
-}
-
-function toggleAction(btn, enabled, msg){
-  if(enabled){
-    btn.classList.remove("disabled");
-  }else{
-    btn.classList.add("disabled");
-    btn.onclick = ()=>alert(msg);
+    btn15.onclick = ()=>{ goView("view15p"); };
   }
 }
 
@@ -691,7 +758,9 @@ function entrar(){
 
   if(email === MASTER_EMAIL.toLowerCase() && senha === MASTER_PASS){
     setSession(email, true);
-    showOk("Bem-vindo! Premium liberado ✅");
+    // Master tem acesso ao 15P para visualizar como ficou
+    setAddon15(true);
+    showOk("Bem-vindo! Premium + 15P liberados para teste ✅");
     abrirApp();
     return;
   }
@@ -834,15 +903,13 @@ function gerarJogoForte(freq){
     let added=0;
     for(const n of shuffled){
       if(set.has(n)) continue;
-      set.add(n);
-      added++;
+      set.add(n); added++;
       if(added>=count) break;
     }
   }
 
   let best=null;
-
-  for(let t=0;t<600;t++){
+  for(let t=0;t<650;t++){
     const set=new Set();
     addFromPool(hotPool, 6, set);
     addFromPool(warmPool, 7, set);
@@ -1015,18 +1082,19 @@ function buildDemo(qtd){
 }
 
 /* =========================
-   Estado global (para reuso entre telas)
+   Estado global
 ========================= */
-let lastPayload=null;        // payload do período (online/demo)
-let lastCtx=null;            // {freq, fin, finaisRank, ...}
-let lastPrincipalGame=null;  // jogo principal (array 15)
-let lastInvertidaGame=null;  // jogo invertido
-let lastTecnicaGames=null;   // {g1, g2}
+let lastPayload=null;
+let lastCtx=null;
+let lastPrincipalGame=null;
+let lastPrincipalMeta=null; // resumo calculado no principal para reutilizar
+let lastInvertidaGame=null;
+let lastTecnicaGames=null;
 </script>
 
 <script>
 /* =========================
-   Funções de ação (botões da Home)
+   Funções gerais
 ========================= */
 function qtdSelecionada(){ return Number(document.getElementById("qtdConcursos").value); }
 
@@ -1043,7 +1111,7 @@ async function prepararContextoBase(qtd){
     payload = buildDemo(qtd);
   }
 
-  setStatus(true,"Calculando análises…");
+  setStatus(true,"Calculando análises do período…");
   setProgress(62);
 
   const freq = calcularFrequencias(payload.concursos);
@@ -1065,13 +1133,14 @@ function verConcursos(){
   abrirModal();
 }
 
-/* ===== Ações principais ===== */
+/* =========================
+   AÇÃO: ANÁLISE
+========================= */
 async function acaoAnalise(){
   const s=getSession();
   if(!s.premium){ alert("🔒 Gerar análise exige Premium."); return; }
 
   const qtd = qtdSelecionada();
-
   try{
     await prepararContextoBase(qtd);
 
@@ -1081,14 +1150,14 @@ async function acaoAnalise(){
     document.getElementById("analiseArea").innerHTML = `
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
         <div>
-          <div style="font-weight:950;font-size:16px">📈 Análise do período selecionado</div>
+          <div style="font-weight:1000;font-size:16px">📈 Análise do período selecionado</div>
           <div class="mini">
             Janela: <b>${payload.inicio}</b> a <b>${payload.ultimo}</b> (${payload.concursos.length} concursos) •
             Fonte: <b>${payload.source}</b> • Modo: <b>${payload.mode.toUpperCase()}</b>
           </div>
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
-          <button class="secondary" type="button" onclick="verConcursos()">📅 Ver concursos</button>
+          <button class="btn btnGhost" type="button" onclick="verConcursos()">📅 Ver concursos</button>
         </div>
       </div>
 
@@ -1101,8 +1170,8 @@ async function acaoAnalise(){
           <span class="chartHint">sem gerar jogo</span>
         </div>
         <div class="mini">
-          Essa opção gera toda a análise baseada na quantidade de concursos que o usuário escolheu.
-          Ela serve como “painel” para entendimento do período: dezenas mais frequentes, finais, e base pronta para outros modos.
+          Esta opção gera toda a análise baseada na quantidade de concursos que o usuário escolheu, formando uma base sólida para decisões.
+          Use o <b>Jogo Principal</b> para criar um jogo de 15 dezenas e, a partir dele, gerar <b>Invertida</b> e <b>Técnica Premiada</b>.
         </div>
       </div>
     `;
@@ -1121,6 +1190,9 @@ async function acaoAnalise(){
   }
 }
 
+/* =========================
+   AÇÃO: JOGO PRINCIPAL
+========================= */
 async function acaoPrincipal(){
   const s=getSession();
   const qtd = qtdSelecionada();
@@ -1132,9 +1204,8 @@ async function acaoPrincipal(){
 
   try{
     await prepararContextoBase(qtd);
-
     const payload = lastPayload;
-    const {freq, fin, finaisRank} = lastCtx;
+    const {freq, fin} = lastCtx;
 
     setStatus(true,"Gerando jogo principal (15 dezenas)…");
     setProgress(80);
@@ -1150,6 +1221,8 @@ async function acaoPrincipal(){
     const seq = contarSequencias(jogo);
     const blocos = distribuicaoBlocos(jogo);
     const reps = repetidasDoUltimo(jogo, payload.latest.dezenas);
+
+    lastPrincipalMeta = { cls, pi, soma, seq, blocos, reps, payloadRef: payload };
 
     setStatus(false,"");
     setProgress(0);
@@ -1183,15 +1256,15 @@ async function acaoPrincipal(){
     document.getElementById("principalArea").innerHTML = `
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
         <div>
-          <div style="font-weight:950;font-size:16px">🎯 Jogo Principal gerado (15 dezenas)</div>
+          <div style="font-weight:1000;font-size:16px">🎯 Jogo Principal gerado (15 dezenas)</div>
           <div class="mini">
             Janela: <b>${payload.inicio}</b> a <b>${payload.ultimo}</b> (${payload.concursos.length} concursos) •
             Fonte: <b>${payload.source}</b> • Modo: <b>${payload.mode.toUpperCase()}</b>
           </div>
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
-          <button class="secondary" type="button" onclick="verConcursos()">📅 Ver concursos</button>
-          <button class="secondary" type="button" onclick="abrirGraficoBlocos(${JSON.stringify(blocos)})">📊 Blocos A–E</button>
+          <button class="btn btnGhost" type="button" onclick="verConcursos()">📅 Ver concursos</button>
+          <button class="btn btnGhost" type="button" onclick="abrirGraficoBlocos(lastPrincipalMeta.blocos)">📊 Blocos A–E</button>
         </div>
       </div>
 
@@ -1199,8 +1272,8 @@ async function acaoPrincipal(){
 
       <div class="chartCard">
         <div class="chartTitle">
-          <b>🧾 Resumo das análises (abaixo do jogo)</b>
-          <span class="chartHint">compacto e direto</span>
+          <b>🧾 Resumo das análises (compacto)</b>
+          <span class="chartHint">abaixo do jogo</span>
         </div>
 
         <div class="grid">
@@ -1243,7 +1316,7 @@ async function acaoPrincipal(){
           <div class="box">
             <div class="pill hot">🔥 Quentes</div>
             <p><b>${cls.hot.map(format2).join(", ") || "—"}</b></p>
-            <div class="mini">Top do ranking (maior frequência no período).</div>
+            <div class="mini">Top do ranking no período.</div>
           </div>
 
           <div class="box">
@@ -1265,13 +1338,12 @@ async function acaoPrincipal(){
 
       <div class="chartCard">
         <div class="chartTitle">
-          <b>➡ Próximos passos a partir deste jogo</b>
-          <span class="chartHint">tudo sai do Principal</span>
+          <b>➡ A partir do Principal</b>
+          <span class="chartHint">gera variações</span>
         </div>
         <div class="mini">
           • <b>Invertida</b>: espelha A↔E e B↔D (C fixo). Ex: 02→22, 07→17, 12→12. <br/>
-          • <b>Técnica premiada</b>: gera <b>2 jogos extras</b> reordenando blocos pelo padrão definido, mantendo a lógica do cartão 5×5. <br/>
-          Use os botões no topo desta tela para abrir/gerar.
+          • <b>Técnica premiada</b>: gera <b>2 jogos extras</b> reordenando blocos seguindo as sequências definidas.
         </div>
       </div>
     `;
@@ -1291,31 +1363,21 @@ async function acaoPrincipal(){
 }
 
 /* =========================
-   Invertida (A↔E, B↔D, C fixo) com cartão
+   Invertida + Técnica (mantidas)
 ========================= */
-function blocoIndex(n){
-  // 1..25 -> 1..5
-  return Math.floor((n-1)/5)+1;
-}
-function offsetNoBloco(n){
-  // 1..5 dentro do bloco
-  return ((n-1)%5)+1;
-}
-function mapParaBloco(destBloco, offset){
-  // bloco 1..5, offset 1..5
-  return (destBloco-1)*5 + offset;
-}
+function blocoIndex(n){ return Math.floor((n-1)/5)+1; }
+function offsetNoBloco(n){ return ((n-1)%5)+1; }
+function mapParaBloco(destBloco, offset){ return (destBloco-1)*5 + offset; }
+
 function remapPorPermutacao(n, perm){
-  // perm: array [destDoBloco1, destDoBloco2, ... destDoBloco5]
-  const b = blocoIndex(n);         // bloco de origem 1..5
-  const off = offsetNoBloco(n);    // posição 1..5
-  const destB = perm[b-1];         // bloco destino
+  const b = blocoIndex(n);
+  const off = offsetNoBloco(n);
+  const destB = perm[b-1];
   return mapParaBloco(destB, off);
 }
 function inverterJogoPorPerm(jogo, perm){
   return jogo.map(n=>remapPorPermutacao(Number(n), perm)).sort((a,b)=>a-b);
 }
-
 function renderCartao(jogo, clsName){
   const set = new Set(jogo.map(Number));
   let html = `<div class="cartao">`;
@@ -1332,7 +1394,6 @@ function gerarInvertida(){
   if(!s.premium){ alert("🔒 Invertida exige Premium."); return; }
   if(!lastPrincipalGame){ alert("Gere primeiro um Jogo Principal."); return; }
 
-  // A<->E, B<->D, C fica: perm = [5,4,3,2,1]
   const permInvertida = [5,4,3,2,1];
   const inv = inverterJogoPorPerm(lastPrincipalGame, permInvertida);
   lastInvertidaGame = inv.slice();
@@ -1343,15 +1404,13 @@ function gerarInvertida(){
   document.getElementById("invertidaArea").innerHTML = `
     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
       <div>
-        <div style="font-weight:950;font-size:16px">🔄 Invertida gerada a partir do Jogo Principal</div>
+        <div style="font-weight:1000;font-size:16px">🔄 Invertida gerada a partir do Jogo Principal</div>
         <div class="mini">
           Regra: A(01–05)→E(21–25), B(06–10)→D(16–20), C(11–15) fixo, D→B, E→A.
           Ex: 02→22, 04→24, 05→25, 07→17, 10→20, 12→12.
         </div>
       </div>
-      <div class="mini">
-        Dica visual: os cartões abaixo mostram o “espelho” no 5×5.
-      </div>
+      <div class="mini">Os cartões abaixo mostram o “espelho” no 5×5.</div>
     </div>
 
     <div class="cartaoWrap">
@@ -1373,22 +1432,13 @@ function gerarInvertida(){
   goView("viewInvertida");
 }
 
-/* =========================
-   Técnica Premiada (2 jogos extras)
-   - A lógica segue a ideia da invertida, mas com outra reordenação de blocos.
-   - Cada número mantém a “posição” dentro do bloco (1..5), mas troca o bloco destino conforme a sequência.
-   - Sequências implementadas:
-       Jogo Técnica 1: [3,4,5,1,2]
-       Jogo Técnica 2: [3,1,5,2,4]
-   (Blocos: 1=A, 2=B, 3=C, 4=D, 5=E)
-========================= */
 function gerarTecnicaPremiada(){
   const s=getSession();
   if(!s.premium){ alert("🔒 Técnica premiada exige Premium."); return; }
   if(!lastPrincipalGame){ alert("Gere primeiro um Jogo Principal."); return; }
 
-  const permTec1 = [3,4,5,1,2];
-  const permTec2 = [3,1,5,2,4];
+  const permTec1 = [3,4,5,1,2]; // 1→3,2→4,3→5,4→1,5→2
+  const permTec2 = [3,1,5,2,4]; // 1→3,2→1,3→5,4→2,5→4
 
   const g1 = inverterJogoPorPerm(lastPrincipalGame, permTec1);
   const g2 = inverterJogoPorPerm(lastPrincipalGame, permTec2);
@@ -1401,14 +1451,12 @@ function gerarTecnicaPremiada(){
   document.getElementById("tecnicaArea").innerHTML = `
     <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
       <div>
-        <div style="font-weight:950;font-size:16px">🏆 Técnica Premiada — 2 jogos gerados a partir do Principal</div>
+        <div style="font-weight:1000;font-size:16px">🏆 Técnica Premiada — 2 jogos gerados a partir do Principal</div>
         <div class="mini">
           A técnica reordena os blocos (A–E) a partir do jogo principal. Cada dezena mantém sua “posição” dentro do bloco, mas migra para outro bloco conforme a sequência.
         </div>
       </div>
-      <div class="mini">
-        Blocos: 1=A(01–05), 2=B(06–10), 3=C(11–15), 4=D(16–20), 5=E(21–25)
-      </div>
+      <div class="mini">Blocos: 1=A(01–05), 2=B(06–10), 3=C(11–15), 4=D(16–20), 5=E(21–25)</div>
     </div>
 
     <div class="box" style="margin-top:10px">
@@ -1420,48 +1468,55 @@ function gerarTecnicaPremiada(){
 
     <div class="grid">
       <div class="box">
-        <div class="pill info">🏆 Técnica 1 (sequência 1→3, 2→4, 3→5, 4→1, 5→2)</div>
+        <div class="pill info">🏆 Técnica 1 — permutação [3,4,5,1,2]</div>
         <div class="numbers">${balls1}</div>
         ${renderCartao(g1, "tech")}
-        <div class="mini">Permutação de blocos: [3,4,5,1,2].</div>
       </div>
 
       <div class="box">
-        <div class="pill info">🏆 Técnica 2 (sequência 1→3, 2→1, 3→5, 4→2, 5→4)</div>
+        <div class="pill info">🏆 Técnica 2 — permutação [3,1,5,2,4]</div>
         <div class="numbers">${balls2}</div>
         ${renderCartao(g2, "tech")}
-        <div class="mini">Permutação de blocos: [3,1,5,2,4].</div>
       </div>
     </div>
 
     <div class="chartCard">
       <div class="chartTitle">
-        <b>Como essa técnica funciona na prática</b>
-        <span class="chartHint">mesma base, novos jogos</span>
+        <b>Como funciona (bem direto)</b>
+        <span class="chartHint">mesma base, variação por bloco</span>
       </div>
       <div class="mini">
-        • Exemplo de ideia: se uma dezena está no bloco A (01–05), ela “equivale” a uma posição dentro do bloco (1 a 5). <br/>
-        • Quando o bloco A vai para o bloco C, a dezena ganha +10 mantendo a mesma posição do bloco. <br/>
-        • Isso mantém o padrão do cartão e cria variações consistentes do principal.
+        Cada dezena “carrega” a sua posição dentro do bloco (1 a 5). A permutação troca apenas o bloco destino,
+        mantendo essa posição. Isso cria variações consistentes do principal.
       </div>
     </div>
   `;
   goView("viewTecnica");
 }
+</script>
 
+<script>
 /* =========================
-   15 Pontos Garantido (EXTRA)
-   - 5 linhas (cada uma com 5 dezenas)
-   - Ao lado: 5 linhas “evitar” (baixa coocorrência)
-   - Gera 10 jogos: combinações de 3 linhas entre 5 (C(5,3)=10)
+   15 Pontos Garantido (EXTRA) — NOVA ANÁLISE MAIS FORTE
+   Objetivo:
+   - Criar 5 linhas (1..5) com 5 dezenas cada (25 dezenas total, sem repetir).
+   - Linhas “FORTES”: números que mais saem juntos (coocorrência alta + lift alto).
+   - Linhas “DIVERSAS”: números que menos saem juntos (coocorrência baixa + lift baixo), mas sem jogar tudo em dezenas “ruins”.
+   - Explicação detalhada do porquê a linha ficou assim, com pares mais fortes/fracos.
+   - Respeita exatamente a quantidade de concursos escolhida pelo usuário.
 ========================= */
-function calcCooc(concursos){
+
+/* ---- matriz de coocorrência e métricas ---- */
+function calcCoocAndStats(concursos){
+  const n = concursos.length;
+  const freq = Array(26).fill(0);
   const co = Array.from({length:26}, ()=>Array(26).fill(0));
+
   concursos.forEach(c=>{
     const nums = (c.dezenas||[])
       .map(d=>Number(String(d).replace(/^0+/,"")))
-      .filter(n=>n>=1 && n<=25);
-
+      .filter(x=>x>=1 && x<=25);
+    nums.forEach(a=>freq[a]++);
     for(let i=0;i<nums.length;i++){
       for(let j=i+1;j<nums.length;j++){
         const a=nums[i], b=nums[j];
@@ -1469,104 +1524,207 @@ function calcCooc(concursos){
       }
     }
   });
-  return co;
-}
-function scoreGrupo(grupo, co){
-  let s=0;
-  for(let i=0;i<grupo.length;i++){
-    for(let j=i+1;j<grupo.length;j++){
-      s += co[grupo[i]][grupo[j]];
-    }
-  }
-  return s;
-}
 
-function construirGruposFortes(freq, co){
-  // Greedy: escolhe um seed frequente e vai adicionando número que mais “combina” com os já escolhidos
-  const usados = new Set();
-  const grupos = [];
+  // probabilidades e lift
+  const p = Array(26).fill(0);
+  for(let i=1;i<=25;i++) p[i] = freq[i] / Math.max(1,n);
 
-  const ordem = ordenarPorFreq(freq).map(x=>x.dez);
-
-  function melhorProximo(grupo){
-    let bestN=null, bestScore=-1;
-    for(let n=1;n<=25;n++){
-      if(usados.has(n)) continue;
-      let s=0;
-      for(const g of grupo) s += co[n][g];
-      if(s>bestScore){ bestScore=s; bestN=n; }
-    }
-    return bestN;
-  }
-
-  for(let g=0; g<5; g++){
-    // seed: primeiro número não usado pela ordem de frequência
-    let seed = ordem.find(n=>!usados.has(n)) || (()=>{
-      for(let n=1;n<=25;n++) if(!usados.has(n)) return n;
-      return 1;
-    })();
-
-    const grupo=[seed]; usados.add(seed);
-
-    while(grupo.length<5){
-      const n = melhorProximo(grupo);
-      if(!n) break;
-      grupo.push(n);
-      usados.add(n);
-    }
-
-    grupos.push(grupo.sort((a,b)=>a-b));
-  }
-
-  // Se sobrar algum número (não deve), distribui
-  for(let n=1;n<=25;n++){
-    if(!usados.has(n)){
-      grupos[grupos.length-1].push(n);
-      usados.add(n);
+  const lift = Array.from({length:26}, ()=>Array(26).fill(0));
+  for(let a=1;a<=25;a++){
+    for(let b=1;b<=25;b++){
+      if(a===b) continue;
+      const pab = co[a][b] / Math.max(1,n);
+      const denom = (p[a] * p[b]);
+      lift[a][b] = denom>0 ? (pab/denom) : 0;
     }
   }
 
-  return grupos;
+  return { n, freq, co, p, lift };
 }
 
-function construirGruposFracos(co){
-  // Greedy “ao contrário”: tenta formar quintetos com baixa coocorrência interna (para “evitar”)
-  // Aqui usamos todos os 25 números também (separado dos fortes).
-  const usados = new Set();
-  const grupos = [];
-
-  function piorScoreAoAdicionar(grupo, cand){
-    let s=0;
-    for(const g of grupo) s += co[cand][g];
-    return s; // quanto menor, pior “juntos”
-  }
-
-  for(let g=0; g<5; g++){
-    // seed: primeiro número não usado (do 1..25)
-    let seed=null;
-    for(let n=1;n<=25;n++){ if(!usados.has(n)){ seed=n; break; } }
-    if(!seed) seed=1;
-
-    const grupo=[seed]; usados.add(seed);
-
-    while(grupo.length<5){
-      let bestN=null, bestS=Infinity;
-      for(let n=1;n<=25;n++){
-        if(usados.has(n)) continue;
-        const s = piorScoreAoAdicionar(grupo, n);
-        if(s<bestS){ bestS=s; bestN=n; }
-      }
-      if(!bestN) break;
-      grupo.push(bestN);
-      usados.add(bestN);
-    }
-
-    grupos.push(grupo.sort((a,b)=>a-b));
-  }
-
-  return grupos;
+/* score de par: mistura coocorrência + lift */
+function pairStrength(a,b, stats){
+  const {co, lift} = stats;
+  // pesos calibrados para funcionar bem em amostras pequenas e grandes
+  return (co[a][b] * 1.0) + (lift[a][b] * 2.2);
 }
 
+function groupStrength(group, stats){
+  let sum=0, pairs=0;
+  for(let i=0;i<group.length;i++){
+    for(let j=i+1;j<group.length;j++){
+      sum += pairStrength(group[i], group[j], stats);
+      pairs++;
+    }
+  }
+  return { sum, avg: pairs? (sum/pairs):0 };
+}
+
+function groupCoSum(group, stats){
+  const {co} = stats;
+  let sum=0, pairs=0;
+  for(let i=0;i<group.length;i++){
+    for(let j=i+1;j<group.length;j++){
+      sum += co[group[i]][group[j]];
+      pairs++;
+    }
+  }
+  return { sum, avg: pairs? (sum/pairs):0 };
+}
+
+function groupLiftAvg(group, stats){
+  const {lift} = stats;
+  let sum=0, pairs=0;
+  for(let i=0;i<group.length;i++){
+    for(let j=i+1;j<group.length;j++){
+      sum += lift[group[i]][group[j]];
+      pairs++;
+    }
+  }
+  return { sum, avg: pairs? (sum/pairs):0 };
+}
+
+function groupFreqSum(group, stats){
+  const {freq} = stats;
+  return group.reduce((a,n)=>a+freq[n],0);
+}
+
+function topPairsInGroup(group, stats, topN=3){
+  const arr=[];
+  for(let i=0;i<group.length;i++){
+    for(let j=i+1;j<group.length;j++){
+      const a=group[i], b=group[j];
+      arr.push({
+        a,b,
+        co: stats.co[a][b],
+        lift: stats.lift[a][b],
+        score: pairStrength(a,b,stats)
+      });
+    }
+  }
+  arr.sort((x,y)=>y.score-x.score);
+  return arr.slice(0, topN);
+}
+function worstPairsInGroup(group, stats, topN=3){
+  const arr=[];
+  for(let i=0;i<group.length;i++){
+    for(let j=i+1;j<group.length;j++){
+      const a=group[i], b=group[j];
+      arr.push({
+        a,b,
+        co: stats.co[a][b],
+        lift: stats.lift[a][b],
+        score: pairStrength(a,b,stats)
+      });
+    }
+  }
+  arr.sort((x,y)=>x.score-y.score);
+  return arr.slice(0, topN);
+}
+
+/* --- construção e otimização das 5 linhas --- */
+function buildInitialLines(stats){
+  // seed: distribuir por frequência (round-robin), evitando “linha morta”
+  const order = [];
+  for(let i=1;i<=25;i++) order.push(i);
+  order.sort((a,b)=>stats.freq[b]-stats.freq[a]);
+
+  const lines = [[],[],[],[],[]];
+  for(let i=0;i<order.length;i++){
+    lines[i%5].push(order[i]);
+  }
+  lines.forEach(l=>l.sort((a,b)=>a-b));
+  return lines;
+}
+
+/*
+  Objetivo:
+  - Lines 1..3: fortes (maximizar co + lift)
+  - Lines 4..5: diversas (minimizar co + lift), MAS mantendo um mínimo de frequência
+*/
+function objective(lines, stats){
+  const strongIdx=[0,1,2];
+  const diverseIdx=[3,4];
+
+  let strong=0;
+  let diverse=0;
+  let diverseFreq=0;
+
+  strongIdx.forEach(i=>{
+    strong += groupStrength(lines[i], stats).sum;
+  });
+
+  diverseIdx.forEach(i=>{
+    diverse += groupStrength(lines[i], stats).sum;        // queremos baixo
+    diverseFreq += groupFreqSum(lines[i], stats);         // queremos razoável
+  });
+
+  // penalidade se alguma linha ficar muito concentrada em um bloco (suave)
+  function bloco(n){ return Math.floor((n-1)/5)+1; } // 1..5
+  let blockPenalty=0;
+  for(const l of lines){
+    const count=[0,0,0,0,0,0];
+    l.forEach(n=>count[bloco(n)]++);
+    const maxb=Math.max(...count);
+    if(maxb>=4) blockPenalty += (maxb-3)*8; // evita 4 ou 5 no mesmo bloco
+  }
+
+  // Score final: forte alto, diverso baixo, diverso não pode ser “só ruim”
+  // (diverseFreq ajuda a não jogar 4 e 5 com 5 dezenas muito frias)
+  return (strong * 1.0) - (diverse * 1.15) + (diverseFreq * 0.12) - blockPenalty;
+}
+
+function optimizeLines(lines, stats){
+  // hill-climb com swaps aleatórios
+  let best = lines.map(l=>l.slice());
+  let bestScore = objective(best, stats);
+
+  function clone(x){ return x.map(l=>l.slice()); }
+
+  const ITER = 3500; // rápido e bom visualmente
+  for(let t=0;t<ITER;t++){
+    const cand = clone(best);
+
+    const i = Math.floor(Math.random()*5);
+    let j = Math.floor(Math.random()*5);
+    if(i===j) j = (j+1)%5;
+
+    const ai = Math.floor(Math.random()*5);
+    const aj = Math.floor(Math.random()*5);
+
+    // swap
+    const tmp = cand[i][ai];
+    cand[i][ai] = cand[j][aj];
+    cand[j][aj] = tmp;
+
+    cand[i].sort((a,b)=>a-b);
+    cand[j].sort((a,b)=>a-b);
+
+    const sc = objective(cand, stats);
+    // aceitação gananciosa + um pouco de “aleatoriedade”
+    if(sc > bestScore || Math.random() < 0.02){
+      best = cand;
+      bestScore = sc;
+    }
+  }
+
+  // ordenar linhas por “força” para deixar 1..3 mais fortes, 4..5 mais diversas
+  const scored = best.map((l,idx)=>({
+    idx,
+    l,
+    s: groupStrength(l,stats).sum,
+    lift: groupLiftAvg(l,stats).avg,
+    co: groupCoSum(l,stats).avg,
+    f: groupFreqSum(l,stats)
+  }));
+
+  scored.sort((a,b)=>b.s-a.s);
+  const strong = scored.slice(0,3).map(x=>x.l);
+  const diverse = scored.slice(3).map(x=>x.l);
+  return strong.concat(diverse);
+}
+
+/* --- 10 jogos (C(5,3)=10) --- */
 function combos3de5(){
   const r=[];
   for(let a=1;a<=3;a++){
@@ -1578,141 +1736,247 @@ function combos3de5(){
   }
   return r;
 }
-
 function gerarJogos15P(linhas){
-  // linhas: array 5x5
-  const comb = combos3de5(); // 10 jogos
+  const comb = combos3de5();
   return comb.map((idxs)=>{
     const set = new Set();
     idxs.forEach(i=>{
       linhas[i-1].forEach(n=>set.add(n));
     });
-    return sortNum([...set]); // deve dar 15
+    return sortNum([...set]);
   });
 }
 
-function renderLinha(nums){
+function renderBallsInline(nums){
+  return nums.map(n=>`<div class="ball">${format2(n)}</div>`).join("");
+}
+
+/* --- helpers de texto --- */
+function pct(v){ return (v*100).toFixed(1)+"%"; }
+
+function explainLine(lineIdx, line, stats, kind){
+  const gs = groupStrength(line, stats);
+  const co = groupCoSum(line, stats);
+  const lf = groupLiftAvg(line, stats);
+  const fs = groupFreqSum(line, stats);
+
+  const topPairs = (kind==="forte") ? topPairsInGroup(line, stats, 3) : worstPairsInGroup(line, stats, 3);
+  const pairsTxt = topPairs.map(p=>{
+    const sign = (kind==="forte") ? "↑" : "↓";
+    return `<span class="scoreTag">${sign} ${format2(p.a)}-${format2(p.b)} • juntos: <b>${p.co}</b>x • lift: <b>${p.lift.toFixed(2)}</b></span>`;
+  }).join(" ");
+
+  const resumo = (kind==="forte")
+    ? `Essa linha foi montada para ter <b>alta coocorrência</b> (dezenas que aparecem juntas com frequência) e <b>lift alto</b> (associação acima do esperado).`
+    : `Essa linha foi montada para ser <b>diversa</b>: pares com <b>baixa coocorrência</b> e <b>lift baixo</b>, reduzindo “andar junto”, mas mantendo frequência aceitável no conjunto.`;
+
   return `
-    <div class="line5">
-      ${nums.map(n=>`<div class="ball">${format2(n)}</div>`).join("")}
+    <div class="box">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+        <div class="pill ${kind==="forte" ? "info" : "warm"}" style="margin:0">
+          ${kind==="forte" ? "🔥 Linha " + lineIdx + " (FORTE – saem juntas)" : "🧊 Linha " + lineIdx + " (DIVERSA – menos juntas)"}
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <span class="scoreTag">Força: <b>${gs.sum.toFixed(1)}</b></span>
+          <span class="scoreTag">Média co: <b>${co.avg.toFixed(2)}</b></span>
+          <span class="scoreTag">Média lift: <b>${lf.avg.toFixed(2)}</b></span>
+          <span class="scoreTag">Soma freq: <b>${fs}</b></span>
+        </div>
+      </div>
+
+      <div class="numbers" style="justify-content:flex-start;margin-top:10px">${renderBallsInline(line)}</div>
+
+      <div class="mini">
+        <b>Por que se juntaram assim:</b> ${resumo}
+      </div>
+
+      <div class="mini" style="margin-top:10px">
+        <b>${kind==="forte" ? "Pares mais fortes dentro da linha" : "Pares mais fracos (para diversificar)"}:</b>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+          ${pairsTxt}
+        </div>
+      </div>
+
+      <div class="mini" style="margin-top:10px">
+        <b>Leitura rápida:</b>
+        • Coocorrência mede “quantas vezes saíram juntos” no período. • Lift > 1 indica associação acima do esperado pela frequência individual.
+      </div>
     </div>
   `;
 }
 
 async function gerar15P(){
   const s=getSession();
-  if(!hasAddon15()){
+  const addon = hasAddon15() || isMaster();
+  if(!addon){
     alert("🔒 O recurso '15 pontos garantido' é um EXTRA comprado separadamente.");
     return;
   }
+
   const qtd = qtdSelecionada();
 
   try{
     await prepararContextoBase(qtd);
     const payload = lastPayload;
-    const {freq} = lastCtx;
 
-    setStatus(true,"Calculando coocorrência (números que saem juntos)…");
-    setProgress(85);
+    setStatus(true,"15P: analisando coocorrência, lift e montando as 5 linhas…");
+    setProgress(82);
 
-    const co = calcCooc(payload.concursos);
+    const stats = calcCoocAndStats(payload.concursos);
 
-    // 5 linhas fortes e 5 linhas fracas/evitar
-    const fortes = construirGruposFortes(freq, co);
-    const fracos = construirGruposFracos(co);
+    // construir e otimizar
+    let lines = buildInitialLines(stats);
+    lines = optimizeLines(lines, stats);
 
-    const scoreFortes = fortes.map(g=>scoreGrupo(g, co));
-    const scoreFracos = fracos.map(g=>scoreGrupo(g, co));
-
-    // 10 jogos = combinações 3 de 5
-    const jogos = gerarJogos15P(fortes);
+    // agora temos 5 linhas: as 3 primeiras fortes, as 2 últimas diversas
+    const jogos = gerarJogos15P(lines);
 
     setStatus(false,"");
     setProgress(0);
 
-    const tableRows = fortes.map((g, i)=>{
-      return `
-        <tr>
-          <td><b>Linha ${i+1}</b></td>
-          <td class="mono">${g.map(format2).join(" - ")}</td>
-          <td><b>${scoreFortes[i]}</b></td>
-        </tr>
-      `;
-    }).join("");
+    // métricas gerais
+    const lineMeta = lines.map((l,idx)=>({
+      idx: idx+1,
+      kind: (idx<3) ? "forte" : "diversa",
+      strength: groupStrength(l,stats).sum,
+      coAvg: groupCoSum(l,stats).avg,
+      liftAvg: groupLiftAvg(l,stats).avg,
+      freqSum: groupFreqSum(l,stats),
+      line: l
+    }));
 
-    const tableRows2 = fracos.map((g, i)=>{
-      return `
-        <tr>
-          <td><b>Evitar ${i+1}</b></td>
-          <td class="mono">${g.map(format2).join(" - ")}</td>
-          <td><b>${scoreFracos[i]}</b></td>
-        </tr>
-      `;
-    }).join("");
+    const resumoGeral = `
+      <div class="chartCard">
+        <div class="chartTitle">
+          <b>🧠 Resumo do modelo (por que isso aumenta a chance de “chegar perto”)</b>
+          <span class="chartHint">baseado no período escolhido</span>
+        </div>
+        <div class="mini">
+          O fechamento 15P funciona porque você escolhe <b>3 linhas</b>. Então, o sistema precisa te dar linhas “boas” de formas diferentes:
+          <br/><br/>
+          <b>Linhas 1–3 (FORTE)</b> foram montadas com dezenas que <b>aparecem juntas</b> com mais frequência no período (coocorrência alta) e associação acima do esperado (lift alto).
+          Isso aumenta a chance de acertar uma linha “inteira” se o concurso vier com um padrão semelhante ao histórico do período.
+          <br/><br/>
+          <b>Linhas 4–5 (DIVERSA)</b> foram montadas para reduzir dependência de pares que andam juntos, criando uma “rede de segurança” caso o concurso venha quebrando padrões.
+          Mesmo diversificando, o sistema mantém frequência aceitável para não colocar somente dezenas extremamente frias.
+          <br/><br/>
+          <b>Resultado:</b> quando você combina 3 linhas, os <b>10 jogos</b> cobrem cenários fortes e cenários quebrados. Isso aumenta a chance de “15 ou próximo” quando você acerta as 3 linhas certas.
+        </div>
+      </div>
+    `;
 
-    const gamesHtml = jogos.map((j, idx)=>{
+    const linhasCards = `
+      <div class="grid">
+        ${explainLine(1, lines[0], stats, "forte")}
+        ${explainLine(2, lines[1], stats, "forte")}
+        ${explainLine(3, lines[2], stats, "forte")}
+        ${explainLine(4, lines[3], stats, "diversa")}
+        ${explainLine(5, lines[4], stats, "diversa")}
+      </div>
+    `;
+
+    const tabelaLinhas = `
+      <div class="box">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+          <div class="pill extra" style="margin:0">📌 As 5 linhas (1 a 5) — 5 dezenas em cada</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <span class="scoreTag">Período: <b>${payload.concursos.length}</b> concursos</span>
+            <span class="scoreTag">Modo: <b>${payload.mode.toUpperCase()}</b></span>
+          </div>
+        </div>
+        <div class="mini" style="margin-top:8px">
+          As linhas foram montadas sem repetir dezenas (cobre 1–25). Linhas 1–3 focam “sair juntas”, Linhas 4–5 focam “quebrar padrão”.
+        </div>
+
+        <div style="margin-top:12px;overflow:auto">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Linha</th>
+                <th>Tipo</th>
+                <th>Dezenas</th>
+                <th>Força</th>
+                <th>Média co</th>
+                <th>Média lift</th>
+                <th>Soma freq</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${lineMeta.map(m=>`
+                <tr>
+                  <td><b>${m.idx}</b></td>
+                  <td>${m.kind==="forte" ? "FORTE" : "DIVERSA"}</td>
+                  <td class="mono">${m.line.map(format2).join(" - ")}</td>
+                  <td><b>${m.strength.toFixed(1)}</b></td>
+                  <td>${m.coAvg.toFixed(2)}</td>
+                  <td>${m.liftAvg.toFixed(2)}</td>
+                  <td>${m.freqSum}</td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+
+    const jogosHtml = jogos.map((j, idx)=>{
+      const comb = combos3de5()[idx];
       return `
         <div class="gameCard">
-          <b>Jogo ${idx+1}</b>
-          <div class="mini" style="margin-top:6px" class="mono">${j.map(format2).join(" - ")}</div>
-          <div class="numbers" style="margin-top:8px">${j.map(n=>`<div class="ball">${format2(n)}</div>`).join("")}</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+            <b>Jogo ${idx+1}</b>
+            <span class="scoreTag">Linhas: <b>${comb.join("+")}</b></span>
+          </div>
+          <div class="mini" style="margin-top:8px" class="mono">${j.map(format2).join(" - ")}</div>
+          <div class="numbers" style="margin-top:10px">${renderBallsInline(j)}</div>
         </div>
       `;
     }).join("");
 
+    const jogosBox = `
+      <div class="box">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+          <div class="pill info" style="margin:0">🧾 Os 10 jogos (combinações 3 de 5)</div>
+          <span class="scoreTag">C(5,3) = <b>10</b></span>
+        </div>
+        <div class="mini" style="margin-top:8px">
+          Combinações geradas: 1+2+3, 1+2+4, 1+2+5, 1+3+4, 1+3+5, 1+4+5, 2+3+4, 2+3+5, 2+4+5, 3+4+5.
+        </div>
+        <div class="gameList" style="margin-top:12px">${jogosHtml}</div>
+      </div>
+    `;
+
     document.getElementById("p15Area").innerHTML = `
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
         <div>
-          <div style="font-weight:950;font-size:16px">✅ 15 Pontos Garantido — análise e fechamento</div>
+          <div style="font-weight:1000;font-size:16px">✅ 15 Pontos Garantido — linhas + análise detalhada</div>
           <div class="mini">
             Janela: <b>${payload.inicio}</b> a <b>${payload.ultimo}</b> (${payload.concursos.length} concursos) •
             Fonte: <b>${payload.source}</b> • Modo: <b>${payload.mode.toUpperCase()}</b>
           </div>
         </div>
         <div class="mini">
-          O sistema cria <b>5 linhas</b> com 5 dezenas “mais prováveis de sair juntas” (coocorrência) e gera os <b>10 jogos</b> combinando 3 linhas.
+          Este painel monta <b>5 linhas de 5 dezenas</b> com análise profunda (coocorrência + lift + frequência) e gera os <b>10 jogos</b>.
         </div>
       </div>
 
-      <div class="twoCols">
-        <div class="box">
-          <div class="pill info">📌 5 linhas (tendem a sair juntas)</div>
-          <div class="mini">“Força” = soma de coocorrências internas no período (quanto maior, mais andaram juntas).</div>
-          <div style="margin-top:10px">
-            <table class="table">
-              <thead><tr><th>Linha</th><th>Dezenas</th><th>Força</th></tr></thead>
-              <tbody>${tableRows}</tbody>
-            </table>
-          </div>
-        </div>
-
-        <div class="box">
-          <div class="pill info">🚫 5 grupos (tendem a NÃO andar juntos)</div>
-          <div class="mini">“Força” baixa aqui indica baixa coocorrência (grupo “evitar” como conjunto).</div>
-          <div style="margin-top:10px">
-            <table class="table">
-              <thead><tr><th>Grupo</th><th>Dezenas</th><th>Força</th></tr></thead>
-              <tbody>${tableRows2}</tbody>
-            </table>
-          </div>
-        </div>
-      </div>
+      ${tabelaLinhas}
+      ${resumoGeral}
 
       <div class="chartCard">
         <div class="chartTitle">
-          <b>🎯 Como fecham os 10 jogos</b>
-          <span class="chartHint">C(5,3)=10</span>
+          <b>🔍 Análise detalhada linha por linha</b>
+          <span class="chartHint">mostra pares fortes/fracos</span>
         </div>
         <div class="mini">
-          Se o usuário acertar <b>3 linhas</b> (entre as 5), uma das combinações (10 jogos) cobre a união dessas 3 linhas (15 dezenas). <br/>
-          Combinações geradas: 1+2+3, 1+2+4, 1+2+5, 1+3+4, 1+3+5, 1+4+5, 2+3+4, 2+3+5, 2+4+5, 3+4+5.
+          Abaixo você vê <b>o motivo</b> de cada linha ter sido formada daquele jeito e os pares mais relevantes do período selecionado.
         </div>
       </div>
 
-      <div class="box">
-        <div class="pill info">🧾 Os 10 jogos gerados automaticamente</div>
-        <div class="gameList">${gamesHtml}</div>
-      </div>
+      ${linhasCards}
+
+      <div class="hr"></div>
+      ${jogosBox}
     `;
 
     goView("view15p");
@@ -1728,33 +1992,11 @@ async function gerar15P(){
     goView("view15p");
   }
 }
+</script>
 
-/* ====== Ações para Home (abrir telas) ====== */
-function acaoInvertida(){
-  const s=getSession();
-  if(!s.premium){ alert("🔒 Invertida exige Premium."); return; }
-  if(!lastPrincipalGame){ alert("Gere primeiro um Jogo Principal."); return; }
-  goView("viewInvertida");
-  // opcional: já gerar automaticamente ao abrir
-  gerarInvertida();
-}
-function acaoTecnica(){
-  const s=getSession();
-  if(!s.premium){ alert("🔒 Técnica premiada exige Premium."); return; }
-  if(!lastPrincipalGame){ alert("Gere primeiro um Jogo Principal."); return; }
-  goView("viewTecnica");
-  gerarTecnicaPremiada();
-}
-function acao15P(){
-  if(!hasAddon15()){
-    alert("🔒 O recurso '15 pontos garantido' é um EXTRA comprado separadamente.");
-    return;
-  }
-  goView("view15p");
-}
-
+<script>
 /* =========================
-   Eventos
+   Eventos / binds
 ========================= */
 document.getElementById("btnEntrar").addEventListener("click", entrar);
 document.getElementById("btnComprar").addEventListener("click", comprarPremium);
@@ -1764,20 +2006,19 @@ document.getElementById("btnSair").addEventListener("click", sair);
 document.getElementById("btnComprar15p").addEventListener("click", comprar15p);
 document.getElementById("btnAtivar15p").addEventListener("click", abrirAtivar15p);
 
-document.getElementById("btnHomeAnalise").addEventListener("click", ()=>{
-  const s=getSession();
-  if(!s.premium){ alert("🔒 Gerar análise exige Premium."); return; }
-  acaoAnalise();
-});
-document.getElementById("btnHomePrincipal").addEventListener("click", acaoPrincipal);
-document.getElementById("btnHomeInvertida").addEventListener("click", acaoInvertida);
-document.getElementById("btnHomeTecnica").addEventListener("click", acaoTecnica);
-document.getElementById("btnHome15p").addEventListener("click", acao15P);
+// Home cards
+document.getElementById("btnHomeAnalise").addEventListener("click", ()=>{});
+document.getElementById("btnHomePrincipal").addEventListener("click", ()=>{});
+document.getElementById("btnHomeInvertida").addEventListener("click", ()=>{});
+document.getElementById("btnHomeTecnica").addEventListener("click", ()=>{});
+document.getElementById("btnHome15p").addEventListener("click", ()=>{});
 
+// Modais
 document.getElementById("modalBack").addEventListener("click", (e)=>{ if(e.target.id==="modalBack") fecharModal(); });
 document.getElementById("modalBlocosBack").addEventListener("click", (e)=>{ if(e.target.id==="modalBlocosBack") fecharGraficoBlocos(); });
 document.getElementById("modalAtivar15pBack").addEventListener("click", (e)=>{ if(e.target.id==="modalAtivar15pBack") fecharAtivar15p(); });
 
+// Start
 document.addEventListener("DOMContentLoaded", ()=>{
   const s=getSession();
   if(s.email) abrirApp();
