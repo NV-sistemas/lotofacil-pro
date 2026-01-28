@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Login Premium</title>
+</head>
+<body>
+
+<h2>Área Premium Lotofácil</h2>
+
+<input id="email" placeholder="Email"><br><br>
+<input id="senha" type="password" placeholder="Senha"><br><br>
+
+<button onclick="login()">Entrar</button>
+
+<p id="msg"></p>
+
+<script>
+function login() {
+  const email = document.getElementById("email").value;
+  const senha = document.getElementById("senha").value;
+
+  if (email === "premium@lotofacil.com" && senha === "123456") {
+    localStorage.setItem("premium", "true");
+    window.location.href = "premium.html";
+  } else {
+    document.getElementById("msg").innerText = "Login inválido";
+  }
+}
+</script>
+
+</body>
+</html>
