@@ -18,10 +18,10 @@ body{
   padding:22px;
   box-shadow:0 0 25px rgba(0,0,0,.5);
 }
-h1{text-align:center;margin-bottom:4px;}
-.subtitle{text-align:center;color:#94a3b8;margin-bottom:20px;}
+h1{text-align:center;}
+.subtitle{text-align:center;color:#94a3b8;margin-bottom:15px;}
 label{font-size:14px;color:#cbd5f5;}
-select,button{
+select,input,button{
   width:100%;
   padding:14px;
   border-radius:12px;
@@ -29,8 +29,16 @@ select,button{
   font-size:16px;
   margin-top:8px;
 }
-select{background:#020617;color:#fff;border:1px solid #334155;}
-button{background:#22c55e;color:#022c22;font-weight:bold;margin-top:15px;}
+select,input{
+  background:#020617;
+  color:#fff;
+  border:1px solid #334155;
+}
+button{
+  background:#22c55e;
+  color:#022c22;
+  font-weight:bold;
+}
 .box{
   background:#020617;
   border-radius:15px;
@@ -38,9 +46,9 @@ button{background:#22c55e;color:#022c22;font-weight:bold;margin-top:15px;}
   margin-top:15px;
   font-size:14px;
 }
-.title{color:#22c55e;font-weight:bold;margin-bottom:6px;}
+.title{color:#22c55e;font-weight:bold;}
 .footer{text-align:center;font-size:11px;color:#64748b;margin-top:20px;}
-hr{border:0;border-top:1px solid #334155;margin:12px 0;}
+.hidden{display:none;}
 </style>
 </head>
 
@@ -63,16 +71,20 @@ hr{border:0;border-top:1px solid #334155;margin:12px 0;}
 
 <label>Quantidade de jogos</label>
 <select id="qtdJogos">
-  <option value="1">1 jogo (grátis)</option>
+  <option value="1">1 jogo (Grátis)</option>
   <option value="3">3 jogos (Premium)</option>
   <option value="5">5 jogos (Premium)</option>
   <option value="10">10 jogos (Premium)</option>
 </select>
 
+<div id="loginBox" class="hidden">
+  <label>Senha Premium</label>
+  <input id="senha" placeholder="Digite sua senha">
+</div>
+
 <button onclick="gerar()">GERAR JOGOS</button>
 
 <div class="box" id="saida"></div>
-<div class="box" id="historico"></div>
 
 <div class="footer">
 Sistema estatístico. Não garantimos prêmios.
@@ -82,9 +94,7 @@ Sistema estatístico. Não garantimos prêmios.
 </div>
 
 <script>
-let premium = localStorage.getItem("premium")==="true";
-let usos = Number(localStorage.getItem("usos")||0);
-let historico = JSON.parse(localStorage.getItem("historico")||"[]");
+const SENHA_PREMIUM = "PREMIUM123"; // <<< MUDE AQUI
 
 function jogoUnico(){
   let j=[];
@@ -98,29 +108,25 @@ function jogoUnico(){
 function gerar(){
   let qtdJogos = Number(document.getElementById("qtdJogos").value);
   let concursos = document.getElementById("concursos").value;
+  let saida = document.getElementById("saida");
 
-  if(!premium && qtdJogos>1){
-    let cod=prompt("🔒 Premium\nDigite o código recebido após pagamento:");
-    if(cod==="PREMIUM123"){
-      premium=true;
-      localStorage.setItem("premium","true");
-    }else{
-      alert("Código inválido");
+  if(qtdJogos > 1){
+    document.getElementById("loginBox").classList.remove("hidden");
+    let senha = document.getElementById("senha").value;
+    if(senha !== SENHA_PREMIUM){
+      saida.innerText = "🔒 Área Premium\nDigite a senha para liberar.";
       return;
     }
   }
 
-  let texto=`📊 Análise baseada em ${concursos} concursos\n\n`;
-  let jogosHoje=[];
-
+  let texto = `📊 Análise (${concursos} concursos)\n\n`;
   for(let i=0;i<qtdJogos;i++){
-    let j=jogoUnico();
-    texto+=`🎯 Jogo ${i+1}: ${j.join(" - ")}\n`;
-    jogosHoje.push(j.join("-"));
+    texto += `🎯 Jogo ${i+1}: ${jogoUnico().join(" - ")}\n`;
   }
 
-  document.getElementById("saida").innerText=texto;
+  saida.innerText = texto;
+}
+</script>
 
-  // jogo do dia
-  let hoje=new Date().toLocaleDateString();
-  historico.unshift(`📅 ${hoje
+</body>
+</html>
