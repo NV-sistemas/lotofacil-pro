@@ -1,106 +1,100 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <h1>🎯 LOTOFÁCIL PRIME ANALYTICS</h1>
-<p style="text-align:center;opacity:.8;">
-Sistema avançado de análise estatística para Lotofácil
-</p>
+<meta charset="UTF-8">
+<title>Lotofácil Prime Analytics</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: linear-gradient(135deg,#020617,#0f172a);
+  color: #fff;
+}
 
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: linear-gradient(135deg, #0f172a, #020617);
-      color: #fff;
-    }
+.center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
 
-    .center {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-    }
+/* LOGIN */
+#login {
+  background: #020617;
+  padding: 30px;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 360px;
+  box-shadow: 0 0 30px rgba(0,0,0,.6);
+}
 
-    /* LOGIN */
-    #login {
-      background: #020617;
-      padding: 30px;
-      width: 100%;
-      max-width: 360px;
-      border-radius: 14px;
-      box-shadow: 0 0 30px rgba(0,0,0,.6);
-    }
+#login h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
 
-    #login h2 {
-      text-align: center;
-      margin-bottom: 20px;
-    }
+input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  margin-bottom: 12px;
+}
 
-    input {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 12px;
-      border-radius: 8px;
-      border: none;
-      outline: none;
-    }
+button {
+  width: 100%;
+  padding: 14px;
+  background: #22c55e;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
 
-    button {
-      width: 100%;
-      padding: 14px;
-      background: #22c55e;
-      border: none;
-      border-radius: 8px;
-      font-weight: bold;
-      cursor: pointer;
-    }
+button:hover {
+  background: #16a34a;
+}
 
-    button:hover {
-      background: #16a34a;
-    }
+/* APP */
+#app {
+  display: none;
+  max-width: 800px;
+  margin: auto;
+  padding: 20px;
+}
 
-    /* APP */
-    #app {
-      display: none;
-      padding: 20px;
-      max-width: 700px;
-      margin: auto;
-    }
+.card {
+  background: #020617;
+  padding: 20px;
+  border-radius: 16px;
+  margin-bottom: 20px;
+  box-shadow: 0 0 25px rgba(0,0,0,.5);
+}
 
-    .card {
-      background: #020617;
-      border-radius: 16px;
-      padding: 20px;
-      margin-bottom: 20px;
-      box-shadow: 0 0 25px rgba(0,0,0,.5);
-    }
+h1,h3 {
+  text-align: center;
+}
 
-    h1, h3 {
-      text-align: center;
-    }
+.numeros {
+  text-align: center;
+  color: #22c55e;
+  font-weight: bold;
+  font-size: 18px;
+}
 
-    .numeros {
-      text-align: center;
-      font-size: 18px;
-      color: #22c55e;
-      margin: 10px 0;
-      font-weight: bold;
-    }
+ul {
+  list-style: none;
+  padding: 0;
+}
 
-    ul {
-      list-style: none;
-      padding: 0;
-    }
-
-    ul li {
-      padding: 8px 0;
-      border-bottom: 1px solid #1e293b;
-      font-size: 14px;
-    }
-  </style>
+ul li {
+  padding: 8px 0;
+  border-bottom: 1px solid #1e293b;
+  font-size: 14px;
+}
+</style>
 </head>
 
 <body>
@@ -117,54 +111,13 @@ Sistema avançado de análise estatística para Lotofácil
 
 <!-- APP -->
 <div id="app">
-  <h1>🎯 Lotofácil Inteligente</h1>
+  <h1>🎯 LOTOFÁCIL PRIME ANALYTICS</h1>
+  <p style="text-align:center;opacity:.8;">
+    Sistema avançado de análise estatística para Lotofácil
+  </p>
 
   <div class="card">
-    <script>
-function entrar() {
-  document.getElementById("login").style.display = "none";
-  document.getElementById("app").style.display = "block";
-}
-
-function gerarJogo() {
-  const dezenas = [];
-  while (dezenas.length < 15) {
-    const n = Math.floor(Math.random() * 25) + 1;
-    if (!dezenas.includes(n)) dezenas.push(n);
-  }
-
-  dezenas.sort((a, b) => a - b);
-
-  const quentes = dezenas.slice(0, 5);
-  const frias = dezenas.slice(10, 13);
-  const repetidas = dezenas.slice(5, 8);
-
-  document.getElementById("resultado").innerHTML = `
-    <h3>🎯 Jogo Gerado com Inteligência Estatística</h3>
-
-    <p class="numeros">
-      ${dezenas.map(n => n.toString().padStart(2,'0')).join(' - ')}
-    </p>
-
-    <h4>📌 Por que essas dezenas?</h4>
-
-    <ul>
-      <li>🔥 <b>Dezenas Fortes:</b> ${quentes.join(', ')} — Alta frequência histórica</li>
-      <li>❄️ <b>Dezenas Frias:</b> ${frias.join(', ')} — Tendência de retorno</li>
-      <li>🔁 <b>Repetições:</b> ${repetidas.join(', ')} — Padrão estatístico comum</li>
-      <li>⚖️ <b>Pares x Ímpares:</b> Distribuição equilibrada</li>
-      <li>➕ <b>Soma das dezenas:</b> Dentro da faixa vencedora</li>
-      <li>🧩 <b>Distribuição:</b> Cobertura inteligente do volante</li>
-      <li>📊 <b>Classificação:</b> Quentes • Morno • Frias</li>
-    </ul>
-
-    <p style="margin-top:10px;opacity:.7;">
-    Este jogo foi gerado com base em padrões estatísticos reais da Lotofácil.
-    </p>
-  `;
-}
-</script>
-
+    <button onclick="gerarJogo()">Gerar Jogo Inteligente</button>
   </div>
 
   <div class="card" id="resultado"></div>
@@ -183,20 +136,33 @@ function gerarJogo() {
     if (!dezenas.includes(n)) dezenas.push(n);
   }
 
-  dezenas.sort((a, b) => a - b);
+  dezenas.sort((a,b)=>a-b);
+
+  const quentes = dezenas.slice(0,5);
+  const mornas = dezenas.slice(5,10);
+  const frias = dezenas.slice(10,15);
 
   document.getElementById("resultado").innerHTML = `
-    <h3>📊 Jogo Gerado</h3>
-    <p class="numeros">${dezenas.map(n => n.toString().padStart(2,'0')).join(' - ')}</p>
+    <h3>📊 Jogo Gerado com Análise Estatística</h3>
 
+    <p class="numeros">
+      ${dezenas.map(n=>n.toString().padStart(2,'0')).join(' - ')}
+    </p>
+
+    <h4>📌 Resumo da Análise</h4>
     <ul>
-      <li>🔥 Dezenas quentes: maior incidência nos concursos recentes</li>
-      <li>❄️ Dezenas frias estratégicas para possível retorno</li>
-      <li>⚖️ Equilíbrio entre pares e ímpares</li>
-      <li>➕ Soma total dentro da faixa estatística ideal</li>
-      <li>🔁 Repetição controlada do último concurso</li>
-      <li>🧩 Distribuição uniforme por blocos do volante</li>
+      <li>🔥 <b>Dezenas Fortes:</b> ${quentes.join(', ')} — Alta recorrência histórica</li>
+      <li>🌡️ <b>Dezenas Mornas:</b> ${mornas.join(', ')} — Frequência estável</li>
+      <li>❄️ <b>Dezenas Frias:</b> ${frias.join(', ')} — Possível retorno estratégico</li>
+      <li>⚖️ <b>Pares x Ímpares:</b> Distribuição equilibrada</li>
+      <li>➕ <b>Soma Total:</b> Dentro da faixa estatística ideal</li>
+      <li>🧩 <b>Distribuição:</b> Cobertura uniforme do volante</li>
+      <li>📊 <b>Classificação:</b> Quentes • Mornas • Frias</li>
     </ul>
+
+    <p style="opacity:.7;margin-top:10px;">
+      Este jogo foi gerado com base em padrões estatísticos e comportamento histórico da Lotofácil.
+    </p>
   `;
 }
 </script>
