@@ -991,6 +991,7 @@ function abrirGraficoBlocos(blocos){
    ANÁLISE PRIME (extras)
 ========================= */
 function calcPairsAndSumsAndBlocks(concursos){
+  const parImparPatterns = calcParImparPatterns(payload.concursos);
   const pair = {};      // "a-b" => count
   const pairEO = {};    // "P-P", "P-I", "I-I"
   const sums = {};      // soma => count
@@ -1000,7 +1001,63 @@ function calcPairsAndSumsAndBlocks(concursos){
     const x = Math.min(a,b), y = Math.max(a,b);
     return `${x}-${y}`;
   }
+function calcParImparPatterns(concursos){
+  const map = {}; // "7-8" => count
 
+  concursos.forEach(c=>{
+    const nums = (c.dezenas||[])
+      .map(toNum)
+      .filter(n=>n>=1 && n<=25);
+
+    const pares = nums.filter(n=>n%2===0).length;
+    const impares = nums.length - pares;
+    const key = `${pares}-${impares}`;
+    map[key] = (map[key]||0)+1;
+  });
+
+  return Object.entries(map)
+    .map(([k,v])=>{
+      const [p,i] = k.split("-").map(Number);
+      return { pares:p, impares:i, count:v };
+    })
+    .sort((a,b)=>b.count-a.count);
+}
+function renderParImparPatterns(patterns){
+  const rows = patterns.slice(0,6).map(p=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;
+                padding:10px;border-bottom:1px solid rgba(255,255,255,.08)">
+      <div><b>${p.pares} pares / ${p.impares} ímpares</b></div>
+      <div class="mini" style="margin:0"><b>${p.count}x</b></div>
+    </div>
+  `).join("");
+
+  const top = patterns[0];
+
+  return `
+    <div class="box" style="margin-top:12px">
+      <b>⚖️ Padrões de Pares × Ímpares mais comuns</b>
+      <div class="mini" style="margin-top:6px">
+        Mostra como os concursos costumam se distribuir entre pares e ímpares
+        dentro da janela analisada.
+      </div>
+
+      <div style="margin-top:10px;border:1px solid rgba(255,255,255,.10);
+                  border-radius:14px;overflow:hidden">
+        ${rows || `<div style="padding:12px" class="mini">—</div>`}
+      </div>
+
+      ${
+        top
+        ? `<div class="mini" style="margin-top:10px">
+             🔥 Padrão dominante: 
+             <b>${top.pares} pares / ${top.impares} ímpares</b>
+             (${top.count} ocorrências)
+           </div>`
+        : ``
+      }
+    </div>
+  `;
+}
   concursos.forEach(c=>{
     const nums = (c.dezenas||[])
       .map(toNum)
@@ -1298,8 +1355,66 @@ async function acaoAnalise(){
     const {freq} = lastCtx;
 
     const extra = calcPairsAndSumsAndBlocks(payload.concursos);
+    const parImparPatterns = calcParImparPatterns(payload.concursos);
+function calcParImparPatterns(concursos){
+  const map = {}; // "7-8" => count
 
+  concursos.forEach(c=>{
+    const nums = (c.dezenas||[])
+      .map(toNum)
+      .filter(n=>n>=1 && n<=25);
+
+    const pares = nums.filter(n=>n%2===0).length;
+    const impares = nums.length - pares;
+    const key = `${pares}-${impares}`;
+    map[key] = (map[key]||0)+1;
+  });
+
+  return Object.entries(map)
+    .map(([k,v])=>{
+      const [p,i] = k.split("-").map(Number);
+      return { pares:p, impares:i, count:v };
+    })
+    .sort((a,b)=>b.count-a.count);
+}
+function renderParImparPatterns(patterns){
+  const rows = patterns.slice(0,6).map(p=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;
+                padding:10px;border-bottom:1px solid rgba(255,255,255,.08)">
+      <div><b>${p.pares} pares / ${p.impares} ímpares</b></div>
+      <div class="mini" style="margin:0"><b>${p.count}x</b></div>
+    </div>
+  `).join("");
+
+  const top = patterns[0];
+
+  return `
+    <div class="box" style="margin-top:12px">
+      <b>⚖️ Padrões de Pares × Ímpares mais comuns</b>
+      <div class="mini" style="margin-top:6px">
+        Mostra como os concursos costumam se distribuir entre pares e ímpares
+        dentro da janela analisada.
+      </div>
+
+      <div style="margin-top:10px;border:1px solid rgba(255,255,255,.10);
+                  border-radius:14px;overflow:hidden">
+        ${rows || `<div style="padding:12px" class="mini">—</div>`}
+      </div>
+
+      ${
+        top
+        ? `<div class="mini" style="margin-top:10px">
+             🔥 Padrão dominante: 
+             <b>${top.pares} pares / ${top.impares} ímpares</b>
+             (${top.count} ocorrências)
+           </div>`
+        : ``
+      }
+    </div>
+  `;
+}
     document.getElementById("analiseArea").innerHTML = `
+    ${renderParImparPatterns(parImparPatterns)}
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
         <div>
           <div style="font-weight:1000;font-size:16px">📈 Análise PRIME do período selecionado</div>
