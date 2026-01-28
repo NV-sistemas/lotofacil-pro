@@ -1,3 +1,45 @@
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  color: white;
+  text-align: center;
+  margin: 0;
+  padding: 20px;
+}
+
+.container {
+  max-width: 420px;
+  margin: auto;
+  background: rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.4);
+}
+
+button, select {
+  width: 100%;
+  padding: 14px;
+  margin-top: 10px;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+}
+
+button {
+  background: #00ff9c;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.resultado {
+  margin-top: 15px;
+  background: rgba(0,0,0,0.3);
+  padding: 10px;
+  border-radius: 10px;
+}
+</style>
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -5,7 +47,25 @@
 <title>Lotofácil Pro Premium</title>
 
 <style>
-body{
+body{<div class="container">
+  <h2>Lotofácil Inteligente</h2>
+  <p>Análise estatística avançada</p>
+
+  <select id="quantidade">
+    <option value="3">3 Jogos</option>
+    <option value="5">5 Jogos</option>
+    <option value="10">10 Jogos</option>
+  </select>
+
+  <button onclick="gerarJogos()">Gerar Jogos</button>
+
+  <div class="resultado" id="resultado"></div>
+
+  <button onclick="window.location.href='login.html'">
+    Área Premium
+  </button>
+</div>
+
   margin:0;
   background:linear-gradient(135deg,#020617,#0f172a);
   font-family:Segoe UI, Arial;
@@ -133,44 +193,3 @@ function gerar(){
 <button onclick="window.location.href='login.html'">
 Acessar Premium
 </button>
-<style>
-body {
-  font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-  color: white;
-  text-align: center;
-  margin: 0;
-  padding: 20px;
-}
-
-.container {
-  max-width: 420px;
-  margin: auto;
-  background: rgba(255,255,255,0.08);
-  border-radius: 16px;
-  padding: 20px;
-  box-shadow: 0 0 20px rgba(0,0,0,0.4);
-}
-
-button, select {
-  width: 100%;
-  padding: 14px;
-  margin-top: 10px;
-  border: none;
-  border-radius: 10px;
-  font-size: 16px;
-}
-
-button {
-  background: #00ff9c;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.resultado {
-  margin-top: 15px;
-  background: rgba(0,0,0,0.3);
-  padding: 10px;
-  border-radius: 10px;
-}
-</style>
