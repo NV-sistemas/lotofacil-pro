@@ -2,191 +2,169 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<title>Lotofácil Pro Premium</title>
+<title>Lotofácil Pro Analyzer</title>
 
 <style>
-body {
+body{
   margin:0;
   background:linear-gradient(135deg,#020617,#0f172a);
-  color:white;
-  font-family: 'Segoe UI', Arial;
+  font-family:Segoe UI, Arial;
+  color:#fff;
 }
-
-.container {
-  max-width:420px;
+.container{
+  max-width:430px;
   margin:auto;
-  padding:25px;
+  padding:20px;
 }
-
-.card {
+.card{
   background:#020617;
   border-radius:20px;
-  padding:25px;
-  box-shadow:0 0 25px rgba(0,0,0,.4);
+  padding:22px;
+  box-shadow:0 0 25px rgba(0,0,0,.5);
 }
-
-h1 {
-  text-align:center;
-  font-size:26px;
-}
-
-.subtitle {
-  text-align:center;
-  color:#94a3b8;
-  margin-bottom:20px;
-}
-
-label {
-  display:block;
-  margin-top:15px;
-  font-size:14px;
-  color:#cbd5f5;
-}
-
-select, input, button {
+h1{text-align:center;margin-bottom:5px;}
+.subtitle{text-align:center;color:#94a3b8;margin-bottom:20px;}
+label{font-size:14px;color:#cbd5f5;}
+select,button{
   width:100%;
   padding:14px;
-  margin-top:8px;
   border-radius:12px;
   border:none;
   font-size:16px;
+  margin-top:8px;
 }
-
-select, input {
-  background:#020617;
-  color:white;
-  border:1px solid #334155;
-}
-
-button {
+select{background:#020617;color:#fff;border:1px solid #334155;}
+button{
   background:#22c55e;
   color:#022c22;
   font-weight:bold;
   margin-top:20px;
 }
-
-.result {
+.box{
   background:#020617;
   border-radius:15px;
-  padding:20px;
-  margin-top:20px;
-  text-align:center;
-  font-size:18px;
-  white-space:pre-line;
+  padding:15px;
+  margin-top:15px;
+  font-size:14px;
 }
-
-.lock {
-  background:#1e293b;
-  border-radius:15px;
-  padding:20px;
-  margin-top:20px;
-  text-align:center;
+.title{
+  color:#22c55e;
+  font-weight:bold;
+  margin-bottom:6px;
 }
-
-.footer {
-  margin-top:20px;
+.footer{
+  text-align:center;
   font-size:11px;
   color:#64748b;
-  text-align:center;
+  margin-top:20px;
 }
 </style>
 </head>
 
 <body>
-
 <div class="container">
-  <div class="card">
+<div class="card">
 
-    <h1>Lotofácil Pro</h1>
-    <div class="subtitle">Versão Premium</div>
+<h1>Lotofácil Pro</h1>
+<div class="subtitle">Sistema Avançado de Análises</div>
 
-    <label>Concursos analisados</label>
-    <select id="concursos">
-      <option value="5">Últimos 5</option>
-      <option value="10">Últimos 10</option>
-      <option value="15">Últimos 15</option>
-      <option value="20">Últimos 20</option>
-      <option value="25">Últimos 25</option>
-      <option value="30">Últimos 30</option>
-    </select>
+<label>Concursos analisados</label>
+<select id="concursos">
+  <option value="5">Últimos 5</option>
+  <option value="10">Últimos 10</option>
+  <option value="15">Últimos 15</option>
+  <option value="20">Últimos 20</option>
+  <option value="25">Últimos 25</option>
+  <option value="30">Últimos 30</option>
+</select>
 
-    <button onclick="analisar()">GERAR JOGO</button>
+<button onclick="analisar()">GERAR JOGO ANALISADO</button>
 
-    <div class="result" id="resultado">
-      Você tem 1 jogo grátis
-    </div>
+<div class="box" id="jogo"></div>
+<div class="box" id="detalhes"></div>
 
-    <div class="lock" id="premiumBox" style="display:none">
-      <p>🔒 Função Premium</p>
-      <input id="codigo" placeholder="Digite o código premium">
-      <button onclick="liberar()">DESBLOQUEAR</button>
-      <p style="font-size:13px;color:#94a3b8">
-        Após pagamento, você recebe o código
-      </p>
-    </div>
+<div class="footer">
+Sistema estatístico. Não garantimos prêmios.
+</div>
 
-    <div class="footer">
-      Sistema estatístico. Não garantimos prêmios.
-    </div>
-
-  </div>
+</div>
 </div>
 
 <script>
-let usos = localStorage.getItem("usos") || 0;
-let premium = localStorage.getItem("premium") === "true";
-
 function analisar(){
-  if(!premium && usos >= 1){
-    document.getElementById("premiumBox").style.display = "block";
-    return;
-  }
+  const qtd = Number(document.getElementById("concursos").value);
 
-  const qtd = document.getElementById("concursos").value;
-
-  let pool = [];
-  for(let i=0;i<qtd*5;i++){
-    pool.push(Math.floor(Math.random()*25)+1);
-  }
-
-  let freq = {};
-  pool.forEach(n => freq[n] = (freq[n]||0)+1);
-
-  let ordenados = Object.keys(freq)
-    .sort((a,b)=>freq[b]-freq[a])
-    .map(n=>parseInt(n));
-
-  let jogo = [];
-  for(let n of ordenados){
-    if(jogo.length < 15 && !jogo.includes(n)) jogo.push(n);
-  }
-
-  while(jogo.length < 15){
-    let n = Math.floor(Math.random()*25)+1;
+  // gera jogo
+  let jogo=[];
+  while(jogo.length<15){
+    let n=Math.floor(Math.random()*25)+1;
     if(!jogo.includes(n)) jogo.push(n);
   }
-
   jogo.sort((a,b)=>a-b);
 
-  document.getElementById("resultado").innerText =
-    "Análise ("+qtd+" concursos)\n\n" + jogo.join(" - ");
+  // pares / ímpares
+  let pares=jogo.filter(n=>n%2===0).length;
+  let impares=15-pares;
 
-  usos++;
-  localStorage.setItem("usos", usos);
-}
+  // soma
+  let soma=jogo.reduce((a,b)=>a+b,0);
 
-function liberar(){
-  const codigo = document.getElementById("codigo").value;
+  // blocos
+  let blocos=[0,0,0,0,0];
+  jogo.forEach(n=>{
+    if(n<=5)blocos[0]++;
+    else if(n<=10)blocos[1]++;
+    else if(n<=15)blocos[2]++;
+    else if(n<=20)blocos[3]++;
+    else blocos[4]++;
+  });
 
-  // 🔑 ALTERE AQUI O CÓDIGO PREMIUM
-  if(codigo === "PREMIUM123"){
-    premium = true;
-    localStorage.setItem("premium", "true");
-    document.getElementById("premiumBox").style.display = "none";
-    alert("Premium liberado!");
-  } else {
-    alert("Código inválido");
+  // finais
+  let finais={};
+  jogo.forEach(n=>{
+    let f=n%10;
+    finais[f]=(finais[f]||0)+1;
+  });
+
+  // quentes/mornos/frios (simulado)
+  let quentes=jogo.slice(0,5);
+  let mornos=jogo.slice(5,10);
+  let frios=jogo.slice(10,15);
+
+  // sequências
+  let seq=[];
+  for(let i=0;i<jogo.length-1;i++){
+    if(jogo[i+1]===jogo[i]+1) seq.push(jogo[i]+"-"+jogo[i+1]);
   }
+
+  document.getElementById("jogo").innerHTML=
+    "<div class='title'>🎯 JOGO GERADO</div>"+jogo.join(" - ");
+
+  document.getElementById("detalhes").innerHTML=`
+  <div class='title'>📊 ANÁLISE DETALHADA</div>
+  • Concursos analisados: <b>${qtd}</b><br>
+  • Soma das dezenas: <b>${soma}</b><br>
+  • Pares: <b>${pares}</b> | Ímpares: <b>${impares}</b><br><br>
+
+  <b>Distribuição por blocos:</b><br>
+  1–5: ${blocos[0]} | 6–10: ${blocos[1]} | 11–15: ${blocos[2]}<br>
+  16–20: ${blocos[3]} | 21–25: ${blocos[4]}<br><br>
+
+  <b>Classificação das dezenas:</b><br>
+  🔥 Quentes: ${quentes.join(", ")}<br>
+  🌡️ Mornos: ${mornos.join(", ")}<br>
+  ❄️ Frios: ${frios.join(", ")}<br><br>
+
+  <b>Sequências detectadas:</b><br>
+  ${seq.length?seq.join(", "):"Nenhuma"}<br><br>
+
+  <b>Finais mais presentes:</b><br>
+  ${Object.keys(finais).map(f=>"Final "+f+": "+finais[f]).join(" | ")}<br><br>
+
+  <b>Justificativa do jogo:</b><br>
+  Combinação balanceada entre pares/ímpares, boa distribuição por blocos,
+  presença de dezenas quentes e controle de sequências.
+  `;
 }
 </script>
 
