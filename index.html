@@ -252,6 +252,24 @@
     color:rgba(203,213,225,.75);
     font-size:11px;
   }
+  /* ✅ FIX MOBILE: remove overflow e alinha o select/inputs na Home */
+@media (max-width: 520px){
+  .wrap{ padding: 12px; }
+  .card{ padding: 14px; }
+
+  /* força as colunas a caberem no celular */
+  .row{ flex-direction: column; }
+  .col{ min-width: 0 !important; }
+
+  /* remove qualquer "sobra" do select */
+  input, select{
+    width: 100%;
+    max-width: 100%;
+  }
+
+  /* evita o card "vazar" horizontalmente */
+  body{ overflow-x: hidden; }
+}
 </style>
 </head>
 
@@ -350,7 +368,7 @@ const ADDON15_KEY = "lf_addon15";
     <div class="card">
       <!-- Quantidade acima -->
       <div class="row">
-        <div class="col" style="min-width:320px">
+        <div class="col">
           <label>Quantidade de concursos para análise</label>
           <select id="qtdConcursos">
             <option value="5">Últimos 5 concursos</option>
@@ -367,7 +385,7 @@ const ADDON15_KEY = "lf_addon15";
           </div>
         </div>
 
-        <div class="col" style="min-width:320px">
+        <div class="col">
           <label>Progresso</label>
           <div id="status" class="status">
             <div id="statusText">Carregando…</div>
