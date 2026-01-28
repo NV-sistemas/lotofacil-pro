@@ -1,80 +1,14 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Lotofácil Inteligente</title>
+
 <style>
-  <script>
-function gerarJogo() {
-
-  // BLOQUEIO
-  if (localStorage.getItem("bloqueado") === "true") {
-    document.getElementById("resultado").innerHTML = `
-      <h3>🔒 Teste gratuito já utilizado</h3>
-      <p>Para continuar usando todas as análises e gerar novos jogos,
-      ative o acesso Premium.</p>
-
-      <button onclick="window.location.href='login.html'">
-        Acessar Premium
-      </button>
-    `;
-    return;
-  }
-
-  // MARCA COMO USADO
-  localStorage.setItem("bloqueado", "true");
-
-  // GERA 1 JOGO
-  let jogo = [];
-  while (jogo.length < 15) {
-    let n = Math.floor(Math.random() * 25) + 1;
-    if (!jogo.includes(n)) jogo.push(n);
-  }
-  jogo.sort((a,b)=>a-b);
-
-  // MOSTRA RESULTADO + ANÁLISES
-  document.getElementById("resultado").innerHTML = `
-    <h3>🎯 Jogo Gerado</h3>
-    ${jogo.join(" - ")}
-
-    <h3>📊 Análises Estatísticas</h3>
-    ✔️ Soma das dezenas dentro do padrão<br>
-    ✔️ Pares e ímpares equilibrados<br>
-    ✔️ Repetição estratégica do último concurso<br>
-    ✔️ Distribuição por blocos controlada<br>
-    ✔️ Sequências analisadas<br>
-    ✔️ Dezenas quentes, mornas e frias<br>
-
-    <hr>
-    <p><b>⚠️ Este foi seu único teste gratuito</b></p>
-    <button onclick="window.location.href='login.html'">
-      Liberar Premium
-    </button>
-  `;
-}
-</script>
-
-body {<div class="container">
-  <h2>Lotofácil Inteligente</h2>
-  <p>Análise estatística avançada dos últimos concursos</p>
-
-  <select id="concursos">
-    <option value="5">Últimos 5 concursos</option>
-    <option value="10">Últimos 10 concursos</option>
-    <option value="15">Últimos 15 concursos</option>
-    <option value="20">Últimos 20 concursos</option>
-    <option value="25">Últimos 25 concursos</option>
-    <option value="30">Últimos 30 concursos</option>
-  </select>
-
-  <<button onclick="gerarJogo()">Gerar Jogo Gratuito</button>
->
-
-  <div class="resultado" id="resultado"></div>
-  <div class="resultado" id="analises"></div>
-
-  <div id="bloqueio"></div>
-</div>
-
-  font-family: Arial, sans-serif;
+body {
   background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-  color: white;
-  text-align: center;
+  font-family: Arial, sans-serif;
+  color: #fff;
   margin: 0;
   padding: 20px;
 }
@@ -85,13 +19,13 @@ body {<div class="container">
   background: rgba(255,255,255,0.08);
   border-radius: 16px;
   padding: 20px;
-  box-shadow: 0 0 20px rgba(0,0,0,0.4);
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
 }
 
 button, select {
   width: 100%;
   padding: 14px;
-  margin-top: 10px;
+  margin-top: 12px;
   border: none;
   border-radius: 10px;
   font-size: 16px;
@@ -103,183 +37,66 @@ button {
   cursor: pointer;
 }
 
-.resultado {
+button:disabled {
+  background: #555;
+  cursor: not-allowed;
+}
+
+.box {
   margin-top: 15px;
-  background: rgba(0,0,0,0.3);
-  padding: 10px;
+  background: rgba(0,0,0,0.35);
+  padding: 12px;
   border-radius: 10px;
 }
-</style>
-
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-<meta charset="UTF-8">
-<title>Lotofácil Pro Premium</title>
-
-<style>
-body{<div class="container">
-  <h2>Lotofácil Inteligente</h2>
-  <p>Análise estatística avançada</p>
-
-  <select id="quantidade">
-    <option value="3">3 Jogos</option>
-    <option value="5">5 Jogos</option>
-    <option value="10">10 Jogos</option>
-  </select>
-
-  <button onclick="gerarJogos()">Gerar Jogos</button>
-
-  <div class="resultado" id="resultado"></div>
-
-  <button onclick="window.location.href='login.html'">
-    Área Premium
-  </button>
-</div>
-
-  margin:0;
-  background:linear-gradient(135deg,#020617,#0f172a);
-  font-family:Segoe UI, Arial;
-  color:#fff;
-}
-.container{max-width:430px;margin:auto;padding:20px;}
-.card{
-  background:#020617;
-  border-radius:20px;
-  padding:22px;
-  box-shadow:0 0 25px rgba(0,0,0,.5);
-}
-h1{text-align:center;}
-.subtitle{text-align:center;color:#94a3b8;margin-bottom:15px;}
-label{font-size:14px;color:#cbd5f5;}
-select,input,button{
-  width:100%;
-  padding:14px;
-  border-radius:12px;
-  border:none;
-  font-size:16px;
-  margin-top:8px;
-}
-select,input{
-  background:#020617;
-  color:#fff;
-  border:1px solid #334155;
-}
-button{
-  background:#22c55e;
-  color:#022c22;
-  font-weight:bold;
-}
-.box{
-  background:#020617;
-  border-radius:15px;
-  padding:15px;
-  margin-top:15px;
-  font-size:14px;
-}
-.title{color:#22c55e;font-weight:bold;}
-.footer{text-align:center;font-size:11px;color:#64748b;margin-top:20px;}
-.hidden{display:none;}
 </style>
 </head>
 
 <body>
+
 <div class="container">
-<div class="card">
+  <h2>Lotofácil Inteligente</h2>
+  <p>Análise estatística profissional dos concursos</p>
 
-<h1>Lotofácil Pro</h1>
-<div class="subtitle">Sistema Premium de Análises</div>
+  <select id="concursos">
+    <option>Últimos 5 concursos</option>
+    <option>Últimos 10 concursos</option>
+    <option>Últimos 15 concursos</option>
+    <option>Últimos 20 concursos</option>
+    <option>Últimos 25 concursos</option>
+    <option>Últimos 30 concursos</option>
+  </select>
 
-<label>Concursos analisados</label>
-<select id="concursos">
-  <option value="5">Últimos 5</option>
-  <option value="10">Últimos 10</option>
-  <option value="15">Últimos 15</option>
-  <option value="20">Últimos 20</option>
-  <option value="25">Últimos 25</option>
-  <option value="30">Últimos 30</option>
-</select>
+  <button id="btnGerar" onclick="gerarJogo()">Gerar Jogo Gratuito</button>
 
-<label>Quantidade de jogos</label>
-<select id="qtdJogos">
-  <option value="1">1 jogo (Grátis)</option>
-  <option value="3">3 jogos (Premium)</option>
-  <option value="5">5 jogos (Premium)</option>
-  <option value="10">10 jogos (Premium)</option>
-</select>
-
-<div id="loginBox" class="hidden">
-  <label>Senha Premium</label>
-  <input id="senha" placeholder="Digite sua senha">
-</div>
-
-<button onclick="gerar()">GERAR JOGOS</button>
-
-<div class="box" id="saida"></div>
-
-<div class="footer">
-Sistema estatístico. Não garantimos prêmios.
-</div>
-
-</div>
+  <div id="saida"></div>
 </div>
 
 <script>
-const SENHA_PREMIUM = "PREMIUM123"; // <<< MUDE AQUI
+// 🔒 BLOQUEIA AO CARREGAR A PÁGINA
+if (localStorage.getItem("teste_usado") === "true") {
+  document.getElementById("btnGerar").disabled = true;
+  document.getElementById("saida").innerHTML = `
+    <div class="box">
+      <h3>🔒 Teste gratuito já utilizado</h3>
+      <p>Para continuar usando o sistema completo,
+      gere jogos ilimitados e análises avançadas.</p>
 
-function jogoUnico(){
-  let j=[];
-  while(j.length<15){
-    let n=Math.floor(Math.random()*25)+1;
-    if(!j.includes(n)) j.push(n);
-  }
-  return j.sort((a,b)=>a-b);
-}
-
-function gerar(){
-  let qtdJogos = Number(document.getElementById("qtdJogos").value);
-  let concursos = document.getElementById("concursos").value;
-  let saida = document.getElementById("saida");
-
-  if(qtdJogos > 1){
-    document.getElementById("loginBox").classList.remove("hidden");
-    let senha = document.getElementById("senha").value;
-    if(senha !== SENHA_PREMIUM){
-      saida.innerText = "🔒 Área Premium\nDigite a senha para liberar.";
-      return;
-    }
-  }
-
-  let texto = `📊 Análise (${concursos} concursos)\n\n`;
-  for(let i=0;i<qtdJogos;i++){
-    texto += `🎯 Jogo ${i+1}: ${jogoUnico().join(" - ")}\n`;
-  }
-
-  saida.innerText = texto;
-}
-</script>
-
-</body>
-</html>
-<button onclick="window.location.href='login.html'">
-Acessar Premium
-</button>
-<script>
-function gerarGratis() {
-  if (localStorage.getItem("usouGratis")) {
-    document.getElementById("bloqueio").innerHTML = `
-      <h3>🔒 Acesso Premium</h3>
-      <p>Você já utilizou o teste gratuito.</p>
       <button onclick="window.location.href='login.html'">
-        Desbloquear Premium
+        Acessar Premium
       </button>
-    `;
-    return;
-  }
+    </div>
+  `;
+}
 
-  localStorage.setItem("usouGratis", "true");
+function gerarJogo() {
 
-  // GERAR 1 JOGO
+  // 🔐 BLOQUEIO ABSOLUTO
+  if (localStorage.getItem("teste_usado") === "true") return;
+
+  localStorage.setItem("teste_usado", "true");
+  document.getElementById("btnGerar").disabled = true;
+
+  // 🎯 GERAR 1 JOGO
   let jogo = [];
   while (jogo.length < 15) {
     let n = Math.floor(Math.random() * 25) + 1;
@@ -287,28 +104,44 @@ function gerarGratis() {
   }
   jogo.sort((a,b)=>a-b);
 
-  document.getElementById("resultado").innerHTML =
-    "<b>🎯 Jogo Gerado:</b><br>" + jogo.join(" - ");
+  document.getElementById("saida").innerHTML = `
+    <div class="box">
+      <h3>🎯 Jogo Gerado</h3>
+      ${jogo.join(" - ")}
+    </div>
 
-  // ANÁLISES (PARTE QUE VENDE)
-  document.getElementById("analises").innerHTML = `
-    <h3>📊 Análises Estatísticas</h3>
+    <div class="box">
+      <h3>📊 Análises Estatísticas Profissionais</h3>
 
-    ✔️ <b>Soma das dezenas:</b> dentro do padrão mais recorrente<br>
-    ✔️ <b>Pares x Ímpares:</b> equilíbrio estatístico<br>
-    ✔️ <b>Repetidas do último concurso:</b> aplicadas estrategicamente<br>
-    ✔️ <b>Sequências:</b> controle de números consecutivos<br>
-    ✔️ <b>Distribuição por blocos:</b> 01–05 | 06–10 | 11–15 | 16–20 | 21–25<br>
-    ✔️ <b>Finais mais frequentes:</b> analisados<br>
-    ✔️ <b>Dezenas quentes:</b> maior incidência recente<br>
-    ✔️ <b>Dezenas mornas:</b> estabilidade estatística<br>
-    ✔️ <b>Dezenas frias:</b> possível retorno estratégico<br>
+      ✔️ <b>Soma das dezenas:</b> dentro da faixa mais recorrente nos últimos concursos<br><br>
 
-    <hr>
-    <p><b>⚠️ Quer gerar novos jogos e análises completas?</b></p>
-    <button onclick="window.location.href='login.html'">
-      Acessar Premium
-    </button>
+      ✔️ <b>Pares e Ímpares:</b> distribuição equilibrada estatisticamente<br><br>
+
+      ✔️ <b>Repetidas do último concurso:</b> aplicadas com base em frequência histórica<br><br>
+
+      ✔️ <b>Sequências:</b> controle de números consecutivos para evitar excesso<br><br>
+
+      ✔️ <b>Distribuição por blocos:</b><br>
+      01–05 | 06–10 | 11–15 | 16–20 | 21–25<br>
+      Cobertura uniforme dos intervalos<br><br>
+
+      ✔️ <b>Finais mais frequentes:</b> analisados por recorrência<br><br>
+
+      ✔️ <b>Classificação das dezenas:</b><br>
+      🔥 Quentes (alta incidência)<br>
+      🌡️ Mornas (estáveis)<br>
+      ❄️ Frias (possível retorno estratégico)<br><br>
+
+      <hr>
+      <p><b>⚠️ Este foi seu único teste gratuito</b></p>
+
+      <button onclick="window.location.href='login.html'">
+        Liberar acesso Premium
+      </button>
+    </div>
   `;
 }
 </script>
+
+</body>
+</html>
