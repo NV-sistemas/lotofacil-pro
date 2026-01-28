@@ -12,7 +12,6 @@
     --text:#e5e7eb; --muted:#94a3b8;
     --green:#22c55e; --green2:#16a34a;
     --yellow:#facc15; --blue:#38bdf8; --red:#fb7185;
-    --stroke: rgba(255,255,255,.08);
   }
   *{box-sizing:border-box;font-family:Arial,Helvetica,sans-serif}
   body{margin:0;color:var(--text);background:linear-gradient(135deg,var(--bg1),var(--bg2));min-height:100vh}
@@ -37,9 +36,9 @@
   }
   button:hover{filter:brightness(1.05);transform:translateY(-1px)}
   button.secondary{background:transparent;border:1px solid rgba(255,255,255,.12);color:var(--text)}
-  button.small{padding:10px 12px;border-radius:10px;font-weight:900}
-  #app{display:none;max-width:1100px;margin:0 auto;padding:18px}
+  button.small{padding:10px 12px;border-radius:10px;font-weight:900;width:auto;min-width:240px}
 
+  #app{display:none;max-width:1100px;margin:0 auto;padding:18px}
   .header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
   .title{font-size:20px;font-weight:900;margin:0}
   .subtitle{margin:6px 0 0;color:var(--muted);font-size:13px;font-weight:600}
@@ -80,68 +79,40 @@
   .pill.warm{background:rgba(250,204,21,.12);color:var(--yellow);border:1px solid rgba(250,204,21,.25)}
   .pill.cold{background:rgba(251,113,133,.12);color:var(--red);border:1px solid rgba(251,113,133,.25)}
   .pill.info{background:rgba(56,189,248,.10);color:var(--blue);border:1px solid rgba(56,189,248,.22)}
+  .pill.rep{background:rgba(34,197,94,.10);color:#7CFFB0;border:1px solid rgba(34,197,94,.20)}
   .mini{color:var(--muted);font-size:12px;margin-top:8px;line-height:1.4}
   .footerNote{text-align:center;color:var(--muted);font-size:11px;margin-top:10px}
-
   .actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:10px}
-  .actions button{width:auto;min-width:220px}
 
   /* MODAL */
-  .modalBack{
-    display:none; position:fixed; inset:0;
-    background:rgba(0,0,0,.60);
-    backdrop-filter: blur(6px);
-    align-items:center; justify-content:center;
-    padding:16px; z-index:999;
-  }
-  .modal{
-    width:100%; max-width:900px;
-    background:linear-gradient(180deg,var(--card),rgba(255,255,255,.02));
-    border:1px solid rgba(255,255,255,.10);
-    border-radius:18px;
-    box-shadow:0 40px 120px rgba(0,0,0,.65);
-    overflow:hidden;
-  }
-  .modalHeader{
-    display:flex; justify-content:space-between; align-items:center;
-    padding:14px 16px;
-    border-bottom:1px solid rgba(255,255,255,.08);
-  }
+  .modalBack{display:none;position:fixed;inset:0;background:rgba(0,0,0,.60);backdrop-filter: blur(6px);align-items:center;justify-content:center;padding:16px;z-index:999}
+  .modal{width:100%;max-width:900px;background:linear-gradient(180deg,var(--card),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.10);border-radius:18px;box-shadow:0 40px 120px rgba(0,0,0,.65);overflow:hidden}
+  .modalHeader{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.08)}
   .modalHeader b{font-size:14px}
-  .closeBtn{
-    width:auto; min-width:auto;
-    padding:8px 10px; border-radius:10px;
-    background:transparent; border:1px solid rgba(255,255,255,.14); color:var(--text);
-    cursor:pointer;
-  }
+  .closeBtn{width:auto;min-width:auto;padding:8px 10px;border-radius:10px;background:transparent;border:1px solid rgba(255,255,255,.14);color:var(--text);cursor:pointer}
   .modalBody{padding:14px 16px}
-  .table{
-    width:100%;
-    border-collapse:collapse;
-    font-size:13px;
-  }
-  .table th,.table td{
-    padding:10px 8px;
-    border-bottom:1px solid rgba(255,255,255,.08);
-    text-align:left;
-    vertical-align:top;
-  }
+  .table{width:100%;border-collapse:collapse;font-size:13px}
+  .table th,.table td{padding:10px 8px;border-bottom:1px solid rgba(255,255,255,.08);text-align:left;vertical-align:top}
   .table th{color:var(--muted);font-weight:900;font-size:12px}
   .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
-  .tagSrc{
-    display:inline-flex; gap:8px; align-items:center;
-    padding:6px 10px; border-radius:999px;
-    background:rgba(255,255,255,.05);
-    border:1px solid rgba(255,255,255,.08);
-    font-size:12px; color:var(--muted); font-weight:800;
-  }
 
-  /* GRAFICO */
-  .chartRow{display:flex;align-items:center;gap:10px;margin:8px 0}
-  .chartLabel{width:52px;color:var(--muted);font-weight:900}
-  .chartBarWrap{flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.06);border-radius:999px;overflow:hidden;height:12px}
+  /* CHART MAIS NÍTIDO */
+  .chartCard{
+    margin-top:12px;
+    background:rgba(255,255,255,.03);
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:16px;
+    padding:14px;
+  }
+  .chartTitle{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center}
+  .chartTitle b{font-size:13px}
+  .chartHint{color:var(--muted);font-size:12px;font-weight:800}
+  .chartRow{display:flex;align-items:center;gap:10px;margin:10px 0}
+  .chartLabel{width:54px;color:var(--text);font-weight:900}
+  .chartBarWrap{flex:1;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);border-radius:999px;overflow:hidden;height:16px}
   .chartBar{height:100%;width:0%;background:linear-gradient(90deg,var(--blue),var(--green))}
-  .chartVal{width:42px;text-align:right;color:var(--muted);font-weight:900}
+  .chartVal{width:56px;text-align:right;color:var(--text);font-weight:900}
+  .highlightRep{color:#7CFFB0;font-weight:900}
 </style>
 </head>
 
@@ -206,25 +177,15 @@
   <div class="footerNote">Aviso: análise estatística não garante premiação. Jogo responsável ✅</div>
 </div>
 
-<!-- MODAL: LISTA CONCURSOS -->
+<!-- MODAL -->
 <div id="modalBack" class="modalBack">
   <div class="modal">
     <div class="modalHeader">
-      <b>📌 Concursos analisados</b>
+      <b>📌 Concursos analisados (com datas e dezenas)</b>
       <button class="closeBtn" onclick="fecharModal()">Fechar</button>
     </div>
     <div class="modalBody">
-      <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:10px">
-        <span class="tagSrc" id="tagFonte">Fonte: —</span>
-        <span class="tagSrc" id="tagIntervalo">Intervalo: —</span>
-      </div>
       <div id="listaConcursos"></div>
-
-      <div style="margin-top:16px">
-        <b>📊 Top 10 dezenas mais frequentes</b>
-        <div class="mini">Baseado somente nos concursos do intervalo analisado.</div>
-        <div id="chartTop10" style="margin-top:10px"></div>
-      </div>
     </div>
   </div>
 </div>
@@ -235,11 +196,6 @@
 ========================= */
 const WORKER = "https://shy-silence-06b9.nvtranspelogistica.workers.dev";
 
-/*
-  Provider A: loteriascaixa-api (Heroku) — às vezes dá 503
-  Provider B: api.guidi.dev.br — alternativa estável
-  (ambos são públicos; o 2º foi citado com exemplos) :contentReference[oaicite:1]{index=1}
-*/
 const PROVIDERS = [
   {
     name: "loteriascaixa-api (Heroku)",
@@ -308,7 +264,7 @@ function limparCache(){
 }
 
 /* =========================
-   FETCH via Worker (Proxy)
+   FETCH via Worker
 ========================= */
 async function fetchJsonViaWorker(url){
   const proxied = `${WORKER}/?url=${encodeURIComponent(url)}`;
@@ -318,7 +274,7 @@ async function fetchJsonViaWorker(url){
 }
 
 /* =========================
-   DADOS (com fallback)
+   DADOS (fallback)
 ========================= */
 async function getLatestWithFallback(){
   let lastErr = null;
@@ -327,9 +283,7 @@ async function getLatestWithFallback(){
       const p = PROVIDERS[i];
       const raw = await fetchJsonViaWorker(p.latestUrl());
       const data = p.adapt(raw);
-      if(!data.concurso || !Array.isArray(data.dezenas) || data.dezenas.length < 10) {
-        throw new Error("Resposta inválida do provider");
-      }
+      if(!data.concurso || !Array.isArray(data.dezenas) || data.dezenas.length < 10) throw new Error("Resposta inválida");
       return { providerIdx: i, providerName: p.name, latest: data };
     }catch(e){
       lastErr = e;
@@ -341,7 +295,6 @@ async function getLatestWithFallback(){
 async function getConcurso(providerIdx, concurso){
   const cached = loadCache(providerIdx, concurso);
   if(cached) return cached;
-
   const p = PROVIDERS[providerIdx];
   const raw = await fetchJsonViaWorker(p.concursoUrl(concurso));
   const data = p.adapt(raw);
@@ -350,7 +303,7 @@ async function getConcurso(providerIdx, concurso){
 }
 
 /* =========================
-   DOWNLOAD RANGE (concorrência)
+   RANGE
 ========================= */
 async function fetchRange(providerIdx, inicio, fim, onProgress){
   const total = (fim - inicio + 1);
@@ -376,7 +329,7 @@ async function fetchRange(providerIdx, inicio, fim, onProgress){
 }
 
 /* =========================
-   ESTATÍSTICAS
+   STATS
 ========================= */
 function toNum(d){ return Number(String(d).replace(/^0+/,"")) || Number(d); }
 function calcularFrequencias(concursos){
@@ -409,6 +362,7 @@ function gerarJogoPorFreq(freq){
   while(set.size<15) set.add(Math.floor(Math.random()*25)+1);
   return sortNum(Array.from(set));
 }
+
 function classificarDezenas(freq, jogo){
   const ord = ordenarPorFreq(freq);
   const rank = {};
@@ -422,6 +376,7 @@ function classificarDezenas(freq, jogo){
   });
   return {hot:sortNum(hot), warm:sortNum(warm), cold:sortNum(cold)};
 }
+
 function contarParesImpares(jogo){
   const pares = jogo.filter(n=>n%2===0).length;
   return {pares, impares: jogo.length - pares};
@@ -436,8 +391,15 @@ function distribuicaoBlocos(jogo){
 }
 function format2(n){ return String(n).padStart(2,"0"); }
 
+/* repetidas do concurso anterior */
+function repetidasDoUltimo(jogo, ultimoDezenas){
+  const setUlt = new Set(ultimoDezenas.map(toNum));
+  const reps = jogo.filter(n => setUlt.has(n));
+  return sortNum(reps);
+}
+
 /* =========================
-   RENDER: LISTA + TOP10
+   RENDER
 ========================= */
 function renderListaConcursos(concursos){
   const rows = concursos.map(c=>{
@@ -452,9 +414,7 @@ function renderListaConcursos(concursos){
 
   return `
     <table class="table">
-      <thead>
-        <tr><th>Concurso</th><th>Data</th><th>Dezenas</th></tr>
-      </thead>
+      <thead><tr><th>Concurso</th><th>Data</th><th>Dezenas</th></tr></thead>
       <tbody>${rows}</tbody>
     </table>
   `;
@@ -464,29 +424,41 @@ function renderTop10(freq, totalConcursos){
   const ord = ordenarPorFreq(freq).slice(0,10);
   const max = ord[0]?.f || 1;
 
-  return ord.map(x=>{
+  const bars = ord.map(x=>{
     const pct = Math.round((x.f/max)*100);
     return `
       <div class="chartRow">
         <div class="chartLabel">${format2(x.dez)}</div>
         <div class="chartBarWrap"><div class="chartBar" style="width:${pct}%"></div></div>
-        <div class="chartVal">${x.f}</div>
+        <div class="chartVal">${x.f}x</div>
       </div>
     `;
-  }).join("") + `<div class="mini">Frequência = quantidade de aparições em ${totalConcursos} concursos.</div>`;
+  }).join("");
+
+  return `
+    <div class="chartCard">
+      <div class="chartTitle">
+        <b>📊 Top 10 dezenas mais frequentes</b>
+        <span class="chartHint">Base: ${totalConcursos} concursos</span>
+      </div>
+      <div class="mini">Quanto maior a barra, mais vezes a dezena apareceu no período analisado.</div>
+      <div style="margin-top:10px">${bars}</div>
+    </div>
+  `;
 }
 
 /* =========================
    MAIN
 ========================= */
-let lastContext = null; // guarda para abrir modal depois
+let lastContext = null;
 
 async function gerarAnalise(){
   const qtd = Number(document.getElementById("qtdConcursos").value);
   const btn = document.getElementById("btnGerar");
+
   try{
     btn.disabled = true;
-    setStatus(true, "Buscando o último concurso (com fallback)…");
+    setStatus(true, "Buscando o último concurso (fallback automático)…");
     setProgress(6);
 
     const { providerIdx, providerName, latest } = await getLatestWithFallback();
@@ -513,11 +485,13 @@ async function gerarAnalise(){
     const soma = somaDezenas(jogo);
     const blocos = distribuicaoBlocos(jogo);
 
+    // repetidas do último concurso real
+    const reps = repetidasDoUltimo(jogo, latest.dezenas || []);
+
     setStatus(false, "");
     setProgress(0);
 
-    // guarda contexto pro modal
-    lastContext = { providerName, inicio, ultimo, qtd, concursos, freq };
+    lastContext = { providerName, inicio, ultimo, qtd, concursos, freq, latest };
 
     const numerosFmt = jogo.map(format2).join(" - ");
 
@@ -526,10 +500,18 @@ async function gerarAnalise(){
       <div class="range">📌 Análise dos concursos <b>${inicio}</b> a <b>${ultimo}</b> (${qtd} concursos)</div>
 
       <div class="actions">
-        <button class="small secondary" type="button" onclick="abrirDetalhes()">📅 Ver concursos analisados (lista + gráfico)</button>
+        <button class="small secondary" type="button" onclick="abrirDetalhes()">📅 Ver concursos analisados (lista + datas)</button>
       </div>
 
       <div class="grid">
+        <div class="box">
+          <div class="pill rep">🔁 Repetidas do último concurso (${latest.concurso})</div>
+          <p>
+            <b class="highlightRep">${reps.length ? reps.map(format2).join(", ") : "Nenhuma repetida"}</b>
+          </p>
+          <div class="mini">Motivo: muitas sequências têm repetição parcial; aqui mostramos as dezenas do seu jogo que já saíram no último concurso.</div>
+        </div>
+
         <div class="box">
           <div class="pill hot">🔥 Quentes (no seu jogo)</div>
           <p><b>${cls.hot.map(format2).join(", ") || "—"}</b></p>
@@ -569,10 +551,13 @@ async function gerarAnalise(){
         <div class="box">
           <div class="pill info">🔎 Transparência</div>
           <p>Fonte usada: <b>${providerName}</b></p>
-          <div class="mini">Se uma API cair (ex: 503), o sistema muda para outra automaticamente.</div>
+          <div class="mini">Se uma API cair, o sistema muda para outra automaticamente.</div>
         </div>
       </div>
+
+      ${renderTop10(freq, qtd)}
     `;
+
   }catch(e){
     setStatus(false,"");
     setProgress(0);
@@ -581,7 +566,7 @@ async function gerarAnalise(){
       <div class="box">
         <div class="pill info">Detalhe</div>
         <p>${String(e?.message || e)}</p>
-        <div class="mini">Dica: tente novamente em 30s. Se persistir, pode ser queda geral das fontes públicas.</div>
+        <div class="mini">Tente novamente em alguns segundos. Se persistir, pode ser queda geral das fontes públicas.</div>
       </div>
     `;
   }finally{
@@ -591,24 +576,15 @@ async function gerarAnalise(){
 
 function abrirDetalhes(){
   if(!lastContext) return;
-  document.getElementById("tagFonte").textContent = "Fonte: " + lastContext.providerName;
-  document.getElementById("tagIntervalo").textContent = `Intervalo: ${lastContext.inicio} → ${lastContext.ultimo} (${lastContext.qtd})`;
-
   document.getElementById("listaConcursos").innerHTML = renderListaConcursos(lastContext.concursos);
-  document.getElementById("chartTop10").innerHTML = renderTop10(lastContext.freq, lastContext.qtd);
-
   abrirModal();
 }
 
-/* =========================
-   EVENTS
-========================= */
+/* EVENTS */
 document.addEventListener("DOMContentLoaded", ()=>{
   document.getElementById("btnEntrar").addEventListener("click", entrar);
   document.getElementById("btnGerar").addEventListener("click", gerarAnalise);
   document.getElementById("btnLimpar").addEventListener("click", limparCache);
-
-  // fecha modal clicando fora
   document.getElementById("modalBack").addEventListener("click", (e)=>{
     if(e.target.id === "modalBack") fecharModal();
   });
