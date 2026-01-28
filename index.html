@@ -76,8 +76,13 @@
   .mini{color:var(--muted);font-size:12px;margin-top:8px;line-height:1.45}
   .mini strong{color:var(--text)}
 
-  .row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+  /* ✅ Ajuste de alinhamento da Home: antes era flex-end */
+  .row{display:flex;gap:12px;flex-wrap:wrap;align-items:stretch}
   .col{flex:1;min-width:240px}
+
+  /* ✅ Colunas com layout consistente (mini pode “encaixar” melhor) */
+  .row .col{display:flex;flex-direction:column}
+  .row .col .mini{margin-top:auto}
 
   label{display:block;font-size:12px;color:var(--muted);font-weight:950;margin-bottom:6px}
   input, select{
@@ -965,6 +970,171 @@ function abrirGraficoBlocos(blocos){
 
 <script>
 /* =========================
+   ANÁLISE PRIME (extras)
+========================= */
+function calcPairsAndSumsAndBlocks(concursos){
+  const pair = {};      // "a-b" => count
+  const pairEO = {};    // "P-P", "P-I", "I-I"
+  const sums = {};      // soma => count
+  const blockCombos = {}; // "A2 B3 C4 D3 E3" => count (padrão por concurso)
+
+  function keyPair(a,b){
+    const x = Math.min(a,b), y = Math.max(a,b);
+    return `${x}-${y}`;
+  }
+
+  concursos.forEach(c=>{
+    const nums = (c.dezenas||[])
+      .map(toNum)
+      .filter(n=>n>=1 && n<=25)
+      .sort((a,b)=>a-b);
+
+    // soma
+    const s = nums.reduce((acc,n)=>acc+n,0);
+    sums[s] = (sums[s]||0)+1;
+
+    // blocos por concurso
+    const b={A:0,B:0,C:0,D:0,E:0};
+    nums.forEach(n=>{
+      if(n<=5) b.A++;
+      else if(n<=10) b.B++;
+      else if(n<=15) b.C++;
+      else if(n<=20) b.D++;
+      else b.E++;
+    });
+    const pat = `A${b.A} B${b.B} C${b.C} D${b.D} E${b.E}`;
+    blockCombos[pat] = (blockCombos[pat]||0)+1;
+
+    // pares de dezenas (coocorrência)
+    for(let i=0;i<nums.length;i++){
+      for(let j=i+1;j<nums.length;j++){
+        const a=nums[i], b2=nums[j];
+        const k = keyPair(a,b2);
+        pair[k] = (pair[k]||0)+1;
+
+        const ea = (a%2===0) ? "P" : "I";
+        const eb = (b2%2===0) ? "P" : "I";
+        const ek = `${ea}-${eb}`;
+        pairEO[ek] = (pairEO[ek]||0)+1;
+      }
+    }
+  });
+
+  function topN(map, n){
+    return Object.entries(map)
+      .map(([k,v])=>({k,v}))
+      .sort((a,b)=>b.v-a.v)
+      .slice(0,n);
+  }
+
+  return {
+    topPairs: topN(pair, 12),
+    topSums: topN(sums, 8),
+    topBlockPatterns: topN(blockCombos, 6),
+    pairEO
+  };
+}
+
+function renderTopPairsCards(topPairs){
+  const rows = topPairs.map(x=>{
+    const [a,b] = x.k.split("-").map(Number);
+    return `
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px;border-bottom:1px solid rgba(255,255,255,.08)">
+        <div class="mono"><b>${format2(a)}-${format2(b)}</b></div>
+        <div class="mini" style="margin:0"><b>${x.v}x</b> juntos</div>
+      </div>
+    `;
+  }).join("");
+
+  return `
+    <div class="box" style="margin-top:12px">
+      <b>🔗 Dezenas que mais saíram juntas</b>
+      <div class="mini">Top pares de dezenas com maior coocorrência na janela selecionada.</div>
+      <div style="margin-top:10px;border:1px solid rgba(255,255,255,.10);border-radius:14px;overflow:hidden">
+        ${rows || `<div style="padding:12px" class="mini">—</div>`}
+      </div>
+    </div>
+  `;
+}
+
+function renderTopSums(topSums){
+  const rows = topSums.map(x=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px;border-bottom:1px solid rgba(255,255,255,.08)">
+      <div><b>Soma ${x.k}</b></div>
+      <div class="mini" style="margin:0"><b>${x.v}x</b></div>
+    </div>
+  `).join("");
+
+  return `
+    <div class="box" style="margin-top:12px">
+      <b>➕ Somas que mais se repetiram</b>
+      <div class="mini">Mostra as somas mais frequentes dentro dos concursos analisados.</div>
+      <div style="margin-top:10px;border:1px solid rgba(255,255,255,.10);border-radius:14px;overflow:hidden">
+        ${rows || `<div style="padding:12px" class="mini">—</div>`}
+      </div>
+    </div>
+  `;
+}
+
+function renderTopBlockPatterns(topBlockPatterns){
+  const rows = topBlockPatterns.map(x=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px;border-bottom:1px solid rgba(255,255,255,.08)">
+      <div class="mono"><b>${x.k}</b></div>
+      <div class="mini" style="margin:0"><b>${x.v}x</b></div>
+    </div>
+  `).join("");
+
+  return `
+    <div class="box" style="margin-top:12px">
+      <b>🧩 Blocos que mais saíram juntos</b>
+      <div class="mini">Padrões A–E (01–05, 06–10, 11–15, 16–20, 21–25) mais repetidos.</div>
+      <div style="margin-top:10px;border:1px solid rgba(255,255,255,.10);border-radius:14px;overflow:hidden">
+        ${rows || `<div style="padding:12px" class="mini">—</div>`}
+      </div>
+    </div>
+  `;
+}
+
+function renderHotWarmColdFromFreq(freq){
+  const ord = ordenarPorFreq(freq); // desc
+  const hot  = ord.slice(0,8).map(x=>x.dez);
+  const warm = ord.slice(8,17).map(x=>x.dez);
+  const cold = ord.slice(17).map(x=>x.dez);
+
+  return `
+    <div class="box" style="margin-top:12px">
+      <b>🔥 Quentes • 😎 Mornas • 🧊 Frias (do período)</b>
+      <div class="mini" style="margin-top:8px">
+        🔥 <b>${hot.map(format2).join(", ")}</b><br/>
+        😎 <b>${warm.map(format2).join(", ")}</b><br/>
+        🧊 <b>${cold.map(format2).join(", ")}</b>
+      </div>
+      <div class="mini">Quentes = Top 8 do ranking • Mornas = intermediárias • Frias = menos frequentes.</div>
+    </div>
+  `;
+}
+
+function renderPairEO(pairEO){
+  const pp = pairEO["P-P"]||0;
+  const ii = pairEO["I-I"]||0;
+  const pi = (pairEO["P-I"]||0) + (pairEO["I-P"]||0);
+
+  return `
+    <div class="box" style="margin-top:12px">
+      <b>⚖️ Padrão de pares que mais saíram juntos</b>
+      <div class="mini">Contagem de pares de dezenas por paridade dentro dos concursos analisados.</div>
+      <div class="grid" style="margin-top:12px">
+        <div class="box"><b>P-P</b><div class="mini" style="margin-top:8px"><b>${pp}</b> ocorrências</div></div>
+        <div class="box"><b>P-I</b><div class="mini" style="margin-top:8px"><b>${pi}</b> ocorrências</div></div>
+        <div class="box"><b>I-I</b><div class="mini" style="margin-top:8px"><b>${ii}</b> ocorrências</div></div>
+      </div>
+    </div>
+  `;
+}
+</script>
+
+<script>
+/* =========================
    DADOS ONLINE / DEMO + BUSCA DE RESULTADO
 ========================= */
 const SOURCES = [
@@ -1097,7 +1267,7 @@ function verConcursos(){
 
 <script>
 /* =========================
-   AÇÃO: ANÁLISE (sem finais 0–9)
+   AÇÃO: ANÁLISE (PRIME)
 ========================= */
 async function acaoAnalise(){
   const s=getSession();
@@ -1109,12 +1279,14 @@ async function acaoAnalise(){
     const payload = lastPayload;
     const {freq} = lastCtx;
 
+    const extra = calcPairsAndSumsAndBlocks(payload.concursos);
+
     document.getElementById("analiseArea").innerHTML = `
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
         <div>
-          <div style="font-weight:1000;font-size:16px">📈 Análise do período selecionado</div>
+          <div style="font-weight:1000;font-size:16px">📈 Análise PRIME do período selecionado</div>
           <div class="mini">
-            Janela: <b>${payload.inicio}</b> a <b>${payload.ultimo}</b> (${payload.concursos.length} concursos)
+            Janela: <b>${payload.inicio}</b> a <b>${payload.ultimo}</b> (${payload.concursos.length} concursos) • Fonte: <b>${payload.source}</b>
           </div>
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
@@ -1122,7 +1294,14 @@ async function acaoAnalise(){
         </div>
       </div>
 
+      ${renderHotWarmColdFromFreq(freq)}
+      ${renderPairEO(extra.pairEO)}
+      ${renderTopSums(extra.topSums)}
+      ${renderTopBlockPatterns(extra.topBlockPatterns)}
+
       ${renderTop10(freq, payload.concursos.length)}
+
+      ${renderTopPairsCards(extra.topPairs)}
     `;
     goView("viewAnalise");
   }catch(e){
@@ -1217,25 +1396,40 @@ async function acaoPrincipal(){
             <div class="mini" style="margin-top:8px"><b>${reps.length ? reps.map(format2).join(", ") : "Nenhuma"}</b></div>
             <div class="mini">${resumoRep}</div>
           </div>
+
           <div class="box">
             <b>⚖️ Pares x Ímpares</b>
             <div class="mini" style="margin-top:8px"><b>${pi.pares}</b> pares • <b>${pi.impares}</b> ímpares</div>
             <div class="mini">${resumoPares}</div>
           </div>
+
           <div class="box">
             <b>➕ Soma</b>
             <div class="mini" style="margin-top:8px"><b>${soma}</b></div>
             <div class="mini">${resumoSoma}</div>
           </div>
+
           <div class="box">
             <b>🧩 Blocos A–E</b>
             <div class="mini" style="margin-top:8px">A: <b>${blocos.A}</b> • B: <b>${blocos.B}</b> • C: <b>${blocos.C}</b> • D: <b>${blocos.D}</b> • E: <b>${blocos.E}</b></div>
             <div class="mini">${resumoBlocos}</div>
           </div>
+
           <div class="box">
             <b>🔗 Sequências</b>
             <div class="mini" style="margin-top:8px"><b>${seq.temSequencia ? "Sim" : "Não"}</b> • Máx: <b>${seq.maxLen}</b></div>
             <div class="mini">${resumoSeq}</div>
+          </div>
+
+          <!-- ✅ PRIME: Quentes / Mornas / Frias -->
+          <div class="box">
+            <b>🔥 Quentes • 😎 Mornas • 🧊 Frias</b>
+            <div class="mini" style="margin-top:8px">
+              🔥 <b>${cls.hot.map(format2).join(", ") || "—"}</b><br/>
+              😎 <b>${cls.warm.map(format2).join(", ") || "—"}</b><br/>
+              🧊 <b>${cls.cold.map(format2).join(", ") || "—"}</b>
+            </div>
+            <div class="mini">Classificação baseada no ranking de frequência dentro da janela selecionada.</div>
           </div>
         </div>
       </div>
@@ -1473,7 +1667,7 @@ function montarTelaCheck(){
 
 <script>
 /* =========================
-   15P (ajustes de texto: sem lista de combinações / nomes simples / fonte no rodapé)
+   15P (ajustes de texto + tooltips)
 ========================= */
 function calcCoocAndStats(concursos){
   const n = concursos.length;
@@ -1744,13 +1938,29 @@ async function gerar15P(){
         </div>
       </div>
 
+      <!-- ✅ Explicação solicitada -->
+      <div class="box" style="margin-top:12px">
+        <b>✅ Como funciona o 15P</b>
+        <div class="mini" style="margin-top:8px">
+          Você tem <b>5 linhas</b> com <b>5 dezenas</b> cada.  
+          Ao montar um jogo usando <b>3 linhas completas</b>, você forma <b>15 dezenas</b>.  
+          <b>Se as 3 linhas escolhidas baterem completas no resultado</b>, você garante os <b>15 pontos</b>.
+        </div>
+      </div>
+
       <div class="box" style="margin-top:12px">
         <b>📌 Linhas 1 a 5 (5 dezenas por linha)</b>
         <div style="margin-top:12px;overflow:auto">
           <table class="table">
             <thead>
               <tr>
-                <th>Linha</th><th>Tipo</th><th>Dezenas</th><th>Força</th><th>Co médio</th><th>Lift médio</th><th>Soma freq</th>
+                <th>Linha</th>
+                <th>Tipo</th>
+                <th>Dezenas</th>
+                <th>Força</th>
+                <th title="Co médio = quantas vezes, em média, as dezenas da linha apareceram juntas nos concursos analisados. Quanto maior, mais 'andam juntas'.">Co médio ⓘ</th>
+                <th title="Lift médio = força da parceria acima do esperado pelo acaso. 1.00 = esperado; >1.00 = mais do que o normal; <1.00 = menos do que o esperado.">Lift médio ⓘ</th>
+                <th>Soma freq</th>
               </tr>
             </thead>
             <tbody>
