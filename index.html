@@ -32,7 +32,8 @@
       radial-gradient(900px 650px at 90% 10%, rgba(34,197,94,.14), transparent 55%),
       radial-gradient(900px 650px at 50% 90%, rgba(167,139,250,.14), transparent 55%),
       linear-gradient(135deg,var(--bg1),var(--bg2));
-    min-height:100vh
+    min-height:100vh;
+    overflow-x:hidden; /* ✅ evita "torto" no mobile */
   }
 
   .center{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:18px}
@@ -76,13 +77,8 @@
   .mini{color:var(--muted);font-size:12px;margin-top:8px;line-height:1.45}
   .mini strong{color:var(--text)}
 
-  /* ✅ Ajuste de alinhamento da Home: antes era flex-end */
-  .row{display:flex;gap:12px;flex-wrap:wrap;align-items:stretch}
+  .row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
   .col{flex:1;min-width:240px}
-
-  /* ✅ Colunas com layout consistente (mini pode “encaixar” melhor) */
-  .row .col{display:flex;flex-direction:column}
-  .row .col .mini{margin-top:auto}
 
   label{display:block;font-size:12px;color:var(--muted);font-weight:950;margin-bottom:6px}
   input, select{
@@ -252,24 +248,49 @@
     color:rgba(203,213,225,.75);
     font-size:11px;
   }
-  /* ✅ FIX MOBILE: remove overflow e alinha o select/inputs na Home */
-@media (max-width: 520px){
-  .wrap{ padding: 12px; }
-  .card{ padding: 14px; }
 
-  /* força as colunas a caberem no celular */
-  .row{ flex-direction: column; }
-  .col{ min-width: 0 !important; }
-
-  /* remove qualquer "sobra" do select */
-  input, select{
-    width: 100%;
-    max-width: 100%;
+  /* ✅ Tooltip (Co médio / Lift médio) */
+  .tip{
+    position:relative;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    cursor:help;
+    border-bottom:1px dashed rgba(203,213,225,.45);
   }
+  .tip::after{
+    content: attr(data-tip);
+    position:absolute;
+    left:0;
+    top: calc(100% + 8px);
+    min-width: 220px;
+    max-width: 360px;
+    padding:10px 12px;
+    border-radius:12px;
+    background:rgba(2,6,23,.92);
+    border:1px solid rgba(255,255,255,.14);
+    color:rgba(248,250,252,.95);
+    box-shadow: 0 18px 55px rgba(0,0,0,.55);
+    opacity:0;
+    pointer-events:none;
+    transform: translateY(-4px);
+    transition: .12s ease;
+    z-index: 9999;
+    font-size: 12px;
+    line-height: 1.35;
+    white-space: normal;
+  }
+  .tip:hover::after{ opacity:1; transform: translateY(0); }
+  .tip .q{opacity:.8}
 
-  /* evita o card "vazar" horizontalmente */
-  body{ overflow-x: hidden; }
-}
+  /* ✅ FIX MOBILE (alinhamento do select na Home) */
+  @media (max-width: 520px){
+    .wrap{ padding: 12px; }
+    .card{ padding: 14px; }
+    .row{ flex-direction: column; }
+    .col{ min-width: 0 !important; }
+    input, select{ width:100%; max-width:100%; }
+  }
 </style>
 </head>
 
@@ -366,7 +387,7 @@ const ADDON15_KEY = "lf_addon15";
   <!-- ===== TELAS ===== -->
   <div class="view on" id="viewHome">
     <div class="card">
-      <!-- Quantidade acima -->
+      <!-- ✅ Ajuste: sem min-width inline (evita torto no mobile) -->
       <div class="row">
         <div class="col">
           <label>Quantidade de concursos para análise</label>
@@ -401,7 +422,6 @@ const ADDON15_KEY = "lf_addon15";
 
       <div class="hr"></div>
 
-      <!-- ORDEM: FREE -> PREMIUM -> EXTRA -->
       <label>Opções</label>
 
       <div class="actionGrid">
@@ -416,7 +436,7 @@ const ADDON15_KEY = "lf_addon15";
         <div class="actionCard" id="btnHomeAnalise" role="button" tabindex="0">
           <span class="badge premium">PREMIUM</span>
           <p class="actionTitle">📈 Gerar análise</p>
-          <p class="actionDesc">Gera toda a análise do período selecionado (sem jogo).</p>
+          <p class="actionDesc">Resumo PRIME do período selecionado (sem jogo).</p>
         </div>
 
         <div class="actionCard" id="btnHomeInvertida" role="button" tabindex="0">
@@ -431,7 +451,7 @@ const ADDON15_KEY = "lf_addon15";
           <p class="actionDesc">Gera 2 jogos extras a partir do Principal (reordenação por blocos).</p>
         </div>
 
-        <!-- EXTRA (diferenciado) -->
+        <!-- EXTRA -->
         <div class="actionCard extraCard" id="btnHome15p" role="button" tabindex="0">
           <span class="extraBadge">EXTRA</span>
           <div class="extraHeadline">
@@ -447,7 +467,6 @@ const ADDON15_KEY = "lf_addon15";
       <div class="footerNote">Selecione a janela e escolha uma opção acima.</div>
     </div>
 
-    <!-- Chip centralizado no FINAL da página (melhor no celular) -->
     <div class="appFooter">
       <div class="chip" id="chipUser">
         <span class="dot"></span>
@@ -522,7 +541,7 @@ const ADDON15_KEY = "lf_addon15";
     </div>
   </div>
 
-  <!-- TELA: CHECK (verificar jogos gerados com base no principal) -->
+  <!-- TELA: CHECK -->
   <div class="view" id="viewCheck">
     <div class="topNav">
       <div class="left">
@@ -861,6 +880,15 @@ function repetidasDoUltimo(jogo, ultimoDezenas){
   const setUlt = new Set((ultimoDezenas||[]).map(toNum));
   return sortNum(jogo.filter(n=>setUlt.has(n)));
 }
+
+/* 🔥/🌡️/🧊 Classificação (hot/warm/cold) por ranking do período */
+function buildHotWarmColdFromFreq(freq){
+  const ord = ordenarPorFreq(freq);
+  const hot = ord.slice(0,8).map(x=>x.dez).sort((a,b)=>a-b);
+  const warm = ord.slice(8,17).map(x=>x.dez).sort((a,b)=>a-b);
+  const cold = ord.slice(17).map(x=>x.dez).sort((a,b)=>a-b);
+  return { hot, warm, cold, ord };
+}
 function classificarDezenas(freq, jogo){
   const ord = ordenarPorFreq(freq);
   const rank={}; ord.forEach((x,i)=>rank[x.dez]=i+1);
@@ -873,6 +901,7 @@ function classificarDezenas(freq, jogo){
   });
   return {hot:sortNum(hot), warm:sortNum(warm), cold:sortNum(cold), rank};
 }
+
 function gerarJogoForte(freq){
   const ord = ordenarPorFreq(freq);
   const hotPool = ord.slice(0,10).map(x=>x.dez);
@@ -988,33 +1017,17 @@ function abrirGraficoBlocos(blocos){
 
 <script>
 /* =========================
-   ANÁLISE PRIME (extras)
+   ANÁLISE PRIME (estatísticas do período)
 ========================= */
-function calcPairsAndSumsAndBlocks(concursos){
-  const parImparPatterns = calcParImparPatterns(payload.concursos);
-  const pair = {};      // "a-b" => count
-  const pairEO = {};    // "P-P", "P-I", "I-I"
-  const sums = {};      // soma => count
-  const blockCombos = {}; // "A2 B3 C4 D3 E3" => count (padrão por concurso)
-
-  function keyPair(a,b){
-    const x = Math.min(a,b), y = Math.max(a,b);
-    return `${x}-${y}`;
-  }
-function calcParImparPatterns(concursos){
-  const map = {}; // "7-8" => count
-
+function calcEvenOddDistribution(concursos){
+  const map = {};
   concursos.forEach(c=>{
-    const nums = (c.dezenas||[])
-      .map(toNum)
-      .filter(n=>n>=1 && n<=25);
-
+    const nums = (c.dezenas||[]).map(toNum).filter(n=>n>=1 && n<=25);
     const pares = nums.filter(n=>n%2===0).length;
     const impares = nums.length - pares;
     const key = `${pares}-${impares}`;
     map[key] = (map[key]||0)+1;
   });
-
   return Object.entries(map)
     .map(([k,v])=>{
       const [p,i] = k.split("-").map(Number);
@@ -1022,186 +1035,214 @@ function calcParImparPatterns(concursos){
     })
     .sort((a,b)=>b.count-a.count);
 }
-function renderParImparPatterns(patterns){
-  const rows = patterns.slice(0,6).map(p=>`
-    <div style="display:flex;align-items:center;justify-content:space-between;
-                padding:10px;border-bottom:1px solid rgba(255,255,255,.08)">
-      <div><b>${p.pares} pares / ${p.impares} ímpares</b></div>
-      <div class="mini" style="margin:0"><b>${p.count}x</b></div>
-    </div>
-  `).join("");
 
-  const top = patterns[0];
-
-  return `
-    <div class="box" style="margin-top:12px">
-      <b>⚖️ Padrões de Pares × Ímpares mais comuns</b>
-      <div class="mini" style="margin-top:6px">
-        Mostra como os concursos costumam se distribuir entre pares e ímpares
-        dentro da janela analisada.
-      </div>
-
-      <div style="margin-top:10px;border:1px solid rgba(255,255,255,.10);
-                  border-radius:14px;overflow:hidden">
-        ${rows || `<div style="padding:12px" class="mini">—</div>`}
-      </div>
-
-      ${
-        top
-        ? `<div class="mini" style="margin-top:10px">
-             🔥 Padrão dominante: 
-             <b>${top.pares} pares / ${top.impares} ímpares</b>
-             (${top.count} ocorrências)
-           </div>`
-        : ``
-      }
-    </div>
-  `;
-}
+function calcSumDistribution(concursos){
+  const map = {};
   concursos.forEach(c=>{
-    const nums = (c.dezenas||[])
-      .map(toNum)
-      .filter(n=>n>=1 && n<=25)
-      .sort((a,b)=>a-b);
+    const nums=(c.dezenas||[]).map(toNum).filter(n=>n>=1 && n<=25);
+    const s = nums.reduce((a,b)=>a+b,0);
+    map[s] = (map[s]||0)+1;
+  });
+  return Object.entries(map)
+    .map(([k,v])=>({ soma:Number(k), count:v }))
+    .sort((a,b)=>b.count-a.count);
+}
 
-    // soma
-    const s = nums.reduce((acc,n)=>acc+n,0);
-    sums[s] = (sums[s]||0)+1;
+function calcBlockPatternDistribution(concursos){
+  const map = {};
+  concursos.forEach(c=>{
+    const nums=(c.dezenas||[]).map(toNum).filter(n=>n>=1 && n<=25);
+    const b = distribuicaoBlocos(nums);
+    const key = `${b.A}-${b.B}-${b.C}-${b.D}-${b.E}`; // padrão por concurso
+    map[key]=(map[key]||0)+1;
+  });
+  return Object.entries(map)
+    .map(([k,v])=>{
+      const [A,B,C,D,E] = k.split("-").map(Number);
+      return { A,B,C,D,E, key:k, count:v };
+    })
+    .sort((a,b)=>b.count-a.count);
+}
 
-    // blocos por concurso
-    const b={A:0,B:0,C:0,D:0,E:0};
-    nums.forEach(n=>{
-      if(n<=5) b.A++;
-      else if(n<=10) b.B++;
-      else if(n<=15) b.C++;
-      else if(n<=20) b.D++;
-      else b.E++;
-    });
-    const pat = `A${b.A} B${b.B} C${b.C} D${b.D} E${b.E}`;
-    blockCombos[pat] = (blockCombos[pat]||0)+1;
+function calcBlockTotals(concursos){
+  const tot = {A:0,B:0,C:0,D:0,E:0};
+  concursos.forEach(c=>{
+    const nums=(c.dezenas||[]).map(toNum).filter(n=>n>=1 && n<=25);
+    const b=distribuicaoBlocos(nums);
+    tot.A+=b.A; tot.B+=b.B; tot.C+=b.C; tot.D+=b.D; tot.E+=b.E;
+  });
+  return tot;
+}
 
-    // pares de dezenas (coocorrência)
+function calcTopPairsCooc(concursos, topN=12){
+  const co = Array.from({length:26}, ()=>Array(26).fill(0));
+  concursos.forEach(c=>{
+    const nums=(c.dezenas||[]).map(toNum).filter(n=>n>=1 && n<=25).sort((a,b)=>a-b);
     for(let i=0;i<nums.length;i++){
       for(let j=i+1;j<nums.length;j++){
-        const a=nums[i], b2=nums[j];
-        const k = keyPair(a,b2);
-        pair[k] = (pair[k]||0)+1;
-
-        const ea = (a%2===0) ? "P" : "I";
-        const eb = (b2%2===0) ? "P" : "I";
-        const ek = `${ea}-${eb}`;
-        pairEO[ek] = (pairEO[ek]||0)+1;
+        const a=nums[i], b=nums[j];
+        co[a][b]++; co[b][a]++;
       }
     }
   });
-
-  function topN(map, n){
-    return Object.entries(map)
-      .map(([k,v])=>({k,v}))
-      .sort((a,b)=>b.v-a.v)
-      .slice(0,n);
+  const arr=[];
+  for(let a=1;a<=25;a++){
+    for(let b=a+1;b<=25;b++){
+      arr.push({a,b,count:co[a][b]});
+    }
   }
-
-  return {
-    topPairs: topN(pair, 12),
-    topSums: topN(sums, 8),
-    topBlockPatterns: topN(blockCombos, 6),
-    pairEO
-  };
+  arr.sort((x,y)=>y.count-x.count);
+  return arr.slice(0, topN);
 }
 
-function renderTopPairsCards(topPairs){
-  const rows = topPairs.map(x=>{
-    const [a,b] = x.k.split("-").map(Number);
+function renderHotWarmColdPeriod(freq){
+  const {hot,warm,cold} = buildHotWarmColdFromFreq(freq);
+  return `
+    <div class="box" style="margin-top:12px">
+      <b>🔥🌡️🧊 Dezenas quentes, mornas e frias (na janela)</b>
+      <div class="mini" style="margin-top:8px">
+        <b>Quentes (Top 8):</b> <span class="mono">${hot.map(format2).join(" - ")}</span><br/>
+        <b>Mornas (próximas 9):</b> <span class="mono">${warm.map(format2).join(" - ")}</span><br/>
+        <b>Frias (restante):</b> <span class="mono">${cold.map(format2).join(" - ")}</span>
+      </div>
+      <div class="mini">
+        “Quentes” são as mais presentes no período; “Frias” as menos presentes. Use isso como estratégia, não como garantia.
+      </div>
+    </div>
+  `;
+}
+
+function renderEvenOddDist(patterns, total){
+  const top = patterns[0];
+  const rows = patterns.slice(0,6).map(p=>{
+    const pct = Math.round((p.count/Math.max(1,total))*100);
     return `
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px;border-bottom:1px solid rgba(255,255,255,.08)">
-        <div class="mono"><b>${format2(a)}-${format2(b)}</b></div>
-        <div class="mini" style="margin:0"><b>${x.v}x</b> juntos</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px;border-bottom:1px solid rgba(255,255,255,.08)">
+        <div><b>${p.pares} pares / ${p.impares} ímpares</b> <span class="mini" style="margin:0;opacity:.9">(${pct}%)</span></div>
+        <div class="mini" style="margin:0"><b>${p.count}x</b></div>
+      </div>
+    `;
+  }).join("");
+  return `
+    <div class="box" style="margin-top:12px">
+      <b>⚖️ Padrões de Pares × Ímpares mais comuns</b>
+      <div class="mini" style="margin-top:6px">Mostra a distribuição mais recorrente na janela analisada.</div>
+      <div style="margin-top:10px;border:1px solid rgba(255,255,255,.10);border-radius:14px;overflow:hidden">
+        ${rows || `<div style="padding:12px" class="mini">—</div>`}
+      </div>
+      ${top ? `<div class="mini" style="margin-top:10px">🔥 Dominante: <b>${top.pares} pares / ${top.impares} ímpares</b> (${top.count} ocorrências)</div>` : ``}
+    </div>
+  `;
+}
+
+function renderSumsTop(sums, total){
+  const top = sums.slice(0,7);
+  const max = top[0]?.count || 1;
+  const rows = top.map(x=>{
+    const pct = Math.round((x.count/max)*100);
+    const pct2 = Math.round((x.count/Math.max(1,total))*100);
+    return `
+      <div style="display:flex;align-items:center;gap:10px;margin:10px 0">
+        <div style="width:90px;color:var(--text);font-weight:950">Soma ${x.soma}</div>
+        <div style="flex:1;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.12);border-radius:999px;overflow:hidden;height:16px">
+          <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--blue),var(--green))"></div>
+        </div>
+        <div style="width:82px;text-align:right;color:var(--text);font-weight:950">${x.count}x</div>
+        <div class="mini" style="margin:0;width:46px;text-align:right">${pct2}%</div>
+      </div>
+    `;
+  }).join("");
+  return `
+    <div class="box" style="margin-top:12px">
+      <b>➕ Somas que mais se repetiram</b>
+      <div class="mini" style="margin-top:6px">As somas mais comuns na janela (ajuda a evitar combinações “extremas”).</div>
+      <div style="margin-top:10px">${rows || `<div class="mini">—</div>`}</div>
+    </div>
+  `;
+}
+
+function renderBlocksPrime(totals, patterns, total){
+  const max = Math.max(totals.A,totals.B,totals.C,totals.D,totals.E,1);
+  function bar(label, val){
+    const pct = Math.round((val/max)*100);
+    return `
+      <div style="display:flex;align-items:center;gap:10px;margin:10px 0">
+        <div style="width:90px;color:var(--text);font-weight:950">${label}</div>
+        <div style="flex:1;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.12);border-radius:999px;overflow:hidden;height:16px">
+          <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--blue),var(--green))"></div>
+        </div>
+        <div style="width:56px;text-align:right;color:var(--text);font-weight:950">${val}</div>
+      </div>
+    `;
+  }
+
+  const top = patterns.slice(0,5).map(p=>{
+    const pct = Math.round((p.count/Math.max(1,total))*100);
+    return `
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px;border-bottom:1px solid rgba(255,255,255,.08)">
+        <div class="mini" style="margin:0">
+          <b>Padrão:</b> <span class="mono">${p.A}-${p.B}-${p.C}-${p.D}-${p.E}</span>
+          <span class="mini" style="margin:0;opacity:.9"> (A–E)</span>
+        </div>
+        <div class="mini" style="margin:0"><b>${p.count}x</b> • ${pct}%</div>
       </div>
     `;
   }).join("");
 
   return `
     <div class="box" style="margin-top:12px">
-      <b>🔗 Dezenas que mais saíram juntas</b>
-      <div class="mini">Top pares de dezenas com maior coocorrência na janela selecionada.</div>
+      <b>🧩 Blocos A–E (o que mais aparece e o que mais sai junto)</b>
+      <div class="mini" style="margin-top:6px">Totais por bloco na janela + padrões A–E mais repetidos por concurso.</div>
+
+      <div style="margin-top:10px">
+        ${bar("A (01–05)", totals.A)}
+        ${bar("B (06–10)", totals.B)}
+        ${bar("C (11–15)", totals.C)}
+        ${bar("D (16–20)", totals.D)}
+        ${bar("E (21–25)", totals.E)}
+      </div>
+
+      <div class="mini" style="margin-top:10px">
+        <b>Padrões mais frequentes (A–E por concurso):</b>
+      </div>
       <div style="margin-top:10px;border:1px solid rgba(255,255,255,.10);border-radius:14px;overflow:hidden">
-        ${rows || `<div style="padding:12px" class="mini">—</div>`}
+        ${top || `<div style="padding:12px" class="mini">—</div>`}
       </div>
     </div>
   `;
 }
 
-function renderTopSums(topSums){
-  const rows = topSums.map(x=>`
-    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px;border-bottom:1px solid rgba(255,255,255,.08)">
-      <div><b>Soma ${x.k}</b></div>
-      <div class="mini" style="margin:0"><b>${x.v}x</b></div>
-    </div>
-  `).join("");
+function renderTopPairs(pairs, total){
+  const rows = pairs.map(p=>{
+    const pct = Math.round((p.count/Math.max(1,total))*100);
+    const type = (p.a%2===0 && p.b%2===0) ? "par-par" : (p.a%2===1 && p.b%2===1) ? "ímpar-ímpar" : "misto";
+    return `
+      <tr>
+        <td class="mono"><b>${format2(p.a)}-${format2(p.b)}</b></td>
+        <td>${type}</td>
+        <td><b>${p.count}</b>x</td>
+        <td>${pct}%</td>
+      </tr>
+    `;
+  }).join("");
 
   return `
     <div class="box" style="margin-top:12px">
-      <b>➕ Somas que mais se repetiram</b>
-      <div class="mini">Mostra as somas mais frequentes dentro dos concursos analisados.</div>
-      <div style="margin-top:10px;border:1px solid rgba(255,255,255,.10);border-radius:14px;overflow:hidden">
-        ${rows || `<div style="padding:12px" class="mini">—</div>`}
+      <b>🔗 Dezenas que mais se repetiram juntas (pares mais fortes)</b>
+      <div class="mini" style="margin-top:6px">
+        Mostra os pares de dezenas que mais aparecem juntos nos concursos selecionados.
       </div>
-    </div>
-  `;
-}
-
-function renderTopBlockPatterns(topBlockPatterns){
-  const rows = topBlockPatterns.map(x=>`
-    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px;border-bottom:1px solid rgba(255,255,255,.08)">
-      <div class="mono"><b>${x.k}</b></div>
-      <div class="mini" style="margin:0"><b>${x.v}x</b></div>
-    </div>
-  `).join("");
-
-  return `
-    <div class="box" style="margin-top:12px">
-      <b>🧩 Blocos que mais saíram juntos</b>
-      <div class="mini">Padrões A–E (01–05, 06–10, 11–15, 16–20, 21–25) mais repetidos.</div>
-      <div style="margin-top:10px;border:1px solid rgba(255,255,255,.10);border-radius:14px;overflow:hidden">
-        ${rows || `<div style="padding:12px" class="mini">—</div>`}
-      </div>
-    </div>
-  `;
-}
-
-function renderHotWarmColdFromFreq(freq){
-  const ord = ordenarPorFreq(freq); // desc
-  const hot  = ord.slice(0,8).map(x=>x.dez);
-  const warm = ord.slice(8,17).map(x=>x.dez);
-  const cold = ord.slice(17).map(x=>x.dez);
-
-  return `
-    <div class="box" style="margin-top:12px">
-      <b>🔥 Quentes • 😎 Mornas • 🧊 Frias (do período)</b>
-      <div class="mini" style="margin-top:8px">
-        🔥 <b>${hot.map(format2).join(", ")}</b><br/>
-        😎 <b>${warm.map(format2).join(", ")}</b><br/>
-        🧊 <b>${cold.map(format2).join(", ")}</b>
-      </div>
-      <div class="mini">Quentes = Top 8 do ranking • Mornas = intermediárias • Frias = menos frequentes.</div>
-    </div>
-  `;
-}
-
-function renderPairEO(pairEO){
-  const pp = pairEO["P-P"]||0;
-  const ii = pairEO["I-I"]||0;
-  const pi = (pairEO["P-I"]||0) + (pairEO["I-P"]||0);
-
-  return `
-    <div class="box" style="margin-top:12px">
-      <b>⚖️ Padrão de pares que mais saíram juntos</b>
-      <div class="mini">Contagem de pares de dezenas por paridade dentro dos concursos analisados.</div>
-      <div class="grid" style="margin-top:12px">
-        <div class="box"><b>P-P</b><div class="mini" style="margin-top:8px"><b>${pp}</b> ocorrências</div></div>
-        <div class="box"><b>P-I</b><div class="mini" style="margin-top:8px"><b>${pi}</b> ocorrências</div></div>
-        <div class="box"><b>I-I</b><div class="mini" style="margin-top:8px"><b>${ii}</b> ocorrências</div></div>
+      <div style="margin-top:10px;overflow:auto">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Par</th><th>Tipo</th><th>Juntos</th><th>% na janela</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows || `<tr><td colspan="4" class="mini">—</td></tr>`}
+          </tbody>
+        </table>
       </div>
     </div>
   `;
@@ -1342,7 +1383,7 @@ function verConcursos(){
 
 <script>
 /* =========================
-   AÇÃO: ANÁLISE (PRIME)
+   AÇÃO: ANÁLISE (PRIME COMPLETA)
 ========================= */
 async function acaoAnalise(){
   const s=getSession();
@@ -1354,72 +1395,24 @@ async function acaoAnalise(){
     const payload = lastPayload;
     const {freq} = lastCtx;
 
-    const extra = calcPairsAndSumsAndBlocks(payload.concursos);
-    const parImparPatterns = calcParImparPatterns(payload.concursos);
-function calcParImparPatterns(concursos){
-  const map = {}; // "7-8" => count
+    setStatus(true,"Montando resumo PRIME…");
+    setProgress(82);
 
-  concursos.forEach(c=>{
-    const nums = (c.dezenas||[])
-      .map(toNum)
-      .filter(n=>n>=1 && n<=25);
+    const hotWarmCold = buildHotWarmColdFromFreq(freq);
+    const evenOdd = calcEvenOddDistribution(payload.concursos);
+    const sums = calcSumDistribution(payload.concursos);
+    const blockTotals = calcBlockTotals(payload.concursos);
+    const blockPatterns = calcBlockPatternDistribution(payload.concursos);
+    const topPairs = calcTopPairsCooc(payload.concursos, 12);
 
-    const pares = nums.filter(n=>n%2===0).length;
-    const impares = nums.length - pares;
-    const key = `${pares}-${impares}`;
-    map[key] = (map[key]||0)+1;
-  });
+    setStatus(false,""); setProgress(0);
 
-  return Object.entries(map)
-    .map(([k,v])=>{
-      const [p,i] = k.split("-").map(Number);
-      return { pares:p, impares:i, count:v };
-    })
-    .sort((a,b)=>b.count-a.count);
-}
-function renderParImparPatterns(patterns){
-  const rows = patterns.slice(0,6).map(p=>`
-    <div style="display:flex;align-items:center;justify-content:space-between;
-                padding:10px;border-bottom:1px solid rgba(255,255,255,.08)">
-      <div><b>${p.pares} pares / ${p.impares} ímpares</b></div>
-      <div class="mini" style="margin:0"><b>${p.count}x</b></div>
-    </div>
-  `).join("");
-
-  const top = patterns[0];
-
-  return `
-    <div class="box" style="margin-top:12px">
-      <b>⚖️ Padrões de Pares × Ímpares mais comuns</b>
-      <div class="mini" style="margin-top:6px">
-        Mostra como os concursos costumam se distribuir entre pares e ímpares
-        dentro da janela analisada.
-      </div>
-
-      <div style="margin-top:10px;border:1px solid rgba(255,255,255,.10);
-                  border-radius:14px;overflow:hidden">
-        ${rows || `<div style="padding:12px" class="mini">—</div>`}
-      </div>
-
-      ${
-        top
-        ? `<div class="mini" style="margin-top:10px">
-             🔥 Padrão dominante: 
-             <b>${top.pares} pares / ${top.impares} ímpares</b>
-             (${top.count} ocorrências)
-           </div>`
-        : ``
-      }
-    </div>
-  `;
-}
     document.getElementById("analiseArea").innerHTML = `
-    ${renderParImparPatterns(parImparPatterns)}
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
         <div>
           <div style="font-weight:1000;font-size:16px">📈 Análise PRIME do período selecionado</div>
           <div class="mini">
-            Janela: <b>${payload.inicio}</b> a <b>${payload.ultimo}</b> (${payload.concursos.length} concursos) • Fonte: <b>${payload.source}</b>
+            Janela: <b>${payload.inicio}</b> a <b>${payload.ultimo}</b> (${payload.concursos.length} concursos)
           </div>
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
@@ -1427,15 +1420,19 @@ function renderParImparPatterns(patterns){
         </div>
       </div>
 
-      ${renderHotWarmColdFromFreq(freq)}
-      ${renderPairEO(extra.pairEO)}
-      ${renderTopSums(extra.topSums)}
-      ${renderTopBlockPatterns(extra.topBlockPatterns)}
+      ${renderHotWarmColdPeriod(freq)}
+
+      ${renderEvenOddDist(evenOdd, payload.concursos.length)}
+
+      ${renderSumsTop(sums, payload.concursos.length)}
+
+      ${renderBlocksPrime(blockTotals, blockPatterns, payload.concursos.length)}
 
       ${renderTop10(freq, payload.concursos.length)}
 
-      ${renderTopPairsCards(extra.topPairs)}
+      ${renderTopPairs(topPairs, payload.concursos.length)}
     `;
+
     goView("viewAnalise");
   }catch(e){
     setStatus(false,""); setProgress(0);
@@ -1450,7 +1447,7 @@ function renderParImparPatterns(patterns){
 }
 
 /* =========================
-   AÇÃO: JOGO PRINCIPAL
+   AÇÃO: JOGO PRINCIPAL (com hot/warm/cold)
 ========================= */
 async function acaoPrincipal(){
   const s=getSession();
@@ -1522,8 +1519,18 @@ async function acaoPrincipal(){
       <div class="numbers">${balls}</div>
 
       <div class="box" style="margin-top:12px">
-        <b>🧾 Resumo</b>
+        <b>🧾 Resumo PRIME</b>
         <div class="grid" style="margin-top:12px">
+          <div class="box">
+            <b>🔥🌡️🧊 Quentes / Mornas / Frias (no jogo)</b>
+            <div class="mini" style="margin-top:8px">
+              🔥 <b>${cls.hot.length ? cls.hot.map(format2).join(", ") : "—"}</b><br/>
+              🌡️ <b>${cls.warm.length ? cls.warm.map(format2).join(", ") : "—"}</b><br/>
+              🧊 <b>${cls.cold.length ? cls.cold.map(format2).join(", ") : "—"}</b>
+            </div>
+            <div class="mini">Classificado pelo ranking da janela selecionada.</div>
+          </div>
+
           <div class="box">
             <b>🔁 Repetidas do último</b>
             <div class="mini" style="margin-top:8px"><b>${reps.length ? reps.map(format2).join(", ") : "Nenhuma"}</b></div>
@@ -1552,17 +1559,6 @@ async function acaoPrincipal(){
             <b>🔗 Sequências</b>
             <div class="mini" style="margin-top:8px"><b>${seq.temSequencia ? "Sim" : "Não"}</b> • Máx: <b>${seq.maxLen}</b></div>
             <div class="mini">${resumoSeq}</div>
-          </div>
-
-          <!-- ✅ PRIME: Quentes / Mornas / Frias -->
-          <div class="box">
-            <b>🔥 Quentes • 😎 Mornas • 🧊 Frias</b>
-            <div class="mini" style="margin-top:8px">
-              🔥 <b>${cls.hot.map(format2).join(", ") || "—"}</b><br/>
-              😎 <b>${cls.warm.map(format2).join(", ") || "—"}</b><br/>
-              🧊 <b>${cls.cold.map(format2).join(", ") || "—"}</b>
-            </div>
-            <div class="mini">Classificação baseada no ranking de frequência dentro da janela selecionada.</div>
           </div>
         </div>
       </div>
@@ -1800,7 +1796,7 @@ function montarTelaCheck(){
 
 <script>
 /* =========================
-   15P (ajustes de texto + tooltips)
+   15P (com explicações e tooltips)
 ========================= */
 function calcCoocAndStats(concursos){
   const n = concursos.length;
@@ -2068,21 +2064,17 @@ async function gerar15P(){
         <div>
           <div style="font-weight:1000;font-size:16px">✅ 15 Pontos Garantido • 10 jogos</div>
           <div class="mini">Janela: <b>${payload.inicio}</b> a <b>${payload.ultimo}</b> (${payload.concursos.length} concursos)</div>
-        </div>
-      </div>
-
-      <!-- ✅ Explicação solicitada -->
-      <div class="box" style="margin-top:12px">
-        <b>✅ Como funciona o 15P</b>
-        <div class="mini" style="margin-top:8px">
-          Você tem <b>5 linhas</b> com <b>5 dezenas</b> cada.  
-          Ao montar um jogo usando <b>3 linhas completas</b>, você forma <b>15 dezenas</b>.  
-          <b>Se as 3 linhas escolhidas baterem completas no resultado</b>, você garante os <b>15 pontos</b>.
+          <div class="mini" style="margin-top:8px">
+            📌 Regra: <b>acertando 3 linhas completas garante os 15 pontos</b> (porque os 10 jogos cobrem todas as combinações de 3 linhas entre 5).
+          </div>
         </div>
       </div>
 
       <div class="box" style="margin-top:12px">
         <b>📌 Linhas 1 a 5 (5 dezenas por linha)</b>
+        <div class="mini" style="margin-top:6px">
+          Passe o mouse nos títulos para entender a métrica.
+        </div>
         <div style="margin-top:12px;overflow:auto">
           <table class="table">
             <thead>
@@ -2091,8 +2083,16 @@ async function gerar15P(){
                 <th>Tipo</th>
                 <th>Dezenas</th>
                 <th>Força</th>
-                <th title="Co médio = quantas vezes, em média, as dezenas da linha apareceram juntas nos concursos analisados. Quanto maior, mais 'andam juntas'.">Co médio ⓘ</th>
-                <th title="Lift médio = força da parceria acima do esperado pelo acaso. 1.00 = esperado; >1.00 = mais do que o normal; <1.00 = menos do que o esperado.">Lift médio ⓘ</th>
+                <th>
+                  <span class="tip" data-tip="Co médio = média de vezes que os pares da linha aparecem juntos nos concursos da janela. Quanto maior, mais ‘andam juntos’.">
+                    Co médio <span class="q">ⓘ</span>
+                  </span>
+                </th>
+                <th>
+                  <span class="tip" data-tip="Lift médio = quão acima do esperado (pelo acaso) os pares aparecem juntos. >1 indica associação positiva; quanto maior, mais forte a relação.">
+                    Lift médio <span class="q">ⓘ</span>
+                  </span>
+                </th>
                 <th>Soma freq</th>
               </tr>
             </thead>
