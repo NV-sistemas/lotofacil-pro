@@ -295,15 +295,36 @@
 </head>
 
 <body>
+
+<body>
+
+<!-- Firebase SDK (SEM import) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore-compat.js"></script>
+
+<script>
+  // Config copiada do Firebase Console (SEM import)
+  const firebaseConfig = {
+    apiKey: "SUA_API_KEY",
+    authDomain: "lotofacil-prime.firebaseapp.com",
+    projectId: "lotofacil-prime",
+    storageBucket: "lotofacil-prime.firebasestorage.app",
+    messagingSenderId: "385524602679",
+    appId: "1:385524602679:web:...."
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+</script>
+
 // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
   apiKey: "AIzaSyCodYgkQG0TUaqCk1i-0QcSB8GIt0iWp8c",
   authDomain: "lotofacil-prime.firebaseapp.com",
   projectId: "lotofacil-prime",
@@ -314,14 +335,11 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
   
 <script>
 <script>
   // 🔐 CONFIGURAÇÃO DO FIREBASE
-  const firebaseConfig = {
-    apiKey: "SUA_API_KEY",
+      apiKey: "SUA_API_KEY",
     authDomain: "SEU_PROJETO.firebaseapp.com",
     projectId: "SEU_PROJETO",
     storageBucket: "SEU_PROJETO.appspot.com",
