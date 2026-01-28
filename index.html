@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lotofácil Inteligente</title>
+
+<style>
+*{box-sizing:border-box;font-family:Inter,Arial,sans-serif}
+body{
+  margin:0;
+  min-height:100vh;
+  background:linear-gradient(135deg,#0f172a,#020617);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#e5e7eb;
+}
+.card{
+  width:100%;
+  max-width:420px;
+  background:linear-gradient(180deg,#020617,#020617cc);
+  border-radius:22px;
+  padding:26px;
+  box-shadow:0 25px 60px rgba(0,0,0,.6);
+}
+h1{text-align:center;margin:0;font-size:26px}
+.sub{text-align:center;color:#9ca3af;margin:6px 0 20px}
+button{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:14px;
+  background:linear-gradient(135deg,#22c55e,#16a34a);
+  color:#022c22;
+  font-size:16px;
+  font-weight:700;
+  cursor:pointer;
+}
+button:hover{filter:brightness(1.05)}
+.resultado{
+  margin-top:18px;
+  background:#020617;
+  border:1px solid #1f2937;
+  border-radius:16px;
+  padding:16px;
+}
+.jogo{
+  text-align:center;
+  font-size:18px;
+  margin-bottom:12px;
+  color:#22c55e;
+  font-weight:700;
+}
+ul{padding-left:18px;margin:0}
+li{margin-bottom:6px;font-size:14px;color:#d1d5db}
+.premium{
+  margin-top:14px;
+  padding:12px;
+  border:1px dashed #22c55e;
+  border-radius:12px;
+  text-align:center;
+}
+.premium b{color:#22c55e}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+  <h1>Lotofácil Inteligente</h1>
+  <div class="sub">Análise estatística profissional</div>
+
+  <button onclick="gerar()">🎯 Gerar Jogo Gratuito</button>
+
+  <div id="saida"></div>
+</div>
+
+<script>
+function gerar(){
+  if(localStorage.getItem("usado")){
+    document.getElementById("saida").innerHTML=`
+      <div class="resultado">
+        <h3>🔒 Teste gratuito encerrado</h3>
+        <p>Ative o <b>Premium</b> para continuar.</p>
+        <div class="premium">
+          ✔ Jogos ilimitados<br>
+          ✔ Análises completas<br>
+          ✔ Jogo do dia
+        </div>
+      </div>`;
+    return;
+  }
+
+  localStorage.setItem("usado","1");
+
+  let jogo=[];
+  while(jogo.length<15){
+    let n=Math.floor(Math.random()*25)+1;
+    if(!jogo.includes(n)) jogo.push(n);
+  }
+  jogo.sort((a,b)=>a-b);
+
+  document.getElementById("saida").innerHTML=`
+    <div class="resultado">
+      <div class="jogo">${jogo.join(" - ")}</div>
+      <ul>
+        <li>🔥 Dezenas quentes</li>
+        <li>🌡️ Dezenas mornas</li>
+        <li>❄️ Dezenas frias</li>
+        <li>⚖️ Pares e ímpares equilibrados</li>
+        <li>➕ Soma estatística ideal</li>
+        <li>🧱 Distribuição por blocos</li>
+        <li>🔁 Repetidas estratégicas</li>
+      </ul>
+      <div class="premium">
+        <b>🚀 Premium:</b> jogos ilimitados e análises avançadas
+      </div>
+    </div>`;
+}
+</script>
+
+</body>
+</html>
