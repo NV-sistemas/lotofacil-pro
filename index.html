@@ -19,7 +19,46 @@
 
 <div class="container">
   <div class="card">
-    <!-- TODO O CONTEÚDO QUE JÁ EXISTE FICA AQUI -->
+
+    <div class="topbar">
+      <h2>Lotofácil Inteligente</h2>
+      <button class="theme-btn" onclick="toggleTema()">🌙</button>
+    </div>
+
+    <p class="subtitle">Análise estatística profissional</p>
+
+    <!-- BOTÃO GERAR -->
+    <button id="btnGerar" onclick="gerarJogo()">Gerar Jogo Gratuito</button>
+
+    <!-- RESULTADOS -->
+   document.getElementById("saida").innerHTML = `
+  <div class="box">
+    <span class="badge">🎯 Jogo Gerado</span>
+    <div class="jogo">${jogo.join(" - ")}</div>
+  </div>
+
+  <div class="box">
+    <span class="badge">📊 Análises Estatísticas</span>
+    <div class="lista">
+      🔥 <b>Dezenas quentes:</b> maior incidência recente<br>
+      🌡️ <b>Mornas:</b> estabilidade estatística<br>
+      ❄️ <b>Frias:</b> possível retorno estratégico<br>
+      ➗ <b>Pares/Ímpares:</b> equilíbrio histórico<br>
+      🔢 <b>Soma:</b> dentro do padrão mais frequente<br>
+      📐 <b>Blocos:</b> distribuição uniforme<br>
+      🔁 <b>Repetidas:</b> aplicadas estrategicamente
+    </div>
+  </div>
+
+  <div class="box">
+    <b>🔒 Teste gratuito encerrado</b><br><br>
+    <button onclick="window.location.href='login.html'">
+      Liberar Acesso Premium
+    </button>
+  </div>
+`;
+
+
   </div>
 </div>
 
@@ -29,43 +68,107 @@
 <title>Lotofácil Inteligente</title>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
-.fade {
-  animation: fadeIn 0.6s ease-in-out;
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background: radial-gradient(circle at top, #020617, #000);
+  color: #e5e7eb;
 }
-.light {
-  background: #f8fafc;
+
+.container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card {
+  width: 100%;
+  max-width: 420px;
+  background: linear-gradient(180deg, #020617, #020617cc);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 25px 60px rgba(0,0,0,.7);
+  border: 1px solid rgba(255,255,255,.06);
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.topbar h2 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.theme-btn {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,.15);
+  color: #fff;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: #94a3b8;
+  margin: 10px 0 20px;
+}
+
+button {
+  width: 100%;
+  padding: 14px;
+  border-radius: 14px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
   color: #020617;
 }
 
-.light .card {
-  background: #ffffff;
-  color: #020617;
+button:disabled {
+  background: #334155;
+  color: #94a3b8;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.box {
+  margin-top: 20px;
+  padding: 18px;
+  border-radius: 14px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.06);
 }
 
-body {<div id="splash" style="
-position:fixed;
-inset:0;
-background:#020617;
-display:flex;
-align-items:center;
-justify-content:center;
-z-index:9999;
-flex-direction:column;
-">
-  <h1 style="color:#22c55e">Lotofácil Inteligente</h1>
-  <p style="color:#94a3b8">Análise estatística avançada</p>
+.badge {
+  display: inline-block;
+  font-size: 12px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(34,197,94,.15);
+  color: #22c55e;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.jogo {
+  text-align: center;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.lista {
+  font-size: 14px;
+  line-height: 1.7;
+}
+</style>
+
 </div>
 
   margin: 0;
