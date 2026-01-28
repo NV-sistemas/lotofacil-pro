@@ -642,6 +642,15 @@ const ADDON15_KEY = "lf_addon15";
 document.getElementById("appName1").textContent = APP_NAME;
 document.getElementById("appName2").textContent = APP_NAME;
 
+  function bindCardKey(el){
+  el.addEventListener("keydown", (e)=>{
+    if(e.key === "Enter" || e.key === " "){
+      e.preventDefault();
+      el.click();
+    }
+  });
+}
+
 function showOk(t){
   const a=document.getElementById("msgOk");
   a.style.display="block";
@@ -2159,12 +2168,13 @@ document.getElementById("btnComprar15p").addEventListener("click", comprar15p);
 document.getElementById("btnAtivar15p").addEventListener("click", abrirAtivar15p);
 
 /* binds principais */
-document.getElementById("btnHomeAnalise").onclick = acaoAnalise;
-document.getElementById("btnHomePrincipal").onclick = acaoPrincipal;
-
 document.addEventListener("DOMContentLoaded", ()=>{
   const s=getSession();
   if(s.email) abrirApp();
+});
+  ["btnHomePrincipal","btnHomeAnalise","btnHomeInvertida","btnHomeTecnica","btnHome15p"].forEach(id=>{
+  const el = document.getElementById(id);
+  if(el) bindCardKey(el);
 });
 </script>
 
