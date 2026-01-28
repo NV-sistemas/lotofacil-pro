@@ -6,93 +6,98 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-body {
-  margin: 0;
-  font-family: Arial, Helvetica, sans-serif;
-  background: linear-gradient(135deg,#020617,#0f172a);
-  color: #fff;
+body{
+  margin:0;
+  font-family:Arial,Helvetica,sans-serif;
+  background:linear-gradient(135deg,#020617,#0f172a);
+  color:#fff;
 }
 
-.center {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
+.center{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
 }
 
 /* LOGIN */
-#login {
-  background: #020617;
-  padding: 30px;
-  border-radius: 16px;
-  width: 100%;
-  max-width: 360px;
-  box-shadow: 0 0 30px rgba(0,0,0,.6);
+#login{
+  background:#020617;
+  padding:30px;
+  border-radius:16px;
+  max-width:360px;
+  width:100%;
+  box-shadow:0 0 30px rgba(0,0,0,.6);
 }
 
-#login h2 {
-  text-align: center;
-  margin-bottom: 20px;
+input{
+  width:100%;
+  padding:12px;
+  margin-bottom:12px;
+  border:none;
+  border-radius:8px;
 }
 
-input {
-  width: 100%;
-  padding: 12px;
-  border-radius: 8px;
-  border: none;
-  margin-bottom: 12px;
+button{
+  width:100%;
+  padding:14px;
+  background:#22c55e;
+  border:none;
+  border-radius:8px;
+  font-weight:bold;
+  cursor:pointer;
 }
 
-button {
-  width: 100%;
-  padding: 14px;
-  background: #22c55e;
-  border: none;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-button:hover {
-  background: #16a34a;
-}
+button:hover{background:#16a34a}
 
 /* APP */
-#app {
-  display: none;
-  max-width: 800px;
-  margin: auto;
-  padding: 20px;
+#app{
+  display:none;
+  max-width:900px;
+  margin:auto;
+  padding:20px;
 }
 
-.card {
-  background: #020617;
-  padding: 20px;
-  border-radius: 16px;
-  margin-bottom: 20px;
-  box-shadow: 0 0 25px rgba(0,0,0,.5);
+h1,h3{text-align:center}
+
+.card{
+  background:#020617;
+  padding:20px;
+  border-radius:16px;
+  margin-bottom:20px;
+  box-shadow:0 0 25px rgba(0,0,0,.5);
 }
 
-h1,h3 {
-  text-align: center;
+.numeros{
+  text-align:center;
+  font-size:20px;
+  font-weight:bold;
+  color:#22c55e;
 }
 
-.numeros {
-  text-align: center;
-  color: #22c55e;
-  font-weight: bold;
-  font-size: 18px;
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:15px;
 }
 
-ul {
-  list-style: none;
-  padding: 0;
+.box{
+  background:#020617;
+  border:1px solid #1e293b;
+  border-radius:14px;
+  padding:15px;
+  box-shadow:0 0 15px rgba(0,0,0,.4);
 }
 
-ul li {
-  padding: 8px 0;
-  border-bottom: 1px solid #1e293b;
-  font-size: 14px;
+.box h4{
+  margin:0 0 6px;
+  font-size:15px;
+}
+
+.box p{
+  margin:0;
+  font-size:14px;
+  opacity:.9;
 }
 </style>
 </head>
@@ -112,8 +117,8 @@ ul li {
 <!-- APP -->
 <div id="app">
   <h1>🎯 LOTOFÁCIL PRIME ANALYTICS</h1>
-  <p style="text-align:center;opacity:.8;">
-    Sistema avançado de análise estatística para Lotofácil
+  <p style="text-align:center;opacity:.8">
+    Sistema avançado de análise estatística da Lotofácil
   </p>
 
   <div class="card">
@@ -124,45 +129,77 @@ ul li {
 </div>
 
 <script>
-function entrar() {
-  document.getElementById("login").style.display = "none";
-  document.getElementById("app").style.display = "block";
+function entrar(){
+  document.getElementById("login").style.display="none";
+  document.getElementById("app").style.display="block";
 }
 
-function gerarJogo() {
-  const dezenas = [];
-  while (dezenas.length < 15) {
-    const n = Math.floor(Math.random() * 25) + 1;
-    if (!dezenas.includes(n)) dezenas.push(n);
+function gerarJogo(){
+  const dezenas=[];
+  while(dezenas.length<15){
+    const n=Math.floor(Math.random()*25)+1;
+    if(!dezenas.includes(n))dezenas.push(n);
   }
-
   dezenas.sort((a,b)=>a-b);
 
-  const quentes = dezenas.slice(0,5);
-  const mornas = dezenas.slice(5,10);
-  const frias = dezenas.slice(10,15);
+  const pares=dezenas.filter(n=>n%2===0).length;
+  const impares=15-pares;
+  const soma=dezenas.reduce((a,b)=>a+b,0);
 
-  document.getElementById("resultado").innerHTML = `
-    <h3>📊 Jogo Gerado com Análise Estatística</h3>
+  const quentes=dezenas.slice(0,5);
+  const mornas=dezenas.slice(5,10);
+  const frias=dezenas.slice(10,15);
 
-    <p class="numeros">
-      ${dezenas.map(n=>n.toString().padStart(2,'0')).join(' - ')}
-    </p>
+  const blocos={A:0,B:0,C:0,D:0};
+  dezenas.forEach(n=>{
+    if(n<=6)blocos.A++;
+    else if(n<=12)blocos.B++;
+    else if(n<=18)blocos.C++;
+    else blocos.D++;
+  });
 
-    <h4>📌 Resumo da Análise</h4>
-    <ul>
-      <li>🔥 <b>Dezenas Fortes:</b> ${quentes.join(', ')} — Alta recorrência histórica</li>
-      <li>🌡️ <b>Dezenas Mornas:</b> ${mornas.join(', ')} — Frequência estável</li>
-      <li>❄️ <b>Dezenas Frias:</b> ${frias.join(', ')} — Possível retorno estratégico</li>
-      <li>⚖️ <b>Pares x Ímpares:</b> Distribuição equilibrada</li>
-      <li>➕ <b>Soma Total:</b> Dentro da faixa estatística ideal</li>
-      <li>🧩 <b>Distribuição:</b> Cobertura uniforme do volante</li>
-      <li>📊 <b>Classificação:</b> Quentes • Mornas • Frias</li>
-    </ul>
+  document.getElementById("resultado").innerHTML=`
+    <h3>📊 Jogo Gerado</h3>
+    <p class="numeros">${dezenas.map(n=>n.toString().padStart(2,'0')).join(' - ')}</p>
 
-    <p style="opacity:.7;margin-top:10px;">
-      Este jogo foi gerado com base em padrões estatísticos e comportamento histórico da Lotofácil.
-    </p>
+    <div class="grid">
+
+      <div class="box">
+        <h4>🔥 Dezenas Fortes</h4>
+        <p>${quentes.join(', ')}</p>
+      </div>
+
+      <div class="box">
+        <h4>🌡️ Dezenas Mornas</h4>
+        <p>${mornas.join(', ')}</p>
+      </div>
+
+      <div class="box">
+        <h4>❄️ Dezenas Frias</h4>
+        <p>${frias.join(', ')}</p>
+      </div>
+
+      <div class="box">
+        <h4>⚖️ Pares x Ímpares</h4>
+        <p>${pares} pares • ${impares} ímpares</p>
+      </div>
+
+      <div class="box">
+        <h4>➕ Soma Total</h4>
+        <p>${soma}</p>
+      </div>
+
+      <div class="box">
+        <h4>🧩 Distribuição por Blocos</h4>
+        <p>A:${blocos.A} B:${blocos.B} C:${blocos.C} D:${blocos.D}</p>
+      </div>
+
+      <div class="box">
+        <h4>📊 Classificação Geral</h4>
+        <p>Quentes • Mornas • Frias</p>
+      </div>
+
+    </div>
   `;
 }
 </script>
