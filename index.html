@@ -12,13 +12,10 @@
     --text:#e5e7eb; --muted:#94a3b8;
     --green:#22c55e; --green2:#16a34a;
     --yellow:#facc15; --blue:#38bdf8; --red:#fb7185;
+    --stroke: rgba(255,255,255,.08);
   }
   *{box-sizing:border-box;font-family:Arial,Helvetica,sans-serif}
-  body{
-    margin:0; color:var(--text);
-    background:linear-gradient(135deg,var(--bg1),var(--bg2));
-    min-height:100vh;
-  }
+  body{margin:0;color:var(--text);background:linear-gradient(135deg,var(--bg1),var(--bg2));min-height:100vh}
   .center{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:18px}
   .login{
     width:100%;max-width:380px;
@@ -27,44 +24,31 @@
     border-radius:18px;padding:22px;
     box-shadow:0 30px 80px rgba(0,0,0,.55);
   }
-  .brand{
-    text-align:center;font-weight:900;letter-spacing:.5px;font-size:18px;
-  }
-  .brand small{
-    display:block;color:var(--muted);font-weight:600;margin-top:6px
-  }
+  .brand{text-align:center;font-weight:900;letter-spacing:.5px;font-size:18px}
+  .brand small{display:block;color:var(--muted);font-weight:600;margin-top:6px}
   input, select{
-    width:100%;padding:12px;border-radius:10px;
-    border:1px solid rgba(255,255,255,.08);
-    background:#020617;color:var(--text);
-    outline:none;margin-top:12px;
+    width:100%;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,.10);
+    background:#020617;color:var(--text);outline:none;margin-top:12px;
   }
   button{
-    width:100%;margin-top:12px;padding:13px 14px;
-    border:none;border-radius:12px;
+    width:100%;margin-top:12px;padding:13px 14px;border:none;border-radius:12px;
     background:linear-gradient(135deg,var(--green),var(--green2));
-    color:#022c22;font-weight:900;
-    cursor:pointer;transition:.15s;
+    color:#022c22;font-weight:900;cursor:pointer;transition:.15s;
   }
   button:hover{filter:brightness(1.05);transform:translateY(-1px)}
-  button.secondary{
-    background:transparent;border:1px solid rgba(255,255,255,.12);color:var(--text)
-  }
+  button.secondary{background:transparent;border:1px solid rgba(255,255,255,.12);color:var(--text)}
+  button.small{padding:10px 12px;border-radius:10px;font-weight:900}
+  #app{display:none;max-width:1100px;margin:0 auto;padding:18px}
 
-  #app{display:none;max-width:1050px;margin:0 auto;padding:18px}
-  .header{
-    display:flex;align-items:center;justify-content:space-between;
-    gap:12px;flex-wrap:wrap;margin-bottom:14px
-  }
+  .header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
   .title{font-size:20px;font-weight:900;margin:0}
   .subtitle{margin:6px 0 0;color:var(--muted);font-size:13px;font-weight:600}
   .chip{
-    display:inline-flex;align-items:center;gap:8px;
-    padding:10px 12px;border-radius:999px;
-    background:rgba(255,255,255,.05);
-    border:1px solid rgba(255,255,255,.07);
+    display:inline-flex;align-items:center;gap:8px;padding:10px 12px;border-radius:999px;
+    background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07);
     color:var(--muted);font-size:12px;font-weight:700;
   }
+
   .card{
     background:linear-gradient(180deg,var(--card2),rgba(255,255,255,.02));
     border:1px solid rgba(255,255,255,.06);
@@ -78,53 +62,86 @@
 
   .status{
     display:none;margin-top:10px;padding:12px;border-radius:14px;
-    background:rgba(56,189,248,.08);
-    border:1px solid rgba(56,189,248,.18);
+    background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.18);
     color:#cdefff;font-size:13px;font-weight:700;
   }
-  .bar{
-    height:10px;border-radius:999px;overflow:hidden;
-    background:rgba(255,255,255,.06);
-    border:1px solid rgba(255,255,255,.06);
-    margin-top:10px;
-  }
-  .bar>div{
-    height:100%;width:0%;
-    background:linear-gradient(90deg,var(--blue),var(--green));
-    transition:width .2s ease;
-  }
+  .bar{height:10px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.06);margin-top:10px}
+  .bar>div{height:100%;width:0%;background:linear-gradient(90deg,var(--blue),var(--green));transition:width .2s ease}
 
-  .numbers{
-    text-align:center;color:var(--green);
-    font-weight:900;letter-spacing:1px;
-    font-size:18px;margin:10px 0 4px;
-  }
-  .range{
-    text-align:center;color:var(--muted);
-    font-size:13px;font-weight:700;margin:0 0 10px;
-  }
-  .grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
-    gap:12px;margin-top:10px;
-  }
-  .box{
-    background:rgba(255,255,255,.03);
-    border:1px solid rgba(255,255,255,.06);
-    border-radius:16px;padding:12px;
-  }
+  .numbers{text-align:center;color:var(--green);font-weight:900;letter-spacing:1px;font-size:18px;margin:10px 0 4px}
+  .range{text-align:center;color:var(--muted);font-size:13px;font-weight:700;margin:0 0 10px}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:10px}
+  .box{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:12px}
   .box h4{margin:0 0 6px;font-size:13px}
   .box p{margin:0;color:var(--text);font-size:13px;line-height:1.45}
-  .pill{
-    display:inline-block;padding:6px 10px;border-radius:999px;
-    font-size:12px;font-weight:900;margin-bottom:8px
-  }
+  .pill{display:inline-block;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:900;margin-bottom:8px}
   .pill.hot{background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.25)}
   .pill.warm{background:rgba(250,204,21,.12);color:var(--yellow);border:1px solid rgba(250,204,21,.25)}
   .pill.cold{background:rgba(251,113,133,.12);color:var(--red);border:1px solid rgba(251,113,133,.25)}
   .pill.info{background:rgba(56,189,248,.10);color:var(--blue);border:1px solid rgba(56,189,248,.22)}
   .mini{color:var(--muted);font-size:12px;margin-top:8px;line-height:1.4}
   .footerNote{text-align:center;color:var(--muted);font-size:11px;margin-top:10px}
+
+  .actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:10px}
+  .actions button{width:auto;min-width:220px}
+
+  /* MODAL */
+  .modalBack{
+    display:none; position:fixed; inset:0;
+    background:rgba(0,0,0,.60);
+    backdrop-filter: blur(6px);
+    align-items:center; justify-content:center;
+    padding:16px; z-index:999;
+  }
+  .modal{
+    width:100%; max-width:900px;
+    background:linear-gradient(180deg,var(--card),rgba(255,255,255,.02));
+    border:1px solid rgba(255,255,255,.10);
+    border-radius:18px;
+    box-shadow:0 40px 120px rgba(0,0,0,.65);
+    overflow:hidden;
+  }
+  .modalHeader{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:14px 16px;
+    border-bottom:1px solid rgba(255,255,255,.08);
+  }
+  .modalHeader b{font-size:14px}
+  .closeBtn{
+    width:auto; min-width:auto;
+    padding:8px 10px; border-radius:10px;
+    background:transparent; border:1px solid rgba(255,255,255,.14); color:var(--text);
+    cursor:pointer;
+  }
+  .modalBody{padding:14px 16px}
+  .table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:13px;
+  }
+  .table th,.table td{
+    padding:10px 8px;
+    border-bottom:1px solid rgba(255,255,255,.08);
+    text-align:left;
+    vertical-align:top;
+  }
+  .table th{color:var(--muted);font-weight:900;font-size:12px}
+  .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
+  .tagSrc{
+    display:inline-flex; gap:8px; align-items:center;
+    padding:6px 10px; border-radius:999px;
+    background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.08);
+    font-size:12px; color:var(--muted); font-weight:800;
+  }
+
+  /* GRAFICO */
+  .chartRow{display:flex;align-items:center;gap:10px;margin:8px 0}
+  .chartLabel{width:52px;color:var(--muted);font-weight:900}
+  .chartBarWrap{flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.06);border-radius:999px;overflow:hidden;height:12px}
+  .chartBar{height:100%;width:0%;background:linear-gradient(90deg,var(--blue),var(--green))}
+  .chartVal{width:42px;text-align:right;color:var(--muted);font-weight:900}
 </style>
 </head>
 
@@ -136,12 +153,10 @@
     <div class="brand">🎯 LOTOFÁCIL PRIME ANALYTICS
       <small>Sistema avançado de análise estatística</small>
     </div>
-
-    <input id="email" type="email" placeholder="Email" />
-    <input id="senha" type="password" placeholder="Senha" />
+    <input type="email" placeholder="Email" />
+    <input type="password" placeholder="Senha" />
     <button id="btnEntrar" type="button">Entrar</button>
-
-    <div class="footerNote">*Login visual (por enquanto). Depois a gente coloca login real.</div>
+    <div class="footerNote">*Login visual por enquanto (para testes).</div>
   </div>
 </div>
 
@@ -152,7 +167,7 @@
       <div class="title">🎯 LOTOFÁCIL PRIME ANALYTICS</div>
       <div class="subtitle">Escolha a janela de concursos e gere um jogo com explicações completas.</div>
     </div>
-    <div class="chip">📡 Concursos reais (via Proxy)</div>
+    <div class="chip">📡 Concursos reais (fallback automático)</div>
   </div>
 
   <div class="card">
@@ -174,7 +189,7 @@
       <div class="col">
         <label>Gerar jogo com base nos concursos reais</label>
         <button id="btnGerar" type="button">📊 Gerar Jogo + Análise</button>
-        <button class="secondary" type="button" id="btnLimpar">🧹 Limpar cache (se der erro)</button>
+        <button id="btnLimpar" class="secondary" type="button">🧹 Limpar cache (se der erro)</button>
       </div>
     </div>
 
@@ -188,17 +203,69 @@
     <div class="footerNote">Selecione a quantidade de concursos e clique em “Gerar”.</div>
   </div>
 
-  <div class="footerNote">
-    Aviso: análise estatística não garante premiação. Jogo responsável ✅
+  <div class="footerNote">Aviso: análise estatística não garante premiação. Jogo responsável ✅</div>
+</div>
+
+<!-- MODAL: LISTA CONCURSOS -->
+<div id="modalBack" class="modalBack">
+  <div class="modal">
+    <div class="modalHeader">
+      <b>📌 Concursos analisados</b>
+      <button class="closeBtn" onclick="fecharModal()">Fechar</button>
+    </div>
+    <div class="modalBody">
+      <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:10px">
+        <span class="tagSrc" id="tagFonte">Fonte: —</span>
+        <span class="tagSrc" id="tagIntervalo">Intervalo: —</span>
+      </div>
+      <div id="listaConcursos"></div>
+
+      <div style="margin-top:16px">
+        <b>📊 Top 10 dezenas mais frequentes</b>
+        <div class="mini">Baseado somente nos concursos do intervalo analisado.</div>
+        <div id="chartTop10" style="margin-top:10px"></div>
+      </div>
+    </div>
   </div>
 </div>
 
 <script>
-/** CONFIG **/
-const API_BASE = "https://loteriascaixa-api.herokuapp.com/api";
-const WORKER   = "https://shy-silence-06b9.nvtranspelogistica.workers.dev";
+/* =========================
+   CONFIG
+========================= */
+const WORKER = "https://shy-silence-06b9.nvtranspelogistica.workers.dev";
 
-/** UI HELPERS **/
+/*
+  Provider A: loteriascaixa-api (Heroku) — às vezes dá 503
+  Provider B: api.guidi.dev.br — alternativa estável
+  (ambos são públicos; o 2º foi citado com exemplos) :contentReference[oaicite:1]{index=1}
+*/
+const PROVIDERS = [
+  {
+    name: "loteriascaixa-api (Heroku)",
+    latestUrl: () => "https://loteriascaixa-api.herokuapp.com/api/lotofacil/latest",
+    concursoUrl: (n) => `https://loteriascaixa-api.herokuapp.com/api/lotofacil/${n}`,
+    adapt: (json) => ({
+      concurso: Number(json.concurso),
+      data: json.data || "",
+      dezenas: (json.dezenas || []).map(String)
+    })
+  },
+  {
+    name: "api.guidi.dev.br (fallback)",
+    latestUrl: () => "https://api.guidi.dev.br/loteria/lotofacil/ultimo",
+    concursoUrl: (n) => `https://api.guidi.dev.br/loteria/lotofacil/${n}`,
+    adapt: (json) => ({
+      concurso: Number(json.numero),
+      data: json.dataApuracao || "",
+      dezenas: (json.listaDezenas || []).map(String)
+    })
+  }
+];
+
+/* =========================
+   UI
+========================= */
 function setStatus(on, text){
   const st = document.getElementById("status");
   document.getElementById("statusText").textContent = text || "";
@@ -207,21 +274,23 @@ function setStatus(on, text){
 function setProgress(pct){
   document.getElementById("barFill").style.width = Math.max(0, Math.min(100, pct)) + "%";
 }
-
-/** LOGIN (garantido por addEventListener) **/
 function entrar(){
   document.getElementById("loginWrap").style.display = "none";
   document.getElementById("app").style.display = "block";
 }
+function abrirModal(){ document.getElementById("modalBack").style.display = "flex"; }
+function fecharModal(){ document.getElementById("modalBack").style.display = "none"; }
 
-/** CACHE **/
-function cacheKey(concurso){ return "lf_concurso_" + String(concurso); }
-function saveCache(concurso, data){
-  try{ localStorage.setItem(cacheKey(concurso), JSON.stringify({ts: Date.now(), data})); }catch(e){}
+/* =========================
+   CACHE
+========================= */
+function cacheKey(providerIdx, concurso){ return `lf_${providerIdx}_${concurso}`; }
+function saveCache(providerIdx, concurso, data){
+  try{ localStorage.setItem(cacheKey(providerIdx, concurso), JSON.stringify({ts: Date.now(), data})); }catch(e){}
 }
-function loadCache(concurso){
+function loadCache(providerIdx, concurso){
   try{
-    const raw = localStorage.getItem(cacheKey(concurso));
+    const raw = localStorage.getItem(cacheKey(providerIdx, concurso));
     if(!raw) return null;
     const obj = JSON.parse(raw);
     if(!obj?.ts || (Date.now() - obj.ts) > (48*60*60*1000)) return null;
@@ -232,33 +301,58 @@ function limparCache(){
   const keys = [];
   for(let i=0;i<localStorage.length;i++){
     const k = localStorage.key(i);
-    if(k && k.startsWith("lf_concurso_")) keys.push(k);
+    if(k && k.startsWith("lf_")) keys.push(k);
   }
   keys.forEach(k => localStorage.removeItem(k));
   alert("Cache limpo! Agora tente gerar novamente.");
 }
 
-/** FETCH VIA PROXY (evita CORS) **/
-async function fetchJson(url){
+/* =========================
+   FETCH via Worker (Proxy)
+========================= */
+async function fetchJsonViaWorker(url){
   const proxied = `${WORKER}/?url=${encodeURIComponent(url)}`;
   const r = await fetch(proxied, { cache: "no-store" });
   if(!r.ok) throw new Error("HTTP " + r.status);
   return await r.json();
 }
 
-async function getLatest(){
-  return await fetchJson(`${API_BASE}/lotofacil/latest`);
+/* =========================
+   DADOS (com fallback)
+========================= */
+async function getLatestWithFallback(){
+  let lastErr = null;
+  for(let i=0;i<PROVIDERS.length;i++){
+    try{
+      const p = PROVIDERS[i];
+      const raw = await fetchJsonViaWorker(p.latestUrl());
+      const data = p.adapt(raw);
+      if(!data.concurso || !Array.isArray(data.dezenas) || data.dezenas.length < 10) {
+        throw new Error("Resposta inválida do provider");
+      }
+      return { providerIdx: i, providerName: p.name, latest: data };
+    }catch(e){
+      lastErr = e;
+    }
+  }
+  throw lastErr || new Error("Falha ao buscar latest");
 }
-async function getConcurso(concurso){
-  const cached = loadCache(concurso);
+
+async function getConcurso(providerIdx, concurso){
+  const cached = loadCache(providerIdx, concurso);
   if(cached) return cached;
-  const data = await fetchJson(`${API_BASE}/lotofacil/${concurso}`);
-  saveCache(concurso, data);
+
+  const p = PROVIDERS[providerIdx];
+  const raw = await fetchJsonViaWorker(p.concursoUrl(concurso));
+  const data = p.adapt(raw);
+  saveCache(providerIdx, concurso, data);
   return data;
 }
 
-/** RANGE DOWNLOAD (concorrência limitada) **/
-async function fetchRange(inicio, fim, onProgress){
+/* =========================
+   DOWNLOAD RANGE (concorrência)
+========================= */
+async function fetchRange(providerIdx, inicio, fim, onProgress){
   const total = (fim - inicio + 1);
   const concurrency = 8;
   const results = new Array(total);
@@ -269,129 +363,161 @@ async function fetchRange(inicio, fim, onProgress){
     while(next <= fim){
       const c = next; next++;
       const idx = c - inicio;
-      const data = await getConcurso(c);
+      const data = await getConcurso(providerIdx, c);
       results[idx] = data;
       done++;
       if(onProgress) onProgress(done, total);
     }
   }
-
   const workers = [];
   for(let i=0;i<concurrency;i++) workers.push(worker());
   await Promise.all(workers);
   return results;
 }
 
-/** STATS **/
+/* =========================
+   ESTATÍSTICAS
+========================= */
+function toNum(d){ return Number(String(d).replace(/^0+/,"")) || Number(d); }
 function calcularFrequencias(concursos){
   const freq = {};
   for(let i=1;i<=25;i++) freq[i] = 0;
-  concursos.forEach(c => {
-    const dezenas = c?.dezenas || [];
-    dezenas.forEach(d => {
-      const n = parseInt(d, 10);
-      if(!isNaN(n)) freq[n] += 1;
+  concursos.forEach(c=>{
+    (c.dezenas||[]).forEach(d=>{
+      const n = toNum(d);
+      if(n>=1 && n<=25) freq[n] += 1;
     });
   });
   return freq;
 }
 function ordenarPorFreq(freq){
-  return Object.entries(freq)
-    .map(([k,v]) => ({dez: parseInt(k,10), f: v}))
-    .sort((a,b) => b.f - a.f);
+  return Object.entries(freq).map(([k,v])=>({dez:Number(k), f:v})).sort((a,b)=>b.f-a.f);
 }
-function sortNum(arr){ return arr.slice().sort((a,b)=>a-b); }
+function sortNum(a){ return a.slice().sort((x,y)=>x-y); }
+
 function gerarJogoPorFreq(freq){
-  const ordenado = ordenarPorFreq(freq);
-  const quentesTop = sortNum(ordenado.slice(0,6).map(x=>x.dez));
-  const friasBot   = sortNum(ordenado.slice(-4).map(x=>x.dez));
-  const meioPool   = ordenado.slice(6, -4).map(x=>x.dez);
+  const ord = ordenarPorFreq(freq);
+  const quentesTop = sortNum(ord.slice(0,6).map(x=>x.dez));
+  const friasBot   = sortNum(ord.slice(-4).map(x=>x.dez));
+  const meioPool   = ord.slice(6,-4).map(x=>x.dez);
 
-  const jogoSet = new Set([...quentesTop, ...friasBot]);
-
+  const set = new Set([...quentesTop, ...friasBot]);
   for(const n of meioPool){
-    if(jogoSet.size >= 15) break;
-    jogoSet.add(n);
+    if(set.size>=15) break;
+    set.add(n);
   }
-  while(jogoSet.size < 15){
-    jogoSet.add(Math.floor(Math.random()*25)+1);
-  }
-
-  const jogo = sortNum(Array.from(jogoSet));
-  return { jogo, quentesTop, friasBot };
+  while(set.size<15) set.add(Math.floor(Math.random()*25)+1);
+  return sortNum(Array.from(set));
 }
-function contarParesImpares(dezenas){
-  const pares = dezenas.filter(n=>n%2===0).length;
-  return { pares, impares: dezenas.length - pares };
+function classificarDezenas(freq, jogo){
+  const ord = ordenarPorFreq(freq);
+  const rank = {};
+  ord.forEach((x,i)=> rank[x.dez]=i+1);
+  const hot=[], warm=[], cold=[];
+  jogo.forEach(n=>{
+    const r = rank[n]||999;
+    if(r<=8) hot.push(n);
+    else if(r<=17) warm.push(n);
+    else cold.push(n);
+  });
+  return {hot:sortNum(hot), warm:sortNum(warm), cold:sortNum(cold)};
 }
-function somaDezenas(dezenas){ return dezenas.reduce((a,b)=>a+b,0); }
-function distribuicaoBlocos(dezenas){
-  const b = {A:0,B:0,C:0,D:0};
-  dezenas.forEach(n=>{
-    if(n<=6) b.A++;
-    else if(n<=12) b.B++;
-    else if(n<=18) b.C++;
-    else b.D++;
+function contarParesImpares(jogo){
+  const pares = jogo.filter(n=>n%2===0).length;
+  return {pares, impares: jogo.length - pares};
+}
+function somaDezenas(jogo){ return jogo.reduce((a,b)=>a+b,0); }
+function distribuicaoBlocos(jogo){
+  const b={A:0,B:0,C:0,D:0};
+  jogo.forEach(n=>{
+    if(n<=6) b.A++; else if(n<=12) b.B++; else if(n<=18) b.C++; else b.D++;
   });
   return b;
 }
 function format2(n){ return String(n).padStart(2,"0"); }
 
-function classificarDezenas(freq, dezenasGeradas){
-  const ordenado = ordenarPorFreq(freq);
-  const rank = {};
-  ordenado.forEach((x, i) => rank[x.dez] = i+1);
+/* =========================
+   RENDER: LISTA + TOP10
+========================= */
+function renderListaConcursos(concursos){
+  const rows = concursos.map(c=>{
+    const dezenas = (c.dezenas||[]).map(d=>format2(toNum(d))).join(" - ");
+    const data = c.data ? String(c.data) : "—";
+    return `<tr>
+      <td><b>${c.concurso}</b></td>
+      <td>${data}</td>
+      <td class="mono">${dezenas}</td>
+    </tr>`;
+  }).join("");
 
-  const quentes = [], mornas = [], frias = [];
-  dezenasGeradas.forEach(n=>{
-    const r = rank[n] || 999;
-    if(r <= 8) quentes.push(n);
-    else if(r <= 17) mornas.push(n);
-    else frias.push(n);
-  });
-  return {quentes: sortNum(quentes), mornas: sortNum(mornas), frias: sortNum(frias)};
+  return `
+    <table class="table">
+      <thead>
+        <tr><th>Concurso</th><th>Data</th><th>Dezenas</th></tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+  `;
 }
 
-/** MAIN **/
-async function gerarAnalise(){
-  const qtd = parseInt(document.getElementById("qtdConcursos").value, 10);
-  const btn = document.getElementById("btnGerar");
+function renderTop10(freq, totalConcursos){
+  const ord = ordenarPorFreq(freq).slice(0,10);
+  const max = ord[0]?.f || 1;
 
+  return ord.map(x=>{
+    const pct = Math.round((x.f/max)*100);
+    return `
+      <div class="chartRow">
+        <div class="chartLabel">${format2(x.dez)}</div>
+        <div class="chartBarWrap"><div class="chartBar" style="width:${pct}%"></div></div>
+        <div class="chartVal">${x.f}</div>
+      </div>
+    `;
+  }).join("") + `<div class="mini">Frequência = quantidade de aparições em ${totalConcursos} concursos.</div>`;
+}
+
+/* =========================
+   MAIN
+========================= */
+let lastContext = null; // guarda para abrir modal depois
+
+async function gerarAnalise(){
+  const qtd = Number(document.getElementById("qtdConcursos").value);
+  const btn = document.getElementById("btnGerar");
   try{
     btn.disabled = true;
-    setStatus(true, "Buscando o último concurso real…");
-    setProgress(5);
+    setStatus(true, "Buscando o último concurso (com fallback)…");
+    setProgress(6);
 
-    const latest = await getLatest();
-    const ultimo = parseInt(latest?.concurso, 10);
-    if(!ultimo || isNaN(ultimo)) throw new Error("Não consegui ler o número do último concurso.");
-
+    const { providerIdx, providerName, latest } = await getLatestWithFallback();
+    const ultimo = latest.concurso;
     const inicio = ultimo - qtd + 1;
-    if(inicio < 1) throw new Error("Intervalo inválido (início < 1).");
+    if(inicio < 1) throw new Error("Intervalo inválido.");
 
-    setStatus(true, `Baixando concursos ${inicio} a ${ultimo} (${qtd})…`);
+    setStatus(true, `Baixando concursos ${inicio} a ${ultimo}…`);
     setProgress(10);
 
-    const concursos = await fetchRange(inicio, ultimo, (done, total) => {
-      const pct = 10 + Math.round((done/total)*85);
+    const concursos = await fetchRange(providerIdx, inicio, ultimo, (done, total)=>{
+      const pct = 10 + Math.round((done/total)*80);
       setProgress(pct);
       setStatus(true, `Baixando concursos ${inicio} a ${ultimo}… (${done}/${total})`);
     });
 
     setStatus(true, "Calculando frequências e gerando jogo…");
-    setProgress(96);
+    setProgress(94);
 
     const freq = calcularFrequencias(concursos);
-    const { jogo } = gerarJogoPorFreq(freq);
-
+    const jogo = gerarJogoPorFreq(freq);
     const cls = classificarDezenas(freq, jogo);
-    const { pares, impares } = contarParesImpares(jogo);
+    const pi = contarParesImpares(jogo);
     const soma = somaDezenas(jogo);
     const blocos = distribuicaoBlocos(jogo);
 
-    setProgress(100);
     setStatus(false, "");
     setProgress(0);
+
+    // guarda contexto pro modal
+    lastContext = { providerName, inicio, ultimo, qtd, concursos, freq };
 
     const numerosFmt = jogo.map(format2).join(" - ");
 
@@ -399,51 +525,54 @@ async function gerarAnalise(){
       <div class="numbers">${numerosFmt}</div>
       <div class="range">📌 Análise dos concursos <b>${inicio}</b> a <b>${ultimo}</b> (${qtd} concursos)</div>
 
+      <div class="actions">
+        <button class="small secondary" type="button" onclick="abrirDetalhes()">📅 Ver concursos analisados (lista + gráfico)</button>
+      </div>
+
       <div class="grid">
         <div class="box">
-          <div class="pill hot">🔥 Dezenas quentes (no seu jogo)</div>
-          <p><b>${cls.quentes.map(format2).join(", ") || "—"}</b></p>
-          <div class="mini">Motivo: estão entre as mais frequentes no intervalo analisado.</div>
+          <div class="pill hot">🔥 Quentes (no seu jogo)</div>
+          <p><b>${cls.hot.map(format2).join(", ") || "—"}</b></p>
+          <div class="mini">Motivo: aparecem mais vezes no intervalo analisado.</div>
         </div>
 
         <div class="box">
-          <div class="pill warm">🌡️ Dezenas mornas (no seu jogo)</div>
-          <p><b>${cls.mornas.map(format2).join(", ") || "—"}</b></p>
-          <div class="mini">Motivo: frequência estável para equilibrar o padrão.</div>
+          <div class="pill warm">🌡️ Mornas (no seu jogo)</div>
+          <p><b>${cls.warm.map(format2).join(", ") || "—"}</b></p>
+          <div class="mini">Motivo: estabilidade para equilibrar o padrão.</div>
         </div>
 
         <div class="box">
-          <div class="pill cold">❄️ Dezenas frias (no seu jogo)</div>
-          <p><b>${cls.frias.map(format2).join(", ") || "—"}</b></p>
-          <div class="mini">Motivo: menor incidência no período — ajuda a diversificar.</div>
+          <div class="pill cold">❄️ Frias (no seu jogo)</div>
+          <p><b>${cls.cold.map(format2).join(", ") || "—"}</b></p>
+          <div class="mini">Motivo: menor incidência — adiciona diversidade.</div>
         </div>
 
         <div class="box">
           <div class="pill info">⚖️ Pares x Ímpares</div>
-          <p><b>${pares}</b> pares • <b>${impares}</b> ímpares</p>
+          <p><b>${pi.pares}</b> pares • <b>${pi.impares}</b> ímpares</p>
           <div class="mini">Resumo: balanceamento automático para evitar extremos.</div>
         </div>
 
         <div class="box">
           <div class="pill info">➕ Soma total</div>
           <p><b>${soma}</b></p>
-          <div class="mini">Resumo: filtro estatístico comum para evitar combinações fora do padrão.</div>
+          <div class="mini">Resumo: ajuda a evitar combinações fora do padrão.</div>
         </div>
 
         <div class="box">
           <div class="pill info">🧩 Distribuição por blocos</div>
           <p>A(01–06): <b>${blocos.A}</b> • B(07–12): <b>${blocos.B}</b> • C(13–18): <b>${blocos.C}</b> • D(19–25): <b>${blocos.D}</b></p>
-          <div class="mini">Resumo: cobertura do volante por faixas para reduzir “buracos”.</div>
+          <div class="mini">Resumo: cobre faixas do volante para reduzir “buracos”.</div>
         </div>
 
         <div class="box">
           <div class="pill info">🔎 Transparência</div>
-          <p>Concursos usados: <b>${inicio} → ${ultimo}</b></p>
-          <div class="mini">Dados carregados via seu Proxy (Cloudflare Worker), evitando CORS.</div>
+          <p>Fonte usada: <b>${providerName}</b></p>
+          <div class="mini">Se uma API cair (ex: 503), o sistema muda para outra automaticamente.</div>
         </div>
       </div>
     `;
-
   }catch(e){
     setStatus(false,"");
     setProgress(0);
@@ -452,7 +581,7 @@ async function gerarAnalise(){
       <div class="box">
         <div class="pill info">Detalhe</div>
         <p>${String(e?.message || e)}</p>
-        <div class="mini">Se persistir, pode ser o Worker (ou a API) temporariamente fora do ar.</div>
+        <div class="mini">Dica: tente novamente em 30s. Se persistir, pode ser queda geral das fontes públicas.</div>
       </div>
     `;
   }finally{
@@ -460,11 +589,29 @@ async function gerarAnalise(){
   }
 }
 
-/** BIND EVENTS (evita quebrar botão por HTML) **/
-document.addEventListener("DOMContentLoaded", () => {
+function abrirDetalhes(){
+  if(!lastContext) return;
+  document.getElementById("tagFonte").textContent = "Fonte: " + lastContext.providerName;
+  document.getElementById("tagIntervalo").textContent = `Intervalo: ${lastContext.inicio} → ${lastContext.ultimo} (${lastContext.qtd})`;
+
+  document.getElementById("listaConcursos").innerHTML = renderListaConcursos(lastContext.concursos);
+  document.getElementById("chartTop10").innerHTML = renderTop10(lastContext.freq, lastContext.qtd);
+
+  abrirModal();
+}
+
+/* =========================
+   EVENTS
+========================= */
+document.addEventListener("DOMContentLoaded", ()=>{
   document.getElementById("btnEntrar").addEventListener("click", entrar);
   document.getElementById("btnGerar").addEventListener("click", gerarAnalise);
   document.getElementById("btnLimpar").addEventListener("click", limparCache);
+
+  // fecha modal clicando fora
+  document.getElementById("modalBack").addEventListener("click", (e)=>{
+    if(e.target.id === "modalBack") fecharModal();
+  });
 });
 </script>
 
