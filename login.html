@@ -1,32 +1,232 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
-  <title>Login Premium</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lotofácil Inteligente</title>
+
+  <!-- Fonte -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #0b1220;
+      --card: #111a2e;
+      --primary: #22c55e;
+      --secondary: #38bdf8;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+    }
+
+    body.light {
+      --bg: #f1f5f9;
+      --card: #ffffff;
+      --primary: #16a34a;
+      --secondary: #0284c7;
+      --text: #0f172a;
+      --muted: #475569;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top, #0f172a, var(--bg));
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 420px;
+    }
+
+    .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .logo {
+      font-weight: 700;
+      font-size: 18px;
+    }
+
+    .toggle {
+      cursor: pointer;
+      border: none;
+      background: var(--card);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 14px;
+    }
+
+    .card {
+      background: linear-gradient(160deg, var(--card), rgba(255,255,255,0.02));
+      border-radius: 20px;
+      padding: 22px;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.35);
+      animation: fadeIn 0.6s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+      font-size: 20px;
+      margin: 0 0 6px 0;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 18px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 14px;
+      border: none;
+      background: linear-gradient(135deg, var(--primary), #4ade80);
+      color: #052e16;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(34,197,94,0.35);
+    }
+
+    .result {
+      margin-top: 18px;
+      padding: 16px;
+      border-radius: 14px;
+      background: rgba(0,0,0,0.2);
+      text-align: center;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .numbers {
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      margin-bottom: 14px;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      background: rgba(34,197,94,0.15);
+      color: var(--primary);
+      margin-bottom: 10px;
+    }
+
+    .analysis {
+      text-align: left;
+      font-size: 13px;
+      line-height: 1.6;
+      margin-top: 10px;
+    }
+
+    .analysis div {
+      margin-bottom: 6px;
+    }
+
+    .lock {
+      margin-top: 14px;
+      font-size: 13px;
+      color: #facc15;
+      text-align: center;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 14px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+  </style>
 </head>
 <body>
+  <div class="app">
+    <div class="top">
+      <div class="logo">🎯 Lotofácil Inteligente</div>
+      <button class="toggle" onclick="toggleTheme()">🌙 Tema</button>
+    </div>
 
-<h2>Área Premium Lotofácil</h2>
+    <div class="card">
+      <h1>Análise Estatística Profissional</h1>
+      <div class="subtitle">1 jogo gratuito • premium após o teste</div>
 
-<input id="email" placeholder="Email"><br><br>
-<input id="senha" type="password" placeholder="Senha"><br><br>
+      <button class="btn" onclick="gerarJogo()">Gerar Jogo Gratuito</button>
 
-<button onclick="login()">Entrar</button>
+      <div id="saida"></div>
+    </div>
 
-<p id="msg"></p>
+    <footer>
+      Sistema demonstrativo • Não garante premiação
+    </footer>
+  </div>
 
-<script>
-function login() {
-  const email = document.getElementById("email").value;
-  const senha = document.getElementById("senha").value;
+  <script>
+    let usado = localStorage.getItem('usado');
 
-  if (email === "premium@lotofacil.com" && senha === "123456") {
-    localStorage.setItem("premium", "true");
-    window.location.href = "premium.html";
-  } else {
-    document.getElementById("msg").innerText = "Login inválido";
-  }
-}
-</script>
+    function toggleTheme() {
+      document.body.classList.toggle('light');
+    }
 
+    function gerarJogo() {
+      if (usado) {
+        document.getElementById('saida').innerHTML = `
+          <div class="lock">🔒 Teste gratuito encerrado<br>Desbloqueie o modo Premium</div>
+        `;
+        return;
+      }
+
+      usado = true;
+      localStorage.setItem('usado', '1');
+
+      let dezenas = [];
+      while (dezenas.length < 15) {
+        let n = Math.floor(Math.random() * 25) + 1;
+        if (!dezenas.includes(n)) dezenas.push(n);
+      }
+      dezenas.sort((a, b) => a - b);
+
+      document.getElementById('saida').innerHTML = `
+        <div class="result">
+          <div class="tag">🔥 Jogo Gerado</div>
+          <div class="numbers">${dezenas.map(n => n.toString().padStart(2,'0')).join(' - ')}</div>
+          <div class="analysis">
+            <div>🔥 <b>Dezenas quentes:</b> baseadas em maior incidência recente</div>
+            <div>❄️ <b>Dezenas frias:</b> possíveis retornos estratégicos</div>
+            <div>⚖️ <b>Pares e ímpares:</b> equilíbrio estatístico histórico</div>
+            <div>➕ <b>Soma das dezenas:</b> dentro da faixa mais premiada</div>
+            <div>🧩 <b>Distribuição por blocos:</b> cobertura uniforme do volante</div>
+            <div>🔁 <b>Repetidas:</b> combinação com último concurso</div>
+            <div>📊 <b>Classificação:</b> quentes, mornas e frias</div>
+          </div>
+        </div>
+      `;
+    }
+  </script>
 </body>
 </html>
