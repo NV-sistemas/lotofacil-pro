@@ -9,15 +9,13 @@
   :root{
     --bg1:#020617; --bg2:#0f172a;
     --card:#071023; --card2:#061028;
-    --stroke:#1e293b;
     --text:#e5e7eb; --muted:#94a3b8;
     --green:#22c55e; --green2:#16a34a;
     --yellow:#facc15; --blue:#38bdf8; --red:#fb7185;
   }
   *{box-sizing:border-box;font-family:Arial,Helvetica,sans-serif}
   body{
-    margin:0;
-    color:var(--text);
+    margin:0; color:var(--text);
     background:linear-gradient(135deg,var(--bg1),var(--bg2));
     min-height:100vh;
   }
@@ -30,46 +28,35 @@
     box-shadow:0 30px 80px rgba(0,0,0,.55);
   }
   .brand{
-    text-align:center;
-    font-weight:900;
-    letter-spacing:.5px;
-    font-size:18px;
+    text-align:center;font-weight:900;letter-spacing:.5px;font-size:18px;
   }
-  .brand small{display:block;color:var(--muted);font-weight:600;margin-top:6px}
-  input{
-    width:100%;padding:12px 12px;
-    border-radius:10px;border:1px solid rgba(255,255,255,.08);
+  .brand small{
+    display:block;color:var(--muted);font-weight:600;margin-top:6px
+  }
+  input, select{
+    width:100%;padding:12px;border-radius:10px;
+    border:1px solid rgba(255,255,255,.08);
     background:#020617;color:var(--text);
     outline:none;margin-top:12px;
   }
   button{
-    width:100%;
-    margin-top:12px;
-    padding:13px 14px;
+    width:100%;margin-top:12px;padding:13px 14px;
     border:none;border-radius:12px;
     background:linear-gradient(135deg,var(--green),var(--green2));
-    color:#022c22;
-    font-weight:900;
-    cursor:pointer;
-    transition:.15s;
+    color:#022c22;font-weight:900;
+    cursor:pointer;transition:.15s;
   }
   button:hover{filter:brightness(1.05);transform:translateY(-1px)}
   button.secondary{
-    background:transparent;
-    border:1px solid rgba(255,255,255,.12);
-    color:var(--text);
+    background:transparent;border:1px solid rgba(255,255,255,.12);color:var(--text)
   }
 
-  /* APP */
   #app{display:none;max-width:1050px;margin:0 auto;padding:18px}
   .header{
     display:flex;align-items:center;justify-content:space-between;
-    gap:12px;flex-wrap:wrap;
-    margin-bottom:14px;
+    gap:12px;flex-wrap:wrap;margin-bottom:14px
   }
-  .title{
-    font-size:20px;font-weight:900;margin:0;
-  }
+  .title{font-size:20px;font-weight:900;margin:0}
   .subtitle{margin:6px 0 0;color:var(--muted);font-size:13px;font-weight:600}
   .chip{
     display:inline-flex;align-items:center;gap:8px;
@@ -78,37 +65,22 @@
     border:1px solid rgba(255,255,255,.07);
     color:var(--muted);font-size:12px;font-weight:700;
   }
-
   .card{
     background:linear-gradient(180deg,var(--card2),rgba(255,255,255,.02));
     border:1px solid rgba(255,255,255,.06);
-    border-radius:18px;
-    padding:16px;
+    border-radius:18px;padding:16px;
     box-shadow:0 18px 50px rgba(0,0,0,.35);
     margin-bottom:14px;
   }
-
   .row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
   label{display:block;font-size:12px;color:var(--muted);font-weight:800;margin-bottom:6px}
-  select{
-    width:100%;
-    padding:12px;border-radius:12px;
-    background:#020617;color:var(--text);
-    border:1px solid rgba(255,255,255,.10);
-    outline:none;
-  }
-  .col{flex:1;min-width:220px}
+  .col{flex:1;min-width:240px}
 
   .status{
-    display:none;
-    margin-top:10px;
-    padding:12px;
-    border-radius:14px;
+    display:none;margin-top:10px;padding:12px;border-radius:14px;
     background:rgba(56,189,248,.08);
     border:1px solid rgba(56,189,248,.18);
-    color:#cdefff;
-    font-size:13px;
-    font-weight:700;
+    color:#cdefff;font-size:13px;font-weight:700;
   }
   .bar{
     height:10px;border-radius:999px;overflow:hidden;
@@ -116,67 +88,43 @@
     border:1px solid rgba(255,255,255,.06);
     margin-top:10px;
   }
-  .bar > div{
-    height:100%;
-    width:0%;
+  .bar>div{
+    height:100%;width:0%;
     background:linear-gradient(90deg,var(--blue),var(--green));
     transition:width .2s ease;
   }
 
   .numbers{
-    text-align:center;
-    color:var(--green);
-    font-weight:900;
-    letter-spacing:1px;
-    font-size:18px;
-    margin:10px 0 4px;
+    text-align:center;color:var(--green);
+    font-weight:900;letter-spacing:1px;
+    font-size:18px;margin:10px 0 4px;
   }
   .range{
-    text-align:center;
-    color:var(--muted);
-    font-size:13px;
-    font-weight:700;
-    margin:0 0 10px;
+    text-align:center;color:var(--muted);
+    font-size:13px;font-weight:700;margin:0 0 10px;
   }
-
   .grid{
     display:grid;
     grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
-    gap:12px;
-    margin-top:10px;
+    gap:12px;margin-top:10px;
   }
   .box{
     background:rgba(255,255,255,.03);
     border:1px solid rgba(255,255,255,.06);
-    border-radius:16px;
-    padding:12px;
+    border-radius:16px;padding:12px;
   }
   .box h4{margin:0 0 6px;font-size:13px}
   .box p{margin:0;color:var(--text);font-size:13px;line-height:1.45}
   .pill{
-    display:inline-block;
-    padding:6px 10px;border-radius:999px;
-    font-size:12px;font-weight:900;
-    margin-bottom:8px;
+    display:inline-block;padding:6px 10px;border-radius:999px;
+    font-size:12px;font-weight:900;margin-bottom:8px
   }
   .pill.hot{background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.25)}
   .pill.warm{background:rgba(250,204,21,.12);color:var(--yellow);border:1px solid rgba(250,204,21,.25)}
   .pill.cold{background:rgba(251,113,133,.12);color:var(--red);border:1px solid rgba(251,113,133,.25)}
   .pill.info{background:rgba(56,189,248,.10);color:var(--blue);border:1px solid rgba(56,189,248,.22)}
-
-  .mini{
-    color:var(--muted);
-    font-size:12px;
-    margin-top:8px;
-    line-height:1.4;
-  }
-
-  .footerNote{
-    text-align:center;
-    color:var(--muted);
-    font-size:11px;
-    margin-top:10px;
-  }
+  .mini{color:var(--muted);font-size:12px;margin-top:8px;line-height:1.4}
+  .footerNote{text-align:center;color:var(--muted);font-size:11px;margin-top:10px}
 </style>
 </head>
 
@@ -189,9 +137,9 @@
       <small>Sistema avançado de análise estatística</small>
     </div>
 
-    <input type="email" placeholder="Email" />
-    <input type="password" placeholder="Senha" />
-    <button onclick="entrar()">Entrar</button>
+    <input id="email" type="email" placeholder="Email" />
+    <input id="senha" type="password" placeholder="Senha" />
+    <button id="btnEntrar" type="button">Entrar</button>
 
     <div class="footerNote">*Login visual (por enquanto). Depois a gente coloca login real.</div>
   </div>
@@ -204,7 +152,7 @@
       <div class="title">🎯 LOTOFÁCIL PRIME ANALYTICS</div>
       <div class="subtitle">Escolha a janela de concursos e gere um jogo com explicações completas.</div>
     </div>
-    <div class="chip">📡 Resultados via API pública</div>
+    <div class="chip">📡 Concursos reais (via Proxy)</div>
   </div>
 
   <div class="card">
@@ -213,7 +161,7 @@
         <label>Quantidade de concursos para análise</label>
         <select id="qtdConcursos">
           <option value="5">Últimos 5 concursos</option>
-          <option value="10">Últimos 10 concursos</option>
+          <option value="10" selected>Últimos 10 concursos</option>
           <option value="15">Últimos 15 concursos</option>
           <option value="20">Últimos 20 concursos</option>
           <option value="25">Últimos 25 concursos</option>
@@ -225,8 +173,8 @@
 
       <div class="col">
         <label>Gerar jogo com base nos concursos reais</label>
-        <button id="btnGerar" onclick="gerarAnalise()">📊 Gerar Jogo + Análise</button>
-        <button class="secondary" onclick="limparCache()">🧹 Limpar cache (se der erro)</button>
+        <button id="btnGerar" type="button">📊 Gerar Jogo + Análise</button>
+        <button class="secondary" type="button" id="btnLimpar">🧹 Limpar cache (se der erro)</button>
       </div>
     </div>
 
@@ -246,305 +194,279 @@
 </div>
 
 <script>
-  // API (conforme documentação do projeto) :contentReference[oaicite:1]{index=1}
-  const API_BASE = "https://loteriascaixa-api.herokuapp.com/api";
+/** CONFIG **/
+const API_BASE = "https://loteriascaixa-api.herokuapp.com/api";
+const WORKER   = "https://shy-silence-06b9.nvtranspelogistica.workers.dev";
 
-  function entrar(){
-    document.getElementById("loginWrap").style.display = "none";
-    document.getElementById("app").style.display = "block";
-  }
+/** UI HELPERS **/
+function setStatus(on, text){
+  const st = document.getElementById("status");
+  document.getElementById("statusText").textContent = text || "";
+  st.style.display = on ? "block" : "none";
+}
+function setProgress(pct){
+  document.getElementById("barFill").style.width = Math.max(0, Math.min(100, pct)) + "%";
+}
 
-  function setStatus(on, text){
-    const st = document.getElementById("status");
-    const stt = document.getElementById("statusText");
-    stt.textContent = text || "";
-    st.style.display = on ? "block" : "none";
-  }
-
-  function setProgress(pct){
-    const fill = document.getElementById("barFill");
-    fill.style.width = Math.max(0, Math.min(100, pct)) + "%";
-  }
-
-  function cacheKey(concurso){ return "lf_concurso_" + String(concurso); }
-
-  function saveCache(concurso, data){
-    try{
-      localStorage.setItem(cacheKey(concurso), JSON.stringify({ts: Date.now(), data}));
-    }catch(e){}
-  }
-
-  function loadCache(concurso){
-    try{
-      const raw = localStorage.getItem(cacheKey(concurso));
-      if(!raw) return null;
-      const obj = JSON.parse(raw);
-      // TTL: 48h
-      if(!obj?.ts || (Date.now() - obj.ts) > (48*60*60*1000)) return null;
-      return obj.data || null;
-    }catch(e){ return null; }
-  }
-
-  function limparCache(){
-    const keys = [];
-    for(let i=0;i<localStorage.length;i++){
-      const k = localStorage.key(i);
-      if(k && k.startsWith("lf_concurso_")) keys.push(k);
-    }
-    keys.forEach(k => localStorage.removeItem(k));
-    alert("Cache limpo! Agora tente gerar novamente.");
-  }
-
-  async function fetchJson(url){
-    const r = await fetch(url, { cache: "no-store" });
-    if(!r.ok) throw new Error("Erro HTTP " + r.status);
-    return await r.json();
-  }
-
-  async function getLatest(){
-    // /api/<loteria>/latest :contentReference[oaicite:2]{index=2}
-    return await fetchJson(`${API_BASE}/lotofacil/latest`);
-  }
-
-  async function getConcurso(concurso){
-    const cached = loadCache(concurso);
-    if(cached) return cached;
-    const data = await fetchJson(`${API_BASE}/lotofacil/${concurso}`);
-    saveCache(concurso, data);
-    return data;
-  }
-
-  // concorrência limitada (não travar e não sobrecarregar)
-  async function fetchRange(inicio, fim, onProgress){
-    const total = (fim - inicio + 1);
-    const concurrency = 8;
-    const results = new Array(total);
-    let next = inicio;
-    let done = 0;
-
-    async function worker(){
-      while(next <= fim){
-        const c = next; next++;
-        const idx = c - inicio;
-        const data = await getConcurso(c);
-        results[idx] = data;
-        done++;
-        if(onProgress) onProgress(done, total);
-      }
-    }
-
-    const workers = [];
-    for(let i=0;i<concurrency;i++) workers.push(worker());
-    await Promise.all(workers);
-    return results;
-  }
-
-  function calcularFrequencias(concursos){
-    const freq = {};
-    for(let i=1;i<=25;i++) freq[i] = 0;
-
-    concursos.forEach(c => {
-      const dezenas = c?.dezenas || [];
-      dezenas.forEach(d => {
-        const n = parseInt(d, 10);
-        if(!isNaN(n)) freq[n] += 1;
-      });
-    });
-
-    return freq;
-  }
-
-  function ordenarPorFreq(freq){
-    return Object.entries(freq)
-      .map(([k,v]) => ({dez: parseInt(k,10), f: v}))
-      .sort((a,b) => b.f - a.f);
-  }
-
-  function sortNum(arr){ return arr.slice().sort((a,b)=>a-b); }
-
-  function gerarJogoPorFreq(freq){
-    // estratégia simples: 6 quentes + 5 mornas + 4 frias = 15
-    const ordenado = ordenarPorFreq(freq);
-    const quentes = sortNum(ordenado.slice(0,6).map(x=>x.dez));
-    const frias   = sortNum(ordenado.slice(-4).map(x=>x.dez));
-    const meioPool = ordenado.slice(6, -4).map(x=>x.dez);
-
-    const jogoSet = new Set([...quentes, ...frias]);
-    // completa com as “mornas” mais fortes
-    for(const n of meioPool){
-      if(jogoSet.size >= 15) break;
-      jogoSet.add(n);
-    }
-    // fallback
-    while(jogoSet.size < 15){
-      jogoSet.add(Math.floor(Math.random()*25)+1);
-    }
-    const jogo = sortNum(Array.from(jogoSet));
-    return { jogo, quentes, frias };
-  }
-
-  function contarParesImpares(dezenas){
-    const pares = dezenas.filter(n=>n%2===0).length;
-    return { pares, impares: dezenas.length - pares };
-  }
-
-  function somaDezenas(dezenas){
-    return dezenas.reduce((a,b)=>a+b,0);
-  }
-
-  function distribuicaoBlocos(dezenas){
-    // 1–6 / 7–12 / 13–18 / 19–25
-    const b = {A:0,B:0,C:0,D:0};
-    dezenas.forEach(n=>{
-      if(n<=6) b.A++;
-      else if(n<=12) b.B++;
-      else if(n<=18) b.C++;
-      else b.D++;
-    });
-    return b;
-  }
-
-  function format2(n){ return String(n).padStart(2,"0"); }
-
-  function classificarDezenas(freq, dezenasGeradas){
-    // classifica as dezenas do jogo em quente/morna/fria (com base no ranking global)
-    const ordenado = ordenarPorFreq(freq);
-    const rank = {};
-    ordenado.forEach((x, i) => rank[x.dez] = i+1); // 1 = mais quente
-
-    const quentes = [];
-    const mornas = [];
-    const frias = [];
-
-    dezenasGeradas.forEach(n=>{
-      const r = rank[n] || 999;
-      if(r <= 8) quentes.push(n);
-      else if(r <= 17) mornas.push(n);
-      else frias.push(n);
-    });
-
-    return {quentes: sortNum(quentes), mornas: sortNum(mornas), frias: sortNum(frias)};
-  }
-
-  async function gerarAnalise(){
-    const qtd = parseInt(document.getElementById("qtdConcursos").value, 10);
-    const btn = document.getElementById("btnGerar");
-
-    try{
-      btn.disabled = true;
-      setStatus(true, "Buscando o último concurso real…");
-      setProgress(2);
-
-      const latest = await getLatest();
-      const ultimo = parseInt(latest?.concurso, 10);
-      if(!ultimo || isNaN(ultimo)) throw new Error("Não consegui ler o número do último concurso.");
-
-      const inicio = ultimo - qtd + 1;
-      if(inicio < 1) throw new Error("Intervalo inválido (início < 1).");
-
-      setStatus(true, `Baixando concursos ${inicio} a ${ultimo} (${qtd})…`);
-      setProgress(5);
-
-      const concursos = await fetchRange(inicio, ultimo, (done, total) => {
-        const pct = 5 + Math.round((done/total)*85);
-        setProgress(pct);
-        setStatus(true, `Baixando concursos ${inicio} a ${ultimo}… (${done}/${total})`);
-      });
-
-      setStatus(true, "Calculando frequências e gerando jogo…");
-      setProgress(93);
-
-      const freq = calcularFrequencias(concursos);
-      const { jogo } = gerarJogoPorFreq(freq);
-
-      // stats do jogo
-      const { pares, impares } = contarParesImpares(jogo);
-      const soma = somaDezenas(jogo);
-      const blocos = distribuicaoBlocos(jogo);
-
-      // classificação das dezenas do jogo com base na frequência real
-      const cls = classificarDezenas(freq, jogo);
-
-      setProgress(100);
-      setStatus(false, "");
-      setProgress(0);
-
-      const numerosFmt = jogo.map(format2).join(" - ");
-
-      const resultado = document.getElementById("resultado");
-      resultado.innerHTML = `
-        <div class="numbers">${numerosFmt}</div>
-        <div class="range">📌 Análise dos concursos <b>${inicio}</b> a <b>${ultimo}</b> (${qtd} concursos)</div>
-
-        <div class="grid">
-          <div class="box">
-            <div class="pill hot">🔥 Dezenas quentes (no seu jogo)</div>
-            <p><b>${cls.quentes.map(format2).join(", ") || "—"}</b></p>
-            <div class="mini">Motivo: estão entre as dezenas mais frequentes nos últimos ${qtd} concursos analisados.</div>
-          </div>
-
-          <div class="box">
-            <div class="pill warm">🌡️ Dezenas mornas (no seu jogo)</div>
-            <p><b>${cls.mornas.map(format2).join(", ") || "—"}</b></p>
-            <div class="mini">Motivo: frequência estável (equilíbrio) para reduzir concentração só em quentes/frias.</div>
-          </div>
-
-          <div class="box">
-            <div class="pill cold">❄️ Dezenas frias (no seu jogo)</div>
-            <p><b>${cls.frias.map(format2).join(", ") || "—"}</b></p>
-            <div class="mini">Motivo: menor frequência no período — usadas para diversificar padrão e cobrir retornos.</div>
-          </div>
-
-          <div class="box">
-            <div class="pill info">⚖️ Pares x Ímpares</div>
-            <p><b>${pares}</b> pares • <b>${impares}</b> ímpares</p>
-            <div class="mini">Resumo: balanceamento automático para evitar extremos e manter consistência estatística.</div>
-          </div>
-
-          <div class="box">
-            <div class="pill info">➕ Soma total</div>
-            <p><b>${soma}</b></p>
-            <div class="mini">Resumo: a soma é um “filtro” comum — ajuda a evitar combinações muito fora do padrão.</div>
-          </div>
-
-          <div class="box">
-            <div class="pill info">🧩 Distribuição por blocos</div>
-            <p>A(01–06): <b>${blocos.A}</b> • B(07–12): <b>${blocos.B}</b> • C(13–18): <b>${blocos.C}</b> • D(19–25): <b>${blocos.D}</b></p>
-            <div class="mini">Resumo: cobertura do volante por faixas para reduzir “buracos” e aumentar diversidade.</div>
-          </div>
-
-          <div class="box">
-            <div class="pill info">🔎 Transparência</div>
-            <p>Concursos usados: <b>${inicio} → ${ultimo}</b></p>
-            <div class="mini">Os cálculos (frequência/classificação) foram feitos somente com os concursos desse intervalo.</div>
-          </div>
-        </div>
-      `;
-
-    }catch(e){
-      setStatus(false, "");
-      setProgress(0);
-      document.getElementById("resultado").innerHTML = `
-        <h3 style="text-align:center;">⚠️ Não consegui buscar os concursos reais</h3>
-        <p style="text-align:center;color:var(--muted);font-weight:700;">
-          Motivo provável: instabilidade da API ou bloqueio de rede (CORS).
-        </p>
-        <div class="box">
-          <div class="pill info">Detalhe técnico</div>
-          <p>${String(e?.message || e)}</p>
-          <div class="mini">Se isso persistir, eu te passo uma alternativa 100% estável (com um mini-backend).</div>
-        </div>
-      `;
-    }finally{
-      document.getElementById("btnGerar").disabled = false;
-    }
-  }
-  const WORKER = "https://shy-silence-06b9.nvtranspelogistica.workers.dev;
-  function entrar(){
+/** LOGIN (garantido por addEventListener) **/
+function entrar(){
   document.getElementById("loginWrap").style.display = "none";
   document.getElementById("app").style.display = "block";
 }
+
+/** CACHE **/
+function cacheKey(concurso){ return "lf_concurso_" + String(concurso); }
+function saveCache(concurso, data){
+  try{ localStorage.setItem(cacheKey(concurso), JSON.stringify({ts: Date.now(), data})); }catch(e){}
+}
+function loadCache(concurso){
+  try{
+    const raw = localStorage.getItem(cacheKey(concurso));
+    if(!raw) return null;
+    const obj = JSON.parse(raw);
+    if(!obj?.ts || (Date.now() - obj.ts) > (48*60*60*1000)) return null;
+    return obj.data || null;
+  }catch(e){ return null; }
+}
+function limparCache(){
+  const keys = [];
+  for(let i=0;i<localStorage.length;i++){
+    const k = localStorage.key(i);
+    if(k && k.startsWith("lf_concurso_")) keys.push(k);
+  }
+  keys.forEach(k => localStorage.removeItem(k));
+  alert("Cache limpo! Agora tente gerar novamente.");
+}
+
+/** FETCH VIA PROXY (evita CORS) **/
+async function fetchJson(url){
+  const proxied = `${WORKER}/?url=${encodeURIComponent(url)}`;
+  const r = await fetch(proxied, { cache: "no-store" });
+  if(!r.ok) throw new Error("HTTP " + r.status);
+  return await r.json();
+}
+
+async function getLatest(){
+  return await fetchJson(`${API_BASE}/lotofacil/latest`);
+}
+async function getConcurso(concurso){
+  const cached = loadCache(concurso);
+  if(cached) return cached;
+  const data = await fetchJson(`${API_BASE}/lotofacil/${concurso}`);
+  saveCache(concurso, data);
+  return data;
+}
+
+/** RANGE DOWNLOAD (concorrência limitada) **/
+async function fetchRange(inicio, fim, onProgress){
+  const total = (fim - inicio + 1);
+  const concurrency = 8;
+  const results = new Array(total);
+  let next = inicio;
+  let done = 0;
+
+  async function worker(){
+    while(next <= fim){
+      const c = next; next++;
+      const idx = c - inicio;
+      const data = await getConcurso(c);
+      results[idx] = data;
+      done++;
+      if(onProgress) onProgress(done, total);
+    }
+  }
+
+  const workers = [];
+  for(let i=0;i<concurrency;i++) workers.push(worker());
+  await Promise.all(workers);
+  return results;
+}
+
+/** STATS **/
+function calcularFrequencias(concursos){
+  const freq = {};
+  for(let i=1;i<=25;i++) freq[i] = 0;
+  concursos.forEach(c => {
+    const dezenas = c?.dezenas || [];
+    dezenas.forEach(d => {
+      const n = parseInt(d, 10);
+      if(!isNaN(n)) freq[n] += 1;
+    });
+  });
+  return freq;
+}
+function ordenarPorFreq(freq){
+  return Object.entries(freq)
+    .map(([k,v]) => ({dez: parseInt(k,10), f: v}))
+    .sort((a,b) => b.f - a.f);
+}
+function sortNum(arr){ return arr.slice().sort((a,b)=>a-b); }
+function gerarJogoPorFreq(freq){
+  const ordenado = ordenarPorFreq(freq);
+  const quentesTop = sortNum(ordenado.slice(0,6).map(x=>x.dez));
+  const friasBot   = sortNum(ordenado.slice(-4).map(x=>x.dez));
+  const meioPool   = ordenado.slice(6, -4).map(x=>x.dez);
+
+  const jogoSet = new Set([...quentesTop, ...friasBot]);
+
+  for(const n of meioPool){
+    if(jogoSet.size >= 15) break;
+    jogoSet.add(n);
+  }
+  while(jogoSet.size < 15){
+    jogoSet.add(Math.floor(Math.random()*25)+1);
+  }
+
+  const jogo = sortNum(Array.from(jogoSet));
+  return { jogo, quentesTop, friasBot };
+}
+function contarParesImpares(dezenas){
+  const pares = dezenas.filter(n=>n%2===0).length;
+  return { pares, impares: dezenas.length - pares };
+}
+function somaDezenas(dezenas){ return dezenas.reduce((a,b)=>a+b,0); }
+function distribuicaoBlocos(dezenas){
+  const b = {A:0,B:0,C:0,D:0};
+  dezenas.forEach(n=>{
+    if(n<=6) b.A++;
+    else if(n<=12) b.B++;
+    else if(n<=18) b.C++;
+    else b.D++;
+  });
+  return b;
+}
+function format2(n){ return String(n).padStart(2,"0"); }
+
+function classificarDezenas(freq, dezenasGeradas){
+  const ordenado = ordenarPorFreq(freq);
+  const rank = {};
+  ordenado.forEach((x, i) => rank[x.dez] = i+1);
+
+  const quentes = [], mornas = [], frias = [];
+  dezenasGeradas.forEach(n=>{
+    const r = rank[n] || 999;
+    if(r <= 8) quentes.push(n);
+    else if(r <= 17) mornas.push(n);
+    else frias.push(n);
+  });
+  return {quentes: sortNum(quentes), mornas: sortNum(mornas), frias: sortNum(frias)};
+}
+
+/** MAIN **/
+async function gerarAnalise(){
+  const qtd = parseInt(document.getElementById("qtdConcursos").value, 10);
+  const btn = document.getElementById("btnGerar");
+
+  try{
+    btn.disabled = true;
+    setStatus(true, "Buscando o último concurso real…");
+    setProgress(5);
+
+    const latest = await getLatest();
+    const ultimo = parseInt(latest?.concurso, 10);
+    if(!ultimo || isNaN(ultimo)) throw new Error("Não consegui ler o número do último concurso.");
+
+    const inicio = ultimo - qtd + 1;
+    if(inicio < 1) throw new Error("Intervalo inválido (início < 1).");
+
+    setStatus(true, `Baixando concursos ${inicio} a ${ultimo} (${qtd})…`);
+    setProgress(10);
+
+    const concursos = await fetchRange(inicio, ultimo, (done, total) => {
+      const pct = 10 + Math.round((done/total)*85);
+      setProgress(pct);
+      setStatus(true, `Baixando concursos ${inicio} a ${ultimo}… (${done}/${total})`);
+    });
+
+    setStatus(true, "Calculando frequências e gerando jogo…");
+    setProgress(96);
+
+    const freq = calcularFrequencias(concursos);
+    const { jogo } = gerarJogoPorFreq(freq);
+
+    const cls = classificarDezenas(freq, jogo);
+    const { pares, impares } = contarParesImpares(jogo);
+    const soma = somaDezenas(jogo);
+    const blocos = distribuicaoBlocos(jogo);
+
+    setProgress(100);
+    setStatus(false, "");
+    setProgress(0);
+
+    const numerosFmt = jogo.map(format2).join(" - ");
+
+    document.getElementById("resultado").innerHTML = `
+      <div class="numbers">${numerosFmt}</div>
+      <div class="range">📌 Análise dos concursos <b>${inicio}</b> a <b>${ultimo}</b> (${qtd} concursos)</div>
+
+      <div class="grid">
+        <div class="box">
+          <div class="pill hot">🔥 Dezenas quentes (no seu jogo)</div>
+          <p><b>${cls.quentes.map(format2).join(", ") || "—"}</b></p>
+          <div class="mini">Motivo: estão entre as mais frequentes no intervalo analisado.</div>
+        </div>
+
+        <div class="box">
+          <div class="pill warm">🌡️ Dezenas mornas (no seu jogo)</div>
+          <p><b>${cls.mornas.map(format2).join(", ") || "—"}</b></p>
+          <div class="mini">Motivo: frequência estável para equilibrar o padrão.</div>
+        </div>
+
+        <div class="box">
+          <div class="pill cold">❄️ Dezenas frias (no seu jogo)</div>
+          <p><b>${cls.frias.map(format2).join(", ") || "—"}</b></p>
+          <div class="mini">Motivo: menor incidência no período — ajuda a diversificar.</div>
+        </div>
+
+        <div class="box">
+          <div class="pill info">⚖️ Pares x Ímpares</div>
+          <p><b>${pares}</b> pares • <b>${impares}</b> ímpares</p>
+          <div class="mini">Resumo: balanceamento automático para evitar extremos.</div>
+        </div>
+
+        <div class="box">
+          <div class="pill info">➕ Soma total</div>
+          <p><b>${soma}</b></p>
+          <div class="mini">Resumo: filtro estatístico comum para evitar combinações fora do padrão.</div>
+        </div>
+
+        <div class="box">
+          <div class="pill info">🧩 Distribuição por blocos</div>
+          <p>A(01–06): <b>${blocos.A}</b> • B(07–12): <b>${blocos.B}</b> • C(13–18): <b>${blocos.C}</b> • D(19–25): <b>${blocos.D}</b></p>
+          <div class="mini">Resumo: cobertura do volante por faixas para reduzir “buracos”.</div>
+        </div>
+
+        <div class="box">
+          <div class="pill info">🔎 Transparência</div>
+          <p>Concursos usados: <b>${inicio} → ${ultimo}</b></p>
+          <div class="mini">Dados carregados via seu Proxy (Cloudflare Worker), evitando CORS.</div>
+        </div>
+      </div>
+    `;
+
+  }catch(e){
+    setStatus(false,"");
+    setProgress(0);
+    document.getElementById("resultado").innerHTML = `
+      <h3 style="text-align:center;">⚠️ Erro ao buscar concursos reais</h3>
+      <div class="box">
+        <div class="pill info">Detalhe</div>
+        <p>${String(e?.message || e)}</p>
+        <div class="mini">Se persistir, pode ser o Worker (ou a API) temporariamente fora do ar.</div>
+      </div>
+    `;
+  }finally{
+    btn.disabled = false;
+  }
+}
+
+/** BIND EVENTS (evita quebrar botão por HTML) **/
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("btnEntrar").addEventListener("click", entrar);
+  document.getElementById("btnGerar").addEventListener("click", gerarAnalise);
+  document.getElementById("btnLimpar").addEventListener("click", limparCache);
+});
 </script>
-  
+
 </body>
 </html>
