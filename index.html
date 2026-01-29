@@ -772,7 +772,9 @@ function aplicarAcessos(){
 
   document.getElementById("premiumGate").style.display = access.premium ? "none" : "block";
   // mostra upsell 15p só se já for premium (ou admin) e ainda não tiver 15p
-  document.getElementById("addon15Card").style.display = (!access.isAdmin && access.premium && !can15p) ? "block" : "none";
+  // mostra upsell 15p para qualquer usuário que ainda não tem o extra (free ou premium)
+document.getElementById("addon15Card").style.display =
+  (!access.isAdmin && !can15p) ? "block" : "none";
 
   const btnAnalise = document.getElementById("btnHomeAnalise");
   const btnPrincipal = document.getElementById("btnHomePrincipal");
