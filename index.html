@@ -900,8 +900,14 @@ async function ativarComCodigo() {
   }
 }
   // quando Hotmart estiver configurada, basta atualizar token/claims
-  showOk("Verificando liberação…");
-  await refreshClaims(true);
+  (async () => {
+  try{
+    showOk("Verificando liberação…");
+    await refreshClaims(true);
+  }catch(e){
+    console.error(e);
+  }
+})();
   if(access.premium){
     showOk("✅ Premium detectado na sua conta!");
   }else{
