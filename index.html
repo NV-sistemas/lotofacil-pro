@@ -719,7 +719,7 @@ function goView(id){
 
 <script>
 /* =========================
-   AUTH + CLAIMS (Premium/15P)
+   AUTH + CLAIMS (Premium/15P)  ✅ CORRIGIDO
 ========================= */
 let access = {
   email: "",
@@ -751,10 +751,12 @@ async function refreshClaims(force=false){
 
 function updateChip(){
   const plan = access.isAdmin ? "🛡️ Admin" : (access.premium ? "👑 Premium" : "👤 Free");
-  const extra = (access.addon15 && access.premium) || access.isAdmin ? " • ✅ 15P" : "";
-  document.getElementById("chipText").textContent = `${plan} • ${access.email || "—"}${extra}`;
+  const extra = (access.addon15 || access.isAdmin) ? " • ✅ 15P" : "";
+  const chipTextEl = document.getElementById("chipText");
+  if(chipTextEl) chipTextEl.textContent = `${plan} • ${access.email || "—"}${extra}`;
 }
 
+/* ✅ Free 1x (localStorage por UID) */
 function isFreeUsed(){
   if(!access.uid) return false;
   return localStorage.getItem(freeKey(access.uid)) === "1";
@@ -765,6 +767,7 @@ function markFreeUsed(){
 }
 
 function setCardEnabled(el, enabled, onClick, msg){
+  if(!el) return;
   el.classList.toggle("disabled", !enabled);
   el.onclick = enabled ? onClick : ()=>alert(msg);
 }
@@ -772,23 +775,26 @@ function setCardEnabled(el, enabled, onClick, msg){
 function aplicarAcessos(){
   const can15p = ((access.premium && access.addon15) || access.isAdmin);
 
-  document.getElementById("premiumGate").style.display = access.premium ? "none" : "block";
-  // mostra upsell 15p só se já for premium (ou admin) e ainda não tiver 15p
-  // mostra upsell 15p para qualquer usuário que ainda não tem o extra (free ou premium)
-document.getElementById("addon15Card").style.display =
-  (!access.isAdmin && !can15p) ? "block" : "none";
+  const premiumGate = document.getElementById("premiumGate");
+  if(premiumGate) premiumGate.style.display = access.premium ? "none" : "block";
 
-  const btnAnalise = document.getElementById("btnHomeAnalise");
-  const btnPrincipal = document.getElementById("btnHomePrincipal");
-  const btnInvertida = document.getElementById("btnHomeInvertida");
-  const btnTecnica = document.getElementById("btnHomeTecnica");
-  const btn15 = document.getElementById("btnHome15p");
+  // Upsell 15p: aparece para quem ainda não tem o extra (admin não precisa)
+  const addon15Card = document.getElementById("addon15Card");
+  if(addon15Card) addon15Card.style.display = (!access.isAdmin && !can15p) ? "block" : "none";
+
+  const btnAnalise  = document.getElementById("btnHomeAnalise");
+  const btnPrincipal= document.getElementById("btnHomePrincipal");
+  const btnInvertida= document.getElementById("btnHomeInvertida");
+  const btnTecnica  = document.getElementById("btnHomeTecnica");
+  const btn15       = document.getElementById("btnHome15p");
 
   setCardEnabled(btnAnalise, access.premium, acaoAnalise, "🔒 Gerar análise exige Premium.");
+
   setCardEnabled(btnInvertida, access.premium, ()=>{
     if(!lastPrincipalGame) return alert("Gere primeiro um Jogo Principal.");
     goView("viewInvertida"); gerarInvertida();
   }, "🔒 Invertida exige Premium.");
+
   setCardEnabled(btnTecnica, access.premium, ()=>{
     if(!lastPrincipalGame) return alert("Gere primeiro um Jogo Principal.");
     goView("viewTecnica"); gerarTecnicaPremiada();
@@ -796,20 +802,20 @@ document.getElementById("addon15Card").style.display =
 
   // Free 1x no principal
   if(!access.premium && isFreeUsed()){
-    btnPrincipal.classList.add("disabled");
-    btnPrincipal.onclick = ()=>alert("🔒 Você já usou a geração grátis. Para liberar, ative o Premium.");
+    btnPrincipal?.classList.add("disabled");
+    if(btnPrincipal) btnPrincipal.onclick = ()=>alert("🔒 Você já usou a geração grátis. Para liberar, ative o Premium.");
   }else{
-    btnPrincipal.classList.remove("disabled");
-    btnPrincipal.onclick = ()=>acaoPrincipal();
+    btnPrincipal?.classList.remove("disabled");
+    if(btnPrincipal) btnPrincipal.onclick = ()=>acaoPrincipal();
   }
 
   // 15P
   if(!can15p){
-    btn15.classList.add("disabled");
-    btn15.onclick = ()=>alert("🔒 O recurso '15 pontos garantido' é um EXTRA comprado separadamente (libera via claims).");
+    btn15?.classList.add("disabled");
+    if(btn15) btn15.onclick = ()=>alert("🔒 O recurso '15 pontos garantido' é um EXTRA comprado separadamente (libera via claims).");
   }else{
-    btn15.classList.remove("disabled");
-    btn15.onclick = ()=>{ goView("view15p"); };
+    btn15?.classList.remove("disabled");
+    if(btn15) btn15.onclick = ()=>{ goView("view15p"); };
   }
 }
 
@@ -824,6 +830,7 @@ function fecharApp(){
   document.getElementById("app").style.display="none";
 }
 
+/* ===== LOGIN / CRIAR CONTA ===== */
 async function entrar(){
   const e=(document.getElementById("email").value||"").trim().toLowerCase();
   const s=(document.getElementById("senha").value||"");
@@ -858,75 +865,48 @@ async function forgotPassword(){
   }
 }
 
-function sair(){
-  auth.signOut();
-}
+function sair(){ auth.signOut(); }
 
 function comprarPremium(){ window.open(BUY_LINK, "_blank"); }
 function comprar15p(){ window.open(BUY_LINK_15P, "_blank"); }
 
-async function jaComprei(){
-  await ativarComCodigo();
-}
-async function ativarComCodigo() {
-  try {
-    if (!auth.currentUser) {
+/* ===== ATIVAÇÃO POR CÓDIGO (Cloud Function redeemCode) ===== */
+async function ativarComCodigo(){
+  try{
+    if(!auth.currentUser){
       alert("Você precisa estar logado.");
       return;
     }
-
     const code = prompt("Cole aqui seu CÓDIGO de ativação (ex: PRIME-0001):");
-    if (!code) return;
+    if(!code) return;
 
-    // chama sua cloud function
+    showOk("Ativando código…");
     const redeemCode = functions.httpsCallable("redeemCode");
     await redeemCode({ code: code.trim() });
 
-    // atualiza claims (premium/addon15)
-    async function entrar(){
-  const email = document.getElementById("email").value;
-  const senha = document.getElementById("senha").value;
-
-  await auth.signInWithEmailAndPassword(email, senha);
-  await refreshClaims(true);
-
-  abrirPainel();
-}
-
-    alert("✅ Código ativado com sucesso! Se não liberar na hora, saia e entre de novo.");
-  } catch (err) {
-    console.log(err);
-    alert("❌ Erro ao ativar: " + (err?.message || err));
-  }
-}
-  // quando Hotmart estiver configurada, basta atualizar token/claims
-  (async () => {
-  try{
-    showOk("Verificando liberação…");
+    // atualiza claims
     await refreshClaims(true);
-  }catch(e){
-    console.error(e);
+
+    // feedback
+    if(access.premium || access.addon15 || access.isAdmin){
+      showOk("✅ Código ativado! Seus acessos foram atualizados.");
+    }else{
+      showOk("✅ Código enviado! Se não liberar na hora, saia e entre novamente.");
+    }
+  }catch(err){
+    console.log(err);
+    showErr("❌ Erro ao ativar: " + (err?.message || err));
   }
-})();
-  if(access.premium){
-    showOk("✅ Premium detectado na sua conta!");
-  }else{
-    showErr("Ainda sem Premium no seu login. Confirme se usou o MESMO email da compra.");
-  }
+}
+
+async function jaComprei(){
+  await ativarComCodigo();
+}
 async function jaComprei15p(){
   await ativarComCodigo();
 }
-async function verificarLiberacao(){
-  showOk("Verificando liberação…");
-  await refreshClaims(true);
-}
-  const can15p = ((access.premium && access.addon15) || access.isAdmin);
-  if(can15p){
-    showOk("✅ 15P detectado na sua conta!");
-  }else{
-    showErr("Ainda sem 15P no seu login. Confirme se usou o MESMO email da compra do EXTRA.");
-  }
 
+/* ===== AUTOSTATE ===== */
 auth.onAuthStateChanged(async (user)=>{
   if(!user){
     access = { email:"", uid:"", premium:false, addon15:false, isAdmin:false };
