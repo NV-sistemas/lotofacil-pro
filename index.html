@@ -316,7 +316,8 @@
 <!-- ================= FIREBASE SDKs (HTML PURO) ================= -->
 <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth-compat.js"></script>
-
+<script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-functions-compat.js"></script>
+  
 <script>
 /* =========================
    CONFIG
@@ -345,6 +346,7 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
+const functions = firebase.app().functions("us-central1");
 </script>
 
 <!-- LOGIN -->
@@ -864,6 +866,31 @@ function comprarPremium(){ window.open(BUY_LINK, "_blank"); }
 function comprar15p(){ window.open(BUY_LINK_15P, "_blank"); }
 
 async function jaComprei(){
+  await ativarComCodigo();
+}
+async function ativarComCodigo() {
+  try {
+    if (!auth.currentUser) {
+      alert("Você precisa estar logado.");
+      return;
+    }
+
+    const code = prompt("Cole aqui seu CÓDIGO de ativação (ex: PRIME-0001):");
+    if (!code) return;
+
+    // chama sua cloud function
+    const redeemCode = functions.httpsCallable("redeemCode");
+    await redeemCode({ code: code.trim() });
+
+    // atualiza claims (premium/addon15)
+    await refreshClaims(true);
+
+    alert("✅ Código ativado com sucesso! Se não liberar na hora, saia e entre de novo.");
+  } catch (err) {
+    console.log(err);
+    alert("❌ Erro ao ativar: " + (err?.message || err));
+  }
+}
   // quando Hotmart estiver configurada, basta atualizar token/claims
   showOk("Verificando liberação…");
   await refreshClaims(true);
@@ -874,6 +901,8 @@ async function jaComprei(){
   }
 }
 async function jaComprei15p(){
+  await ativarComCodigo();
+}
   showOk("Verificando liberação do 15P…");
   await refreshClaims(true);
   const can15p = ((access.premium && access.addon15) || access.isAdmin);
