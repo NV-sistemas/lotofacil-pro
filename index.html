@@ -329,7 +329,6 @@ const ACTIVATION_CODE = "PRIME-2026";
 const ACTIVATION_CODE_15P = "15P-2026";
 
 const MASTER_EMAIL = "admin@lotofacilprime.com";
-const MASTER_PASS  = "prime123";
 
 const FREE_LIMIT_KEY = "lf_free_used_v1";
 const ADDON15_KEY = "lf_addon15";
@@ -716,16 +715,6 @@ function goView(id){
 /* =========================
    Login / Acesso
 ========================= */
-function setSession(email, premium){
-  localStorage.setItem("lf_email", email);
-  localStorage.setItem("lf_premium", premium ? "1":"0");
-}
-function clearSession(){
-  localStorage.removeItem("lf_email");
-  localStorage.removeItem("lf_premium");
-}
-function getSession(){
-  return { email: localStorage.getItem("lf_email") || "", premium: localStorage.getItem("lf_premium")==="1" };
 }
 function isFreeUsed(){ return localStorage.getItem(FREE_LIMIT_KEY)==="1"; }
 function markFreeUsed(){ localStorage.setItem(FREE_LIMIT_KEY,"1"); }
@@ -733,14 +722,20 @@ function markFreeUsed(){ localStorage.setItem(FREE_LIMIT_KEY,"1"); }
 function hasAddon15(){ return localStorage.getItem(ADDON15_KEY)==="1"; }
 function setAddon15(v){ localStorage.setItem(ADDON15_KEY, v ? "1":"0"); }
 
-function isMaster(){
+function function isMaster(){
+  return true; // login master já validado no Firebase
+}
+{
   const s=getSession();
   return (s.email||"").toLowerCase() === MASTER_EMAIL.toLowerCase() && s.premium;
 }
 
 function updateChip(){
   const s=getSession();
-  const addon = hasAddon15() || isMaster();
+  const addon = hasAddon15() || function isMaster(){
+  return true; // login master já validado no Firebase
+}
+;
   const base = (s.premium ? "👑 Premium" : "👤 Free") + " • " + (s.email || "visitante");
   document.getElementById("chipText").textContent = addon ? (base + " • ✅ 15P") : base;
 }
@@ -752,7 +747,10 @@ function setCardEnabled(el, enabled, onClick, msg){
 
 function aplicarAcessos(){
   const s=getSession();
-  const addon = hasAddon15() || isMaster();
+  const addon = hasAddon15() || function isMaster(){
+  return true; // login master já validado no Firebase
+}
+();
 
   document.getElementById("premiumGate").style.display = s.premium ? "none" : "block";
   document.getElementById("addon15Card").style.display = addon ? "none" : "block";
@@ -799,18 +797,29 @@ function abrirApp(){
 }
 
 function entrar(){
-  const email=(document.getElementById("email").value||"").trim().toLowerCase();
-  const senha=(document.getElementById("senha").value||"");
+  const email = (document.getElementById("email").value || "").trim().toLowerCase();
+  const senha = document.getElementById("senha").value || "";
 
-  if(!email || !senha){ showErr("Digite email e senha."); return; }
-
-  if(email === MASTER_EMAIL.toLowerCase() && senha === MASTER_PASS){
-    setSession(email, true);
-    setAddon15(true);
-    showOk("Bem-vindo! Premium + 15P liberados para teste ✅");
-    abrirApp();
+  if(!email || !senha){
+    showErr("Digite email e senha.");
     return;
   }
+
+  auth.signInWithEmailAndPassword(email, senha)
+    .then(res=>{
+      if(res.user.email.toLowerCase() !== MASTER_EMAIL.toLowerCase()){
+        showErr("Usuário sem permissão.");
+        auth.signOut();
+        return;
+      }
+
+      showOk("Login master confirmado. Tudo liberado 👑");
+      abrirApp();
+    })
+    .catch(err=>{
+      showErr("Erro no login: " + err.message);
+    });
+}
 
   setSession(email, false);
   showOk("Entrou no modo Free. Você pode gerar 1 vez no Jogo Principal.");
