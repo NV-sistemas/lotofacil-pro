@@ -916,8 +916,10 @@ async function ativarComCodigo() {
 async function jaComprei15p(){
   await ativarComCodigo();
 }
-  showOk("Verificando liberação do 15P…");
+async function verificarLiberacao(){
+  showOk("Verificando liberação…");
   await refreshClaims(true);
+}
   const can15p = ((access.premium && access.addon15) || access.isAdmin);
   if(can15p){
     showOk("✅ 15P detectado na sua conta!");
