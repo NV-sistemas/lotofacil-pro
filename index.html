@@ -25,6 +25,7 @@
   }
 
   *{box-sizing:border-box;font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif}
+  html,body{height:100%}
   body{
     margin:0;color:var(--text);
     background:
@@ -32,16 +33,25 @@
       radial-gradient(900px 650px at 90% 10%, rgba(34,197,94,.14), transparent 55%),
       radial-gradient(900px 650px at 50% 90%, rgba(167,139,250,.14), transparent 55%),
       linear-gradient(135deg,var(--bg1),var(--bg2));
-    min-height:100vh;
-    overflow-x:hidden;
+    min-height:100dvh;
+    overflow-x:hidden; /* ✅ evita "torto" no mobile */
   }
 
-  .center{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:18px}
+  .center{
+    display:flex;align-items:center;justify-content:center;
+    min-height:100dvh;padding:16px;
+  }
   .wrap{max-width:1180px;margin:0 auto;padding:18px}
 
+  /* Header */
   .header{display:flex;justify-content:center;align-items:center;margin-bottom:14px}
-  .title{font-size:26px;font-weight:1000;margin:0;letter-spacing:.2px;text-align:center}
+  .title{
+    font-size: clamp(20px, 5.6vw, 28px);
+    font-weight:1000;margin:0;letter-spacing:.2px;text-align:center;
+    line-height:1.15;
+  }
 
+  /* Chip (status) */
   .chip{
     display:inline-flex;align-items:center;gap:8px;padding:10px 12px;border-radius:999px;
     background:rgba(255,255,255,.06);
@@ -60,7 +70,13 @@
     box-shadow:var(--shadow);
     margin-bottom:14px;
     backdrop-filter: blur(10px);
+    width:100%;
+    max-width: 520px; /* ✅ login alinhado no celular */
+    margin-left:auto;margin-right:auto;
   }
+
+  /* Cards do APP (não limitar largura) */
+  #app .card{max-width:none}
 
   .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:12px}
   .box{
@@ -72,12 +88,13 @@
   .mini{color:var(--muted);font-size:12px;margin-top:8px;line-height:1.45}
   .mini strong{color:var(--text)}
 
-  .row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
-  .col{flex:1;min-width:240px}
+  .row{display:flex;gap:12px;flex-wrap:wrap;align-items:stretch}
+  .col{flex:1 1 240px;min-width:0} /* ✅ evita “torto” */
 
-  label{display:block;font-size:12px;color:var(--muted);font-weight:950;margin-bottom:6px}
+  label{display:block;font-size:12px;color:var(--muted);font-weight:950;margin-bottom:6px;text-align:left}
   input, select{
-    width:100%;padding:13px 12px;border-radius:14px;border:1px solid var(--stroke2);
+    width:100%;max-width:100%;
+    padding:13px 12px;border-radius:14px;border:1px solid var(--stroke2);
     background:rgba(2,6,23,.65);
     color:var(--text);outline:none;
   }
@@ -89,22 +106,29 @@
     color:#07131a;font-weight:1000;cursor:pointer;
     transition:.15s;
     box-shadow: 0 18px 45px rgba(0,0,0,.35);
+    width:100%;
   }
   .btn:hover{filter:brightness(1.05);transform:translateY(-1px)}
   .btn:active{transform:translateY(0px);filter:brightness(.98)}
   .btn:disabled{opacity:.55;cursor:not-allowed;transform:none;box-shadow:none}
   .btnPrimary{background:linear-gradient(135deg,var(--green),var(--green2));box-shadow: var(--glowGreen)}
-  .btnBlue{background:linear-gradient(135deg,var(--blue),var(--blue2));box-shadow:var(--glowBlue);color:#041018}
+  .btnBlue{background:linear-gradient(135deg,var(--blue),var(--blue2));box-shadow: var(--glowBlue);color:#041018}
   .btnPurple{background:linear-gradient(135deg,var(--purple),var(--purple2));color:#0b0720;box-shadow: 0 0 0 1px rgba(167,139,250,.18), 0 12px 40px rgba(167,139,250,.12)}
   .btnDanger{background:linear-gradient(135deg,var(--red),var(--red2));color:#2b0b0b;box-shadow: 0 0 0 1px rgba(251,113,133,.18), 0 12px 40px rgba(251,113,133,.12)}
-  .btnGhost{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14);color:var(--text);box-shadow:none}
-  .btnFull{width:100%}
+  .btnGhost{
+    background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.14);
+    color:var(--text);
+    box-shadow:none;
+    width:auto;
+  }
 
   .status{display:none;margin-top:10px;padding:12px;border-radius:14px;background:rgba(56,189,248,.10);
           border:1px solid rgba(56,189,248,.22);color:#e6f8ff;font-size:13px;font-weight:950;}
   .bar{height:10px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.08);margin-top:10px}
   .bar>div{height:100%;width:0%;background:linear-gradient(90deg,var(--blue),var(--green));transition:width .2s ease}
 
+  /* Views */
   .view{display:none}
   .view.on{display:block}
   .topNav{
@@ -114,6 +138,7 @@
   .topNav .left{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
   .topNav .right{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 
+  /* Opções */
   .actionGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-top:12px}
   .actionCard{
     text-align:left;border:1px solid rgba(255,255,255,.14);
@@ -140,6 +165,7 @@
   .badge.premium{border-color:rgba(56,189,248,.30);background:rgba(56,189,248,.14);color:#e6f8ff}
   .badge.free{border-color:rgba(34,197,94,.30);background:rgba(34,197,94,.14);color:#eafff4}
 
+  /* EXTRA mega chamativo */
   .extraCard{
     border:1px solid rgba(250,204,21,.30);
     background: radial-gradient(900px 240px at 30% 20%, rgba(250,204,21,.18), transparent 60%),
@@ -156,7 +182,10 @@
     background:rgba(250,204,21,.18);
     color:#fff2b0;
   }
-  .extraHeadline{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+  .extraHeadline{
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+    margin-bottom:6px
+  }
   .extraHighlight{
     display:inline-flex;align-items:center;gap:8px;
     padding:6px 10px;border-radius:999px;
@@ -166,6 +195,7 @@
     font-weight:1000;font-size:12px;
   }
 
+  /* Cartão Lotofácil (5x5) */
   .cartaoWrap{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
   @media (max-width: 820px){ .cartaoWrap{grid-template-columns:1fr} }
 
@@ -194,6 +224,7 @@
   }
   .hr{height:1px;background:rgba(255,255,255,.10);margin:12px 0;border-radius:999px}
 
+  /* Painel “verificar jogos gerados” */
   .panelCheck{
     margin-top:12px;
     border:1px dashed rgba(56,189,248,.30);
@@ -201,7 +232,9 @@
     border-radius:18px;
     padding:14px;
   }
+  .panelCheck b{font-size:13px}
 
+  /* Modal */
   .modalBack{display:none;position:fixed;inset:0;background:rgba(0,0,0,.62);backdrop-filter: blur(7px);
              align-items:center;justify-content:center;padding:16px;z-index:999}
   .modal{width:100%;max-width:980px;background:linear-gradient(180deg,var(--card),rgba(255,255,255,.03));
@@ -219,34 +252,50 @@
   .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
   .footerNote{text-align:center;color:var(--muted2);font-size:11px;margin-top:10px}
 
+  /* Rodapé do app (chip centralizado) */
   .appFooter{margin-top:8px;display:flex;justify-content:center;}
+
+  /* Rodapé da tela 15p (fonte + modo) */
   .tinyFoot{margin-top:12px;text-align:center;color:rgba(203,213,225,.75);font-size:11px;}
 
+  /* ✅ Tooltip */
   .tip{
-    position:relative;display:inline-flex;align-items:center;gap:6px;cursor:help;
+    position:relative;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    cursor:help;
     border-bottom:1px dashed rgba(203,213,225,.45);
   }
   .tip::after{
     content: attr(data-tip);
-    position:absolute;left:0;top: calc(100% + 8px);
-    min-width: 220px;max-width: 360px;
-    padding:10px 12px;border-radius:12px;
+    position:absolute;
+    left:0;
+    top: calc(100% + 8px);
+    min-width: 220px;
+    max-width: 360px;
+    padding:10px 12px;
+    border-radius:12px;
     background:rgba(2,6,23,.92);
     border:1px solid rgba(255,255,255,.14);
     color:rgba(248,250,252,.95);
     box-shadow: 0 18px 55px rgba(0,0,0,.55);
-    opacity:0;pointer-events:none;
+    opacity:0;
+    pointer-events:none;
     transform: translateY(-4px);
     transition: .12s ease;
     z-index: 9999;
-    font-size: 12px;line-height: 1.35;white-space: normal;
+    font-size: 12px;
+    line-height: 1.35;
+    white-space: normal;
   }
   .tip:hover::after{ opacity:1; transform: translateY(0); }
   .tip .q{opacity:.8}
 
+  /* ✅ Fix mobile geral */
   @media (max-width: 520px){
     .wrap{ padding: 12px; }
-    .card{ padding: 14px; }
+    #loginWrap .card{ padding: 14px; border-radius: 18px; }
     .row{ flex-direction: column; }
     .col{ min-width: 0 !important; }
     input, select{ width:100%; max-width:100%; }
@@ -268,22 +317,15 @@ const APP_NAME = "LOTOFÁCIL PRIME ANALYTICS";
 const BUY_LINK = "https://pay.hotmart.com/R104129385C?off=s9zvi5rw";
 const BUY_LINK_15P = "https://pay.hotmart.com/R104129385C?off=s9zvi5rw";
 
-/* 🔐 OBS:
-   - O acesso REAL (Premium e Extra 15P) é controlado por Custom Claims no Firebase:
-     claims: { premium: true/false, addon15: true/false }
-   - O "código de ativação" abaixo foi mantido apenas como fallback local (opcional),
-     caso você ainda não tenha backend para setar claims.
-*/
-const ACTIVATION_CODE = "PRIME-2026";
-const ACTIVATION_CODE_15P = "15P-2026";
+/* ✅ Admin sempre com tudo (no front só para UI; o correto é garantir via claims no backend) */
+const ADMIN_EMAIL = "admin@lotofacilprime.com";
 
-/* Free 1x (mantive igual ao seu sistema antigo) */
-const FREE_LIMIT_KEY = "lf_free_used_v1";
+/* ✅ Limite Free (1x) por usuário */
+function freeKey(uid){ return `lf_free_used_v1_${uid||"anon"}`; }
+</script>
 
-/* Fallback local do EXTRA (só se você quiser manter) */
-const ADDON15_LOCAL_KEY = "lf_addon15_local";
-
-/* ================= FIREBASE CONFIG ================= */
+<script>
+/* ================= FIREBASE CONFIG (SEU) ================= */
 const firebaseConfig = {
   apiKey: "AIzaSyCodYgkQG0TUaqCk1i-0QcSB8GIt0iWp8c",
   authDomain: "lotofacil-prime.firebaseapp.com",
@@ -295,14 +337,11 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
-
-/* Estado de acesso (claims) */
-let ACCESS = { premium:false, addon15:false };
 </script>
 
 <!-- LOGIN -->
 <div class="center" id="loginWrap">
-  <div class="card" style="max-width:520px;width:100%">
+  <div class="card">
     <div style="text-align:center">
       <div class="title" style="margin:0">🎯 <span id="appName1"></span></div>
       <div class="mini" style="margin-top:6px">
@@ -313,21 +352,24 @@ let ACCESS = { premium:false, addon15:false };
     <div style="margin-top:12px" class="row">
       <div class="col">
         <label>Email</label>
-        <input id="email" type="email" placeholder="seuemail@gmail.com" autocomplete="email" />
+        <input id="email" type="email" placeholder="seuemail@gmail.com" />
       </div>
       <div class="col">
         <label>Senha</label>
-        <input id="senha" type="password" placeholder="sua senha" autocomplete="current-password" />
+        <input id="senha" type="password" placeholder="sua senha" />
       </div>
     </div>
 
-    <button id="btnEntrar" class="btn btnPrimary btnFull" type="button">Entrar / Criar conta</button>
-    <button id="btnReset" class="btn btnGhost btnFull" type="button" style="margin-top:10px">Esqueci minha senha</button>
+    <button id="btnEntrar" class="btn btnPrimary" type="button">Entrar / Criar conta</button>
+
+    <button id="btnForgot" class="btn" type="button" style="margin-top:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);color:var(--text);box-shadow:none">
+      Esqueci minha senha
+    </button>
 
     <div id="msgOk" class="status" style="display:none"></div>
     <div id="msgErr" class="status" style="display:none;background:rgba(251,113,133,.12);border:1px solid rgba(251,113,133,.28);color:#ffe7ec"></div>
 
-    <div class="footerNote">Dica: o acesso Premium/15P vem por <b>claims</b> no Firebase.</div>
+    <div class="footerNote">Dica: use o mesmo email utilizado na compra Hotmart.</div>
   </div>
 </div>
 
@@ -555,7 +597,7 @@ let ACCESS = { premium:false, addon15:false };
     </div>
 
     <div class="card" id="p15Area">
-      <div class="footerNote">Clique em “Gerar análise 15P”. Essa tela exige o EXTRA ativado (claims addon15).</div>
+      <div class="footerNote">Clique em “Gerar análise 15P”. Essa tela exige o EXTRA ativado (via claims).</div>
     </div>
   </div>
 
@@ -587,42 +629,6 @@ let ACCESS = { premium:false, addon15:false };
       <div class="mini" style="margin-top:10px">
         Blocos: A(01–05), B(06–10), C(11–15), D(16–20), E(21–25).
       </div>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL ATIVAR PREMIUM (fallback local) -->
-<div id="modalAtivarBack" class="modalBack">
-  <div class="modal" style="max-width:520px">
-    <div class="modalHeader">
-      <b>✅ Ativar Premium</b>
-      <button class="closeBtn" onclick="fecharAtivar()">Fechar</button>
-    </div>
-    <div class="modalBody">
-      <div class="mini">
-        Importante: o acesso oficial vem por <b>claims</b> no Firebase. <br/>
-        Se você ainda não configurou claims no backend, use este código apenas como fallback local.
-      </div>
-      <input id="codigoAtivacao" placeholder="Ex: PRIME-2026" style="margin-top:10px"/>
-      <button class="btn btnPrimary" type="button" style="margin-top:10px" onclick="ativarPremium()">Ativar</button>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL ATIVAR EXTRA 15P (fallback local) -->
-<div id="modalAtivar15pBack" class="modalBack">
-  <div class="modal" style="max-width:520px">
-    <div class="modalHeader">
-      <b>✅ Ativar EXTRA: 15 pontos garantido</b>
-      <button class="closeBtn" onclick="fecharAtivar15p()">Fechar</button>
-    </div>
-    <div class="modalBody">
-      <div class="mini">
-        Importante: o acesso oficial vem por <b>claims addon15</b> no Firebase. <br/>
-        Se você ainda não configurou claims, use este código apenas como fallback local.
-      </div>
-      <input id="codigoAtivacao15p" placeholder="Ex: 15P-2026" style="margin-top:10px"/>
-      <button class="btn btnPrimary" type="button" style="margin-top:10px" onclick="ativarAddon15()">Ativar</button>
     </div>
   </div>
 </div>
@@ -669,12 +675,6 @@ function abrirModal(){ document.getElementById("modalBack").style.display="flex"
 function fecharModal(){ document.getElementById("modalBack").style.display="none"; }
 function fecharGraficoBlocos(){ document.getElementById("modalBlocosBack").style.display="none"; }
 
-function abrirAtivar(){ document.getElementById("modalAtivarBack").style.display="flex"; }
-function fecharAtivar(){ document.getElementById("modalAtivarBack").style.display="none"; }
-
-function abrirAtivar15p(){ document.getElementById("modalAtivar15pBack").style.display="flex"; }
-function fecharAtivar15p(){ document.getElementById("modalAtivar15pBack").style.display="none"; }
-
 function goView(id){
   document.querySelectorAll(".view").forEach(v=>v.classList.remove("on"));
   const el=document.getElementById(id);
@@ -685,42 +685,62 @@ function goView(id){
 
 <script>
 /* =========================
-   Login / Acesso (Firebase)
+   AUTH + CLAIMS (Premium/15P)
 ========================= */
+let access = {
+  email: "",
+  uid: "",
+  premium: false,
+  addon15: false,
+  isAdmin: false
+};
 
-/* FREE 1x (mantido) */
-function isFreeUsed(){ return localStorage.getItem(FREE_LIMIT_KEY)==="1"; }
-function markFreeUsed(){ localStorage.setItem(FREE_LIMIT_KEY,"1"); }
+async function refreshClaims(force=false){
+  const u = auth.currentUser;
+  if(!u) return access;
 
-/* Fallback local do EXTRA 15P (opcional) */
-function hasAddon15Local(){ return localStorage.getItem(ADDON15_LOCAL_KEY)==="1"; }
-function setAddon15Local(v){ localStorage.setItem(ADDON15_LOCAL_KEY, v ? "1":"0"); }
+  // força atualizar token (quando claims mudam)
+  if(force) await u.getIdToken(true);
 
-/* User atual */
-function getUserEmail(){
-  return (auth.currentUser?.email || "").toLowerCase();
+  const token = await u.getIdTokenResult(true);
+  const email = (u.email || "").toLowerCase();
+  const isAdmin = email === String(ADMIN_EMAIL).toLowerCase();
+
+  const premium = !!token.claims.premium || isAdmin;
+  const addon15 = !!token.claims.addon15 || isAdmin;
+
+  access = { email, uid: u.uid, premium, addon15, isAdmin };
+  updateChip();
+  aplicarAcessos();
+  return access;
 }
 
-/* Atualiza chip */
 function updateChip(){
-  const email = getUserEmail() || "visitante";
-  const addon = ACCESS.addon15 || hasAddon15Local();
-  const base = (ACCESS.premium ? "👑 Premium" : "👤 Free") + " • " + email;
-  document.getElementById("chipText").textContent = addon ? (base + " • ✅ 15P") : base;
+  const plan = access.isAdmin ? "🛡️ Admin" : (access.premium ? "👑 Premium" : "👤 Free");
+  const extra = (access.addon15 && access.premium) || access.isAdmin ? " • ✅ 15P" : "";
+  document.getElementById("chipText").textContent = `${plan} • ${access.email || "—"}${extra}`;
 }
 
-/* habilita/desabilita cards */
+function isFreeUsed(){
+  if(!access.uid) return false;
+  return localStorage.getItem(freeKey(access.uid)) === "1";
+}
+function markFreeUsed(){
+  if(!access.uid) return;
+  localStorage.setItem(freeKey(access.uid), "1");
+}
+
 function setCardEnabled(el, enabled, onClick, msg){
   el.classList.toggle("disabled", !enabled);
   el.onclick = enabled ? onClick : ()=>alert(msg);
 }
 
-/* aplica gates */
 function aplicarAcessos(){
-  const addon = ACCESS.addon15 || hasAddon15Local();
+  const can15p = ((access.premium && access.addon15) || access.isAdmin);
 
-  document.getElementById("premiumGate").style.display = ACCESS.premium ? "none" : "block";
-  document.getElementById("addon15Card").style.display = addon ? "none" : "block";
+  document.getElementById("premiumGate").style.display = access.premium ? "none" : "block";
+  // mostra upsell 15p só se já for premium (ou admin) e ainda não tiver 15p
+  document.getElementById("addon15Card").style.display = (!access.isAdmin && access.premium && !can15p) ? "block" : "none";
 
   const btnAnalise = document.getElementById("btnHomeAnalise");
   const btnPrincipal = document.getElementById("btnHomePrincipal");
@@ -728,17 +748,18 @@ function aplicarAcessos(){
   const btnTecnica = document.getElementById("btnHomeTecnica");
   const btn15 = document.getElementById("btnHome15p");
 
-  setCardEnabled(btnAnalise, ACCESS.premium, acaoAnalise, "🔒 Gerar análise exige Premium.");
-  setCardEnabled(btnInvertida, ACCESS.premium, ()=>{
+  setCardEnabled(btnAnalise, access.premium, acaoAnalise, "🔒 Gerar análise exige Premium.");
+  setCardEnabled(btnInvertida, access.premium, ()=>{
     if(!lastPrincipalGame) return alert("Gere primeiro um Jogo Principal.");
     goView("viewInvertida"); gerarInvertida();
   }, "🔒 Invertida exige Premium.");
-  setCardEnabled(btnTecnica, ACCESS.premium, ()=>{
+  setCardEnabled(btnTecnica, access.premium, ()=>{
     if(!lastPrincipalGame) return alert("Gere primeiro um Jogo Principal.");
     goView("viewTecnica"); gerarTecnicaPremiada();
   }, "🔒 Técnica premiada exige Premium.");
 
-  if(!ACCESS.premium && isFreeUsed()){
+  // Free 1x no principal
+  if(!access.premium && isFreeUsed()){
     btnPrincipal.classList.add("disabled");
     btnPrincipal.onclick = ()=>alert("🔒 Você já usou a geração grátis. Para liberar, ative o Premium.");
   }else{
@@ -746,9 +767,10 @@ function aplicarAcessos(){
     btnPrincipal.onclick = ()=>acaoPrincipal();
   }
 
-  if(!addon){
+  // 15P
+  if(!can15p){
     btn15.classList.add("disabled");
-    btn15.onclick = ()=>alert("🔒 O recurso '15 pontos garantido' é um EXTRA comprado separadamente.");
+    btn15.onclick = ()=>alert("🔒 O recurso '15 pontos garantido' é um EXTRA comprado separadamente (libera via claims).");
   }else{
     btn15.classList.remove("disabled");
     btn15.onclick = ()=>{ goView("view15p"); };
@@ -758,113 +780,84 @@ function aplicarAcessos(){
 function abrirApp(){
   document.getElementById("loginWrap").style.display="none";
   document.getElementById("app").style.display="block";
-  updateChip();
-  aplicarAcessos();
   goView("viewHome");
 }
 
-/* Entrar/Criar conta */
-async function entrar(){
-  const email=(document.getElementById("email").value||"").trim().toLowerCase();
-  const senha=(document.getElementById("senha").value||"");
+function fecharApp(){
+  document.getElementById("loginWrap").style.display="flex";
+  document.getElementById("app").style.display="none";
+}
 
-  if(!email || !senha){ showErr("Digite email e senha."); return; }
+async function entrar(){
+  const e=(document.getElementById("email").value||"").trim().toLowerCase();
+  const s=(document.getElementById("senha").value||"");
+  if(!e || !s){ showErr("Digite email e senha."); return; }
 
   const btn = document.getElementById("btnEntrar");
   btn.disabled = true;
-  showOk("Entrando...");
 
   try{
-    await auth.signInWithEmailAndPassword(email, senha);
+    await auth.signInWithEmailAndPassword(e,s);
+    showOk("Bem-vindo! Carregando seu acesso…");
   }catch(err){
-    // se não existe, cria
     try{
-      await auth.createUserWithEmailAndPassword(email, senha);
+      await auth.createUserWithEmailAndPassword(e,s);
+      showOk("Conta criada ✅ Carregando seu acesso…");
     }catch(e2){
-      console.error(e2);
-      showErr(e2?.message || "Erro ao criar conta.");
-      btn.disabled = false;
-      return;
+      showErr(e2?.message || "Falha no login.");
     }
+  }finally{
+    btn.disabled = false;
   }
-
-  btn.disabled = false;
-  showOk("Login ok ✅");
 }
 
-/* Reset de senha */
-async function resetSenha(){
-  const email=(document.getElementById("email").value||"").trim().toLowerCase();
-  if(!email){ showErr("Digite seu email para enviar o link de redefinição."); return; }
+async function forgotPassword(){
+  const e=(document.getElementById("email").value||"").trim().toLowerCase();
+  if(!e) return showErr("Digite seu email para recuperar a senha.");
   try{
-    await auth.sendPasswordResetEmail(email);
-    showOk("Link de redefinição enviado ✅");
+    await auth.sendPasswordResetEmail(e);
+    showOk("✅ Email de recuperação enviado. Verifique sua caixa de entrada.");
   }catch(err){
-    showErr(err?.message || "Erro ao enviar email.");
+    showErr(err?.message || "Não foi possível enviar o email de recuperação.");
   }
 }
 
-/* Sair */
-async function sair(){
-  try{ await auth.signOut(); }catch(e){}
-  // mantém o free-used (para não burlar), mas limpa views
-  location.reload();
+function sair(){
+  auth.signOut();
 }
 
-/* Comprar */
 function comprarPremium(){ window.open(BUY_LINK, "_blank"); }
 function comprar15p(){ window.open(BUY_LINK_15P, "_blank"); }
 
-/* Fallback local: ativa apenas no dispositivo (NÃO é o controle real) */
-async function ativarPremium(){
-  const code = (document.getElementById("codigoAtivacao").value || "").trim();
-  if(!code) return alert("Digite o código.");
-  if(code !== ACTIVATION_CODE) return alert("Código inválido.");
-
-  // Fallback: libera como premium local (apenas nesta sessão via flag em memória)
-  ACCESS.premium = true;
-  alert("Premium ativado (fallback local) ✅\n\nRecomendado: habilitar claims no Firebase para controle real.");
-  fecharAtivar();
-  updateChip();
-  aplicarAcessos();
+async function jaComprei(){
+  // quando Hotmart estiver configurada, basta atualizar token/claims
+  showOk("Verificando liberação…");
+  await refreshClaims(true);
+  if(access.premium){
+    showOk("✅ Premium detectado na sua conta!");
+  }else{
+    showErr("Ainda sem Premium no seu login. Confirme se usou o MESMO email da compra.");
+  }
 }
-function ativarAddon15(){
-  const code = (document.getElementById("codigoAtivacao15p").value || "").trim();
-  if(!code) return alert("Digite o código.");
-  if(code !== ACTIVATION_CODE_15P) return alert("Código inválido do EXTRA.");
-
-  setAddon15Local(true);
-  alert("EXTRA 15P ativado (fallback local) ✅\n\nRecomendado: claims addon15 no Firebase.");
-  fecharAtivar15p();
-  updateChip();
-  aplicarAcessos();
+async function jaComprei15p(){
+  showOk("Verificando liberação do 15P…");
+  await refreshClaims(true);
+  const can15p = ((access.premium && access.addon15) || access.isAdmin);
+  if(can15p){
+    showOk("✅ 15P detectado na sua conta!");
+  }else{
+    showErr("Ainda sem 15P no seu login. Confirme se usou o MESMO email da compra do EXTRA.");
+  }
 }
 
-/* =========================
-   Firebase: Auth State + Claims
-========================= */
 auth.onAuthStateChanged(async (user)=>{
   if(!user){
-    // logout
-    ACCESS = { premium:false, addon15:false };
-    document.getElementById("loginWrap").style.display="flex";
-    document.getElementById("app").style.display="none";
+    access = { email:"", uid:"", premium:false, addon15:false, isAdmin:false };
+    fecharApp();
     return;
   }
-
-  // busca claims
-  try{
-    const token = await user.getIdTokenResult(true);
-    ACCESS.premium = !!token.claims.premium;
-    ACCESS.addon15 = !!token.claims.addon15;
-  }catch(e){
-    ACCESS.premium = false;
-    ACCESS.addon15 = false;
-  }
-
-  // abre app
-  showOk("Bem-vindo ✅");
   abrirApp();
+  await refreshClaims(true);
 });
 </script>
 
@@ -921,6 +914,7 @@ function repetidasDoUltimo(jogo, ultimoDezenas){
   return sortNum(jogo.filter(n=>setUlt.has(n)));
 }
 
+/* 🔥/🌡️/🧊 Classificação (hot/warm/cold) por ranking do período */
 function buildHotWarmColdFromFreq(freq){
   const ord = ordenarPorFreq(freq);
   const hot = ord.slice(0,8).map(x=>x.dez).sort((a,b)=>a-b);
@@ -1425,7 +1419,7 @@ function verConcursos(){
    AÇÃO: ANÁLISE (PRIME COMPLETA)
 ========================= */
 async function acaoAnalise(){
-  if(!ACCESS.premium){ alert("🔒 Gerar análise exige Premium."); return; }
+  if(!access.premium){ alert("🔒 Gerar análise exige Premium."); return; }
 
   const qtd = qtdSelecionada();
   try{
@@ -1484,7 +1478,7 @@ async function acaoAnalise(){
 async function acaoPrincipal(){
   const qtd = qtdSelecionada();
 
-  if(!ACCESS.premium && isFreeUsed()){
+  if(!access.premium && isFreeUsed()){
     alert("🔒 Você já usou a geração grátis. Para liberar, ative o Premium.");
     return;
   }
@@ -1513,7 +1507,7 @@ async function acaoPrincipal(){
 
     setStatus(false,""); setProgress(0);
 
-    if(!ACCESS.premium) markFreeUsed();
+    if(!access.premium) markFreeUsed();
     aplicarAcessos();
 
     const balls = jogo.map(n=>`<div class="ball">${format2(n)}</div>`).join("");
@@ -1624,7 +1618,7 @@ async function acaoPrincipal(){
 
 <script>
 /* =========================
-   INVERTIDA + TÉCNICA (sem regra exibida)
+   INVERTIDA + TÉCNICA
 ========================= */
 function blocoIndex(n){ return Math.floor((n-1)/5)+1; }
 function offsetNoBloco(n){ return ((n-1)%5)+1; }
@@ -1651,7 +1645,7 @@ function renderCartao(jogo, clsName){
 }
 
 function gerarInvertida(){
-  if(!ACCESS.premium){ alert("🔒 Invertida exige Premium."); return; }
+  if(!access.premium){ alert("🔒 Invertida exige Premium."); return; }
   if(!lastPrincipalGame){ alert("Gere primeiro um Jogo Principal."); return; }
 
   const permInvertida = [5,4,3,2,1];
@@ -1677,7 +1671,7 @@ function gerarInvertida(){
 }
 
 function gerarTecnicaPremiada(){
-  if(!ACCESS.premium){ alert("🔒 Técnica premiada exige Premium."); return; }
+  if(!access.premium){ alert("🔒 Técnica premiada exige Premium."); return; }
   if(!lastPrincipalGame){ alert("Gere primeiro um Jogo Principal."); return; }
 
   const permTec1 = [3,4,5,1,2];
@@ -1705,6 +1699,7 @@ function gerarTecnicaPremiada(){
   updateCheckButtons();
 }
 
+/* mostra botões de verificação quando tiver Principal + Invertida + Técnica */
 function updateCheckButtons(){
   const ready = !!(lastPrincipalGame && lastInvertidaGame && lastTecnicaGames?.g1 && lastTecnicaGames?.g2);
 
@@ -1826,8 +1821,6 @@ function montarTelaCheck(){
 /* =========================
    15P (com explicações e tooltips)
 ========================= */
-/* (seu bloco 15P original permanece igual — apenas a checagem de acesso mudou para claims/local fallback) */
-
 function calcCoocAndStats(concursos){
   const n = concursos.length;
   const freq = Array(26).fill(0);
@@ -2048,8 +2041,8 @@ function explainLine(lineIdx, line, stats, kind){
 }
 
 async function gerar15P(){
-  const addon = ACCESS.addon15 || hasAddon15Local();
-  if(!addon) return alert("🔒 O recurso '15 pontos garantido' é um EXTRA comprado separadamente.");
+  const can15p = ((access.premium && access.addon15) || access.isAdmin);
+  if(!can15p) return alert("🔒 O recurso '15 pontos garantido' é um EXTRA comprado separadamente (libera via claims).");
 
   const qtd = qtdSelecionada();
   try{
@@ -2180,14 +2173,14 @@ async function gerar15P(){
    Eventos
 ========================= */
 document.getElementById("btnEntrar").addEventListener("click", entrar);
-document.getElementById("btnReset").addEventListener("click", resetSenha);
+document.getElementById("btnForgot").addEventListener("click", forgotPassword);
 
 document.getElementById("btnComprar").addEventListener("click", comprarPremium);
-document.getElementById("btnJaComprei").addEventListener("click", abrirAtivar);
+document.getElementById("btnJaComprei").addEventListener("click", jaComprei);
 document.getElementById("btnSair").addEventListener("click", sair);
 
 document.getElementById("btnComprar15p").addEventListener("click", comprar15p);
-document.getElementById("btnAtivar15p").addEventListener("click", abrirAtivar15p);
+document.getElementById("btnAtivar15p").addEventListener("click", jaComprei15p);
 
 ["btnHomePrincipal","btnHomeAnalise","btnHomeInvertida","btnHomeTecnica","btnHome15p"].forEach(id=>{
   const el = document.getElementById(id);
