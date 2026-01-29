@@ -297,13 +297,17 @@
   .tip .q{opacity:.8}
 
   /* ✅ Fix mobile geral */
-  @media (max-width: 520px){
-    .wrap{ padding: 12px; }
-    #loginWrap .card{ padding: 14px; border-radius: 18px; }
-    .row{ flex-direction: column; }
-    .col{ min-width: 0 !important; }
-    input, select{ width:100%; max-width:100%; }
+  /* ✅ FIX ANDROID: remove o "buraco" no login quando vira coluna */
+@media (max-width: 520px){
+  #loginWrap .row{ 
+    flex-direction: column;
+    gap: 10px;              /* controla o espaçamento */
   }
+  #loginWrap .col{
+    flex: 1 1 auto !important;  /* remove o basis 240px que vira altura */
+  }
+}
+
 </style>
 </head>
 
