@@ -197,13 +197,9 @@
 
   /* Cartão Lotofácil (5x5) */
   .cartaoWrap{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
-  @media (max-width: 520px){
-  .wrap{ padding: 12px; }
-  .card{ padding: 14px; }
-  .row{ flex-direction: column; }
-  .col{ min-width: 0 !important; }
-  input, select{ width:100%; max-width:100%; }
-}
+  /* ✅ MOBILE: some com a coluna "Progresso" quando não estiver carregando */
+.actionGrid{grid-template-columns:1fr}
+.header{margin-bottom:10px}
  }
 
   .cartao{
@@ -674,6 +670,30 @@ function setStatus(on, text){
   document.getElementById("statusText").textContent = text || "";
   st.style.display = on ? "block" : "none";
 }
+function toggleProgressCol(){
+  const st = document.getElementById("status");
+  if(!st) return;
+
+  // pega a coluna que contém o "status" (a coluna da direita)
+  const col = st.closest(".col");
+  if(!col) return;
+
+  const isMobile = window.innerWidth <= 520;
+  const statusVisible = (getComputedStyle(st).display !== "none");
+
+  // no mobile: se não está carregando, esconde a coluna inteira
+  if(isMobile && !statusVisible){
+    col.style.display = "none";
+  }else{
+    col.style.display = "block";
+  }
+}
+
+window.addEventListener("resize", toggleProgressCol);
+
+// chama uma vez ao iniciar
+document.addEventListener("DOMContentLoaded", toggleProgressCol);
+
 function setProgress(p){
   document.getElementById("barFill").style.width = Math.max(0, Math.min(100, p)) + "%";
 }
