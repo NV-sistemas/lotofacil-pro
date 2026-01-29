@@ -307,6 +307,12 @@
     flex: 1 1 auto !important;  /* remove o basis 240px que vira altura */
   }
 }
+.pickGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;max-width:420px;margin-top:10px}
+.pickCell{height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);font-weight:1000;cursor:pointer;user-select:none}
+.pickCell.sel{background:rgba(34,197,94,.16);border-color:rgba(34,197,94,.35);color:#eafff4;box-shadow:0 12px 30px rgba(0,0,0,.25)}
+.lineBtn{padding:8px 10px;border-radius:12px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);color:var(--text);font-weight:1000;cursor:pointer}
+.lineBtn.on{border-color:rgba(56,189,248,.35);background:rgba(56,189,248,.12);color:#e6f8ff}
+.lineTabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 
 </style>
 </head>
@@ -606,6 +612,82 @@ const functions = firebase.app().functions("us-central1");
       </div>
     </div>
 
+    function setActiveLine15(i){ activeLine15=i; render15Editor(); }
+
+function render15Editor(){
+  const root = document.getElementById("editor15Area");
+  if(!root || !linesUser15) return;
+
+  const tabs = [0,1,2,3,4].map(i=>`
+    <button class="lineBtn ${activeLine15===i?"on":""}" type="button" onclick="setActiveLine15(${i})">Linha ${i+1}</button>
+  `).join("");
+
+  const used = new Set();
+  linesUser15.forEach((l,idx)=>{ if(idx!==activeLine15) l.forEach(n=>used.add(n)); });
+
+  const current = new Set(linesUser15[activeLine15]);
+
+  root.innerHTML = `
+    <div class="box" style="margin-top:12px">
+      <b>🧩 Personalize suas linhas (15P)</b>
+      <div class="mini" style="margin-top:6px">Complete a linha com <b>5 dezenas</b> (sem repetir nas outras linhas).</div>
+      <div class="lineTabs">${tabs}</div>
+
+      <div class="mini" style="margin-top:10px"><b>Linha ${activeLine15+1}:</b> <span class="mono">${linesUser15[activeLine15].map(format2).join(" - ") || "—"}</span></div>
+
+      <div class="pickGrid" id="pickGrid15">
+        ${[...Array(25)].map((_,i)=>{
+          const n=i+1;
+          const sel = current.has(n) ? " sel" : "";
+          const lock = used.has(n) ? ` style="opacity:.35;cursor:not-allowed"` : "";
+          return `<div class="pickCell${sel}" data-n="${n}" ${lock}>${format2(n)}</div>`;
+        }).join("")}
+      </div>
+
+      <div class="row" style="margin-top:12px">
+        <div class="col"><button class="btn btnGhost" type="button" onclick="linesUser15[activeLine15]=[];render15Editor()">Limpar linha</button></div>
+        <div class="col"><button class="btn btnPrimary" type="button" onclick="gerar15PComMinhasLinhas()">Gerar 10 jogos</button></div>
+      </div>
+    </div>
+  `;
+
+  document.querySelectorAll("#pickGrid15 .pickCell").forEach(cell=>{
+    cell.addEventListener("click", ()=>{
+      const n = Number(cell.getAttribute("data-n"));
+      if(used.has(n)) return;
+
+      const line = linesUser15[activeLine15];
+      const idx = line.indexOf(n);
+
+      if(idx>=0) line.splice(idx,1);
+      else{
+        if(line.length>=5) return alert("Essa linha já tem 5 dezenas.");
+        line.push(n); line.sort((a,b)=>a-b);
+      }
+      render15Editor();
+    });
+  });
+}
+
+function gerar15PComMinhasLinhas(){
+  if(!linesUser15.every(l=>l.length===5)) return alert("Complete as 5 linhas com 5 dezenas cada.");
+  const jogos = gerarJogos15P(linesUser15);
+
+  const jogosHtml = jogos.map((j,idx)=>`
+    <div class="box">
+      <b>Jogo ${idx+1}</b>
+      <div class="numbers" style="justify-content:flex-start;margin-top:10px">${renderBallsInline(j)}</div>
+    </div>
+  `).join("");
+
+  document.getElementById("user15Output").innerHTML = `
+    <div class="box" style="margin-top:12px">
+      <b>🎯 Seus 10 jogos (com suas linhas)</b>
+      <div class="grid" style="margin-top:12px">${jogosHtml}</div>
+    </div>
+  `;
+}
+ 
     <div class="card" id="p15Area">
       <div class="footerNote">Clique em “Gerar análise 15P”. Essa tela exige o EXTRA ativado (via claims).</div>
     </div>
@@ -1421,6 +1503,9 @@ async function fetchUltimoResultado(){
 /* =========================
    Estado global
 ========================= */
+let linesUser15 = null;   // linhas do usuário no 15P
+let activeLine15 = 4;     // começa na linha 5
+
 let lastPayload=null;
 let lastCtx=null;
 
@@ -1514,6 +1599,7 @@ async function acaoAnalise(){
       ${renderSumsTop(sums, payload.concursos.length)}
       ${renderBlocksPrime(blockTotals, blockPatterns, payload.concursos.length)}
       ${renderTop10(freq, payload.concursos.length)}
+<div id="manualPrincipalArea"></div>
       ${renderTopPairs(topPairs, payload.concursos.length)}
     `;
 
@@ -1660,7 +1746,8 @@ async function acaoPrincipal(){
     `;
 
     goView("viewPrincipal");
-    updateCheckButtons();
+renderManualPrincipalUI();
+updateCheckButtons();
   }catch(e){
     setStatus(false,""); setProgress(0);
     document.getElementById("principalArea").innerHTML = `
@@ -1700,6 +1787,67 @@ function renderCartao(jogo, clsName){
   }
   html += `</div>`;
   return html;
+}
+function renderPickGrid(selectedSet){
+  let html = `<div class="pickGrid" id="pickGridPrincipal">`;
+  for(let n=1;n<=25;n++){
+    const sel = selectedSet.has(n) ? " sel" : "";
+    html += `<div class="pickCell${sel}" data-n="${n}">${format2(n)}</div>`;
+  }
+  html += `</div>`;
+  return html;
+}
+
+function bindPickGridPrincipal(){
+  const root = document.getElementById("pickGridPrincipal");
+  if(!root) return;
+  root.querySelectorAll(".pickCell").forEach(cell=>{
+    cell.addEventListener("click", ()=>{
+      const n = Number(cell.getAttribute("data-n"));
+      if(manualPrincipalSet.has(n)) manualPrincipalSet.delete(n);
+      else{
+        if(manualPrincipalSet.size>=15) return alert("Você já marcou 15 dezenas.");
+        manualPrincipalSet.add(n);
+      }
+      renderManualPrincipalUI();
+    });
+  });
+}
+
+function renderManualPrincipalUI(){
+  const area = document.getElementById("manualPrincipalArea");
+  if(!area) return;
+  const selected = [...manualPrincipalSet].sort((a,b)=>a-b);
+
+  area.innerHTML = `
+    <div class="box" style="margin-top:12px">
+      <b>🧩 Monte seu Jogo Principal (marque 15 dezenas)</b>
+      <div class="mini" style="margin-top:6px">Quando tiver <b>15</b>, clique em <b>Usar meu jogo</b>.</div>
+
+      <div class="numbers" style="justify-content:flex-start;margin-top:10px">
+        ${selected.length ? selected.map(n=>`<div class="ball">${format2(n)}</div>`).join("") : `<div class="mini">—</div>`}
+      </div>
+
+      <div class="mini" style="margin-top:8px">Selecionadas: <b>${selected.length}/15</b></div>
+      ${renderPickGrid(manualPrincipalSet)}
+
+      <div class="row" style="margin-top:12px">
+        <div class="col"><button class="btn btnGhost" type="button" onclick="manualPrincipalSet=new Set();renderManualPrincipalUI()">Limpar</button></div>
+        <div class="col"><button class="btn btnPrimary" type="button" onclick="usarManualComoPrincipal()">Usar meu jogo</button></div>
+      </div>
+    </div>
+  `;
+  bindPickGridPrincipal();
+}
+
+function usarManualComoPrincipal(){
+  if(manualPrincipalSet.size!==15) return alert("Marque exatamente 15 dezenas.");
+  lastPrincipalGame = [...manualPrincipalSet].sort((a,b)=>a-b);
+  lastInvertidaGame = null;
+  lastTecnicaGames = null;
+  alert("✅ Seu jogo virou o Jogo Principal!");
+  // Atualiza botões e libera invertida/técnica
+  updateCheckButtons();
 }
 
 function gerarInvertida(){
@@ -2149,6 +2297,9 @@ async function gerar15P(){
           </div>
         </div>
       </div>
+
+      <div id="editor15Area"></div>
+<div id="user15Output"></div>
 
       <div class="box" style="margin-top:12px">
         <b>📌 Linhas 1 a 5 (5 dezenas por linha)</b>
