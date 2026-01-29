@@ -197,10 +197,11 @@
 
   /* Cartão Lotofácil (5x5) */
   .cartaoWrap{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
-  /* ✅ MOBILE: some com a coluna "Progresso" quando não estiver carregando */
-.actionGrid{grid-template-columns:1fr}
-.header{margin-bottom:10px}
- }
+  /* ✅ MOBILE: ajustes extras (apenas no celular) */
+@media (max-width: 520px){
+  .actionGrid{ grid-template-columns: 1fr; }
+  .header{ margin-bottom: 10px; }
+}
 
   .cartao{
     display:grid;grid-template-columns: repeat(5, 44px);
