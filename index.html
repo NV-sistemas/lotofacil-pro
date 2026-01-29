@@ -299,21 +299,43 @@
   /* ✅ Fix mobile geral */
   /* ✅ FIX ANDROID: remove o "buraco" no login quando vira coluna */
 @media (max-width: 520px){
-  #loginWrap .row{ 
+  #loginWrap .row{
     flex-direction: column;
-    gap: 10px;              /* controla o espaçamento */
+    gap: 10px;
   }
   #loginWrap .col{
-    flex: 1 1 auto !important;  /* remove o basis 240px que vira altura */
+    flex: 1 1 auto !important;
   }
 }
-.pickGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;max-width:420px;margin-top:10px}
-.pickCell{height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);font-weight:1000;cursor:pointer;user-select:none}
-.pickCell.sel{background:rgba(34,197,94,.16);border-color:rgba(34,197,94,.35);color:#eafff4;box-shadow:0 12px 30px rgba(0,0,0,.25)}
-.lineBtn{padding:8px 10px;border-radius:12px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.05);color:var(--text);font-weight:1000;cursor:pointer}
-.lineBtn.on{border-color:rgba(56,189,248,.35);background:rgba(56,189,248,.12);color:#e6f8ff}
-.lineTabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 
+/* ===== MANUAL PICK (principal + 15P) ===== */
+.pickGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;max-width:460px;margin-top:10px}
+.pickCell{
+  height:44px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(255,255,255,.05);
+  font-weight:1000;cursor:pointer;user-select:none;
+}
+.pickCell.sel{background:rgba(34,197,94,.16);border-color:rgba(34,197,94,.35);color:#eafff4;box-shadow:0 12px 30px rgba(0,0,0,.25)}
+.pickCell.lock{opacity:.35;cursor:not-allowed}
+
+.lineTabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.lineBtn{
+  padding:8px 10px;border-radius:12px;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(255,255,255,.05);
+  color:var(--text);font-weight:1000;cursor:pointer
+}
+.lineBtn.on{border-color:rgba(56,189,248,.35);background:rgba(56,189,248,.12);color:#e6f8ff}
+.slotRow{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.slot{
+  min-width:52px;
+  padding:8px 10px;border-radius:12px;
+  border:1px dashed rgba(255,255,255,.18);
+  background:rgba(255,255,255,.04);
+  font-weight:1000;
+}
 </style>
 </head>
 
@@ -323,7 +345,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-functions-compat.js"></script>
-  
+
 <script>
 /* =========================
    CONFIG
@@ -459,7 +481,7 @@ const functions = firebase.app().functions("us-central1");
           <div class="mini">
             Premium: Análise, Invertida e Técnica Premiada. <br/>
             Free: Jogo Principal (1 geração). <br/>
-            Extra: 15P Garantido (comprado separadamente).
+            Extra: 15P (comprado separadamente).
           </div>
         </div>
       </div>
@@ -473,20 +495,20 @@ const functions = firebase.app().functions("us-central1");
         <div class="actionCard" id="btnHomePrincipal" role="button" tabindex="0">
           <span class="badge free">FREE 1x</span>
           <p class="actionTitle">🎯 Jogo principal</p>
-          <p class="actionDesc">Gera 15 dezenas + resumo. Depois você cria Invertida e Técnica a partir dele.</p>
+          <p class="actionDesc">Gera 15 dezenas + resumo PRIME. Você também pode montar o seu jogo manualmente.</p>
         </div>
 
         <!-- PREMIUM -->
         <div class="actionCard" id="btnHomeAnalise" role="button" tabindex="0">
           <span class="badge premium">PREMIUM</span>
           <p class="actionTitle">📈 Gerar análise</p>
-          <p class="actionDesc">Resumo PRIME do período selecionado (sem jogo).</p>
+          <p class="actionDesc">Resumo PRIME do período selecionado (sem jogo) com tendências e probabilidades.</p>
         </div>
 
         <div class="actionCard" id="btnHomeInvertida" role="button" tabindex="0">
           <span class="badge premium">PREMIUM</span>
           <p class="actionTitle">🔄 Gerar invertida</p>
-          <p class="actionDesc">Usa o Jogo Principal e inverte por blocos no cartão 5×5.</p>
+          <p class="actionDesc">Usa o Jogo Principal (automático ou manual) e inverte por blocos no cartão 5×5.</p>
         </div>
 
         <div class="actionCard" id="btnHomeTecnica" role="button" tabindex="0">
@@ -500,9 +522,9 @@ const functions = firebase.app().functions("us-central1");
           <span class="extraBadge">EXTRA</span>
           <div class="extraHeadline">
             <p class="actionTitle" style="margin:0">✅ 15 pontos garantido</p>
-            <span class="extraHighlight">COM SOMENTE 10 JOGOS</span>
+            <span class="extraHighlight">ESTRATÉGIA (10 JOGOS)</span>
           </div>
-          <p class="actionDesc">Tela separada: 5 linhas (5 dezenas cada) + análise detalhada e 10 jogos automáticos.</p>
+          <p class="actionDesc">Tela separada: 5 linhas + análise avançada e 10 jogos. Você também pode criar suas próprias linhas.</p>
         </div>
       </div>
     </div>
@@ -612,82 +634,6 @@ const functions = firebase.app().functions("us-central1");
       </div>
     </div>
 
-    function setActiveLine15(i){ activeLine15=i; render15Editor(); }
-
-function render15Editor(){
-  const root = document.getElementById("editor15Area");
-  if(!root || !linesUser15) return;
-
-  const tabs = [0,1,2,3,4].map(i=>`
-    <button class="lineBtn ${activeLine15===i?"on":""}" type="button" onclick="setActiveLine15(${i})">Linha ${i+1}</button>
-  `).join("");
-
-  const used = new Set();
-  linesUser15.forEach((l,idx)=>{ if(idx!==activeLine15) l.forEach(n=>used.add(n)); });
-
-  const current = new Set(linesUser15[activeLine15]);
-
-  root.innerHTML = `
-    <div class="box" style="margin-top:12px">
-      <b>🧩 Personalize suas linhas (15P)</b>
-      <div class="mini" style="margin-top:6px">Complete a linha com <b>5 dezenas</b> (sem repetir nas outras linhas).</div>
-      <div class="lineTabs">${tabs}</div>
-
-      <div class="mini" style="margin-top:10px"><b>Linha ${activeLine15+1}:</b> <span class="mono">${linesUser15[activeLine15].map(format2).join(" - ") || "—"}</span></div>
-
-      <div class="pickGrid" id="pickGrid15">
-        ${[...Array(25)].map((_,i)=>{
-          const n=i+1;
-          const sel = current.has(n) ? " sel" : "";
-          const lock = used.has(n) ? ` style="opacity:.35;cursor:not-allowed"` : "";
-          return `<div class="pickCell${sel}" data-n="${n}" ${lock}>${format2(n)}</div>`;
-        }).join("")}
-      </div>
-
-      <div class="row" style="margin-top:12px">
-        <div class="col"><button class="btn btnGhost" type="button" onclick="linesUser15[activeLine15]=[];render15Editor()">Limpar linha</button></div>
-        <div class="col"><button class="btn btnPrimary" type="button" onclick="gerar15PComMinhasLinhas()">Gerar 10 jogos</button></div>
-      </div>
-    </div>
-  `;
-
-  document.querySelectorAll("#pickGrid15 .pickCell").forEach(cell=>{
-    cell.addEventListener("click", ()=>{
-      const n = Number(cell.getAttribute("data-n"));
-      if(used.has(n)) return;
-
-      const line = linesUser15[activeLine15];
-      const idx = line.indexOf(n);
-
-      if(idx>=0) line.splice(idx,1);
-      else{
-        if(line.length>=5) return alert("Essa linha já tem 5 dezenas.");
-        line.push(n); line.sort((a,b)=>a-b);
-      }
-      render15Editor();
-    });
-  });
-}
-
-function gerar15PComMinhasLinhas(){
-  if(!linesUser15.every(l=>l.length===5)) return alert("Complete as 5 linhas com 5 dezenas cada.");
-  const jogos = gerarJogos15P(linesUser15);
-
-  const jogosHtml = jogos.map((j,idx)=>`
-    <div class="box">
-      <b>Jogo ${idx+1}</b>
-      <div class="numbers" style="justify-content:flex-start;margin-top:10px">${renderBallsInline(j)}</div>
-    </div>
-  `).join("");
-
-  document.getElementById("user15Output").innerHTML = `
-    <div class="box" style="margin-top:12px">
-      <b>🎯 Seus 10 jogos (com suas linhas)</b>
-      <div class="grid" style="margin-top:12px">${jogosHtml}</div>
-    </div>
-  `;
-}
- 
     <div class="card" id="p15Area">
       <div class="footerNote">Clique em “Gerar análise 15P”. Essa tela exige o EXTRA ativado (via claims).</div>
     </div>
@@ -758,19 +704,18 @@ function setStatus(on, text){
   const st=document.getElementById("status");
   document.getElementById("statusText").textContent = text || "";
   st.style.display = on ? "block" : "none";
+  toggleProgressCol(); // ✅ garante alinhamento no mobile
 }
 function toggleProgressCol(){
   const st = document.getElementById("status");
   if(!st) return;
 
-  // pega a coluna que contém o "status" (a coluna da direita)
   const col = st.closest(".col");
   if(!col) return;
 
   const isMobile = window.innerWidth <= 520;
   const statusVisible = (getComputedStyle(st).display !== "none");
 
-  // no mobile: se não está carregando, esconde a coluna inteira
   if(isMobile && !statusVisible){
     col.style.display = "none";
   }else{
@@ -779,8 +724,6 @@ function toggleProgressCol(){
 }
 
 window.addEventListener("resize", toggleProgressCol);
-
-// chama uma vez ao iniciar
 document.addEventListener("DOMContentLoaded", toggleProgressCol);
 
 function setProgress(p){
@@ -801,7 +744,7 @@ function goView(id){
 
 <script>
 /* =========================
-   AUTH + CLAIMS (Premium/15P)  ✅ CORRIGIDO
+   AUTH + CLAIMS (Premium/15P)
 ========================= */
 let access = {
   email: "",
@@ -815,10 +758,7 @@ async function refreshClaims(force=false){
   const u = auth.currentUser;
   if(!u) return access;
 
-  // força atualizar token (quando claims mudam)
-  if(force) await u.getIdToken(true);
-
-  const token = await u.getIdTokenResult(true);
+  const token = await u.getIdTokenResult(!!force);
   const email = (u.email || "").toLowerCase();
   const isAdmin = email === String(ADMIN_EMAIL).toLowerCase();
 
@@ -860,7 +800,6 @@ function aplicarAcessos(){
   const premiumGate = document.getElementById("premiumGate");
   if(premiumGate) premiumGate.style.display = access.premium ? "none" : "block";
 
-  // Upsell 15p: aparece para quem ainda não tem o extra (admin não precisa)
   const addon15Card = document.getElementById("addon15Card");
   if(addon15Card) addon15Card.style.display = (!access.isAdmin && !can15p) ? "block" : "none";
 
@@ -882,7 +821,6 @@ function aplicarAcessos(){
     goView("viewTecnica"); gerarTecnicaPremiada();
   }, "🔒 Técnica premiada exige Premium.");
 
-  // Free 1x no principal
   if(!access.premium && isFreeUsed()){
     btnPrincipal?.classList.add("disabled");
     if(btnPrincipal) btnPrincipal.onclick = ()=>alert("🔒 Você já usou a geração grátis. Para liberar, ative o Premium.");
@@ -891,7 +829,6 @@ function aplicarAcessos(){
     if(btnPrincipal) btnPrincipal.onclick = ()=>acaoPrincipal();
   }
 
-  // 15P
   if(!can15p){
     btn15?.classList.add("disabled");
     if(btn15) btn15.onclick = ()=>alert("🔒 O recurso '15 pontos garantido' é um EXTRA comprado separadamente (libera via claims).");
@@ -966,10 +903,8 @@ async function ativarComCodigo(){
     const redeemCode = functions.httpsCallable("redeemCode");
     await redeemCode({ code: code.trim() });
 
-    // atualiza claims
     await refreshClaims(true);
 
-    // feedback
     if(access.premium || access.addon15 || access.isAdmin){
       showOk("✅ Código ativado! Seus acessos foram atualizados.");
     }else{
@@ -981,12 +916,8 @@ async function ativarComCodigo(){
   }
 }
 
-async function jaComprei(){
-  await ativarComCodigo();
-}
-async function jaComprei15p(){
-  await ativarComCodigo();
-}
+async function jaComprei(){ await ativarComCodigo(); }
+async function jaComprei15p(){ await ativarComCodigo(); }
 
 /* ===== AUTOSTATE ===== */
 auth.onAuthStateChanged(async (user)=>{
@@ -1053,7 +984,7 @@ function repetidasDoUltimo(jogo, ultimoDezenas){
   return sortNum(jogo.filter(n=>setUlt.has(n)));
 }
 
-/* 🔥/🌡️/🧊 Classificação (hot/warm/cold) por ranking do período */
+/* 🔥/🌡️/🧊 Classificação por ranking (janela) */
 function buildHotWarmColdFromFreq(freq){
   const ord = ordenarPorFreq(freq);
   const hot = ord.slice(0,8).map(x=>x.dez).sort((a,b)=>a-b);
@@ -1074,8 +1005,85 @@ function classificarDezenas(freq, jogo){
   return {hot:sortNum(hot), warm:sortNum(warm), cold:sortNum(cold), rank};
 }
 
-function gerarJogoForte(freq){
+/* ===== MÉTRICAS MODERNAS (tendência/recência/atraso) ===== */
+function calcModernMetrics(concursos){
+  // concursos esperado em ordem crescente (início -> último)
+  const n = concursos.length;
+  const freq = Array(26).fill(0);
+  const decay = Array(26).fill(0);
+  const recent10 = Array(26).fill(0);
+  const lastSeen = Array(26).fill(-1);
+
+  const DECAY = 0.92; // peso para recência (mais novo = mais peso)
+  for(let i=0;i<n;i++){
+    const nums=(concursos[i].dezenas||[]).map(toNum).filter(x=>x>=1 && x<=25);
+    const w = Math.pow(DECAY, (n-1-i)); // último concurso = w=1
+    nums.forEach(x=>{
+      freq[x] += 1;
+      decay[x] += w;
+      lastSeen[x] = i;
+      if(i >= n-10) recent10[x] += 1;
+    });
+  }
+
+  const gap = Array(26).fill(999);
+  for(let x=1;x<=25;x++){
+    gap[x] = (lastSeen[x]===-1) ? n : (n-1-lastSeen[x]);
+  }
+
+  // tendência simples: recente10 comparado com base
+  const trend = Array(26).fill(0);
+  for(let x=1;x<=25;x++){
+    const baseRate = freq[x] / Math.max(1,n);
+    const recRate = recent10[x] / Math.max(1, Math.min(10,n));
+    trend[x] = (recRate - baseRate);
+  }
+
+  return { n, freq, decay, recent10, gap, trend };
+}
+
+function renderModernInsights(metrics){
+  const {n,freq,decay,recent10,gap,trend} = metrics;
+
+  const topTrend = [];
+  const topOverdue = [];
+  const topDecay = [];
+  for(let x=1;x<=25;x++){
+    topTrend.push({x, v: trend[x]});
+    topOverdue.push({x, v: gap[x]});
+    topDecay.push({x, v: decay[x]});
+  }
+  topTrend.sort((a,b)=>b.v-a.v);
+  topOverdue.sort((a,b)=>b.v-a.v);
+  topDecay.sort((a,b)=>b.v-a.v);
+
+  const trendList = topTrend.slice(0,8).filter(t=>t.v>0).map(t=>format2(t.x)).join(" - ") || "—";
+  const overdueList = topOverdue.slice(0,8).map(t=>`${format2(t.x)} (${t.v})`).join(" • ") || "—";
+  const recencyList = topDecay.slice(0,8).map(t=>format2(t.x)).join(" - ") || "—";
+
+  return `
+    <div class="box" style="margin-top:12px">
+      <b>🧠 Insights modernos (recência + tendência + atraso)</b>
+      <div class="mini" style="margin-top:8px">
+        <b>📈 Em tendência (últimos 10 vs janela):</b> <span class="mono">${trendList}</span><br/>
+        <b>⏳ Mais “atrasadas” (gap em concursos):</b> <span class="mono">${overdueList}</span><br/>
+        <b>⚡ Mais fortes na recência (peso exponencial):</b> <span class="mono">${recencyList}</span>
+      </div>
+      <div class="mini">
+        Tendência e atraso ajudam a montar “mix” inteligente (quentes + frias + recência). Não é garantia de acerto.
+      </div>
+    </div>
+  `;
+}
+</script>
+
+<script>
+/* =========================
+   GERAÇÃO DO JOGO (melhorada)
+========================= */
+function gerarJogoForte(freq, metrics){
   const ord = ordenarPorFreq(freq);
+
   const hotPool = ord.slice(0,10).map(x=>x.dez);
   const warmPool = ord.slice(10,18).map(x=>x.dez);
   const coldPool = ord.slice(-7).map(x=>x.dez);
@@ -1091,11 +1099,25 @@ function gerarJogoForte(freq){
   }
 
   let best=null;
-  for(let t=0;t<650;t++){
+  for(let t=0;t<820;t++){
     const set=new Set();
-    addFromPool(hotPool, 6, set);
+
+    // ✅ mix padrão (mercado): quente + morna + fria
+    addFromPool(hotPool, 5, set);
     addFromPool(warmPool, 7, set);
     addFromPool(coldPool, 2, set);
+
+    // ✅ “atrasadas” (gap alto) entram como 1 slot opcional
+    if(metrics){
+      const overdue = [];
+      for(let i=1;i<=25;i++) overdue.push({i, g: metrics.gap[i], f: metrics.freq[i]});
+      overdue.sort((a,b)=>b.g-a.g);
+      for(const cand of overdue.slice(0,8)){
+        if(set.size>=15) break;
+        if(!set.has(cand.i)) { set.add(cand.i); break; }
+      }
+    }
+
     while(set.size<15) set.add(Math.floor(Math.random()*25)+1);
 
     const jogo = sortNum([...set]);
@@ -1105,18 +1127,36 @@ function gerarJogoForte(freq){
     const seq = contarSequencias(jogo);
 
     let score=0;
-    score += (pi.pares===7 || pi.pares===8) ? 25 : 0;
-    score += (soma>=170 && soma<=230) ? 20 : 0;
+
+    // pares/ímpares
+    score += (pi.pares===7 || pi.pares===8) ? 25 : (pi.pares===6 || pi.pares===9) ? 12 : 0;
+
+    // soma
+    score += (soma>=170 && soma<=230) ? 20 : (soma>=160 && soma<=240) ? 10 : 0;
+
+    // blocos
     const maxBlock = Math.max(blocos.A,blocos.B,blocos.C,blocos.D,blocos.E);
-    score += (maxBlock<=5) ? 20 : 0;
-    score += (seq.maxLen<=4) ? 15 : 0;
+    score += (maxBlock<=5) ? 20 : (maxBlock===6) ? 10 : 0;
+
+    // sequências
+    score += (seq.maxLen<=4) ? 15 : (seq.maxLen===5) ? 6 : 0;
+
+    // força freq
     score += Math.min(20, Math.round(jogo.reduce((a,n)=>a+(freq[n]||0),0)/10));
+
+    // recência (se tiver)
+    if(metrics){
+      const recScore = jogo.reduce((a,n)=>a+(metrics.decay[n]||0),0);
+      score += Math.min(12, recScore);
+    }
 
     if(!best || score>best.score) best={jogo, score};
   }
   return best.jogo;
 }
+</script>
 
+<script>
 function renderTop10(freq, totalConcursos){
   const ord = ordenarPorFreq(freq).slice(0,10);
   const max = ord[0]?.f || 1;
@@ -1189,7 +1229,7 @@ function abrirGraficoBlocos(blocos){
 
 <script>
 /* =========================
-   ANÁLISE PRIME (estatísticas do período)
+   ANÁLISE PRIME (mais completa)
 ========================= */
 function calcEvenOddDistribution(concursos){
   const map = {};
@@ -1278,7 +1318,7 @@ function renderHotWarmColdPeriod(freq){
         <b>Frias (restante):</b> <span class="mono">${cold.map(format2).join(" - ")}</span>
       </div>
       <div class="mini">
-        “Quentes” são as mais presentes no período; “Frias” as menos presentes. Use isso como estratégia, não como garantia.
+        Use isso como estratégia (mix de frequências + recência), não como garantia.
       </div>
     </div>
   `;
@@ -1327,7 +1367,7 @@ function renderSumsTop(sums, total){
   return `
     <div class="box" style="margin-top:12px">
       <b>➕ Somas que mais se repetiram</b>
-      <div class="mini" style="margin-top:6px">As somas mais comuns na janela (ajuda a evitar combinações “extremas”).</div>
+      <div class="mini" style="margin-top:6px">Ajuda a evitar combinações muito fora do padrão.</div>
       <div style="margin-top:10px">${rows || `<div class="mini">—</div>`}</div>
     </div>
   `;
@@ -1401,9 +1441,7 @@ function renderTopPairs(pairs, total){
   return `
     <div class="box" style="margin-top:12px">
       <b>🔗 Dezenas que mais se repetiram juntas (pares mais fortes)</b>
-      <div class="mini" style="margin-top:6px">
-        Mostra os pares de dezenas que mais aparecem juntos nos concursos selecionados.
-      </div>
+      <div class="mini" style="margin-top:6px">Pares com maior coocorrência na janela selecionada.</div>
       <div style="margin-top:10px;overflow:auto">
         <table class="table">
           <thead>
@@ -1423,7 +1461,7 @@ function renderTopPairs(pairs, total){
 
 <script>
 /* =========================
-   DADOS ONLINE / DEMO + BUSCA DE RESULTADO
+   DADOS ONLINE / DEMO
 ========================= */
 const SOURCES = [
   {
@@ -1503,18 +1541,22 @@ async function fetchUltimoResultado(){
 /* =========================
    Estado global
 ========================= */
-let linesUser15 = null;   // linhas do usuário no 15P
-let activeLine15 = 4;     // começa na linha 5
-
 let lastPayload=null;
 let lastCtx=null;
 
 let lastPrincipalGame=null;
 let lastPrincipalMeta=null;
-let manualPrincipalSet = new Set(); // seleção manual (15 dezenas)
-  
+
 let lastInvertidaGame=null;
 let lastTecnicaGames=null;
+
+/* ✅ MANUAL (Principal) */
+let manualPrincipalSet = new Set();
+
+/* ✅ 15P manual */
+let linesSystem15 = null;
+let linesUser15 = null;
+let activeLine15 = 4; // começa na linha 5 (em branco)
 </script>
 
 <script>
@@ -1536,18 +1578,22 @@ async function prepararContextoBase(qtd){
     payload = buildDemo(qtd);
   }
 
+  // garante ordem crescente
+  payload.concursos = payload.concursos.slice().sort((a,b)=>a.concurso-b.concurso);
+
   setStatus(true,"Calculando análises do período…");
   setProgress(62);
 
   const freq = calcularFrequencias(payload.concursos);
+  const modern = calcModernMetrics(payload.concursos);
 
   lastPayload = payload;
-  lastCtx = { freq };
+  lastCtx = { freq, modern };
 
   setStatus(false,"");
   setProgress(0);
 
-  return { payload, freq };
+  return { payload, freq, modern };
 }
 
 function verConcursos(){
@@ -1559,7 +1605,7 @@ function verConcursos(){
 
 <script>
 /* =========================
-   AÇÃO: ANÁLISE (PRIME COMPLETA)
+   AÇÃO: ANÁLISE (PRIME COMPLETA + MODERNA)
 ========================= */
 async function acaoAnalise(){
   if(!access.premium){ alert("🔒 Gerar análise exige Premium."); return; }
@@ -1568,7 +1614,7 @@ async function acaoAnalise(){
   try{
     await prepararContextoBase(qtd);
     const payload = lastPayload;
-    const {freq} = lastCtx;
+    const {freq, modern} = lastCtx;
 
     setStatus(true,"Montando resumo PRIME…");
     setProgress(82);
@@ -1595,12 +1641,20 @@ async function acaoAnalise(){
       </div>
 
       ${renderHotWarmColdPeriod(freq)}
+      ${renderModernInsights(modern)}
       ${renderEvenOddDist(evenOdd, payload.concursos.length)}
       ${renderSumsTop(sums, payload.concursos.length)}
       ${renderBlocksPrime(blockTotals, blockPatterns, payload.concursos.length)}
       ${renderTop10(freq, payload.concursos.length)}
-<div id="manualPrincipalArea"></div>
       ${renderTopPairs(topPairs, payload.concursos.length)}
+
+      <div class="box" style="margin-top:12px">
+        <b>📌 Nota PRIME</b>
+        <div class="mini" style="margin-top:8px">
+          Este painel usa estatística (frequência, recência, tendência, coocorrência e padrões). Ajuda a montar estratégias,
+          mas <b>não existe garantia de premiação</b>.
+        </div>
+      </div>
     `;
 
     goView("viewAnalise");
@@ -1615,9 +1669,113 @@ async function acaoAnalise(){
     goView("viewAnalise");
   }
 }
+</script>
 
+<script>
 /* =========================
-   AÇÃO: JOGO PRINCIPAL (com hot/warm/cold)
+   MANUAL PICK (JOGO PRINCIPAL)
+========================= */
+function renderPickGrid(selectedSet, lockedSet){
+  let html = `<div class="pickGrid" id="pickGridPrincipal">`;
+  for(let n=1;n<=25;n++){
+    const sel = selectedSet.has(n) ? " sel" : "";
+    const lock = lockedSet && lockedSet.has(n) ? " lock" : "";
+    html += `<div class="pickCell${sel}${lock}" data-n="${n}">${format2(n)}</div>`;
+  }
+  html += `</div>`;
+  return html;
+}
+
+function bindPickGrid(containerId, onClick){
+  const root = document.getElementById(containerId);
+  if(!root) return;
+  root.querySelectorAll(".pickCell").forEach(cell=>{
+    cell.addEventListener("click", ()=>{
+      if(cell.classList.contains("lock")) return;
+      const n = Number(cell.getAttribute("data-n"));
+      onClick(n);
+    });
+  });
+}
+
+function renderManualPrincipalUI(){
+  const area = document.getElementById("manualPrincipalArea");
+  if(!area) return;
+
+  const selected = [...manualPrincipalSet].sort((a,b)=>a-b);
+
+  area.innerHTML = `
+    <div class="box" style="margin-top:12px">
+      <b>🧩 Monte seu jogo manual (vira o Jogo Principal)</b>
+      <div class="mini" style="margin-top:6px">
+        Marque <b>15 dezenas</b>. Ao confirmar, a Invertida e a Técnica usarão o seu jogo.
+      </div>
+
+      <div class="numbers" style="justify-content:flex-start;margin-top:10px">
+        ${selected.length ? selected.map(n=>`<div class="ball">${format2(n)}</div>`).join("") : `<div class="mini">—</div>`}
+      </div>
+
+      <div class="mini" style="margin-top:8px">
+        Selecionadas: <b>${selected.length}/15</b>
+      </div>
+
+      ${renderPickGrid(manualPrincipalSet)}
+
+      <div class="row" style="margin-top:12px">
+        <div class="col">
+          <button class="btn btnGhost" type="button" onclick="manualPrincipalSet=new Set();renderManualPrincipalUI()">Limpar</button>
+        </div>
+        <div class="col">
+          <button class="btn btnPrimary" type="button" onclick="usarManualComoPrincipal()">Usar meu jogo</button>
+        </div>
+      </div>
+
+      <div class="mini" style="margin-top:10px">
+        Dica PRIME: misture <b>quentes + frias</b> e tente manter <b>7/8 pares</b>.
+      </div>
+    </div>
+  `;
+
+  bindPickGrid("pickGridPrincipal", (n)=>{
+    if(manualPrincipalSet.has(n)) manualPrincipalSet.delete(n);
+    else{
+      if(manualPrincipalSet.size>=15) return alert("Você já marcou 15 dezenas.");
+      manualPrincipalSet.add(n);
+    }
+    renderManualPrincipalUI();
+  });
+}
+
+function usarManualComoPrincipal(){
+  if(manualPrincipalSet.size !== 15){
+    return alert("Marque exatamente 15 dezenas.");
+  }
+  const jogo = [...manualPrincipalSet].sort((a,b)=>a-b);
+
+  lastPrincipalGame = jogo.slice();
+  lastInvertidaGame = null;
+  lastTecnicaGames = null;
+
+  // recalcula meta (se já tem contexto carregado)
+  if(lastPayload && lastCtx?.freq){
+    const freq = lastCtx.freq;
+    const cls = classificarDezenas(freq, jogo);
+    const pi = contarParesImpares(jogo);
+    const soma = somaDezenas(jogo);
+    const seq = contarSequencias(jogo);
+    const blocos = distribuicaoBlocos(jogo);
+    const reps = repetidasDoUltimo(jogo, lastPayload.latest.dezenas);
+    lastPrincipalMeta = { cls, pi, soma, seq, blocos, reps };
+  }
+
+  alert("✅ Seu jogo foi definido como Jogo Principal!");
+  updateCheckButtons();
+}
+</script>
+
+<script>
+/* =========================
+   AÇÃO: JOGO PRINCIPAL (PRIME + MODERNO + MANUAL)
 ========================= */
 async function acaoPrincipal(){
   const qtd = qtdSelecionada();
@@ -1630,12 +1788,13 @@ async function acaoPrincipal(){
   try{
     await prepararContextoBase(qtd);
     const payload = lastPayload;
-    const {freq} = lastCtx;
+    const {freq, modern} = lastCtx;
 
     setStatus(true,"Gerando jogo principal (15 dezenas)…");
     setProgress(80);
 
-    const jogo = gerarJogoForte(freq);
+    const jogo = gerarJogoForte(freq, modern);
+
     lastPrincipalGame = jogo.slice();
     lastInvertidaGame = null;
     lastTecnicaGames = null;
@@ -1688,7 +1847,7 @@ async function acaoPrincipal(){
       <div class="numbers">${balls}</div>
 
       <div class="box" style="margin-top:12px">
-        <b>🧾 Resumo PRIME</b>
+        <b>🧾 Resumo PRIME (detalhado)</b>
         <div class="grid" style="margin-top:12px">
           <div class="box">
             <b>🔥🌡️🧊 Quentes / Mornas / Frias (no jogo)</b>
@@ -1732,7 +1891,19 @@ async function acaoPrincipal(){
         </div>
       </div>
 
+      ${renderModernInsights(modern)}
       ${renderTop10(freq, payload.concursos.length)}
+
+      <div class="grid" style="margin-top:12px">
+        <div class="box">
+          <b>🤖 Jogo do Sistema (atual)</b>
+          <div class="numbers" style="justify-content:flex-start;margin-top:10px">${jogo.map(n=>`<div class="ball">${format2(n)}</div>`).join("")}</div>
+          <div class="mini">Você pode usar este ou montar o seu jogo manual e substituir o principal.</div>
+        </div>
+        <div class="box">
+          <div id="manualPrincipalArea"></div>
+        </div>
+      </div>
 
       <div class="panelCheck" id="panelGerados">
         <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
@@ -1743,11 +1914,22 @@ async function acaoPrincipal(){
           Gere também a <b>Invertida</b> e a <b>Técnica</b> para liberar a verificação automática de acertos.
         </div>
       </div>
+
+      <div class="box" style="margin-top:12px">
+        <b>📌 Aviso</b>
+        <div class="mini" style="margin-top:8px">
+          Estatística ajuda a montar estratégia, mas <b>não garante premiação</b>.
+        </div>
+      </div>
     `;
 
     goView("viewPrincipal");
-renderManualPrincipalUI();
-updateCheckButtons();
+
+    // reset seleção manual para o usuário começar “do zero”
+    manualPrincipalSet = new Set();
+    renderManualPrincipalUI();
+
+    updateCheckButtons();
   }catch(e){
     setStatus(false,""); setProgress(0);
     document.getElementById("principalArea").innerHTML = `
@@ -1788,67 +1970,6 @@ function renderCartao(jogo, clsName){
   html += `</div>`;
   return html;
 }
-function renderPickGrid(selectedSet){
-  let html = `<div class="pickGrid" id="pickGridPrincipal">`;
-  for(let n=1;n<=25;n++){
-    const sel = selectedSet.has(n) ? " sel" : "";
-    html += `<div class="pickCell${sel}" data-n="${n}">${format2(n)}</div>`;
-  }
-  html += `</div>`;
-  return html;
-}
-
-function bindPickGridPrincipal(){
-  const root = document.getElementById("pickGridPrincipal");
-  if(!root) return;
-  root.querySelectorAll(".pickCell").forEach(cell=>{
-    cell.addEventListener("click", ()=>{
-      const n = Number(cell.getAttribute("data-n"));
-      if(manualPrincipalSet.has(n)) manualPrincipalSet.delete(n);
-      else{
-        if(manualPrincipalSet.size>=15) return alert("Você já marcou 15 dezenas.");
-        manualPrincipalSet.add(n);
-      }
-      renderManualPrincipalUI();
-    });
-  });
-}
-
-function renderManualPrincipalUI(){
-  const area = document.getElementById("manualPrincipalArea");
-  if(!area) return;
-  const selected = [...manualPrincipalSet].sort((a,b)=>a-b);
-
-  area.innerHTML = `
-    <div class="box" style="margin-top:12px">
-      <b>🧩 Monte seu Jogo Principal (marque 15 dezenas)</b>
-      <div class="mini" style="margin-top:6px">Quando tiver <b>15</b>, clique em <b>Usar meu jogo</b>.</div>
-
-      <div class="numbers" style="justify-content:flex-start;margin-top:10px">
-        ${selected.length ? selected.map(n=>`<div class="ball">${format2(n)}</div>`).join("") : `<div class="mini">—</div>`}
-      </div>
-
-      <div class="mini" style="margin-top:8px">Selecionadas: <b>${selected.length}/15</b></div>
-      ${renderPickGrid(manualPrincipalSet)}
-
-      <div class="row" style="margin-top:12px">
-        <div class="col"><button class="btn btnGhost" type="button" onclick="manualPrincipalSet=new Set();renderManualPrincipalUI()">Limpar</button></div>
-        <div class="col"><button class="btn btnPrimary" type="button" onclick="usarManualComoPrincipal()">Usar meu jogo</button></div>
-      </div>
-    </div>
-  `;
-  bindPickGridPrincipal();
-}
-
-function usarManualComoPrincipal(){
-  if(manualPrincipalSet.size!==15) return alert("Marque exatamente 15 dezenas.");
-  lastPrincipalGame = [...manualPrincipalSet].sort((a,b)=>a-b);
-  lastInvertidaGame = null;
-  lastTecnicaGames = null;
-  alert("✅ Seu jogo virou o Jogo Principal!");
-  // Atualiza botões e libera invertida/técnica
-  updateCheckButtons();
-}
 
 function gerarInvertida(){
   if(!access.premium){ alert("🔒 Invertida exige Premium."); return; }
@@ -1861,7 +1982,7 @@ function gerarInvertida(){
   document.getElementById("invertidaArea").innerHTML = `
     <div class="cartaoWrap">
       <div class="box">
-        <b>🎯 Principal</b>
+        <b>🎯 Principal (atual)</b>
         <div class="numbers" style="justify-content:flex-start">${lastPrincipalGame.map(n=>`<div class="ball">${format2(n)}</div>`).join("")}</div>
         ${renderCartao(lastPrincipalGame, "on")}
       </div>
@@ -2025,18 +2146,28 @@ function montarTelaCheck(){
 
 <script>
 /* =========================
-   15P (com explicações e tooltips)
+   15P (mais forte + editor manual)
 ========================= */
 function calcCoocAndStats(concursos){
   const n = concursos.length;
   const freq = Array(26).fill(0);
   const co = Array.from({length:26}, ()=>Array(26).fill(0));
 
-  concursos.forEach(c=>{
+  // recência (exponencial)
+  const decay = Array(26).fill(0);
+  const lastSeen = Array(26).fill(-1);
+  const DECAY = 0.92;
+
+  concursos.forEach((c,idx)=>{
     const nums = (c.dezenas||[])
       .map(d=>Number(String(d).replace(/^0+/,"")))
       .filter(x=>x>=1 && x<=25);
-    nums.forEach(a=>freq[a]++);
+    const w = Math.pow(DECAY, (n-1-idx));
+
+    nums.forEach(a=>{
+      freq[a]++; decay[a]+=w; lastSeen[a]=idx;
+    });
+
     for(let i=0;i<nums.length;i++){
       for(let j=i+1;j<nums.length;j++){
         const a=nums[i], b=nums[j];
@@ -2048,6 +2179,11 @@ function calcCoocAndStats(concursos){
   const p = Array(26).fill(0);
   for(let i=1;i<=25;i++) p[i] = freq[i] / Math.max(1,n);
 
+  const gap = Array(26).fill(999);
+  for(let i=1;i<=25;i++){
+    gap[i] = (lastSeen[i]===-1) ? n : (n-1-lastSeen[i]);
+  }
+
   const lift = Array.from({length:26}, ()=>Array(26).fill(0));
   for(let a=1;a<=25;a++){
     for(let b=1;b<=25;b++){
@@ -2057,12 +2193,17 @@ function calcCoocAndStats(concursos){
       lift[a][b] = denom>0 ? (pab/denom) : 0;
     }
   }
-  return { n, freq, co, p, lift };
+  return { n, freq, co, p, lift, decay, gap };
 }
+
 function pairStrength(a,b, stats){
-  const {co, lift} = stats;
-  return (co[a][b] * 1.0) + (lift[a][b] * 2.2);
+  // força = cooc + lift + recência dos números
+  const {co, lift, decay} = stats;
+  const base = (co[a][b] * 1.0) + (lift[a][b] * 2.2);
+  const rec = (decay[a] + decay[b]) * 0.55;
+  return base + rec;
 }
+
 function groupStrength(group, stats){
   let sum=0, pairs=0;
   for(let i=0;i<group.length;i++){
@@ -2073,6 +2214,7 @@ function groupStrength(group, stats){
   }
   return { sum, avg: pairs? (sum/pairs):0 };
 }
+
 function groupCoSum(group, stats){
   const {co} = stats;
   let sum=0, pairs=0;
@@ -2084,6 +2226,7 @@ function groupCoSum(group, stats){
   }
   return { sum, avg: pairs? (sum/pairs):0 };
 }
+
 function groupLiftAvg(group, stats){
   const {lift} = stats;
   let sum=0, pairs=0;
@@ -2095,10 +2238,12 @@ function groupLiftAvg(group, stats){
   }
   return { sum, avg: pairs? (sum/pairs):0 };
 }
+
 function groupFreqSum(group, stats){
   const {freq} = stats;
   return group.reduce((a,n)=>a+freq[n],0);
 }
+
 function topPairsInGroup(group, stats, topN=3){
   const arr=[];
   for(let i=0;i<group.length;i++){
@@ -2121,55 +2266,82 @@ function worstPairsInGroup(group, stats, topN=3){
   arr.sort((x,y)=>x.score-y.score);
   return arr.slice(0, topN);
 }
+
+/* ✅ NOVO: construção inicial por score (freq + recência + atraso controlado) */
 function buildInitialLines(stats){
   const order = [];
-  for(let i=1;i<=25;i++) order.push(i);
-  order.sort((a,b)=>stats.freq[b]-stats.freq[a]);
+  for(let i=1;i<=25;i++){
+    // score: frequência + recência, com bônus leve para atraso (sem exagero)
+    const s = (stats.freq[i]*1.0) + (stats.decay[i]*3.0) + Math.min(6, stats.gap[i]*0.35);
+    order.push({i, s});
+  }
+  order.sort((a,b)=>b.s-a.s);
 
   const lines = [[],[],[],[],[]];
-  for(let i=0;i<order.length;i++) lines[i%5].push(order[i]);
+  // distribuição round-robin para já evitar concentração
+  for(let k=0;k<order.length;k++){
+    lines[k%5].push(order[k].i);
+  }
   lines.forEach(l=>l.sort((a,b)=>a-b));
   return lines;
 }
-function objective(lines, stats){
-  const strongIdx=[0,1,2];
-  const diverseIdx=[3,4];
-  let strong=0, diverse=0, diverseFreq=0;
 
-  strongIdx.forEach(i=> strong += groupStrength(lines[i], stats).sum );
-  diverseIdx.forEach(i=>{
-    diverse += groupStrength(lines[i], stats).sum;
-    diverseFreq += groupFreqSum(lines[i], stats);
+/* ✅ NOVO: penalidades por paridade + bloco + mix de frequências */
+function objective(lines, stats){
+  const scoredLines = lines.map(l=>{
+    const st = groupStrength(l, stats).sum;
+    const pares = l.filter(n=>n%2===0).length;
+    const imp = 5 - pares;
+    const blocos = distribuicaoBlocos(l);
+    const maxBlock = Math.max(blocos.A,blocos.B,blocos.C,blocos.D,blocos.E);
+
+    // mistura freq (evitar 5 todas muito quentes ou muito frias)
+    const fvals = l.map(n=>stats.freq[n]).sort((a,b)=>a-b);
+    const spread = (fvals[4]-fvals[0]);
+
+    let penalty=0;
+    // paridade ideal na linha: 2/3 ou 3/2
+    if(!(pares===2 || pares===3)) penalty += 6;
+
+    // bloco: evitar 4 ou 5 no mesmo bloco
+    if(maxBlock>=4) penalty += (maxBlock-3)*10;
+
+    // spread mínimo (mistura) — se muito baixo, é “tudo igual”
+    if(spread<=1) penalty += 6;
+
+    return { st, penalty };
   });
 
-  function bloco(n){ return Math.floor((n-1)/5)+1; }
-  let blockPenalty=0;
-  for(const l of lines){
-    const count=[0,0,0,0,0,0];
-    l.forEach(n=>count[bloco(n)]++);
-    const maxb=Math.max(...count);
-    if(maxb>=4) blockPenalty += (maxb-3)*8;
-  }
+  // 3 fortes + 2 diversas
+  const sorted = scoredLines.slice().sort((a,b)=> (b.st-b.penalty) - (a.st-a.penalty));
+  const strong = sorted.slice(0,3).reduce((a,x)=>a+(x.st - x.penalty),0);
+  const diverse = sorted.slice(3).reduce((a,x)=>a+(x.st - x.penalty),0);
 
-  return (strong * 1.0) - (diverse * 1.15) + (diverseFreq * 0.12) - blockPenalty;
+  // diversidade: queremos 2 linhas com menor cooc e penalty baixo
+  return (strong * 1.0) + (diverse * 0.55);
 }
+
 function optimizeLines(lines, stats){
   let best = lines.map(l=>l.slice());
   let bestScore = objective(best, stats);
-  function clone(x){ return x.map(l=>l.slice()); }
 
-  const ITER = 3500;
+  function clone(x){ return x.map(l=>l.slice()); }
+  const ITER = 5200;
+
   for(let t=0;t<ITER;t++){
     const cand = clone(best);
+
     const i = Math.floor(Math.random()*5);
     let j = Math.floor(Math.random()*5);
     if(i===j) j = (j+1)%5;
 
     const ai = Math.floor(Math.random()*5);
     const aj = Math.floor(Math.random()*5);
+
     const tmp = cand[i][ai];
     cand[i][ai] = cand[j][aj];
     cand[j][aj] = tmp;
+
     cand[i].sort((a,b)=>a-b);
     cand[j].sort((a,b)=>a-b);
 
@@ -2179,12 +2351,16 @@ function optimizeLines(lines, stats){
     }
   }
 
-  const scored = best.map((l,idx)=>({ idx, l, s: groupStrength(l,stats).sum }));
-  scored.sort((a,b)=>b.s-a.s);
-  const strong = scored.slice(0,3).map(x=>x.l);
-  const diverse = scored.slice(3).map(x=>x.l);
+  // ordena linhas por força (para explicar)
+  const withScore = best.map((l)=>({l, s: groupStrength(l,stats).sum}));
+  withScore.sort((a,b)=>b.s-a.s);
+
+  const strong = withScore.slice(0,3).map(x=>x.l);
+  const diverse = withScore.slice(3).map(x=>x.l);
+
   return strong.concat(diverse);
 }
+
 function combos3de5(){
   const r=[];
   for(let a=1;a<=3;a++){
@@ -2204,9 +2380,11 @@ function gerarJogos15P(linhas){
     return sortNum([...set]);
   });
 }
+
 function renderBallsInline(nums){
   return nums.map(n=>`<div class="ball">${format2(n)}</div>`).join("");
 }
+
 function explainLine(lineIdx, line, stats, kind){
   const gs = groupStrength(line, stats);
   const co = groupCoSum(line, stats);
@@ -2220,8 +2398,8 @@ function explainLine(lineIdx, line, stats, kind){
   }).join(" ");
 
   const resumo = (kind==="forte")
-    ? `Linha montada com <b>alta coocorrência</b> e <b>lift alto</b> (dezenas que aparecem juntas acima do esperado no período).`
-    : `Linha montada para ser <b>diversa</b> (pares com coocorrência e lift menores), mantendo frequência aceitável.`;
+    ? `Linha construída combinando <b>frequência + recência</b> com pares que “andam juntos” (coocorrência e lift).`
+    : `Linha construída para ser <b>diversa</b>, evitando excesso de pares muito “colados”, mantendo mix de frequência.`;
 
   return `
     <div class="box">
@@ -2246,6 +2424,144 @@ function explainLine(lineIdx, line, stats, kind){
   `;
 }
 
+/* ===== EDITOR MANUAL 15P ===== */
+function initUserLines15FromSystem(lines){
+  linesSystem15 = lines.map(l=>l.slice());
+  linesUser15 = lines.map(l=>l.slice());
+  linesUser15[4] = [];   // ✅ Linha 5 em branco
+  activeLine15 = 4;
+}
+
+function setActiveLine15(i){ activeLine15=i; render15Editor(); }
+
+function usedNumbersExceptLine(lineIdx){
+  const used = new Set();
+  for(let i=0;i<5;i++){
+    if(i===lineIdx) continue;
+    (linesUser15?.[i]||[]).forEach(n=>used.add(n));
+  }
+  return used;
+}
+
+function render15Editor(){
+  const root = document.getElementById("editor15Area");
+  if(!root || !linesUser15) return;
+
+  const lineBtns = [1,2,3,4,5].map(i=>{
+    return `<button class="lineBtn ${activeLine15===i-1?"on":""}" type="button" onclick="setActiveLine15(${i-1})">Linha ${i}</button>`;
+  }).join("");
+
+  const current = linesUser15[activeLine15] || [];
+  const used = usedNumbersExceptLine(activeLine15);
+
+  root.innerHTML = `
+    <div class="box" style="margin-top:12px">
+      <b>🧩 Monte suas linhas (15P) — manual</b>
+      <div class="mini" style="margin-top:6px">
+        Selecione uma linha e complete com <b>5 dezenas</b>. Não permitimos repetição entre linhas (mantém a lógica dos 10 jogos).
+      </div>
+
+      <div class="lineTabs">${lineBtns}</div>
+
+      <div class="mini" style="margin-top:10px"><b>Linha ${activeLine15+1}:</b></div>
+      <div class="slotRow">
+        ${[0,1,2,3,4].map(i=>`<div class="slot">${current[i] ? format2(current[i]) : "—"}</div>`).join("")}
+      </div>
+
+      <div class="pickGrid" id="pickGrid15">
+        ${[...Array(25)].map((_,i)=>{
+          const n=i+1;
+          const sel = current.includes(n) ? " sel" : "";
+          const lock = used.has(n) ? " lock" : "";
+          return `<div class="pickCell${sel}${lock}" data-n="${n}">${format2(n)}</div>`;
+        }).join("")}
+      </div>
+
+      <div class="row" style="margin-top:12px">
+        <div class="col">
+          <button class="btn btnGhost" type="button" onclick="linesUser15[activeLine15]=[];render15Editor()">Limpar linha</button>
+        </div>
+        <div class="col">
+          <button class="btn btnPrimary" type="button" onclick="gerar15PComMinhasLinhas()">Gerar 10 jogos (minhas linhas)</button>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:10px">
+        <div class="col">
+          <button class="btn btnGhost" type="button" onclick="initUserLines15FromSystem(linesSystem15);render15Editor();document.getElementById('user15Output').innerHTML=''">Resetar para linhas do sistema</button>
+        </div>
+        <div class="col">
+          <button class="btn btnGhost" type="button" onclick="goView('view15p')">Ok</button>
+        </div>
+      </div>
+
+      <div class="mini" style="margin-top:10px">
+        Dica PRIME: em cada linha, tente manter <b>2/3 pares</b>, mix de frequência e evitar 4+ no mesmo bloco.
+      </div>
+    </div>
+  `;
+
+  bindPickGrid("pickGrid15", (n)=>{
+    if(used.has(n)) return;
+    const line = linesUser15[activeLine15];
+    const idx = line.indexOf(n);
+    if(idx>=0) line.splice(idx,1);
+    else{
+      if(line.length>=5) return alert("Essa linha já tem 5 dezenas.");
+      line.push(n); line.sort((a,b)=>a-b);
+    }
+    render15Editor();
+  });
+}
+
+function allLinesComplete(lines){
+  return lines && lines.length===5 && lines.every(l=>Array.isArray(l) && l.length===5);
+}
+
+function gerar15PComMinhasLinhas(){
+  if(!allLinesComplete(linesUser15)){
+    return alert("Complete as 5 linhas com 5 dezenas cada.");
+  }
+
+  const jogos = gerarJogos15P(linesUser15);
+
+  const jogosHtml = jogos.map((j, idx)=>`
+    <div class="box">
+      <b>Jogo ${idx+1}</b>
+      <div class="numbers" style="justify-content:flex-start;margin-top:10px">${renderBallsInline(j)}</div>
+    </div>
+  `).join("");
+
+  const linesTable = linesUser15.map((l,idx)=>`
+    <tr>
+      <td><b>${idx+1}</b></td>
+      <td class="mono">${l.map(format2).join(" - ")}</td>
+    </tr>
+  `).join("");
+
+  document.getElementById("user15Output").innerHTML = `
+    <div class="box" style="margin-top:12px">
+      <b>📌 Suas linhas (manual)</b>
+      <div style="margin-top:10px;overflow:auto">
+        <table class="table">
+          <thead><tr><th>Linha</th><th>Dezenas</th></tr></thead>
+          <tbody>${linesTable}</tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="box" style="margin-top:12px">
+      <b>🎯 Seus 10 jogos (com suas linhas)</b>
+      <div class="grid" style="margin-top:12px">${jogosHtml}</div>
+      <div class="mini" style="margin-top:10px">
+        Este método cobre todas as combinações de 3 linhas entre 5 (10 jogos). <b>Não é garantia de prêmio</b>.
+      </div>
+    </div>
+  `;
+
+  alert("✅ 10 jogos gerados com suas linhas!");
+}
+
 async function gerar15P(){
   const can15p = ((access.premium && access.addon15) || access.isAdmin);
   if(!can15p) return alert("🔒 O recurso '15 pontos garantido' é um EXTRA comprado separadamente (libera via claims).");
@@ -2259,6 +2575,7 @@ async function gerar15P(){
     setProgress(82);
 
     const stats = calcCoocAndStats(payload.concursos);
+
     let lines = buildInitialLines(stats);
     lines = optimizeLines(lines, stats);
 
@@ -2267,6 +2584,8 @@ async function gerar15P(){
 
     setStatus(false,"");
     setProgress(0);
+
+    initUserLines15FromSystem(lines);
 
     const lineMeta = lines.map((l,idx)=>({
       idx: idx+1,
@@ -2290,21 +2609,21 @@ async function gerar15P(){
     document.getElementById("p15Area").innerHTML = `
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
         <div>
-          <div style="font-weight:1000;font-size:16px">✅ 15 Pontos Garantido • 10 jogos</div>
+          <div style="font-weight:1000;font-size:16px">✅ 15 Pontos (Estratégia) • 10 jogos</div>
           <div class="mini">Janela: <b>${payload.inicio}</b> a <b>${payload.ultimo}</b> (${payload.concursos.length} concursos)</div>
           <div class="mini" style="margin-top:8px">
-            📌 Regra: <b>acertando 3 linhas completas garante os 15 pontos</b> (porque os 10 jogos cobrem todas as combinações de 3 linhas entre 5).
+            📌 Regra do método: cobrimos todas as combinações de <b>3 linhas entre 5</b> (10 jogos). <b>Não garante premiação</b>.
           </div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btnGhost" type="button" onclick="verConcursos()">📅 Ver concursos</button>
         </div>
       </div>
 
-      <div id="editor15Area"></div>
-<div id="user15Output"></div>
-
       <div class="box" style="margin-top:12px">
-        <b>📌 Linhas 1 a 5 (5 dezenas por linha)</b>
+        <b>📌 Linhas 1 a 5 (geradas pelo sistema)</b>
         <div class="mini" style="margin-top:6px">
-          Passe o mouse nos títulos para entender a métrica.
+          O sistema usa: <b>frequência + recência + coocorrência + lift</b>, com controle de paridade e blocos.
         </div>
         <div style="margin-top:12px;overflow:auto">
           <table class="table">
@@ -2342,7 +2661,19 @@ async function gerar15P(){
             </tbody>
           </table>
         </div>
+
+        <div class="row" style="margin-top:10px">
+          <div class="col">
+            <button class="btn btnBlue" type="button" onclick="render15Editor()">✍️ Criar minhas linhas (manual)</button>
+          </div>
+          <div class="col">
+            <button class="btn btnGhost" type="button" onclick="document.getElementById('user15Output').innerHTML=''">Limpar resultado manual</button>
+          </div>
+        </div>
       </div>
+
+      <div id="editor15Area"></div>
+      <div id="user15Output"></div>
 
       <div class="box" style="margin-top:12px">
         <b>🔍 Explicação detalhada das linhas</b>
@@ -2356,8 +2687,11 @@ async function gerar15P(){
       </div>
 
       <div class="box" style="margin-top:12px">
-        <b>🎯 Seus 10 jogos</b>
+        <b>🎯 10 jogos do sistema</b>
         <div class="grid" style="margin-top:12px">${jogosHtml}</div>
+        <div class="mini" style="margin-top:10px">
+          Estratégia estatística com base na janela selecionada. <b>Não há garantia de acerto</b>.
+        </div>
       </div>
 
       <div class="tinyFoot">Fonte: ${sourceInfo.source || "—"} • Modo: ${String(sourceInfo.mode||"—").toUpperCase()}</div>
