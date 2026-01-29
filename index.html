@@ -1,62 +1,98 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Lotofácil Prime Analytics</title>
 
 <style>
-/* ======= SEU CSS PRIME (INALTERADO) ======= */
-/* (mantive exatamente a base do seu layout) */
 :root{
   --bg1:#050b1a; --bg2:#0b1636;
-  --card:#07122a; --text:#f8fafc; --muted:#cbd5e1; --muted2:#94a3b8;
+  --card:#07122a; --text:#f8fafc;
   --green:#22c55e; --green2:#16a34a;
-  --blue:#38bdf8; --blue2:#0ea5e9;
-  --purple:#a78bfa; --purple2:#7c3aed;
-  --yellow:#facc15; --orange:#fb923c;
-  --red:#fb7185; --red2:#ef4444;
-  --stroke: rgba(255,255,255,.10);
+  --stroke: rgba(255,255,255,.12);
   --shadow: 0 22px 70px rgba(0,0,0,.45);
 }
-*{box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial}
-body{
-  margin:0;color:var(--text);
-  background:linear-gradient(135deg,var(--bg1),var(--bg2));
-  min-height:100vh;
+
+*{
+  box-sizing:border-box;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
 }
-.center{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:18px}
+
+body{
+  margin:0;
+  min-height:100vh;
+  color:var(--text);
+  background:linear-gradient(135deg,var(--bg1),var(--bg2));
+}
+
+.center{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+
 .card{
+  width:100%;
+  max-width:420px;
   background:rgba(255,255,255,.06);
   border:1px solid var(--stroke);
-  border-radius:20px;padding:18px;
+  border-radius:18px;
+  padding:20px;
   box-shadow:var(--shadow);
-  max-width:520px;width:100%;
 }
-.title{font-size:26px;font-weight:900;text-align:center}
-label{display:block;font-size:12px;margin-top:10px}
+
+.title{
+  text-align:center;
+  font-size:26px;
+  font-weight:900;
+  margin-bottom:16px;
+}
+
+label{
+  font-size:12px;
+  margin-top:10px;
+  display:block;
+}
+
 input{
-  width:100%;padding:12px;border-radius:12px;
-  border:1px solid var(--stroke);background:#020617;color:#fff
+  width:100%;
+  margin-top:4px;
+  padding:12px;
+  border-radius:12px;
+  border:1px solid var(--stroke);
+  background:#020617;
+  color:#fff;
 }
+
 button{
-  width:100%;margin-top:14px;
-  padding:14px;border-radius:14px;border:none;
+  width:100%;
+  margin-top:16px;
+  padding:14px;
+  border:none;
+  border-radius:14px;
   background:linear-gradient(135deg,var(--green),var(--green2));
-  font-weight:900;cursor:pointer
+  font-weight:900;
+  cursor:pointer;
 }
-#app{display:none;padding:20px}
+
+#app{
+  display:none;
+  padding:20px;
+}
 </style>
 </head>
 
 <body>
 
-<!-- 🔐 FIREBASE SDKs (HTML PURO – NÃO MEXER) -->
+<!-- 🔐 FIREBASE SDKs (HTML PURO) -->
 <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth-compat.js"></script>
 
 <script>
-/* ======= FIREBASE CONFIG ======= */
+/* ===== FIREBASE CONFIG ===== */
 const firebaseConfig = {
   apiKey: "AIzaSyCodYgkQG0TUaqCk1i-0QcSB8GIt0iWp8c",
   authDomain: "lotofacil-prime.firebaseapp.com",
@@ -69,46 +105,52 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 
-/* ======= LOGIN MASTER ======= */
+/* ===== LOGIN MASTER ===== */
 const MASTER_EMAIL = "admin@lotofacilprime.com";
 </script>
 
 <!-- 🔐 LOGIN -->
-<div class="center" id="login">
+<div class="center" id="loginBox">
   <div class="card">
     <div class="title">🎯 Lotofácil Prime</div>
 
     <label>Email</label>
-    <input id="email" type="email" placeholder="email master" />
+    <input id="email" type="email" placeholder="email master">
 
     <label>Senha</label>
-    <input id="senha" type="password" placeholder="senha" />
+    <input id="senha" type="password" placeholder="senha">
 
     <button onclick="login()">Entrar</button>
   </div>
 </div>
 
-<!-- 🚀 APP COMPLETO -->
+<!-- 🚀 APP -->
 <div id="app">
   <h1>🎯 Lotofácil Prime Analytics</h1>
-  <p>✅ Premium, Invertida, Técnica Premiada e 15P liberados.</p>
-  <p>Este é o mesmo layout/análises que você já tem — agora protegido.</p>
+  <p>Login MASTER confirmado.</p>
+  <p>Agora você pode reencaixar todo o layout e análises aqui dentro.</p>
 </div>
 
 <script>
 function login(){
-  const email = email.value;
-  const senha = document.getElementById("senha").value;
+  const emailValue = document.getElementById("email").value.trim();
+  const senhaValue = document.getElementById("senha").value;
 
-  auth.signInWithEmailAndPassword(email, senha)
+  if(!emailValue || !senhaValue){
+    alert("Preencha email e senha.");
+    return;
+  }
+
+  auth.signInWithEmailAndPassword(emailValue, senhaValue)
     .then(res=>{
       if(res.user.email !== MASTER_EMAIL){
-        alert("Este usuário não tem permissão.");
+        alert("Usuário sem permissão.");
         auth.signOut();
         return;
       }
-      document.getElementById("login").style.display="none";
-      document.getElementById("app").style.display="block";
+
+      document.getElementById("loginBox").style.display = "none";
+      document.getElementById("app").style.display = "block";
     })
     .catch(err=>{
       alert("Erro no login: " + err.message);
