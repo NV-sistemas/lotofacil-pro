@@ -517,17 +517,7 @@ const functions = firebase.app().functions("us-central1");
           <p class="actionDesc">Gera 2 jogos extras a partir do Principal (reordenação por blocos).</p>
         </div>
 
-        <!-- EXTRA -->
-        <div class="actionCard extraCard" id="btnHome15p" role="button" tabindex="0">
-          <span class="extraBadge">EXTRA</span>
-          <div class="extraHeadline">
-            <p class="actionTitle" style="margin:0">✅ 15 pontos garantido</p>
-            <span class="extraHighlight">ESTRATÉGIA (10 JOGOS)</span>
-          </div>
-          <p class="actionDesc">Tela separada: 5 linhas + análise avançada e 10 jogos. Você também pode criar suas próprias linhas.</p>
-        </div>
-      </div>
-      <!-- =========================
+         <!-- =========================
      ✅ NOVO CARD: JOGOS SALVOS
      (SEMPRE ÚLTIMO)
 ========================= -->
@@ -553,6 +543,17 @@ const functions = firebase.app().functions("us-central1");
     </div>
   </div>
 
+        <!-- EXTRA -->
+        <div class="actionCard extraCard" id="btnHome15p" role="button" tabindex="0">
+          <span class="extraBadge">EXTRA</span>
+          <div class="extraHeadline">
+            <p class="actionTitle" style="margin:0">✅ 15 pontos garantido</p>
+            <span class="extraHighlight">ESTRATÉGIA (10 JOGOS)</span>
+          </div>
+          <p class="actionDesc">Tela separada: 5 linhas + análise avançada e 10 jogos. Você também pode criar suas próprias linhas.</p>
+        </div>
+      </div>
+     
   <!-- TELA: ANÁLISE -->
   <div class="view" id="viewAnalise">
     <div class="topNav">
@@ -846,6 +847,7 @@ function aplicarAcessos(){
   const btnInvertida= document.getElementById("btnHomeInvertida");
   const btnTecnica  = document.getElementById("btnHomeTecnica");
   const btn15       = document.getElementById("btnHome15p");
+  const btnSaved = document.getElementById("btnHomeSaved");
 
   setCardEnabled(btnAnalise, access.premium, acaoAnalise, "🔒 Gerar análise exige Premium.");
 
@@ -858,6 +860,10 @@ function aplicarAcessos(){
     if(!lastPrincipalGame) return alert("Gere primeiro um Jogo Principal.");
     goView("viewTecnica"); gerarTecnicaPremiada();
   }, "🔒 Técnica premiada exige Premium.");
+
+  setCardEnabled(btnSaved, access.premium, ()=>{
+  goView("viewSavedGames");
+}, "🔒 Jogos salvos exige Premium.");
 
   if(!access.premium && isFreeUsed()){
     btnPrincipal?.classList.add("disabled");
@@ -1858,6 +1864,7 @@ let lastPrincipalMeta=null;
 
 let lastInvertidaGame=null;
 let lastTecnicaGames=null;
+let last15Games = null;   // guarda os 10 jogos gerados do 15P
 
 /* ✅ MANUAL (Principal) */
 let manualPrincipalSet = new Set();
@@ -3113,6 +3120,7 @@ async function gerar15P(){
     lines = optimizeLines(lines, stats);
 
     const jogos = gerarJogos15P(lines);
+    last15Games = jogos.map(j => j.slice());
     const sourceInfo = { source: payload.source, mode: payload.mode };
 
     setStatus(false,"");
@@ -3223,6 +3231,29 @@ async function gerar15P(){
       </div>
 
       <div class="box" style="margin-top:12px">
+      <div class="box" style="margin-top:12px">
+  <b>✅ Conferir os 10 jogos do 15P (detalhado por concurso)</b>
+  <div class="mini" style="margin-top:6px">
+    Escolha quantos concursos anteriores você quer testar (limite 30).
+  </div>
+
+  <div class="row" style="margin-top:10px">
+    <div class="col">
+      <label>Conferir últimos concursos</label>
+      <select id="p15CheckQtd">
+        <option value="5">Últimos 5</option>
+        <option value="10" selected>Últimos 10</option>
+        <option value="20">Últimos 20</option>
+        <option value="30">Últimos 30</option>
+      </select>
+    </div>
+    <div class="col" style="display:flex;align-items:flex-end">
+      <button class="btn btnPrimary" type="button" onclick="check15PGames()">Conferir agora</button>
+    </div>
+  </div>
+
+  <div id="p15CheckResult" style="margin-top:12px"></div>
+</div>
         <b>🎯 10 jogos do sistema</b>
         <div class="grid" style="margin-top:12px">${jogosHtml}</div>
         <div class="mini" style="margin-top:10px">
@@ -3244,6 +3275,13 @@ async function gerar15P(){
     `;
     goView("view15p");
   }
+}
+async function gerar15P(){
+  ...
+}
+
+async function check15PGames(){
+  ...
 }
 </script>
 
@@ -3273,13 +3311,77 @@ document.getElementById("btnHomeSaved").onclick = ()=>{
   goView("viewSavedGames");
 };
 
-function checkSavedGames(){
+async function checkSavedGames(){
   const qtd = Number(document.getElementById("savedCheckQtd").value);
 
-  if(!lastPayload || !lastPayload.concursos){
-    alert("Gere uma análise primeiro para carregar os concursos.");
+  // garante que temos concursos suficientes carregados
+  await prepararContextoBase(qtd);
+  const concursos = lastPayload.concursos.slice(-qtd);
+
+  // jogos disponíveis: pacote salvo + jogos atuais gerados
+  const saved = loadLocal(SAVE_PACK_KEY)?.data || null;
+
+  const jogos = [
+    saved?.principal, saved?.invertida, saved?.tecnica1, saved?.tecnica2,
+    lastPrincipalGame, lastInvertidaGame, lastTecnicaGames?.g1, lastTecnicaGames?.g2
+  ].filter(x=>Array.isArray(x) && x.length);
+
+  if(!jogos.length){
+    alert("Nenhum jogo salvo/gerado ainda.");
     return;
   }
+
+  function hitsForGame(game, concursoDezenas){
+    const set = new Set((concursoDezenas||[]).map(toNum));
+    return game.filter(n=>set.has(Number(n))).length;
+  }
+
+  let html = `
+    <div class="box">
+      <b>📌 Conferência detalhada</b>
+      <div class="mini" style="margin-top:6px">
+        Base: últimos <b>${qtd}</b> concursos (${concursos[0]?.concurso} a ${concursos[concursos.length-1]?.concurso})
+      </div>
+    </div>
+  `;
+
+  jogos.forEach((game, idx)=>{
+    let sum=0, best=-1, worst=99;
+
+    const rows = concursos.map(c=>{
+      const h = hitsForGame(game, c.dezenas);
+      sum += h;
+      best = Math.max(best, h);
+      worst = Math.min(worst, h);
+      return `<tr>
+        <td><b>${c.concurso}</b></td>
+        <td>${h} acertos</td>
+      </tr>`;
+    }).join("");
+
+    const avg = (sum / concursos.length).toFixed(1);
+
+    html += `
+      <div class="box" style="margin-top:12px">
+        <b>Jogo ${idx+1}</b>
+        <div class="mini" style="margin-top:6px">
+          Média: <b>${avg}</b> • Melhor: <b>${best}</b> • Pior: <b>${worst}</b>
+        </div>
+        <div class="numbers" style="justify-content:flex-start;margin-top:10px">
+          ${game.map(n=>`<div class="ball">${format2(n)}</div>`).join("")}
+        </div>
+        <div style="margin-top:10px;overflow:auto">
+          <table class="table">
+            <thead><tr><th>Concurso</th><th>Resultado</th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  });
+
+  document.getElementById("savedGamesResult").innerHTML = html;
+}
 
   const concursos = lastPayload.concursos.slice(-qtd);
 
