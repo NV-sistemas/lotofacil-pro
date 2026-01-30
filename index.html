@@ -1265,10 +1265,11 @@ if(repsCount === 9 || repsCount === 11) sc -= 1;
   }
 
   // fallback: se por algum motivo não achou (raro), usa o antigo
-  if(!best){
-    const fallback = gerarJogoForte(freq, metrics);
-    return { jogo: fallback, motivos: buildMotivos(fallback, ultimo, freq, metrics) };
-  }
+  // fallback: se por algum motivo não achou (raro), usa o antigo
+if(!best){
+  const fallback = gerarJogoForte(freq, metrics);
+  return { jogo: fallback, motivos: buildMotivos(fallback, ultimo, freq, metrics) };
+}
 
   // monta motivos (pra mostrar ao usuário)
   const motivos = buildMotivos(best.jogo, ultimo, freq, metrics);
@@ -1576,9 +1577,8 @@ function renderBlocksPrime(totals, patterns, total){
   }).join("");
 
   return `
-    <div class="box" style="margin-top:12px">
-      <b>🧩 Blocos A–E (o que mais aparece e o que mais sai junto)</b>
-      <div class="mini" style="margin-top:6px">Totais por bloco na janela + padrões A–E mais repetidos por concurso.</div>
+  <div class="box" style="margin-top:12px">
+    <b>🧩 Blocos A–E</b>      <div class="mini" style="margin-top:6px">Totais por bloco na janela + padrões A–E mais repetidos por concurso.</div>
 
       <div style="margin-top:10px">
         ${bar("A (01–05)", totals.A)}
