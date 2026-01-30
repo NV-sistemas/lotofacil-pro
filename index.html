@@ -2291,6 +2291,10 @@ function bestSubgroupTogether(line, k, drawSets){
       comb.pop();
     }
   }
+  rec(0, []);
+  if(best.count < 0) best.count = 0;
+  return best;
+}
 
   rec(0, []);
   if(best.count < 0) best.count = 0;
@@ -2328,6 +2332,11 @@ function calcCoocAndStats(concursos){
       }
     }
   });
+  // ✅ sets por concurso (para contar grupos 2/3/4/5 juntas)
+  const drawSets = concursos.map(c=>{
+    const arr = (c.dezenas||[]).map(toNum).filter(x=>x>=1 && x<=25);
+    return new Set(arr);
+  });
 
   const p = Array(26).fill(0);
   for(let i=1;i<=25;i++) p[i] = freq[i] / Math.max(1,n);
@@ -2346,7 +2355,7 @@ function calcCoocAndStats(concursos){
       lift[a][b] = denom>0 ? (pab/denom) : 0;
     }
   }
-  return { n, freq, co, p, lift, decay, gap, drawSets };
+return { n, freq, co, p, lift, decay, gap, drawSets };
 }
 
 function pairStrength(a,b, stats){
@@ -2543,6 +2552,15 @@ function explainLine(lineIdx, line, stats, kind){
   const co = groupCoSum(line, stats);
   const lf = groupLiftAvg(line, stats);
   const fs = groupFreqSum(line, stats);
+    // ✅ grupos que mais saem juntos (2,3,4,5) dentro desta linha
+  const g5 = { group: line.slice().sort((a,b)=>a-b), count: countGroupTogether(line, stats.drawSets) };
+  const g4 = bestSubgroupTogether(line, 4, stats.drawSets);
+  const g3 = bestSubgroupTogether(line, 3, stats.drawSets);
+  const g2 = bestSubgroupTogether(line, 2, stats.drawSets);
+
+  function fmtGroup(g){
+    return (g.group || []).map(format2).join("-");
+  }
 
   const pairs = (kind==="forte") ? topPairsInGroup(line, stats, 3) : worstPairsInGroup(line, stats, 3);
   const pairsTxt = pairs.map(p=>{
@@ -2568,6 +2586,13 @@ function explainLine(lineIdx, line, stats, kind){
 
       <div class="numbers" style="justify-content:flex-start;margin-top:10px">${renderBallsInline(line)}</div>
       <div class="mini"><b>Por que se juntaram:</b> ${resumo}</div>
+            <div class="mini" style="margin-top:10px">
+        <b>Grupos que mais saem juntos (na janela):</b><br/>
+        <span class="mono"><b>5 juntas:</b> ${fmtGroup(g5)} • <b>${g5.count}x</b></span><br/>
+        <span class="mono"><b>4 juntas:</b> ${fmtGroup(g4)} • <b>${g4.count}x</b></span><br/>
+        <span class="mono"><b>3 juntas:</b> ${fmtGroup(g3)} • <b>${g3.count}x</b></span><br/>
+        <span class="mono"><b>2 juntas:</b> ${fmtGroup(g2)} • <b>${g2.count}x</b></span>
+      </div>
 
       <div class="mini" style="margin-top:10px">
         <b>${kind==="forte" ? "Pares mais fortes" : "Pares mais fracos"}:</b>
