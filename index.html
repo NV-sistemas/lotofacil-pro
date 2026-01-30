@@ -1371,6 +1371,116 @@ function getLowPairs(co){
   return arr.sort((x,y)=>x.count-y.count).slice(0,12);
 }
 
+/* ===== NOVO: grupos do resumo que estão dentro do JOGO PRINCIPAL ===== */
+function filterGroupsInsideGame(game, groupsAll){ 
+  const set = new Set(game.map(Number));
+
+  const inside = [];
+  (groupsAll||[]).forEach(g=>{
+    const list = g.top || g.low || [];
+    const hit = list.filter(item=>{
+      const nums = item.nums || [];
+      return nums.every(n=>set.has(Number(n)));
+    });
+    if(hit.length) inside.push({ k: g.k, list: hit, kind: g.top ? "forte" : "fraco" });
+  });
+
+  return inside;
+}
+
+/* ===== NOVO: pares do resumo que estão dentro do JOGO PRINCIPAL ===== */
+function filterPairsInsideGame(game, pairs){
+  const set = new Set(game.map(Number));
+  return (pairs||[]).filter(p=> set.has(p.a) && set.has(p.b));
+}
+
+/* ===== NOVO: cache de resumo para não ficar lerdo ===== */
+function ensureResumoCache(payload){
+  if(!lastCtx) lastCtx = {};
+  if(lastCtx._resumoCacheOk) return;
+
+  // grupos fortes (podemos usar até 7 no principal)
+  lastCtx._fortesAll = getTopGroupsAll(payload.concursos, [7,6,5,4,3,2]);
+
+  // grupos raros (faz sentido até 5/4/3/2)
+  lastCtx._rarosAll = getLowGroupsAll(payload.concursos, [5,4,3,2], 10);
+
+  // pares raros
+  const st = (lastCtx._statsTmp) ? lastCtx._statsTmp : calcCoocAndStats(payload.concursos);
+  lastCtx._statsTmp = st;
+  lastCtx._paresRarosAll = getLowPairs(st.co);
+
+  lastCtx._resumoCacheOk = true;
+}
+
+function renderResumoMeuJogoHTML(jogo){
+  if(!lastPayload) return `<div class="box" style="margin-top:12px"><b>🎯 Resumo do seu jogo</b><div class="mini" style="margin-top:8px">Gere primeiro uma análise/jogo para carregar a janela.</div></div>`;
+
+  ensureResumoCache(lastPayload);
+
+  const fortesNoJogo = filterGroupsInsideGame(jogo, lastCtx._fortesAll);
+  const rarosNoJogo  = filterGroupsInsideGame(jogo, lastCtx._rarosAll);
+  const paresRarosNoJogo = filterPairsInsideGame(jogo, lastCtx._paresRarosAll);
+
+  const totalFortes = fortesNoJogo.reduce((a,g)=>a+g.list.length,0);
+  const totalRaros  = rarosNoJogo.reduce((a,g)=>a+g.list.length,0);
+
+  // “Selo” rápido
+  let selo = "Equilibrado ✅";
+  if(totalFortes >= totalRaros + 4) selo = "Jogo bem colado ✅ (muitos grupos fortes)";
+  if(totalRaros >= totalFortes + 4) selo = "Jogo bem diverso ✅ (muitos grupos raros)";
+
+  return `
+    <div class="box" style="margin-top:12px">
+      <b>🎯 Resumo do seu Jogo Principal (15 dezenas)</b>
+      <div class="mini" style="margin-top:8px">
+        Base: janela <b>${lastPayload.inicio}</b> a <b>${lastPayload.ultimo}</b>. • Selo: <b>${selo}</b>
+      </div>
+
+      <div class="grid" style="margin-top:12px">
+        <div class="box">
+          <b>✅ Grupos fortes dentro do seu jogo</b>
+          ${fortesNoJogo.length ? fortesNoJogo.map(g=>`
+            <div class="mini" style="margin-top:8px"><b>Grupos de ${g.k}</b></div>
+            ${g.list.slice(0,6).map(t=>`
+              <div class="mono">${t.nums.map(format2).join(" - ")} • ${t.count}x</div>
+            `).join("")}
+          `).join("") : `<div class="mini" style="margin-top:8px">— Nenhum grupo forte encontrado dentro do seu jogo.</div>`}
+        </div>
+
+        <div class="box">
+          <b>❌ Grupos raros (menos juntos) dentro do seu jogo</b>
+          ${rarosNoJogo.length ? rarosNoJogo.map(g=>`
+            <div class="mini" style="margin-top:8px"><b>Grupos de ${g.k}</b></div>
+            ${g.list.slice(0,6).map(t=>`
+              <div class="mono">${t.nums.map(format2).join(" - ")} • ${t.count}x</div>
+            `).join("")}
+          `).join("") : `<div class="mini" style="margin-top:8px">— Nenhum grupo raro encontrado dentro do seu jogo.</div>`}
+
+          <div class="hr"></div>
+          <b>⚠️ Pares raros dentro do jogo</b>
+          <div class="mini" style="margin-top:8px">
+            ${paresRarosNoJogo.length ? paresRarosNoJogo.slice(0,10).map(p=>`
+              <div class="mono">${format2(p.a)}-${format2(p.b)} • ${p.count}x</div>
+            `).join("") : "—"}
+          </div>
+        </div>
+      </div>
+
+      <div class="mini" style="margin-top:10px">
+        <b>Placar:</b>
+        Fortes: <b>${totalFortes}</b> • Raros: <b>${totalRaros}</b> • Pares raros: <b>${paresRarosNoJogo.length}</b>
+      </div>
+    </div>
+  `;
+}
+
+function updateResumoMeuJogo(jogo){
+  const el = document.getElementById("resumoMeuJogo");
+  if(!el) return;
+  el.innerHTML = renderResumoMeuJogoHTML(jogo);
+}
+
 function renderHotWarmColdPeriod(freq){
   const {hot,warm,cold} = buildHotWarmColdFromFreq(freq);
   return `
@@ -1812,7 +1922,7 @@ function renderManualPrincipalUI(){
 
 function usarManualComoPrincipal(){
   if(manualPrincipalSet.size !== 15){
-    return alert("Marque exatamente 15 dezenas.");
+    return  alert("Marque exatamente 15 dezenas.");
   }
   const jogo = [...manualPrincipalSet].sort((a,b)=>a-b);
 
@@ -1869,6 +1979,15 @@ async function acaoPrincipal(){
     const seq = contarSequencias(jogo);
     const blocos = distribuicaoBlocos(jogo);
     const reps = repetidasDoUltimo(jogo, payload.latest.dezenas);
+    // ✅ Resumo do JOGO PRINCIPAL baseado no quadro “mais/menos juntos”
+const gruposFortesAll = getTopGroupsAll(payload.concursos, [7,6,5,4,3,2]); // pode manter 7..2 no principal
+const gruposRarosAll  = getLowGroupsAll(payload.concursos, [5,4,3,2], 10);
+
+const fortesNoJogo = filterGroupsInsideGame(jogo, gruposFortesAll);
+const rarosNoJogo  = filterGroupsInsideGame(jogo, gruposRarosAll);
+
+const paresRarosAll = getLowPairs(statsTmp?.co || calcCoocAndStats(payload.concursos).co);
+const paresRarosNoJogo = filterPairsInsideGame(jogo, paresRarosAll);
     const gruposJuntos = getTopGroupsAll(payload.concursos);
 const statsTmp = calcCoocAndStats(payload.concursos);
 const gruposNaoJuntosPares = getLowPairs(statsTmp.co);
@@ -1913,6 +2032,52 @@ const gruposNaoJuntos345 = getLowGroupsAll(payload.concursos, [5,4,3], 6);
       </div>
 
       <div class="numbers">${balls}</div>
+      <!-- ✅ Resumo do jogo (auto OU manual) -->
+<div id="resumoMeuJogo"></div>
+      <div class="box" style="margin-top:12px">
+  <b>🎯 Resumo do seu Jogo Principal (15 dezenas)</b>
+  <div class="mini" style="margin-top:8px">
+    Aqui mostramos quais <b>grupos fortes</b> e quais <b>grupos raros</b> existem dentro das suas 15 dezenas.
+    Isso ajuda a entender se o jogo está mais “colado” (muito junto) ou mais “diverso”.
+  </div>
+
+  <div class="grid" style="margin-top:12px">
+    <div class="box">
+      <b>✅ Grupos fortes que estão no seu jogo</b>
+      ${fortesNoJogo.length ? fortesNoJogo.map(g=>`
+        <div class="mini" style="margin-top:8px"><b>Grupos de ${g.k}</b></div>
+        ${g.list.slice(0,6).map(t=>`
+          <div class="mono">${t.nums.map(format2).join(" - ")} • ${t.count}x</div>
+        `).join("")}
+      `).join("") : `<div class="mini" style="margin-top:8px">— Nenhum grupo forte encontrado dentro do seu jogo.</div>`}
+    </div>
+
+    <div class="box">
+      <b>❌ Grupos raros (menos juntos) que estão no seu jogo</b>
+      ${rarosNoJogo.length ? rarosNoJogo.map(g=>`
+        <div class="mini" style="margin-top:8px"><b>Grupos de ${g.k}</b></div>
+        ${g.list.slice(0,6).map(t=>`
+          <div class="mono">${t.nums.map(format2).join(" - ")} • ${t.count}x</div>
+        `).join("")}
+      `).join("") : `<div class="mini" style="margin-top:8px">— Nenhum grupo raro encontrado dentro do seu jogo.</div>`}
+
+      <div class="hr"></div>
+      <b>⚠️ Pares raros dentro do jogo</b>
+      <div class="mini" style="margin-top:8px">
+        ${paresRarosNoJogo.length ? paresRarosNoJogo.slice(0,10).map(p=>`
+          <div class="mono">${format2(p.a)}-${format2(p.b)} • ${p.count}x</div>
+        `).join("") : "—"}
+      </div>
+    </div>
+  </div>
+
+  <div class="mini" style="margin-top:10px">
+    <b>Placar rápido:</b>
+    Fortes no jogo: <b>${fortesNoJogo.reduce((a,g)=>a+g.list.length,0)}</b> •
+    Raros no jogo: <b>${rarosNoJogo.reduce((a,g)=>a+g.list.length,0)}</b> •
+    Pares raros no jogo: <b>${paresRarosNoJogo.length}</b>
+  </div>
+</div>
 
       <div class="box" style="margin-top:12px">
       <div class="box" style="margin-top:12px">
@@ -2027,6 +2192,9 @@ ${gruposNaoJuntosPares.map(p=>`
     `;
 
     goView("viewPrincipal");
+
+    // ✅ monta resumo do jogo atual (automático)
+updateResumoMeuJogo(lastPrincipalGame);
 
     // reset seleção manual para o usuário começar “do zero”
     manualPrincipalSet = new Set();
