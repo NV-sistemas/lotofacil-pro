@@ -1213,7 +1213,28 @@ function gerarJogoComRegrasUltimo(freq, metrics, dezenasUltimo){
   }
 
   for(let tries=0; tries<1200; tries++){
-    const r = 6 + Math.floor(Math.random()*6); // 6..11
+    // ✅ repetição com PESO (preferência em 7 e 8)
+function pickRWeighted(){
+  const opts = [
+    { r: 4, w: 1 },
+    { r: 5, w: 2 },
+    { r: 6, w: 3 },
+    { r: 7, w: 7 }, // ⭐ preferido
+    { r: 8, w: 7 }, // ⭐ preferido
+    { r: 9, w: 3 },
+    { r: 10, w: 2 },
+    { r: 11, w: 1 }
+  ];
+  const total = opts.reduce((a,x)=>a+x.w,0);
+  let roll = Math.random() * total;
+  for(const o of opts){
+    roll -= o.w;
+    if(roll <= 0) return o.r;
+  }
+  return 7;
+}
+
+    const r = pickRWeighted(); // 4..11 (com preferência em 7/8)
     const rep = pickRandom(ultimo, Math.min(r, ultimo.length));
     const restCount = 15 - rep.length;
 
@@ -1228,7 +1249,7 @@ function gerarJogoComRegrasUltimo(freq, metrics, dezenasUltimo){
 
     // garante que a quantidade de repetidas do último está entre 6 e 11
     const reps = jogo.filter(n=>setUlt.has(n));
-    if(reps.length < 6 || reps.length > 11) continue;
+    if(reps.length < 4 || reps.length > 11) continue;
 
     // garante que veio uma quantidade boa do grupo "não saiu"
     const doNaoSaiu = jogo.filter(n=>!setUlt.has(n));
@@ -1704,6 +1725,38 @@ let manualPrincipalSet = new Set();
 let linesSystem15 = null;
 let linesUser15 = null;
 let activeLine15 = 4; // começa na linha 5 (em branco)
+/* =========================
+   SALVAMENTO LOCAL (1 slot por tipo)
+========================= */
+const SAVE_PACK_KEY = "lf_save_pack_v1";
+const SAVE_15P_KEY  = "lf_save_15p_v1";
+
+function saveLocal(key, data){
+  localStorage.setItem(key, JSON.stringify({
+    at: Date.now(),
+    data
+  }));
+}
+
+function loadLocal(key){
+  try{
+    const raw = localStorage.getItem(key);
+    if(!raw) return null;
+    return JSON.parse(raw);
+  }catch(e){
+    return null;
+  }
+}
+
+function timeBR(ms){
+  try{
+    const d = new Date(ms);
+    return d.toLocaleString("pt-BR");
+  }catch(e){
+    return "—";
+  }
+}
+
 </script>
 
 <script>
@@ -2017,9 +2070,12 @@ const motivosHtml = Object.entries(motivosAgrupados)
           <div class="mini">Janela: <b>${payload.inicio}</b> a <b>${payload.ultimo}</b> (${payload.concursos.length} concursos)</div>
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
-          <button class="btn btnGhost" type="button" onclick="verConcursos()">📅 Ver concursos</button>
-          <button class="btn btnGhost" type="button" onclick="abrirGraficoBlocos(lastPrincipalMeta.blocos)">📊 Blocos A–E</button>
-        </div>
+  <button class="btn btnGhost" type="button" onclick="verConcursos()">📅 Ver concursos</button>
+  <button class="btn btnGhost" type="button" onclick="abrirGraficoBlocos(lastPrincipalMeta.blocos)">📊 Blocos A–E</button>
+
+  <button class="btn btnBlue" type="button" onclick="salvarPacotePrincipal()">💾 Salvar pacote</button>
+  <button class="btn btnGhost" type="button" onclick="carregarPacotePrincipal()">📂 Carregar salvo</button>
+</div>
       </div>
 
       <div class="numbers">${balls}</div>
@@ -2128,6 +2184,47 @@ const motivosHtml = Object.entries(motivosAgrupados)
 </script>
 
 <script>
+function salvarPacotePrincipal(){
+  if(!lastPrincipalGame){
+    alert("Gere um Jogo Principal primeiro.");
+    return;
+  }
+
+  // pacote completo (principal + invertida + técnica)
+  const pack = {
+    principal: lastPrincipalGame || null,
+    invertida: lastInvertidaGame || null,
+    tecnica1: lastTecnicaGames?.g1 || null,
+    tecnica2: lastTecnicaGames?.g2 || null,
+    window: lastPayload ? { inicio:lastPayload.inicio, ultimo:lastPayload.ultimo, qtd:lastPayload.concursos?.length || null } : null
+  };
+
+  saveLocal(SAVE_PACK_KEY, pack);
+  alert("✅ Pacote salvo! (Sobrescreve automaticamente quando salvar de novo)");
+}
+
+function carregarPacotePrincipal(){
+  const saved = loadLocal(SAVE_PACK_KEY);
+  if(!saved?.data){
+    alert("Não existe pacote salvo ainda.");
+    return;
+  }
+
+  const p = saved.data;
+
+  lastPrincipalGame = Array.isArray(p.principal) ? p.principal.slice() : null;
+  lastInvertidaGame = Array.isArray(p.invertida) ? p.invertida.slice() : null;
+
+  if(p.tecnica1 && p.tecnica2){
+    lastTecnicaGames = { g1: p.tecnica1.slice(), g2: p.tecnica2.slice() };
+  }else{
+    lastTecnicaGames = null;
+  }
+
+  updateCheckButtons();
+
+  alert("✅ Pacote carregado! Salvo em: " + timeBR(saved.at));
+}
 /* =========================
    INVERTIDA + TÉCNICA
 ========================= */
@@ -2332,6 +2429,38 @@ function montarTelaCheck(){
 /* =========================
    15P (mais forte + editor manual)
 ========================= */
+function salvar15P(){
+  if(!linesUser15 || !Array.isArray(linesUser15)){
+    alert("Gere o 15P primeiro.");
+    return;
+  }
+  const data = {
+    linesUser15,
+    linesSystem15,
+    activeLine15
+  };
+  saveLocal(SAVE_15P_KEY, data);
+  alert("✅ 15P salvo! (Sobrescreve automaticamente quando salvar de novo)");
+}
+
+function carregar15P(){
+  const saved = loadLocal(SAVE_15P_KEY);
+  if(!saved?.data){
+    alert("Não existe 15P salvo ainda.");
+    return;
+  }
+  const d = saved.data;
+
+  linesUser15 = (d.linesUser15 || null);
+  linesSystem15 = (d.linesSystem15 || null);
+  activeLine15 = (typeof d.activeLine15 === "number") ? d.activeLine15 : 4;
+
+  // re-render editor se estiver aberto
+  if(document.getElementById("editor15Area")){
+    render15Editor();
+  }
+  alert("✅ 15P carregado! Salvo em: " + timeBR(saved.at));
+}
 function calcCoocAndStats(concursos){
   const n = concursos.length;
   const freq = Array(26).fill(0);
@@ -2666,9 +2795,9 @@ function explainLine(lineIdx, line, stats, kind){
             <div class="mini" style="margin-top:10px">
         <b>📌 Resumo real (juntas na janela):</b><br/>
         <b>5 juntas:</b> <span class="mono">${line.map(format2).join("-")}</span> • <b>${c5}x</b><br/>
-        <b>Melhor 4 juntas:</b> <span class="mono">${(b4.group||[]).map(format2).join("-")}</span> • <b>${b4.count}x</b><br/>
-        <b>Melhor 3 juntas:</b> <span class="mono">${(b3.group||[]).map(format2).join("-")}</span> • <b>${b3.count}x</b><br/>
-        <b>Melhor 2 juntas:</b> <span class="mono">${(b2.group||[]).map(format2).join("-")}</span> • <b>${b2.count}x</b><br/>
+        <b>4 juntas:</b> <span class="mono">${(b4.group||[]).map(format2).join("-")}</span> • <b>${b4.count}x</b><br/>
+        <b>3 juntas:</b> <span class="mono">${(b3.group||[]).map(format2).join("-")}</span> • <b>${b3.count}x</b><br/>
+        <b>2 juntas:</b> <span class="mono">${(b2.group||[]).map(format2).join("-")}</span> • <b>${b2.count}x</b><br/>
         <div style="margin-top:8px">${realMsg}</div>
       </div>
 
@@ -2810,7 +2939,8 @@ function gerar15PComMinhasLinhas(){
       <b>🎯 Seus 10 jogos (com suas linhas)</b>
       <div class="grid" style="margin-top:12px">${jogosHtml}</div>
       <div class="mini" style="margin-top:10px">
-        Este método cobre todas as combinações de 3 linhas entre 5 (10 jogos). <b>Não é garantia de prêmio</b>.
+        Este método cobre todas as combinações de 3 linhas entre 5 (10 jogos).
+<b style="text-transform:uppercase">Acertando 3 linhas completas, você forma 1 dos 10 jogos.</b>
       </div>
     </div>
   `;
@@ -2869,12 +2999,15 @@ async function gerar15P(){
           <div style="font-weight:1000;font-size:16px">✅ 15 Pontos (Estratégia) • 10 jogos</div>
           <div class="mini">Janela: <b>${payload.inicio}</b> a <b>${payload.ultimo}</b> (${payload.concursos.length} concursos)</div>
           <div class="mini" style="margin-top:8px">
-            📌 Regra do método: cobrimos todas as combinações de <b>3 linhas entre 5</b> (10 jogos). <b>Não garante premiação</b>.
+            📌 Regra do método: cobrimos todas as combinações de <b>3 linhas entre 5</b> (10 jogos).
+<b style="text-transform:uppercase">Se você acertar as 3 linhas completas, você fecha 1 dos 10 jogos.</b>
           </div>
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
-          <button class="btn btnGhost" type="button" onclick="verConcursos()">📅 Ver concursos</button>
-        </div>
+  <button class="btn btnGhost" type="button" onclick="verConcursos()">📅 Ver concursos</button>
+  <button class="btn btnBlue" type="button" onclick="salvar15P()">💾 Salvar 15P</button>
+  <button class="btn btnGhost" type="button" onclick="carregar15P()">📂 Carregar 15P salvo</button>
+</div>
       </div>
 
       <div class="box" style="margin-top:12px">
