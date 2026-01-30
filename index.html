@@ -2153,6 +2153,171 @@ function calcCoocAndStats(concursos){
   const freq = Array(26).fill(0);
   const co = Array.from({length:26}, ()=>Array(26).fill(0));
 
+/* ===== NOVO: contagem de grupos que saem juntos (5/4/3) ===== */
+
+function keyGroup(arr){
+  return arr.map(format2).join("-");
+}
+
+function combK(nums, k){
+  const res = [];
+  const n = nums.length;
+  function rec(start, path){
+    if(path.length===k){ res.push(path.slice()); return; }
+    for(let i=start; i<=n-(k-path.length); i++){
+      path.push(nums[i]);
+      rec(i+1, path);
+      path.pop();
+    }
+  }
+  rec(0, []);
+  return res;
+}
+
+function buildGroupCounts(concursos, k){
+  const map = new Map();
+  concursos.forEach(c=>{
+    const nums = (c.dezenas||[])
+      .map(toNum)
+      .filter(n=>n>=1 && n<=25)
+      .sort((a,b)=>a-b);
+
+    const combs = combK(nums, k);
+    for(const g of combs){
+      const key = keyGroup(g);
+      map.set(key, (map.get(key)||0) + 1);
+    }
+  });
+  return map;
+}
+
+function mapToSortedArray(map, minCount){
+  const arr = [];
+  for(const [k,v] of map.entries()){
+    if(v >= minCount){
+      const g = k.split("-").map(x=>toNum(x));
+      arr.push({ key:k, group:g, count:v });
+    }
+  }
+  arr.sort((a,b)=> b.count - a.count);
+  return arr;
+}
+
+/* ===== NOVO: monta 5 linhas (quinteto>quadra>terno) sem repetir dezenas ===== */
+function buildLinesByTogetherness(concursos, stats){
+  const total = concursos.length;
+  const minCount = (total >= 12) ? 2 : 1;
+
+  const map5 = buildGroupCounts(concursos, 5);
+  const map4 = buildGroupCounts(concursos, 4);
+  const map3 = buildGroupCounts(concursos, 3);
+
+  const quint = mapToSortedArray(map5, minCount);
+  const quad  = mapToSortedArray(map4, minCount);
+  const tern  = mapToSortedArray(map3, minCount);
+
+  const used = new Set();
+  const lines = [];
+  const meta = [];
+
+  function bestExtraForBase(base){
+    const need = 5 - base.length;
+    const cand = [];
+    for(let n=1;n<=25;n++){
+      if(base.includes(n)) continue;
+      if(used.has(n)) continue;
+
+      let s=0;
+      base.forEach(b=>{ s += pairStrength(b, n, stats); });
+
+      s += (stats.decay[n]||0) * 0.8;
+      s += Math.min(3, (stats.gap[n]||0) * 0.15);
+
+      cand.push({n, s});
+    }
+    cand.sort((a,b)=>b.s-a.s);
+    return cand.slice(0, need).map(x=>x.n);
+  }
+
+  function acceptGroup(group){
+    for(const n of group){
+      if(used.has(n)) return false;
+    }
+    return true;
+  }
+
+  function pushLine(line, origem, suporte, baseGroup){
+    const l = line.slice().sort((a,b)=>a-b);
+    l.forEach(n=>used.add(n));
+    lines.push(l);
+
+    // baseGroup = o grupo REAL (5/4/3) encontrado nos concursos
+    meta.push({
+      origem,                  // QUINTETO / QUADRA+1 / TERNO+2 / FILL
+      suporte,                 // quantas vezes saiu junto
+      baseGroup: (baseGroup||[]).slice().sort((a,b)=>a-b)
+    });
+  }
+
+  // 1) Quintetos
+  for(const q of quint){
+    if(lines.length>=5) break;
+    if(!acceptGroup(q.group)) continue;
+    pushLine(q.group, "QUINTETO", q.count, q.group);
+  }
+
+  // 2) Quadras + 1
+  for(const q of quad){
+    if(lines.length>=5) break;
+    if(q.group.some(n=>used.has(n))) continue;
+
+    const extra = bestExtraForBase(q.group);
+    const line = q.group.concat(extra);
+    if(line.length!==5) continue;
+    if(!acceptGroup(line)) continue;
+    pushLine(line, "QUADRA+1", q.count, q.group);
+  }
+
+  // 3) Ternos + 2
+  for(const t of tern){
+    if(lines.length>=5) break;
+    if(t.group.some(n=>used.has(n))) continue;
+
+    const extra = bestExtraForBase(t.group);
+    const line = t.group.concat(extra);
+    if(line.length!==5) continue;
+    if(!acceptGroup(line)) continue;
+    pushLine(line, "TERNO+2", t.count, t.group);
+  }
+
+  // 4) Completa se faltar
+  while(lines.length < 5){
+    const base = [];
+    for(let n=1;n<=25;n++){
+      if(used.has(n)) continue;
+      base.push(n);
+    }
+
+    base.sort((a,b)=>{
+      const sa = (stats.freq[a]*1.0) + (stats.decay[a]*3.0) + Math.min(6, stats.gap[a]*0.35);
+      const sb = (stats.freq[b]*1.0) + (stats.decay[b]*3.0) + Math.min(6, stats.gap[b]*0.35);
+      return sb-sa;
+    });
+
+    const line = base.slice(0,5).sort((a,b)=>a-b);
+    pushLine(line, "FILL", 0, []);
+  }
+
+  // ordena por força (mais forte primeiro)
+  const ranked = lines.map((l,i)=>({ l, i, s: groupStrength(l, stats).sum }));
+  ranked.sort((a,b)=>b.s-a.s);
+
+  const sortedLines = ranked.map(x=>x.l);
+  const sortedMeta  = ranked.map(x=>meta[x.i]);
+
+  return { lines: sortedLines, meta: sortedMeta };
+}
+
   // recência (exponencial)
   const decay = Array(26).fill(0);
   const lastSeen = Array(26).fill(-1);
@@ -2391,6 +2556,75 @@ function explainLine(lineIdx, line, stats, kind){
   const lf = groupLiftAvg(line, stats);
   const fs = groupFreqSum(line, stats);
 
+  function explainLineTogether(lineIdx, line, stats, meta){
+  const origem = meta?.origem || "—";
+  const suporte = meta?.suporte ?? 0;
+  const base = meta?.baseGroup || [];
+
+  const gs = groupStrength(line, stats);
+  const co = groupCoSum(line, stats);
+  const lf = groupLiftAvg(line, stats);
+  const fs = groupFreqSum(line, stats);
+
+  const baseTxt = base.length ? base.map(format2).join(" - ") : "—";
+
+  // quais foram completadas (não fazem parte do grupo real)
+  const baseSet = new Set(base);
+  const extras = line.filter(n=>!baseSet.has(n));
+  const extrasTxt = extras.length ? extras.map(format2).join(" - ") : "—";
+
+  const pairsTop = topPairsInGroup(line, stats, 3);
+  const pairsTxt = pairsTop.map(p=>{
+    return `<span class="chip" style="padding:7px 10px;font-size:12px">↑ ${format2(p.a)}-${format2(p.b)} • juntos: <b>${p.co}</b>x • lift: <b>${p.lift.toFixed(2)}</b></span>`;
+  }).join(" ");
+
+  let resumoBase = "";
+  let suporteTxt = "";
+
+  if(origem==="QUINTETO"){
+    resumoBase = `Linha formada por um <b>QUINTETO real</b> encontrado nos concursos analisados.`;
+    suporteTxt = `✅ Esse <b>quinteto</b> saiu junto <b>${suporte} vez(es)</b> na janela selecionada.`;
+  }else if(origem==="QUADRA+1"){
+    resumoBase = `Linha formada por uma <b>QUADRA real</b> + 1 dezena escolhida por compatibilidade (pares/recência).`;
+    suporteTxt = `✅ Essa <b>quadra</b> saiu junto <b>${suporte} vez(es)</b> na janela selecionada.`;
+  }else if(origem==="TERNO+2"){
+    resumoBase = `Linha formada por um <b>TERNO real</b> + 2 dezenas escolhidas por compatibilidade (pares/recência).`;
+    suporteTxt = `✅ Esse <b>terno</b> saiu junto <b>${suporte} vez(es)</b> na janela selecionada.`;
+  }else{
+    resumoBase = `Linha completada por força estatística geral (freq + recência), porque não houve grupos fortes suficientes na janela.`;
+    suporteTxt = `—`;
+  }
+
+  return `
+    <div class="box">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+        <b>📌 Linha ${lineIdx} • ${origem}</b>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <span class="chip" style="padding:7px 10px;font-size:12px">Suporte: <b>${suporte>0 ? suporte+"x" : "—"}</b></span>
+          <span class="chip" style="padding:7px 10px;font-size:12px">Força: <b>${gs.sum.toFixed(1)}</b></span>
+          <span class="chip" style="padding:7px 10px;font-size:12px">Lift médio: <b>${lf.avg.toFixed(2)}</b></span>
+          <span class="chip" style="padding:7px 10px;font-size:12px">Co médio: <b>${co.avg.toFixed(2)}</b></span>
+          <span class="chip" style="padding:7px 10px;font-size:12px">Soma freq: <b>${fs}</b></span>
+        </div>
+      </div>
+
+      <div class="numbers" style="justify-content:flex-start;margin-top:10px">${renderBallsInline(line)}</div>
+
+      <div class="mini" style="margin-top:10px">
+        <b>Grupo encontrado (no período):</b> <span class="mono">${baseTxt}</span><br/>
+        <b>Completadas pelo sistema:</b> <span class="mono">${extrasTxt}</span><br/>
+        <b>Resumo:</b> ${resumoBase}<br/>
+        <b>Quantas vezes saiu junto:</b> ${suporteTxt}
+      </div>
+
+      <div class="mini" style="margin-top:10px">
+        <b>Pares mais fortes dentro da linha:</b>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">${pairsTxt}</div>
+      </div>
+    </div>
+  `;
+}
+ 
   const pairs = (kind==="forte") ? topPairsInGroup(line, stats, 3) : worstPairsInGroup(line, stats, 3);
   const pairsTxt = pairs.map(p=>{
     const sign = (kind==="forte") ? "↑" : "↓";
@@ -2576,8 +2810,9 @@ async function gerar15P(){
 
     const stats = calcCoocAndStats(payload.concursos);
 
-    let lines = buildInitialLines(stats);
-    lines = optimizeLines(lines, stats);
+    const together = buildLinesByTogetherness(payload.concursos, stats);
+const lines = together.lines;
+const linesMetaTogether = together.meta; // guarda: origem, suporte, baseGroup
 
     const jogos = gerarJogos15P(lines);
     const sourceInfo = { source: payload.source, mode: payload.mode };
@@ -2677,14 +2912,20 @@ async function gerar15P(){
 
       <div class="box" style="margin-top:12px">
         <b>🔍 Explicação detalhada das linhas</b>
-        <div class="grid" style="margin-top:12px">
-          ${explainLine(1, lines[0], stats, "forte")}
-          ${explainLine(2, lines[1], stats, "forte")}
-          ${explainLine(3, lines[2], stats, "forte")}
-          ${explainLine(4, lines[3], stats, "diversa")}
-          ${explainLine(5, lines[4], stats, "diversa")}
-        </div>
-      </div>
+        <div class="box" style="margin-top:12px">
+  <b>🔍 Explicação detalhada das linhas (base: dezenas que saem juntas)</b>
+  <div class="mini" style="margin-top:6px">
+    O sistema prioriza <b>QUINTETOS</b> reais. Se não houver quintetos suficientes, usa <b>QUADRAS</b> e <b>TERNOS</b> do período e completa com as dezenas mais compatíveis.
+  </div>
+
+  <div class="grid" style="margin-top:12px">
+    ${explainLineTogether(1, lines[0], stats, linesMetaTogether?.[0])}
+    ${explainLineTogether(2, lines[1], stats, linesMetaTogether?.[1])}
+    ${explainLineTogether(3, lines[2], stats, linesMetaTogether?.[2])}
+    ${explainLineTogether(4, lines[3], stats, linesMetaTogether?.[3])}
+    ${explainLineTogether(5, lines[4], stats, linesMetaTogether?.[4])}
+  </div>
+</div>
 
       <div class="box" style="margin-top:12px">
         <b>🎯 10 jogos do sistema</b>
