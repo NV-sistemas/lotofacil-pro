@@ -1952,12 +1952,25 @@ const jogo = result.jogo;
     aplicarAcessos();
 
     const balls = jogo.map(n=>`<div class="ball">${format2(n)}</div>`).join("");
-const motivosHtml = (result?.motivos || []).map(m=>`
-  <div style="padding:10px;border-bottom:1px solid rgba(255,255,255,.08)">
-    <b class="mono">${format2(m.dezena)}</b>
-    <div class="mini" style="margin-top:6px">${m.texto}</div>
-  </div>
-`).join("") || `<div class="mini">—</div>`;
+// ✅ AGRUPA motivos iguais para ocupar menos espaço
+const motivosAgrupados = {};
+(result?.motivos || []).forEach(m=>{
+  const key = (m.texto || "").trim();
+  if(!motivosAgrupados[key]) motivosAgrupados[key] = [];
+  motivosAgrupados[key].push(m.dezena);
+});
+
+const motivosHtml = Object.entries(motivosAgrupados)
+  .sort((a,b)=>a[1][0]-b[1][0])
+  .map(([texto, dezenas])=>{
+    const lista = dezenas.sort((x,y)=>x-y).map(n=>format2(n)).join(", ");
+    return `
+      <div style="padding:10px;border-bottom:1px solid rgba(255,255,255,.08)">
+        <b class="mono">${lista}</b>
+        <div class="mini" style="margin-top:6px">${texto}</div>
+      </div>
+    `;
+  }).join("") || `<div class="mini">—</div>`;
 
     const resumoPares = (pi.pares===7||pi.pares===8)
       ? `Distribuição ideal (${pi.pares} pares / ${pi.impares} ímpares).`
@@ -2538,11 +2551,71 @@ function renderBallsInline(nums){
   return nums.map(n=>`<div class="ball">${format2(n)}</div>`).join("");
 }
 
+// ✅ Conta quantas vezes um grupo (2..5 dezenas) apareceu inteiro no mesmo concurso
+function countGroupTogether(group, concursos){
+  const gset = new Set(group.map(Number));
+  let count = 0;
+  for(const c of concursos){
+    const setC = new Set((c.dezenas||[]).map(toNum));
+    let ok = true;
+    for(const n of gset){
+      if(!setC.has(n)){ ok = false; break; }
+    }
+    if(ok) count++;
+  }
+  return count;
+}
+
+// ✅ Acha o melhor subgrupo de tamanho k dentro da linha (maior “juntos”)
+function bestSubgroupTogether(line, k, concursos){
+  const arr = line.slice().map(Number).sort((a,b)=>a-b);
+
+  const comb = [];
+  function backtrack(start, pick){
+    if(pick.length === k){ comb.push(pick.slice()); return; }
+    for(let i=start;i<arr.length;i++){
+      pick.push(arr[i]);
+      backtrack(i+1, pick);
+      pick.pop();
+    }
+  }
+  backtrack(0, []);
+
+  let best = { group:null, count:-1 };
+  for(const g of comb){
+    const ct = countGroupTogether(g, concursos);
+    if(ct > best.count){
+      best = { group:g, count:ct };
+    }
+  }
+  return best;
+}
+
 function explainLine(lineIdx, line, stats, kind){
   const gs = groupStrength(line, stats);
   const co = groupCoSum(line, stats);
   const lf = groupLiftAvg(line, stats);
   const fs = groupFreqSum(line, stats);
+    // ✅ Resumo real: 5/4/3/2 juntas na janela
+  const concursosRef = stats.concursosRef || [];
+  const odd = line.filter(n=>n%2===1).length;
+  const even = 5 - odd;
+
+  const c5 = countGroupTogether(line, concursosRef);
+  const b4 = bestSubgroupTogether(line, 4, concursosRef);
+  const b3 = bestSubgroupTogether(line, 3, concursosRef);
+  const b2 = bestSubgroupTogether(line, 2, concursosRef);
+
+  const txtParidade =
+    (odd>even)
+      ? `${odd} ímpares / ${even} pares (mais comum na Lotofácil)`
+      : (even>odd)
+        ? `${odd} ímpares / ${even} pares (um pouco mais “par”, mas ok)`
+        : `${odd} ímpares / ${even} pares (equilibrado)`;
+
+  const realMsg = (c5>0)
+    ? `✅ As 5 dezenas já saíram juntas <b>${c5}x</b> nessa janela.`
+    : `ℹ️ As 5 juntas é raro (0x), então olhe principalmente as melhores 4/3/2 que mais se repetem.`;
 
   const pairs = (kind==="forte") ? topPairsInGroup(line, stats, 3) : worstPairsInGroup(line, stats, 3);
   const pairsTxt = pairs.map(p=>{
@@ -2568,6 +2641,15 @@ function explainLine(lineIdx, line, stats, kind){
 
       <div class="numbers" style="justify-content:flex-start;margin-top:10px">${renderBallsInline(line)}</div>
       <div class="mini"><b>Por que se juntaram:</b> ${resumo}</div>
+            <div class="mini" style="margin-top:10px">
+        <b>📌 Resumo real (juntas na janela):</b><br/>
+        <b>Paridade:</b> ${txtParidade}<br/>
+        <b>5 juntas:</b> <span class="mono">${line.map(format2).join("-")}</span> • <b>${c5}x</b><br/>
+        <b>Melhor 4 juntas:</b> <span class="mono">${(b4.group||[]).map(format2).join("-")}</span> • <b>${b4.count}x</b><br/>
+        <b>Melhor 3 juntas:</b> <span class="mono">${(b3.group||[]).map(format2).join("-")}</span> • <b>${b3.count}x</b><br/>
+        <b>Melhor 2 juntas:</b> <span class="mono">${(b2.group||[]).map(format2).join("-")}</span> • <b>${b2.count}x</b><br/>
+        <div style="margin-top:8px">${realMsg}</div>
+      </div>
 
       <div class="mini" style="margin-top:10px">
         <b>${kind==="forte" ? "Pares mais fortes" : "Pares mais fracos"}:</b>
@@ -2728,6 +2810,7 @@ async function gerar15P(){
     setProgress(82);
 
     const stats = calcCoocAndStats(payload.concursos);
+    stats.concursosRef = payload.concursos; // ✅ usado para calcular 5/4/3/2 juntas
 
     let lines = buildInitialLines(stats);
     lines = optimizeLines(lines, stats);
