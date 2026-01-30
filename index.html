@@ -1488,14 +1488,14 @@ function renderEvenOddDist(patterns, total){
     const pct = Math.round((p.count/Math.max(1,total))*100);
     return `
       <div style="display:flex;align-items:center;justify-content:space-between;padding:10px;border-bottom:1px solid rgba(255,255,255,.08)">
-        <div><b>${p.pares} pares / ${p.impares} ímpares</b> <span class="mini" style="margin:0;opacity:.9">(${pct}%)</span></div>
+        <div><b>${p.pares} números pares / ${p.impares} números ímpares</b> <span class="mini" style="margin:0;opacity:.9">(${pct}%)</span></div>
         <div class="mini" style="margin:0"><b>${p.count}x</b></div>
       </div>
     `;
   }).join("");
   return `
     <div class="box" style="margin-top:12px">
-      <b>⚖️ Padrões de Pares × Ímpares mais comuns</b>
+      <b>⚖️ Padrões de distribuição (equilíbrio)</b>
       <div class="mini" style="margin-top:6px">Mostra a distribuição mais recorrente na janela analisada.</div>
       <div style="margin-top:10px;border:1px solid rgba(255,255,255,.10);border-radius:14px;overflow:hidden">
         ${rows || `<div style="padding:12px" class="mini">—</div>`}
@@ -1571,6 +1571,115 @@ function renderBlocksPrime(totals, patterns, total){
 
       <div style="margin-top:10px">
         ${rows || `<div class="mini">—</div>`}
+      </div>
+    </div>
+  `;
+}
+/* =========================
+   ✅ NOVO: conjuntos que mais saem juntos (3..6 dezenas)
+========================= */
+function combosKFromSorted(arr, k){
+  const res = [];
+  const n = arr.length;
+  function rec(start, path){
+    if(path.length === k){ res.push(path.slice()); return; }
+    for(let i=start;i<n;i++){
+      path.push(arr[i]);
+      rec(i+1, path);
+      path.pop();
+    }
+  }
+  rec(0, []);
+  return res;
+}
+
+/**
+ * calcTopSetsCooc
+ * - acha os conjuntos (k) que aparecem juntos em vários concursos
+ * - padrão: k=3..6 (ternos, quadras, quintetos, sextetos)
+ * - minCount: mínimo de ocorrências para aparecer na lista
+ * - limit: quantos resultados mostrar
+ */
+function calcTopSetsCooc(concursos, opts={}){
+  const {
+    minK = 3,
+    maxK = 6,
+    minCount = 2,
+    limit = 12
+  } = opts;
+
+  const total = (concursos || []).length;
+  const map = new Map(); // key => count
+
+  for(const c of (concursos || [])){
+    const nums = (c.dezenas || [])
+      .map(toNum)
+      .filter(n=>n>=1 && n<=25)
+      .sort((a,b)=>a-b);
+
+    if(nums.length < minK) continue;
+
+    const upper = Math.min(maxK, nums.length);
+    for(let k=minK;k<=upper;k++){
+      const combs = combosKFromSorted(nums, k);
+      for(const comb of combs){
+        const key = comb.map(format2).join("-");
+        map.set(key, (map.get(key) || 0) + 1);
+      }
+    }
+  }
+
+  const list = [];
+  for(const [key, count] of map.entries()){
+    if(count >= minCount){
+      const size = key.split("-").length;
+      list.push({ key, count, size });
+    }
+  }
+
+  // ordena: mais ocorrências primeiro; empate -> maior tamanho; empate -> alfabético
+  list.sort((a,b)=>(b.count-a.count) || (b.size-a.size) || a.key.localeCompare(b.key));
+
+  return { total, list: list.slice(0, limit) };
+}
+
+function renderTopSets(setsInfo){
+  const total = setsInfo?.total || 0;
+  const list = setsInfo?.list || [];
+
+  const rows = list.map(s=>{
+    const pct = total ? Math.round((s.count/total)*100) : 0;
+    return `
+      <tr>
+        <td class="mono"><b>${s.key.replaceAll("-", ", ")}</b></td>
+        <td>${s.size}</td>
+        <td><b>${s.count}</b>x</td>
+        <td>${pct}%</td>
+      </tr>
+    `;
+  }).join("");
+
+  return `
+    <div class="box" style="margin-top:12px">
+      <b>🔗 Dezenas que mais saem juntas (conjuntos repetidos)</b>
+      <div class="mini" style="margin-top:6px">
+        Aqui o sistema busca <b>ternos, quadras, quintetos e sextetos</b> que se repetem na janela selecionada.
+        (Não é só par.)
+      </div>
+      <div style="margin-top:10px;overflow:auto">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Conjunto</th><th>Tamanho</th><th>Juntos</th><th>% na janela</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows || `<tr><td colspan="4" class="mini">—</td></tr>`}
+          </tbody>
+        </table>
+      </div>
+      <div class="mini" style="margin-top:10px">
+        Dica PRIME: esses conjuntos podem ser usados como “núcleo” para montar o jogo, porque mostram repetição real dentro do período analisado.
       </div>
     </div>
   `;
@@ -1828,7 +1937,12 @@ async function acaoAnalise(){
     const sums = calcSumDistribution(payload.concursos);
     const blockTotals = calcBlockTotals(payload.concursos);
     const blockPatterns = calcBlockPatternDistribution(payload.concursos);
-    const topPairs = calcTopPairsCooc(payload.concursos, 12);
+    const topSetsInfo = calcTopSetsCooc(payload.concursos, {
+  minK: 3,
+  maxK: 9,
+  minCount: 2,
+  limit: 12
+});
 
     setStatus(false,""); setProgress(0);
 
@@ -1851,7 +1965,7 @@ async function acaoAnalise(){
       ${renderSumsTop(sums, payload.concursos.length)}
       ${renderBlocksPrime(blockTotals, blockPatterns, payload.concursos.length)}
       ${renderTop10(freq, payload.concursos.length)}
-      ${renderTopPairs(topPairs, payload.concursos.length)}
+      ${renderTopSets(topSetsInfo)}
 
       <div class="box" style="margin-top:12px">
         <b>📌 Nota PRIME</b>
