@@ -650,6 +650,32 @@ const functions = firebase.app().functions("us-central1");
       <div class="footerNote">Clique em “Gerar análise 15P”. Essa tela exige o EXTRA ativado (via claims).</div>
     </div>
   </div>
+<!-- =========================
+   TELA: JOGOS SALVOS
+========================= -->
+<div class="view" id="viewSavedGames">
+  <div class="topNav">
+    <div class="left">
+      <button class="btn btnGhost" type="button" onclick="goView('viewHome')">⬅ Voltar</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <label>Conferir últimos concursos</label>
+    <select id="savedCheckQtd">
+      <option value="5">Últimos 5</option>
+      <option value="10" selected>Últimos 10</option>
+      <option value="20">Últimos 20</option>
+      <option value="30">Últimos 30</option>
+    </select>
+
+    <button class="btn btnPrimary" style="margin-top:10px" onclick="checkSavedGames()">
+      Conferir jogos
+    </button>
+
+    <div id="savedGamesResult" style="margin-top:14px"></div>
+  </div>
+</div>
 
   <div class="footerNote">Aviso: análise estatística não garante premiação. Jogo responsável ✅</div>
 </div>
@@ -3235,10 +3261,65 @@ document.getElementById("btnSair").addEventListener("click", sair);
 document.getElementById("btnComprar15p").addEventListener("click", comprar15p);
 document.getElementById("btnAtivar15p").addEventListener("click", jaComprei15p);
 
-["btnHomePrincipal","btnHomeAnalise","btnHomeInvertida","btnHomeTecnica","btnHome15p"].forEach(id=>{
+["btnHomePrincipal","btnHomeAnalise","btnHomeInvertida","btnHomeTecnica","btnHome15p","btnHomeSaved"].forEach(id=>{
   const el = document.getElementById(id);
   if(el) bindCardKey(el);
 });
+/* =========================
+   ✅ JOGOS SALVOS + CONFERÊNCIA
+========================= */
+
+document.getElementById("btnHomeSaved").onclick = ()=>{
+  goView("viewSavedGames");
+};
+
+function checkSavedGames(){
+  const qtd = Number(document.getElementById("savedCheckQtd").value);
+
+  if(!lastPayload || !lastPayload.concursos){
+    alert("Gere uma análise primeiro para carregar os concursos.");
+    return;
+  }
+
+  const concursos = lastPayload.concursos.slice(-qtd);
+
+  // 👉 usa jogo principal salvo
+  const jogos = [
+    lastPrincipalGame,
+    lastInvertidaGame,
+    lastTecnicaGames?.g1,
+    lastTecnicaGames?.g2
+  ].filter(Boolean);
+
+  if(!jogos.length){
+    alert("Nenhum jogo gerado ainda.");
+    return;
+  }
+
+  let html="";
+
+  jogos.forEach((jogo, idx)=>{
+    let total=0;
+
+    concursos.forEach(c=>{
+      const set=new Set(c.dezenas.map(toNum));
+      const hits=jogo.filter(n=>set.has(n)).length;
+      total+=hits;
+    });
+
+    const media=(total/concursos.length).toFixed(1);
+
+    html+=`
+      <div class="box" style="margin-top:10px">
+        <b>Jogo ${idx+1}</b><br>
+        Média acertos: <b>${media}</b><br>
+        ${jogo.map(format2).join(" - ")}
+      </div>
+    `;
+  });
+
+  document.getElementById("savedGamesResult").innerHTML=html;
+}
 </script>
 
 </body>
