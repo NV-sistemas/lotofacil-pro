@@ -1266,10 +1266,10 @@ if(repsCount === 9 || repsCount === 11) sc -= 1;
 
   // fallback: se por algum motivo não achou (raro), usa o antigo
   // fallback: se por algum motivo não achou (raro), usa o antigo
+// fallback: se por algum motivo não achou (raro), usa o antigo
 if(!best){
   const fallback = gerarJogoForte(freq, metrics);
   return { jogo: fallback, motivos: buildMotivos(fallback, ultimo, freq, metrics) };
-}
 }
   // monta motivos (pra mostrar ao usuário)
   const motivos = buildMotivos(best.jogo, ultimo, freq, metrics);
@@ -1550,8 +1550,10 @@ function renderBlocksPrime(totals, patterns, total){
 
   return `
     <div class="box" style="margin-top:12px">
-      <b>🧩 Blocos A–E</b>
-      <div class="mini" style="margin-top:6px">Somente padrões mais frequentes (A–E por concurso).</div>
+      <b>🧩 Blocos A–E (padrões que mais se repetem)</b>
+      <div class="mini" style="margin-top:6px">
+        Padrões A–E mais frequentes por concurso (sem gráfico).
+      </div>
 
       <div class="mini" style="margin-top:10px">
         <b>Padrões mais frequentes (A–E por concurso):</b>
