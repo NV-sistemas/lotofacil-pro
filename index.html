@@ -1330,19 +1330,19 @@ function renderEvenOddDist(patterns, total){
     const pct = Math.round((p.count/Math.max(1,total))*100);
     return `
       <div style="display:flex;align-items:center;justify-content:space-between;padding:10px;border-bottom:1px solid rgba(255,255,255,.08)">
-        <div><b>${p.pares} pares / ${p.impares} ímpares</b> <span class="mini" style="margin:0;opacity:.9">(${pct}%)</span></div>
+        <div><b>Formato ${p.pares}-${p.impares}</b> <span class="mini" style="margin:0;opacity:.9">(${pct}%)</span></div>
         <div class="mini" style="margin:0"><b>${p.count}x</b></div>
       </div>
     `;
   }).join("");
   return `
     <div class="box" style="margin-top:12px">
-      <b>⚖️ Padrões de Pares × Ímpares mais comuns</b>
+      <b>⚖️ Padrões de distribuição mais comuns</b>
       <div class="mini" style="margin-top:6px">Mostra a distribuição mais recorrente na janela analisada.</div>
       <div style="margin-top:10px;border:1px solid rgba(255,255,255,.10);border-radius:14px;overflow:hidden">
         ${rows || `<div style="padding:12px" class="mini">—</div>`}
       </div>
-      ${top ? `<div class="mini" style="margin-top:10px">🔥 Dominante: <b>${top.pares} pares / ${top.impares} ímpares</b> (${top.count} ocorrências)</div>` : ``}
+      ${top ? `<div class="mini" style="margin-top:10px">🔥 Dominante: <b>Formato ${top.pares}-${top.impares}</b> (${top.count} ocorrências)</div>` : ``}
     </div>
   `;
 }
@@ -1427,7 +1427,7 @@ function renderBlocksPrime(totals, patterns, total){
 function renderTopPairs(pairs, total){
   const rows = pairs.map(p=>{
     const pct = Math.round((p.count/Math.max(1,total))*100);
-    const type = (p.a%2===0 && p.b%2===0) ? "par-par" : (p.a%2===1 && p.b%2===1) ? "ímpar-ímpar" : "misto";
+    const type = (p.a%2===0 && p.b%2===0) ? "mesmo grupo" : (p.a%2===1 && p.b%2===1) ? "mesmo grupo" : "misto";
     return `
       <tr>
         <td class="mono"><b>${format2(p.a)}-${format2(p.b)}</b></td>
@@ -1440,13 +1440,13 @@ function renderTopPairs(pairs, total){
 
   return `
     <div class="box" style="margin-top:12px">
-      <b>🔗 Dezenas que mais se repetiram juntas (pares mais fortes)</b>
+      <b>🔗 Dezenas que mais se repetiram juntas (combinações mais fortes)</b>
       <div class="mini" style="margin-top:6px">Pares com maior coocorrência na janela selecionada.</div>
       <div style="margin-top:10px;overflow:auto">
         <table class="table">
           <thead>
             <tr>
-              <th>Par</th><th>Tipo</th><th>Juntos</th><th>% na janela</th>
+              <th>Dupla</th><th>Tipo</th><th>Juntos</th><th>% na janela</th>
             </tr>
           </thead>
           <tbody>
@@ -1816,8 +1816,8 @@ async function acaoPrincipal(){
     const balls = jogo.map(n=>`<div class="ball">${format2(n)}</div>`).join("");
 
     const resumoPares = (pi.pares===7||pi.pares===8)
-      ? `Distribuição ideal (${pi.pares} pares / ${pi.impares} ímpares).`
-      : `Distribuição fora do ideal (melhor: 7/8).`;
+  ? `Distribuição ideal (Formato ${pi.pares}-${pi.impares}).`
+  : `Distribuição fora do ideal (melhor: formato 7-8 ou 8-7).`;
     const resumoSoma = (soma>=170 && soma<=230)
       ? `Soma ${soma} dentro da faixa estatística mais comum (evita extremos).`
       : `Soma ${soma} fora da faixa mais comum — combinação mais “arriscada”.`;
@@ -1866,8 +1866,8 @@ async function acaoPrincipal(){
           </div>
 
           <div class="box">
-            <b>⚖️ Pares x Ímpares</b>
-            <div class="mini" style="margin-top:8px"><b>${pi.pares}</b> pares • <b>${pi.impares}</b> ímpares</div>
+            <b>⚖️ Distribuição</b>
+            <div class="mini" style="margin-top:8px"><b>Formato:</b> <b>${pi.pares}-${pi.impares}</b></div>
             <div class="mini">${resumoPares}</div>
           </div>
 
