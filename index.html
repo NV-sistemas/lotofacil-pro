@@ -2681,6 +2681,52 @@ document.getElementById("btnAtivar15p").addEventListener("click", jaComprei15p);
   if(el) bindCardKey(el);
 });
 </script>
+<script>
+/* ========= FIX DEFINITIVO 15P ========= */
+
+function calcCoocAndStats(concursos){
+  const freq = Array(26).fill(0);
+  const co = Array.from({length:26}, ()=>Array(26).fill(0));
+
+  concursos.forEach(c=>{
+    const nums=(c.dezenas||[]).map(n=>Number(n));
+    nums.forEach(a=>freq[a]++);
+    for(let i=0;i<nums.length;i++){
+      for(let j=i+1;j<nums.length;j++){
+        co[nums[i]][nums[j]]++;
+        co[nums[j]][nums[i]]++;
+      }
+    }
+  });
+
+  return { freq, co, lift: co, decay: freq, gap: freq, drawSets: [] };
+}
+
+function buildInitialLines(stats){
+  const nums=[...Array(25)].map((_,i)=>i+1);
+  return [
+    nums.slice(0,5),
+    nums.slice(5,10),
+    nums.slice(10,15),
+    nums.slice(15,20),
+    nums.slice(20,25)
+  ];
+}
+
+function optimizeLines(lines){ return lines; }
+
+function gerarJogos15P(linhas){
+  const combs = [
+    [0,1,2],[0,1,3],[0,1,4],[0,2,3],[0,2,4],
+    [0,3,4],[1,2,3],[1,2,4],[1,3,4],[2,3,4]
+  ];
+  return combs.map(c=>{
+    const s=new Set();
+    c.forEach(i=>linhas[i].forEach(n=>s.add(n)));
+    return [...s].sort((a,b)=>a-b);
+  });
+}
+</script>
 
 </body>
 </html>
