@@ -2148,175 +2148,112 @@ function montarTelaCheck(){
 /* =========================
    15P (mais forte + editor manual)
 ========================= */
+  /* ===== NOVO: contagem de grupos que saem juntos (5/4/3) ===== */ 
+
+function keyGroup(arr){ return arr.map(format2).join("-"); } 
+
+function combK(nums, k){ const res = []; const n = nums.length; function rec(start, path){ if(path.length===k){ res.push(path.slice()); return; } for(let i=start; i<=n-(k-path.length); i++){ path.push(nums[i]); rec(i+1, path); path.pop(); } } rec(0, []); return res; } 
+
+function buildGroupCounts(concursos, k){ const map = new Map(); concursos.forEach(c=>{ const nums = (c.dezenas||[]) .map(toNum) .filter(n=>n>=1 && n<=25) .sort((a,b)=>a-b); 
+
+const combs = combK(nums, k); 
+for(const g of combs){ 
+ const key = keyGroup(g); 
+ map.set(key, (map.get(key)||0) + 1); 
+} 
+ 
+
+}); return map; } 
+
+function mapToSortedArray(map, minCount){ const arr = []; for(const [k,v] of map.entries()){ if(v >= minCount){ const g = k.split("-").map(x=>toNum(x)); arr.push({ key:k, group:g, count:v }); } } arr.sort((a,b)=> b.count - a.count); return arr; } 
+
+/* ===== NOVO: monta 5 linhas (quinteto>quadra>terno) sem repetir dezenas ===== */ function buildLinesByTogetherness(concursos, stats){ const total = concursos.length; const minCount = (total >= 12) ? 2 : 1; 
+
+const map5 = buildGroupCounts(concursos, 5); const map4 = buildGroupCounts(concursos, 4); const map3 = buildGroupCounts(concursos, 3); 
+
+const quint = mapToSortedArray(map5, minCount); const quad = mapToSortedArray(map4, minCount); const tern = mapToSortedArray(map3, minCount); 
+
+const used = new Set(); const lines = []; const meta = []; 
+
+function bestExtraForBase(base){ const need = 5 - base.length; const cand = []; for(let n=1;n<=25;n++){ if(base.includes(n)) continue; if(used.has(n)) continue; 
+
+let s=0; 
+ base.forEach(b=>{ s += pairStrength(b, n, stats); }); 
+ 
+ s += (stats.decay[n]||0) * 0.8; 
+ s += Math.min(3, (stats.gap[n]||0) * 0.15); 
+ 
+ cand.push({n, s}); 
+} 
+cand.sort((a,b)=>b.s-a.s); 
+return cand.slice(0, need).map(x=>x.n); 
+ 
+
+} 
+
+function acceptGroup(group){ for(const n of group){ if(used.has(n)) return false; } return true; } 
+
+function pushLine(line, origem, suporte, baseGroup){ const l = line.slice().sort((a,b)=>a-b); l.forEach(n=>used.add(n)); lines.push(l); 
+
+// baseGroup = o grupo REAL (5/4/3) encontrado nos concursos 
+meta.push({ 
+ origem,                  // QUINTETO / QUADRA+1 / TERNO+2 / FILL 
+ suporte,                 // quantas vezes saiu junto 
+ baseGroup: (baseGroup||[]).slice().sort((a,b)=>a-b) 
+}); 
+ 
+
+} 
+
+// 1) Quintetos for(const q of quint){ if(lines.length>=5) break; if(!acceptGroup(q.group)) continue; pushLine(q.group, "QUINTETO", q.count, q.group); } 
+
+// 2) Quadras + 1 for(const q of quad){ if(lines.length>=5) break; if(q.group.some(n=>used.has(n))) continue; 
+
+const extra = bestExtraForBase(q.group); 
+const line = q.group.concat(extra); 
+if(line.length!==5) continue; 
+if(!acceptGroup(line)) continue; 
+pushLine(line, "QUADRA+1", q.count, q.group); 
+ 
+
+} 
+
+// 3) Ternos + 2 for(const t of tern){ if(lines.length>=5) break; if(t.group.some(n=>used.has(n))) continue; 
+
+const extra = bestExtraForBase(t.group); 
+const line = t.group.concat(extra); 
+if(line.length!==5) continue; 
+if(!acceptGroup(line)) continue; 
+pushLine(line, "TERNO+2", t.count, t.group); 
+ 
+
+} 
+
+// 4) Completa se faltar while(lines.length < 5){ const base = []; for(let n=1;n<=25;n++){ if(used.has(n)) continue; base.push(n); } 
+
+base.sort((a,b)=>{ 
+ const sa = (stats.freq[a]*1.0) + (stats.decay[a]*3.0) + Math.min(6, stats.gap[a]*0.35); 
+ const sb = (stats.freq[b]*1.0) + (stats.decay[b]*3.0) + Math.min(6, stats.gap[b]*0.35); 
+ return sb-sa; 
+}); 
+ 
+const line = base.slice(0,5).sort((a,b)=>a-b); 
+pushLine(line, "FILL", 0, []); 
+ 
+
+} 
+
+// ordena por força (mais forte primeiro) const ranked = lines.map((l,i)=>({ l, i, s: groupStrength(l, stats).sum })); ranked.sort((a,b)=>b.s-a.s); 
+
+const sortedLines = ranked.map(x=>x.l); const sortedMeta = ranked.map(x=>meta[x.i]); 
+
+return { lines: sortedLines, meta: sortedMeta }; } 
+ 
 function calcCoocAndStats(concursos){
   const n = concursos.length;
   const freq = Array(26).fill(0);
   const co = Array.from({length:26}, ()=>Array(26).fill(0));
 
-/* ===== NOVO: contagem de grupos que saem juntos (5/4/3) ===== */
-
-function keyGroup(arr){
-  return arr.map(format2).join("-");
-}
-
-function combK(nums, k){
-  const res = [];
-  const n = nums.length;
-  function rec(start, path){
-    if(path.length===k){ res.push(path.slice()); return; }
-    for(let i=start; i<=n-(k-path.length); i++){
-      path.push(nums[i]);
-      rec(i+1, path);
-      path.pop();
-    }
-  }
-  rec(0, []);
-  return res;
-}
-
-function buildGroupCounts(concursos, k){
-  const map = new Map();
-  concursos.forEach(c=>{
-    const nums = (c.dezenas||[])
-      .map(toNum)
-      .filter(n=>n>=1 && n<=25)
-      .sort((a,b)=>a-b);
-
-    const combs = combK(nums, k);
-    for(const g of combs){
-      const key = keyGroup(g);
-      map.set(key, (map.get(key)||0) + 1);
-    }
-  });
-  return map;
-}
-
-function mapToSortedArray(map, minCount){
-  const arr = [];
-  for(const [k,v] of map.entries()){
-    if(v >= minCount){
-      const g = k.split("-").map(x=>toNum(x));
-      arr.push({ key:k, group:g, count:v });
-    }
-  }
-  arr.sort((a,b)=> b.count - a.count);
-  return arr;
-}
-
-/* ===== NOVO: monta 5 linhas (quinteto>quadra>terno) sem repetir dezenas ===== */
-function buildLinesByTogetherness(concursos, stats){
-  const total = concursos.length;
-  const minCount = (total >= 12) ? 2 : 1;
-
-  const map5 = buildGroupCounts(concursos, 5);
-  const map4 = buildGroupCounts(concursos, 4);
-  const map3 = buildGroupCounts(concursos, 3);
-
-  const quint = mapToSortedArray(map5, minCount);
-  const quad  = mapToSortedArray(map4, minCount);
-  const tern  = mapToSortedArray(map3, minCount);
-
-  const used = new Set();
-  const lines = [];
-  const meta = [];
-
-  function bestExtraForBase(base){
-    const need = 5 - base.length;
-    const cand = [];
-    for(let n=1;n<=25;n++){
-      if(base.includes(n)) continue;
-      if(used.has(n)) continue;
-
-      let s=0;
-      base.forEach(b=>{ s += pairStrength(b, n, stats); });
-
-      s += (stats.decay[n]||0) * 0.8;
-      s += Math.min(3, (stats.gap[n]||0) * 0.15);
-
-      cand.push({n, s});
-    }
-    cand.sort((a,b)=>b.s-a.s);
-    return cand.slice(0, need).map(x=>x.n);
-  }
-
-  function acceptGroup(group){
-    for(const n of group){
-      if(used.has(n)) return false;
-    }
-    return true;
-  }
-
-  function pushLine(line, origem, suporte, baseGroup){
-    const l = line.slice().sort((a,b)=>a-b);
-    l.forEach(n=>used.add(n));
-    lines.push(l);
-
-    // baseGroup = o grupo REAL (5/4/3) encontrado nos concursos
-    meta.push({
-      origem,                  // QUINTETO / QUADRA+1 / TERNO+2 / FILL
-      suporte,                 // quantas vezes saiu junto
-      baseGroup: (baseGroup||[]).slice().sort((a,b)=>a-b)
-    });
-  }
-
-  // 1) Quintetos
-  for(const q of quint){
-    if(lines.length>=5) break;
-    if(!acceptGroup(q.group)) continue;
-    pushLine(q.group, "QUINTETO", q.count, q.group);
-  }
-
-  // 2) Quadras + 1
-  for(const q of quad){
-    if(lines.length>=5) break;
-    if(q.group.some(n=>used.has(n))) continue;
-
-    const extra = bestExtraForBase(q.group);
-    const line = q.group.concat(extra);
-    if(line.length!==5) continue;
-    if(!acceptGroup(line)) continue;
-    pushLine(line, "QUADRA+1", q.count, q.group);
-  }
-
-  // 3) Ternos + 2
-  for(const t of tern){
-    if(lines.length>=5) break;
-    if(t.group.some(n=>used.has(n))) continue;
-
-    const extra = bestExtraForBase(t.group);
-    const line = t.group.concat(extra);
-    if(line.length!==5) continue;
-    if(!acceptGroup(line)) continue;
-    pushLine(line, "TERNO+2", t.count, t.group);
-  }
-
-  // 4) Completa se faltar
-  while(lines.length < 5){
-    const base = [];
-    for(let n=1;n<=25;n++){
-      if(used.has(n)) continue;
-      base.push(n);
-    }
-
-    base.sort((a,b)=>{
-      const sa = (stats.freq[a]*1.0) + (stats.decay[a]*3.0) + Math.min(6, stats.gap[a]*0.35);
-      const sb = (stats.freq[b]*1.0) + (stats.decay[b]*3.0) + Math.min(6, stats.gap[b]*0.35);
-      return sb-sa;
-    });
-
-    const line = base.slice(0,5).sort((a,b)=>a-b);
-    pushLine(line, "FILL", 0, []);
-  }
-
-  // ordena por força (mais forte primeiro)
-  const ranked = lines.map((l,i)=>({ l, i, s: groupStrength(l, stats).sum }));
-  ranked.sort((a,b)=>b.s-a.s);
-
-  const sortedLines = ranked.map(x=>x.l);
-  const sortedMeta  = ranked.map(x=>meta[x.i]);
-
-  return { lines: sortedLines, meta: sortedMeta };
-}
 
   // recência (exponencial)
   const decay = Array(26).fill(0);
