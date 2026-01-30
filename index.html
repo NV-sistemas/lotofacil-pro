@@ -1697,6 +1697,85 @@ let lastPrincipalMeta=null;
 let lastInvertidaGame=null;
 let lastTecnicaGames=null;
 
+/* =========================
+   ✅ SALVAMENTO LOCAL (1 arquivo por tipo)
+========================= */
+function keySavedBundle(uid){ return `lf_saved_bundle_v1_${uid||"anon"}`; }
+function keySaved15P(uid){ return `lf_saved_15p_v1_${uid||"anon"}`; }
+
+function salvarBundlePrincipal(){
+  if(!access.uid) return alert("Você precisa estar logado para salvar.");
+  if(!(lastPrincipalGame && lastInvertidaGame && lastTecnicaGames?.g1 && lastTecnicaGames?.g2)){
+    return alert("Gere Principal + Invertida + Técnica antes de salvar.");
+  }
+
+  const payload = {
+    at: Date.now(),
+    window: lastPayload ? { inicio:lastPayload.inicio, ultimo:lastPayload.ultimo, qtd:lastPayload.concursos?.length } : null,
+    principal: lastPrincipalGame,
+    invertida: lastInvertidaGame,
+    tecnica1: lastTecnicaGames.g1,
+    tecnica2: lastTecnicaGames.g2
+  };
+
+  localStorage.setItem(keySavedBundle(access.uid), JSON.stringify(payload));
+  alert("✅ Salvo! (Principal + Invertida + Técnica) — substituiu o arquivo anterior.");
+}
+
+function carregarBundlePrincipal(){
+  if(!access.uid) return alert("Você precisa estar logado.");
+  const raw = localStorage.getItem(keySavedBundle(access.uid));
+  if(!raw) return alert("Não existe arquivo salvo ainda.");
+
+  const payload = JSON.parse(raw);
+  lastPrincipalGame = payload.principal || null;
+  lastInvertidaGame = payload.invertida || null;
+  lastTecnicaGames = { g1: payload.tecnica1 || null, g2: payload.tecnica2 || null };
+
+  alert("✅ Carregado! Seus jogos salvos foram restaurados.");
+  updateCheckButtons();
+  montarTelaCheck();
+  goView("viewCheck");
+}
+
+function apagarBundlePrincipal(){
+  if(!access.uid) return alert("Você precisa estar logado.");
+  localStorage.removeItem(keySavedBundle(access.uid));
+  alert("🗑️ Arquivo salvo removido.");
+}
+
+/* ✅ Salvar 1 jogo do 15P (o usuário escolhe qual jogo) */
+function salvarJogo15P(numeroDoJogo, jogos){
+  if(!access.uid) return alert("Você precisa estar logado para salvar.");
+  const idx = Number(numeroDoJogo) - 1;
+  if(!Array.isArray(jogos) || !jogos[idx]) return alert("Jogo inválido para salvar.");
+
+  const payload = {
+    at: Date.now(),
+    window: lastPayload ? { inicio:lastPayload.inicio, ultimo:lastPayload.ultimo, qtd:lastPayload.concursos?.length } : null,
+    jogo: jogos[idx]
+  };
+
+  localStorage.setItem(keySaved15P(access.uid), JSON.stringify(payload));
+  alert("✅ Jogo 15P salvo! (substituiu o anterior)");
+}
+
+function carregarJogo15P(){
+  if(!access.uid) return alert("Você precisa estar logado.");
+  const raw = localStorage.getItem(keySaved15P(access.uid));
+  if(!raw) return alert("Não existe jogo 15P salvo ainda.");
+
+  const payload = JSON.parse(raw);
+  const nums = payload.jogo || [];
+  alert("✅ Jogo 15P carregado!\n\n" + nums.map(format2).join(" - "));
+}
+
+function apagarJogo15P(){
+  if(!access.uid) return alert("Você precisa estar logado.");
+  localStorage.removeItem(keySaved15P(access.uid));
+  alert("🗑️ Jogo 15P salvo removido.");
+}
+
 /* ✅ MANUAL (Principal) */
 let manualPrincipalSet = new Set();
 
@@ -2666,9 +2745,9 @@ function explainLine(lineIdx, line, stats, kind){
             <div class="mini" style="margin-top:10px">
         <b>📌 Resumo real (juntas na janela):</b><br/>
         <b>5 juntas:</b> <span class="mono">${line.map(format2).join("-")}</span> • <b>${c5}x</b><br/>
-        <b>Melhor 4 juntas:</b> <span class="mono">${(b4.group||[]).map(format2).join("-")}</span> • <b>${b4.count}x</b><br/>
-        <b>Melhor 3 juntas:</b> <span class="mono">${(b3.group||[]).map(format2).join("-")}</span> • <b>${b3.count}x</b><br/>
-        <b>Melhor 2 juntas:</b> <span class="mono">${(b2.group||[]).map(format2).join("-")}</span> • <b>${b2.count}x</b><br/>
+        <b>4 juntas:</b> <span class="mono">${(b4.group||[]).map(format2).join("-")}</span> • <b>${b4.count}x</b><br/>
+        <b>3 juntas:</b> <span class="mono">${(b3.group||[]).map(format2).join("-")}</span> • <b>${b3.count}x</b><br/>
+        <b>2 juntas:</b> <span class="mono">${(b2.group||[]).map(format2).join("-")}</span> • <b>${b2.count}x</b><br/>
         <div style="margin-top:8px">${realMsg}</div>
       </div>
 
@@ -2869,7 +2948,7 @@ async function gerar15P(){
           <div style="font-weight:1000;font-size:16px">✅ 15 Pontos (Estratégia) • 10 jogos</div>
           <div class="mini">Janela: <b>${payload.inicio}</b> a <b>${payload.ultimo}</b> (${payload.concursos.length} concursos)</div>
           <div class="mini" style="margin-top:8px">
-            📌 Regra do método: cobrimos todas as combinações de <b>3 linhas entre 5</b> (10 jogos). <b>Não garante premiação</b>.
+            📌 REGRA DO MÉTODO: ACERTANDO <b>3 LINHAS COMPLETAS</b>, PRÊMIO GARANTIDO!
           </div>
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
