@@ -1181,7 +1181,7 @@ function gerarJogoForte(freq, metrics){
    - Retorna { jogo, motivos }
 ========================= */
 function gerarJogoComRegrasUltimo(ultimo, freq, metrics){
-  const setUlt = new Set((ultimo||[]).map(String));
+  const setUlt = new Set((ultimo && ultimo.dezenas) ? ultimo.dezenas : []);
   const dezenas = Array.from({length:25}, (_,i)=>String(i+1).padStart(2,"0"));
 
   function pickRandom(arr, k){
@@ -1546,17 +1546,17 @@ function renderBlocksPrime(totals, patterns, total){
     `;
   }).join("");
 
-  const blocosHtml =
-    <div class="box" style="margin-top:12px"> ;
-    <b>🧩 Blocos ${blocosHtml}</b>      <div class="mini" style="margin-top:6px">Totais por bloco na janela + padrões ${blocosHtml} mais repetidos por concurso.</div>;
-
-      <div style="margin-top:10px">
-        ${bar("A (01–05)", totals.A)}
-        ${bar("B (06–10)", totals.B)}
-        ${bar("C (11–15)", totals.C)}
-        ${bar("D (16–20)", totals.D)}
-        ${bar("E (21–25)", totals.E)}
-      </div>
+  const blocosHtml = `
+  <div class="box" style="margin-top:12px">
+    <b>🧩 Blocos A–E</b>
+    <div class="mini" style="margin-top:6px">
+      Padrões mais frequentes (A–E por concurso):
+    </div>
+    <div style="margin-top:10px">
+      ${padsHtml || ""}
+    </div>
+  </div>
+`;
 
       <div class="mini" style="margin-top:10px">
         <b>Padrões mais frequentes (A–E por concurso):</b>
