@@ -1532,51 +1532,45 @@ function renderSumsTop(sums, total){
 }
 
 function renderBlocksPrime(totals, patterns, total){
-  const max = Math.max(totals.A,totals.B,totals.C,totals.D,totals.E,1);
-  function bar(label, val){
-    const pct = Math.round((val/max)*100);
+  // ✅ Mostra SOMENTE: "Padrões mais frequentes (A–E por concurso)"
+  // ✅ (Removeu o gráfico de totais A–E)
+
+  const toplist = (patterns || []).slice(0, 10); // Top 10 padrões
+  const maxCount = Math.max(...toplist.map(p => p.count || 0), 1);
+
+  const rows = toplist.map(p => {
+    const pctBar = Math.round(((p.count || 0) / maxCount) * 100);
+    const pctJanela = Math.round(((p.count || 0) / Math.max(1, total)) * 100);
+
     return `
       <div style="display:flex;align-items:center;gap:10px;margin:10px 0">
-        <div style="width:90px;color:var(--text);font-weight:950">${label}</div>
-        <div style="flex:1;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.12);border-radius:999px;overflow:hidden;height:16px">
-          <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--blue),var(--green))"></div>
+        <div style="width:210px" class="mini">
+          <b>Padrão:</b>
+          <span class="mono">${p.A}-${p.B}-${p.C}-${p.D}-${p.E}</span>
         </div>
-        <div style="width:56px;text-align:right;color:var(--text);font-weight:950">${val}</div>
-      </div>
-    `;
-  }
 
-  const top = patterns.slice(0,5).map(p=>{
-    const pct = Math.round((p.count/Math.max(1,total))*100);
-    return `
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px;border-bottom:1px solid rgba(255,255,255,.08)">
-        <div class="mini" style="margin:0">
-          <b>Padrão:</b> <span class="mono">${p.A}-${p.B}-${p.C}-${p.D}-${p.E}</span>
-          <span class="mini" style="margin:0;opacity:.9"> (A–E)</span>
+        <div style="flex:1;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.12);
+                    border-radius:999px;overflow:hidden;height:16px">
+          <div style="height:100%;width:${pctBar}%;background:linear-gradient(90deg,var(--blue),var(--green))"></div>
         </div>
-        <div class="mini" style="margin:0"><b>${p.count}x</b> • ${pct}%</div>
+
+        <div style="width:110px;text-align:right" class="mini">
+          <b>${p.count || 0}x</b> • ${pctJanela}%
+        </div>
       </div>
     `;
   }).join("");
 
   return `
     <div class="box" style="margin-top:12px">
-      <b>🧩 Blocos A–E (o que mais aparece e o que mais sai junto)</b>
-      <div class="mini" style="margin-top:6px">Totais por bloco na janela + padrões A–E mais repetidos por concurso.</div>
+      <b>📌 Padrões mais frequentes (A–E por concurso)</b>
+      <div class="mini" style="margin-top:6px">
+        Cada padrão representa quantas dezenas caíram em cada bloco:
+        A(01–05), B(06–10), C(11–15), D(16–20), E(21–25).
+      </div>
 
       <div style="margin-top:10px">
-        ${bar("A (01–05)", totals.A)}
-        ${bar("B (06–10)", totals.B)}
-        ${bar("C (11–15)", totals.C)}
-        ${bar("D (16–20)", totals.D)}
-        ${bar("E (21–25)", totals.E)}
-      </div>
-
-      <div class="mini" style="margin-top:10px">
-        <b>Padrões mais frequentes (A–E por concurso):</b>
-      </div>
-      <div style="margin-top:10px;border:1px solid rgba(255,255,255,.10);border-radius:14px;overflow:hidden">
-        ${top || `<div style="padding:12px" class="mini">—</div>`}
+        ${rows || `<div class="mini">—</div>`}
       </div>
     </div>
   `;
