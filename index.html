@@ -1215,14 +1215,16 @@ function gerarJogoComRegrasUltimo(freq, metrics, dezenasUltimo){
   }
 
   for(let tries=0; tries<1200; tries++){
-    const r = 6 +// ✅ repetição do último: 4..11
-// ✅ a cada 5 tentativas, forçar preferência em 7 ou 8 (mais comum)
-let r;
-if(tries % 5 === 0){
-  r = (Math.random() < 0.5) ? 7 : 8;
-}else{
-  r = 4 + Math.floor(Math.random()*8); // 4..11
-}
+
+  // ✅ repetição do último: 4..11
+  // ✅ a cada 5 tentativas, preferência em 7 ou 8 (mais comum)
+  let r;
+  if(tries % 5 === 0){
+    r = (Math.random() > 0.5) ? 7 : 8;
+  }else{
+    r = 4 + Math.floor(Math.random()*8); // 4..11
+  }
+
     const rep = pickRandom(ultimo, Math.min(r, ultimo.length));
     const restCount = 15 - rep.length;
 
