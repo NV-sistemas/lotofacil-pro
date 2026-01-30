@@ -197,12 +197,11 @@
 
   /* Cartão Lotofácil (5x5) */
   .cartaoWrap{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
-
   /* ✅ MOBILE: ajustes extras (apenas no celular) */
-  @media (max-width: 520px){
-    .actionGrid{ grid-template-columns: 1fr; }
-    .header{ margin-bottom: 10px; }
-  }
+@media (max-width: 520px){
+  .actionGrid{ grid-template-columns: 1fr; }
+  .header{ margin-bottom: 10px; }
+}
 
   .cartao{
     display:grid;grid-template-columns: repeat(5, 44px);
@@ -297,45 +296,46 @@
   .tip:hover::after{ opacity:1; transform: translateY(0); }
   .tip .q{opacity:.8}
 
+  /* ✅ Fix mobile geral */
   /* ✅ FIX ANDROID: remove o "buraco" no login quando vira coluna */
-  @media (max-width: 520px){
-    #loginWrap .row{
-      flex-direction: column;
-      gap: 10px;
-    }
-    #loginWrap .col{
-      flex: 1 1 auto !important;
-    }
+@media (max-width: 520px){
+  #loginWrap .row{
+    flex-direction: column;
+    gap: 10px;
   }
+  #loginWrap .col{
+    flex: 1 1 auto !important;
+  }
+}
 
-  /* ===== MANUAL PICK (principal + 15P) ===== */
-  .pickGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;max-width:460px;margin-top:10px}
-  .pickCell{
-    height:44px;border-radius:12px;
-    display:flex;align-items:center;justify-content:center;
-    border:1px solid rgba(255,255,255,.14);
-    background:rgba(255,255,255,.05);
-    font-weight:1000;cursor:pointer;user-select:none;
-  }
-  .pickCell.sel{background:rgba(34,197,94,.16);border-color:rgba(34,197,94,.35);color:#eafff4;box-shadow:0 12px 30px rgba(0,0,0,.25)}
-  .pickCell.lock{opacity:.35;cursor:not-allowed}
+/* ===== MANUAL PICK (principal + 15P) ===== */
+.pickGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;max-width:460px;margin-top:10px}
+.pickCell{
+  height:44px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(255,255,255,.05);
+  font-weight:1000;cursor:pointer;user-select:none;
+}
+.pickCell.sel{background:rgba(34,197,94,.16);border-color:rgba(34,197,94,.35);color:#eafff4;box-shadow:0 12px 30px rgba(0,0,0,.25)}
+.pickCell.lock{opacity:.35;cursor:not-allowed}
 
-  .lineTabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-  .lineBtn{
-    padding:8px 10px;border-radius:12px;
-    border:1px solid rgba(255,255,255,.14);
-    background:rgba(255,255,255,.05);
-    color:var(--text);font-weight:1000;cursor:pointer
-  }
-  .lineBtn.on{border-color:rgba(56,189,248,.35);background:rgba(56,189,248,.12);color:#e6f8ff}
-  .slotRow{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-  .slot{
-    min-width:52px;
-    padding:8px 10px;border-radius:12px;
-    border:1px dashed rgba(255,255,255,.18);
-    background:rgba(255,255,255,.04);
-    font-weight:1000;
-  }
+.lineTabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.lineBtn{
+  padding:8px 10px;border-radius:12px;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(255,255,255,.05);
+  color:var(--text);font-weight:1000;cursor:pointer
+}
+.lineBtn.on{border-color:rgba(56,189,248,.35);background:rgba(56,189,248,.12);color:#e6f8ff}
+.slotRow{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.slot{
+  min-width:52px;
+  padding:8px 10px;border-radius:12px;
+  border:1px dashed rgba(255,255,255,.18);
+  background:rgba(255,255,255,.04);
+  font-weight:1000;
+}
 </style>
 </head>
 
@@ -457,20 +457,16 @@ const functions = firebase.app().functions("us-central1");
       <div class="row">
         <div class="col">
           <label>Quantidade de concursos para análise</label>
-
-          <!-- ✅ CORRIGIDO: removido </select> duplicado -->
           <select id="qtdConcursos">
-            <option value="3">Últimos 3 concursos (rápido)</option>
-            <option value="5">Últimos 5 concursos (rápido)</option>
-            <option value="10" selected>Últimos 10 concursos (rápido)</option>
-            <option value="15">Últimos 15 concursos (rápido)</option>
-            <option value="20">Últimos 20 concursos (rápido)</option>
-            <option value="30">Últimos 30 concursos (rápido)</option>
-            <option value="50">Últimos 50 concursos (mais demorado)</option>
-            <option value="75">Últimos 75 concursos (mais demorado)</option>
-            <option value="100">Últimos 100 concursos (mais demorado)</option>
+            <option value="5">Últimos 5 concursos</option>
+            <option value="10" selected>Últimos 10 concursos</option>
+            <option value="15">Últimos 15 concursos</option>
+            <option value="20">Últimos 20 concursos</option>
+            <option value="25">Últimos 25 concursos</option>
+            <option value="50">Últimos 50 concursos</option>
+            <option value="75">Últimos 75 concursos</option>
+            <option value="100">Últimos 100 concursos</option>
           </select>
-
           <div class="mini" style="margin-top:10px">
             Dica: quanto maior o período, mais “robusta” fica a estatística. Se APIs bloquearem, o app entra em modo demonstração automaticamente.
           </div>
@@ -530,24 +526,6 @@ const functions = firebase.app().functions("us-central1");
           </div>
           <p class="actionDesc">Tela separada: 5 linhas + análise avançada e 10 jogos. Você também pode criar suas próprias linhas.</p>
         </div>
-      </div>
-    </div>
-
-    <div class="card">
-      <b>💾 Salvos (1 por tipo)</b>
-      <div class="mini" style="margin-top:8px">
-        Você pode salvar <b>1 pacote do Principal</b> (Principal + Invertida + Técnica) e <b>1 do 15P</b>.
-        Ao salvar de novo, o anterior é substituído.
-      </div>
-
-      <div class="row" style="margin-top:12px">
-        <div class="col"><button class="btn btnBlue" type="button" onclick="savePrincipalBundle()">Salvar Principal</button></div>
-        <div class="col"><button class="btn btnGhost" type="button" onclick="loadPrincipalBundle()">Carregar Principal</button></div>
-      </div>
-
-      <div class="row" style="margin-top:10px">
-        <div class="col"><button class="btn btnPurple" type="button" onclick="save15PBundle()">Salvar 15P</button></div>
-        <div class="col"><button class="btn btnGhost" type="button" onclick="load15PBundle()">Carregar 15P</button></div>
       </div>
     </div>
 
@@ -958,11 +936,7 @@ auth.onAuthStateChanged(async (user)=>{
    MOTOR BASE
 ========================= */
 function format2(n){ return String(n).padStart(2,"0"); }
-function toNum(d){
-  const s = String(d);
-  const n = Number(s.replace(/^0+/,""));
-  return Number.isFinite(n) ? n : Number(d);
-}
+function toNum(d){ return Number(String(d).replace(/^0+/,"")) || Number(d); }
 function sortNum(arr){ return arr.slice().sort((a,b)=>a-b); }
 
 function calcularFrequencias(concursos){
@@ -1033,16 +1007,17 @@ function classificarDezenas(freq, jogo){
 
 /* ===== MÉTRICAS MODERNAS (tendência/recência/atraso) ===== */
 function calcModernMetrics(concursos){
+  // concursos esperado em ordem crescente (início -> último)
   const n = concursos.length;
   const freq = Array(26).fill(0);
   const decay = Array(26).fill(0);
   const recent10 = Array(26).fill(0);
   const lastSeen = Array(26).fill(-1);
 
-  const DECAY = 0.92;
+  const DECAY = 0.92; // peso para recência (mais novo = mais peso)
   for(let i=0;i<n;i++){
     const nums=(concursos[i].dezenas||[]).map(toNum).filter(x=>x>=1 && x<=25);
-    const w = Math.pow(DECAY, (n-1-i)); // último = 1
+    const w = Math.pow(DECAY, (n-1-i)); // último concurso = w=1
     nums.forEach(x=>{
       freq[x] += 1;
       decay[x] += w;
@@ -1056,6 +1031,7 @@ function calcModernMetrics(concursos){
     gap[x] = (lastSeen[x]===-1) ? n : (n-1-lastSeen[x]);
   }
 
+  // tendência simples: recente10 comparado com base
   const trend = Array(26).fill(0);
   for(let x=1;x<=25;x++){
     const baseRate = freq[x] / Math.max(1,n);
@@ -1067,7 +1043,7 @@ function calcModernMetrics(concursos){
 }
 
 function renderModernInsights(metrics){
-  const {n,decay,recent10,gap,trend} = metrics;
+  const {n,freq,decay,recent10,gap,trend} = metrics;
 
   const topTrend = [];
   const topOverdue = [];
@@ -1094,7 +1070,11 @@ function renderModernInsights(metrics){
         <b>⚡ Mais fortes na recência (peso exponencial):</b> <span class="mono">${recencyList}</span>
       </div>
       <div class="mini">
-    }
+        Tendência e atraso ajudam a montar “mix” inteligente (quentes + frias + recência). Não é garantia de acerto.
+      </div>
+    </div>
+  `;
+}
 </script>
 
 <script>
@@ -1180,78 +1160,102 @@ function gerarJogoForte(freq, metrics){
    - Complemento: dentre as 10 que NÃO saíram no último (completa até 15)
    - Retorna { jogo, motivos }
 ========================= */
-function gerarJogoComRegrasUltimo(ultimo, freq, metrics){
-  const setUlt = new Set((ultimo && ultimo.dezenas) ? ultimo.dezenas : []);
-  const dezenas = Array.from({length:25}, (_,i)=>String(i+1).padStart(2,"0"));
+function gerarJogoComRegrasUltimo(freq, metrics, dezenasUltimo){
+  const ultimo = (dezenasUltimo||[]).map(toNum).filter(n=>n>=1 && n<=25);
+  const setUlt = new Set(ultimo);
 
-  function pickRandom(arr, k){
-    const a = arr.slice();
-    for(let i=a.length-1;i>0;i--){
-      const j = Math.floor(Math.random()*(i+1));
-      [a[i],a[j]]=[a[j],a[i]];
-    }
-    return a.slice(0,k);
+  // 10 dezenas que NÃO saíram no último
+  const naoSaiu = [];
+  for(let n=1;n<=25;n++){
+    if(!setUlt.has(n)) naoSaiu.push(n);
   }
 
   function scoreJogo(jogo){
-    let score = 0;
+    const pi = contarParesImpares(jogo);
+    const soma = somaDezenas(jogo);
+    const blocos = distribuicaoBlocos(jogo);
+    const seq = contarSequencias(jogo);
 
-    // peso básico por frequência
-    for(const d of jogo){
-      score += (freq[d] || 0);
+    let score=0;
+
+    // (1) Pares/ímpares: ideal 7/8
+    score += (pi.pares===7 || pi.pares===8) ? 25 : (pi.pares===6 || pi.pares===9) ? 12 : 0;
+
+    // (2) Soma: faixa comum
+    score += (soma>=170 && soma<=230) ? 20 : (soma>=160 && soma<=240) ? 10 : 0;
+
+    // (3) Blocos: evitar concentração
+    const maxBlock = Math.max(blocos.A,blocos.B,blocos.C,blocos.D,blocos.E);
+    score += (maxBlock<=5) ? 20 : (maxBlock===6) ? 10 : 0;
+
+    // (4) Sequência: evitar sequência enorme
+    score += (seq.maxLen<=4) ? 15 : (seq.maxLen===5) ? 6 : 0;
+
+    // (5) Frequência (janela)
+    score += Math.min(20, Math.round(jogo.reduce((a,n)=>a+(freq[n]||0),0)/10));
+
+    // (6) Recência (se tiver metrics)
+    if(metrics){
+      const recScore = jogo.reduce((a,n)=>a+(metrics.decay?.[n]||0),0);
+      score += Math.min(12, recScore);
     }
 
-    // repetidas do último (regra 4..11)
-    const repsCount = jogo.filter(n=>setUlt.has(n)).length;
-
-    // bônus por ficar dentro de 4..11
-    if(repsCount >= 4 && repsCount <= 11) score += 50;
-
-    // penaliza viciar em 10 (e também 9/11)
-    if(repsCount === 10) score -= 60;
-    if(repsCount === 9 || repsCount === 11) score -= 30;
-
-    // (opcional) você pode ajustar os pesos depois
     return score;
   }
 
-  let best = null;
-  let bestScore = -Infinity;
+  // escolhe uma combinação boa dentro das regras:
+  // repete r (6..11) do último e completa com (15-r) das 10 que não saíram
+  let best=null;
 
-  // tenta várias vezes e escolhe o melhor
-  for(let t=0; t<350; t++){
-    const r = 4 + Math.floor(Math.random()*8); // 4..11 repetidas do último
-    const doUlt = pickRandom(Array.from(setUlt), Math.min(r, setUlt.size));
+  function pickRandom(arr, k){
+    const a=arr.slice().sort(()=>Math.random()-0.5);
+    return a.slice(0,k);
+  }
 
-    const restantes = dezenas.filter(d=>!setUlt.has(d));
-    const faltam = 15 - doUlt.length;
-    const complet = pickRandom(restantes, faltam);
+  for(let tries=0; tries<1200; tries++){
+    const r = 6 + Math.floor(Math.random()*6); // 6..11
+    const rep = pickRandom(ultimo, Math.min(r, ultimo.length));
+    const restCount = 15 - rep.length;
 
-    const jogo = [...doUlt, ...complet].sort();
+    const comp = pickRandom(naoSaiu, restCount);
+
+    const set = new Set([...rep, ...comp]);
+    while(set.size<15){
+      set.add(Math.floor(Math.random()*25)+1);
+    }
+
+    const jogo = sortNum([...set]);
+
+    // garante que a quantidade de repetidas do último está entre 6 e 11
+    const reps = jogo.filter(n=>setUlt.has(n));
+    if(reps.length < 6 || reps.length > 11) continue;
+
+    // garante que veio uma quantidade boa do grupo "não saiu"
+    const doNaoSaiu = jogo.filter(n=>!setUlt.has(n));
+    // você falou que costuma sair de 4 a 10 dessas 10
+    if(doNaoSaiu.length < 4 || doNaoSaiu.length > 10) continue;
+
     const sc = scoreJogo(jogo);
-
-    if(sc > bestScore){
-      bestScore = sc;
-      best = jogo;
+    if(!best || sc > best.score){
+      best = { jogo, score: sc, reps, doNaoSaiu };
     }
   }
 
-  // fallback seguro
+  // fallback: se por algum motivo não achou (raro), usa o antigo
   if(!best){
     const fallback = gerarJogoForte(freq, metrics);
     return { jogo: fallback, motivos: buildMotivos(fallback, ultimo, freq, metrics) };
   }
 
-  return { jogo: best, motivos: buildMotivos(best, ultimo, freq, metrics) };
+  // monta motivos (pra mostrar ao usuário)
+  const motivos = buildMotivos(best.jogo, ultimo, freq, metrics);
+
+  return { jogo: best.jogo, motivos };
 }
 
 /* ✅ Motivos “populares” por dezena */
 function buildMotivos(jogo, dezenasUltimoNums, freq, metrics){
-  // ✅ garante que dezenasUltimoNums é sempre um ARRAY
-const dezenasUltimoNums = Array.isArray(ultimo?.dezenas)
-  ? ultimo.dezenas.map(n => Number(n))
-  : [];
-  const setUlt = new Set((dezenasUltimoNums.map(toNum));
+  const setUlt = new Set((dezenasUltimoNums||[]).map(toNum));
   const ord = ordenarPorFreq(freq);
   const rank = {};
   ord.forEach((x,i)=>rank[x.dez]=i+1);
@@ -1507,35 +1511,19 @@ function renderSumsTop(sums, total){
 }
 
 function renderBlocksPrime(totals, patterns, total){
-  const top = (patterns || []).slice(0,5).map(p=>{
-    const pct = Math.round((p.count/Math.max(1,total))*100);
+  const max = Math.max(totals.A,totals.B,totals.C,totals.D,totals.E,1);
+  function bar(label, val){
+    const pct = Math.round((val/max)*100);
     return `
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px;border-bottom:1px solid rgba(255,255,255,.08)">
-        <div class="mini" style="margin:0">
-          <b>Padrão:</b> <span class="mono">${p.A}-${p.B}-${p.C}-${p.D}-${p.E}</span>
-          <span class="mini" style="margin:0;opacity:.9"> (A–E)</span>
+      <div style="display:flex;align-items:center;gap:10px;margin:10px 0">
+        <div style="width:90px;color:var(--text);font-weight:950">${label}</div>
+        <div style="flex:1;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.12);border-radius:999px;overflow:hidden;height:16px">
+          <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--blue),var(--green))"></div>
         </div>
-        <div class="mini" style="margin:0"><b>${p.count}x</b> • ${pct}%</div>
+        <div style="width:56px;text-align:right;color:var(--text);font-weight:950">${val}</div>
       </div>
     `;
-  }).join("");
-
-  return `
-    <div class="box" style="margin-top:12px">
-      <b>🧩 Blocos A–E (padrões que mais se repetem)</b>
-      <div class="mini" style="margin-top:6px">
-        Padrões A–E mais frequentes por concurso (sem gráfico).
-      </div>
-
-      <div class="mini" style="margin-top:10px">
-        <b>Padrões mais frequentes (A–E por concurso):</b>
-      </div>
-      <div style="margin-top:10px;border:1px solid rgba(255,255,255,.10);border-radius:14px;overflow:hidden">
-        ${top || `<div style="padding:12px" class="mini">—</div>`}
-      </div>
-    </div>
-  `;
-}
+  }
 
   const top = patterns.slice(0,5).map(p=>{
     const pct = Math.round((p.count/Math.max(1,total))*100);
@@ -1550,18 +1538,18 @@ function renderBlocksPrime(totals, patterns, total){
     `;
   }).join("");
 
-  // ✅ BLOCO FIXO: Blocos A–E (sem gráfico) + padrões
-const blocosHtml = `
-  <div class="box" style="margin-top:12px">
-    <b>🧩 Blocos A–E</b>
-    <div class="mini" style="margin-top:6px">
-      Padrões mais frequentes (A–E por concurso):
-    </div>
-    <div style="margin-top:10px">
-      ${padsHtml || "<div class='mini'>Sem padrões suficientes no período.</div>"}
-    </div>
-  </div>
-`;
+  return `
+    <div class="box" style="margin-top:12px">
+      <b>🧩 Blocos A–E (o que mais aparece e o que mais sai junto)</b>
+      <div class="mini" style="margin-top:6px">Totais por bloco na janela + padrões A–E mais repetidos por concurso.</div>
+
+      <div style="margin-top:10px">
+        ${bar("A (01–05)", totals.A)}
+        ${bar("B (06–10)", totals.B)}
+        ${bar("C (11–15)", totals.C)}
+        ${bar("D (16–20)", totals.D)}
+        ${bar("E (21–25)", totals.E)}
+      </div>
 
       <div class="mini" style="margin-top:10px">
         <b>Padrões mais frequentes (A–E por concurso):</b>
@@ -1708,123 +1696,6 @@ let lastPrincipalMeta=null;
 
 let lastInvertidaGame=null;
 let lastTecnicaGames=null;
-
-/* =========================
-   SALVAMENTO LOCAL (1 slot por tipo)
-========================= */
-const SAVE_KEY_PRINCIPAL = "lf_save_principal_v1";
-const SAVE_KEY_15P = "lf_save_15p_v1";
-
-function savePrincipalBundle(){
-  if(!lastPrincipalGame) return alert("Gere um Jogo Principal primeiro.");
-  const data = {
-    at: Date.now(),
-    principal: lastPrincipalGame || null,
-    invertida: lastInvertidaGame || null,
-    tecnica: lastTecnicaGames || null
-  };
-  localStorage.setItem(SAVE_KEY_PRINCIPAL, JSON.stringify(data));
-  alert("✅ Salvo! (Principal + Invertida + Técnica). Ao salvar de novo, ele substitui o anterior.");
-}
-
-function loadPrincipalBundle(){
-  const raw = localStorage.getItem(SAVE_KEY_PRINCIPAL);
-  if(!raw) return alert("Não existe jogo salvo do Principal ainda.");
-  try{
-    const data = JSON.parse(raw);
-    lastPrincipalGame = data.principal || null;
-    lastInvertidaGame = data.invertida || null;
-    lastTecnicaGames = data.tecnica || null;
-
-    alert("✅ Jogo do Principal carregado! Vá em 'Verificar jogos gerados' para conferir.");
-    updateCheckButtons();
-    montarTelaCheck();
-    goView("viewCheck");
-  }catch(e){
-    alert("❌ Erro ao carregar o salvo (arquivo corrompido).");
-  }
-}
-
-function save15PBundle(){
-  // salva as linhas do usuário (se tiver) senão salva as do sistema
-  const linesToSave = (linesUser15 && linesUser15.length===5 && linesUser15.every(l=>l.length===5))
-    ? linesUser15
-    : linesSystem15;
-
-  if(!linesToSave || linesToSave.length!==5 || !linesToSave.every(l=>Array.isArray(l) && l.length===5)){
-    return alert("Gere o 15P primeiro (ou complete as 5 linhas).");
-  }
-
-  const jogos = gerarJogos15P(linesToSave);
-
-  const data = {
-    at: Date.now(),
-    lines: linesToSave,
-    jogos
-  };
-
-  localStorage.setItem(SAVE_KEY_15P, JSON.stringify(data));
-  alert("✅ Salvo! (15P: linhas + 10 jogos). Ao salvar de novo, ele substitui o anterior.");
-}
-
-function load15PBundle(){
-  const raw = localStorage.getItem(SAVE_KEY_15P);
-  if(!raw) return alert("Não existe 15P salvo ainda.");
-  try{
-    const data = JSON.parse(raw);
-    const lines = data.lines || null;
-    const jogos = data.jogos || null;
-
-    if(!lines || !lines.every(l=>l.length===5)) return alert("Salvo inválido.");
-
-    // restaura editor
-    initUserLines15FromSystem(lines);
-    linesUser15 = lines.map(l=>l.slice());
-    activeLine15 = 4;
-
-    const jogosHtml = (jogos||[]).map((j, idx)=>`
-      <div class="box">
-        <b>Jogo ${idx+1}</b>
-        <div class="numbers" style="justify-content:flex-start;margin-top:10px">${renderBallsInline(j)}</div>
-      </div>
-    `).join("");
-
-    document.getElementById("p15Area").innerHTML = `
-      <div class="box">
-        <b>✅ 15P carregado (salvo)</b>
-        <div class="mini" style="margin-top:8px">Você carregou 1 arquivo salvo (linhas + 10 jogos).</div>
-      </div>
-
-      <div class="box" style="margin-top:12px">
-        <b>📌 Linhas (salvas)</b>
-        <div style="margin-top:10px;overflow:auto">
-          <table class="table">
-            <thead><tr><th>Linha</th><th>Dezenas</th></tr></thead>
-            <tbody>
-              ${lines.map((l,i)=>`
-                <tr><td><b>${i+1}</b></td><td class="mono">${l.map(format2).join(" - ")}</td></tr>
-              `).join("")}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="box" style="margin-top:12px">
-        <b>🎯 10 jogos (salvos)</b>
-        <div class="grid" style="margin-top:12px">${jogosHtml}</div>
-      </div>
-
-      <div class="row" style="margin-top:12px">
-        <div class="col"><button class="btn btnBlue" type="button" onclick="render15Editor()">✍️ Editar linhas (manual)</button></div>
-        <div class="col"><button class="btn btnPrimary" type="button" onclick="save15PBundle()">💾 Salvar novamente (substitui)</button></div>
-      </div>
-    `;
-
-    goView("view15p");
-  }catch(e){
-    alert("❌ Erro ao carregar o 15P salvo (arquivo corrompido).");
-  }
-}
 
 /* ✅ MANUAL (Principal) */
 let manualPrincipalSet = new Set();
@@ -2795,9 +2666,9 @@ function explainLine(lineIdx, line, stats, kind){
             <div class="mini" style="margin-top:10px">
         <b>📌 Resumo real (juntas na janela):</b><br/>
         <b>5 juntas:</b> <span class="mono">${line.map(format2).join("-")}</span> • <b>${c5}x</b><br/>
-        <b>4 juntas:</b> <span class="mono">${(b4.group||[]).map(format2).join("-")}</span> • <b>${b4.count}x</b><br/>
-        <b>3 juntas:</b> <span class="mono">${(b3.group||[]).map(format2).join("-")}</span> • <b>${b3.count}x</b><br/>
-        <b>2 juntas:</b> <span class="mono">${(b2.group||[]).map(format2).join("-")}</span> • <b>${b2.count}x</b><br/>
+        <b>Melhor 4 juntas:</b> <span class="mono">${(b4.group||[]).map(format2).join("-")}</span> • <b>${b4.count}x</b><br/>
+        <b>Melhor 3 juntas:</b> <span class="mono">${(b3.group||[]).map(format2).join("-")}</span> • <b>${b3.count}x</b><br/>
+        <b>Melhor 2 juntas:</b> <span class="mono">${(b2.group||[]).map(format2).join("-")}</span> • <b>${b2.count}x</b><br/>
         <div style="margin-top:8px">${realMsg}</div>
       </div>
 
@@ -2998,7 +2869,7 @@ async function gerar15P(){
           <div style="font-weight:1000;font-size:16px">✅ 15 Pontos (Estratégia) • 10 jogos</div>
           <div class="mini">Janela: <b>${payload.inicio}</b> a <b>${payload.ultimo}</b> (${payload.concursos.length} concursos)</div>
           <div class="mini" style="margin-top:8px">
-            📌 REGRA DO MÉTODO: SE AS 15 DEZENAS SORTEADAS ESTIVEREM CONTIDAS EM <b>3 DAS 5 LINHAS</b>, ENTÃO UM DOS <b>10 JOGOS</b> VAI TER <b>15 PONTOS</b>.
+            📌 Regra do método: cobrimos todas as combinações de <b>3 linhas entre 5</b> (10 jogos). <b>Não garante premiação</b>.
           </div>
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
