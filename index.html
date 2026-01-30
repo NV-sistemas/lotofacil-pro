@@ -2619,13 +2619,17 @@ function explainLine(lineIdx, line, stats, kind){
 
   const pairs = (kind==="forte") ? topPairsInGroup(line, stats, 3) : worstPairsInGroup(line, stats, 3);
   const pairsTxt = pairs.map(p=>{
-    const sign = (kind==="forte") ? "↑" : "↓";
-    return `<span class="chip" style="padding:7px 10px;font-size:12px">${sign} ${format2(p.a)}-${format2(p.b)} • juntos: <b>${p.co}</b>x • lift: <b>${p.lift.toFixed(2)}</b></span>`;
-  }).join(" ");
+  const isStrong = (kind==="forte");
+  const icon = isStrong ? "✅" : "⚠️";
+  const label = isStrong ? "apareceu junto" : "quase não aparece junto";
+  return `<span class="chip" style="padding:7px 10px;font-size:12px">
+    ${icon} <b>${format2(p.a)}-${format2(p.b)}</b> • ${label}: <b>${p.co}x</b>
+  </span>`;
+}).join(" ");
 
   const resumo = (kind==="forte")
-    ? `Linha construída combinando <b>frequência + recência</b> com pares que “andam juntos” (coocorrência e lift).`
-    : `Linha construída para ser <b>diversa</b>, evitando excesso de pares muito “colados”, mantendo mix de frequência.`;
+  ? `Linha montada com base em <b>frequência + recência</b> e combinações de dezenas que costumam aparecer juntas.`
+  : `Linha montada para ser <b>mais diferente</b>, evitando ficar “presa” nas mesmas combinações e mantendo um mix mais equilibrado.`;
 
   return `
     <div class="box">
@@ -2643,7 +2647,6 @@ function explainLine(lineIdx, line, stats, kind){
       <div class="mini"><b>Por que se juntaram:</b> ${resumo}</div>
             <div class="mini" style="margin-top:10px">
         <b>📌 Resumo real (juntas na janela):</b><br/>
-        <b>Paridade:</b> ${txtParidade}<br/>
         <b>5 juntas:</b> <span class="mono">${line.map(format2).join("-")}</span> • <b>${c5}x</b><br/>
         <b>Melhor 4 juntas:</b> <span class="mono">${(b4.group||[]).map(format2).join("-")}</span> • <b>${b4.count}x</b><br/>
         <b>Melhor 3 juntas:</b> <span class="mono">${(b3.group||[]).map(format2).join("-")}</span> • <b>${b3.count}x</b><br/>
@@ -2652,7 +2655,7 @@ function explainLine(lineIdx, line, stats, kind){
       </div>
 
       <div class="mini" style="margin-top:10px">
-        <b>${kind==="forte" ? "Pares mais fortes" : "Pares mais fracos"}:</b>
+        <b>${kind==="forte" ? "Combinações mais fortes (2 dezenas)" : "Combinações menos comuns (2 dezenas)"}:</b>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">${pairsTxt}</div>
       </div>
     </div>
