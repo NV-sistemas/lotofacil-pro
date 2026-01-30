@@ -2639,6 +2639,28 @@ async function gerar15P(){
   }
 }
 </script>
+<script>
+/* FIX EMERGÊNCIA – garante que a função exista */
+if(typeof calcCoocAndStats !== "function"){
+function calcCoocAndStats(concursos){
+  const freq = Array(26).fill(0);
+  const co = Array.from({length:26}, ()=>Array(26).fill(0));
+
+  concursos.forEach(c=>{
+    const nums=(c.dezenas||[]).map(n=>Number(n));
+    nums.forEach(a=>freq[a]++);
+    for(let i=0;i<nums.length;i++){
+      for(let j=i+1;j<nums.length;j++){
+        co[nums[i]][nums[j]]++;
+        co[nums[j]][nums[i]]++;
+      }
+    }
+  });
+
+  return { freq, co, lift: co, decay: freq, gap: freq, drawSets: [] };
+}
+}
+</script>
 
 <script>
 /* =========================
