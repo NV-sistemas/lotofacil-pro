@@ -1633,11 +1633,21 @@ async function getOnlineConcursos(qtd){
       const inicio = Math.max(1, ultimo - qtd + 1);
 
       const concursos=[];
-      for(let c=inicio;c<=ultimo;c++){
-        const raw = await tryFetchJson(src.byId(c));
-        concursos.push(src.adapt(raw));
-      }
-      return { mode:"online", source:src.name, latest, concursos, inicio, ultimo };
+     const ids = [];
+for (let c = inicio; c <= ultimo; c++) ids.push(c);
+
+// busca tudo em paralelo (muito mais rápido)
+const results = await Promise.allSettled(ids.map(c => tryFetchJson(src.byId(c))));
+
+const concursos = results
+  .filter(r => r.status === "fulfilled")
+  .map(r => src.adapt(r.value))
+  .filter(x => x && x.concurso && x.dezenas && x.dezenas.length);
+
+// garante que veio tudo; se faltou algum, força fallback para outra fonte
+if (concursos.length !== ids.length) throw new Error("API incompleta (faltou concurso).");
+
+return { mode:"online", source:src.name, latest, concursos, inicio, ultimo };
     }catch(e){
       lastErr=e;
     }
@@ -1679,6 +1689,7 @@ async function fetchUltimoResultado(){
    Estado global
 ========================= */
 let lastPayload=null;
+let cacheBase = { qtd: null, at: 0, payload: null, freq: null, modern: null };
 let lastCtx=null;
 
 let lastPrincipalGame=null;
@@ -1704,6 +1715,15 @@ function qtdSelecionada(){ return Number(document.getElementById("qtdConcursos")
 
 async function prepararContextoBase(qtd){
   setStatus(true,"Carregando concursos…");
+  // ✅ cache por 2 minutos
+const now = Date.now();
+if (cacheBase.payload && cacheBase.qtd === qtd && (now - cacheBase.at) < 120000) {
+  lastPayload = cacheBase.payload;
+  lastCtx = { freq: cacheBase.freq, modern: cacheBase.modern };
+  setStatus(false,"");
+  setProgress(0);
+  return { payload: lastPayload, freq: lastCtx.freq, modern: lastCtx.modern };
+}
   setProgress(12);
 
   let payload;
@@ -1729,6 +1749,8 @@ async function prepararContextoBase(qtd){
 
   setStatus(false,"");
   setProgress(0);
+
+  cacheBase = { qtd, at: Date.now(), payload, freq, modern };
 
   return { payload, freq, modern };
 }
@@ -2056,9 +2078,6 @@ const motivosHtml = Object.entries(motivosAgrupados)
           </div>
         </div>
       </div>
-
-      ${renderModernInsights(modern)}
-      ${renderTop10(freq, payload.concursos.length)}
 
       <div class="grid" style="margin-top:12px">
         <div class="box">
