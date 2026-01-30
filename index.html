@@ -1081,9 +1081,8 @@ function renderModernInsights(metrics){
 /* =========================
    GERAÇÃO DO JOGO (melhorada)
 ========================= */
-function gerarJogoForte(freq, metrics){
+function gerarJogoForte(freq, metrics, lastDezenas){
   const ord = ordenarPorFreq(freq);
-
   const hotPool = ord.slice(0,10).map(x=>x.dez);
   const warmPool = ord.slice(10,18).map(x=>x.dez);
   const coldPool = ord.slice(-7).map(x=>x.dez);
@@ -1100,6 +1099,13 @@ function gerarJogoForte(freq, metrics){
 
   let best=null;
   for(let t=0;t<820;t++){
+        const lastSet = new Set((lastDezenas||[]).map(toNum));
+
+    // ✅ alvo de repetidas: entre 4 e 11, com preferência 7/8
+    // regra: 70% das vezes tenta 7 ou 8
+    const targetRepeat = (Math.random() < 0.70)
+      ? (Math.random() < 0.5 ? 7 : 8)
+      : (4 + Math.floor(Math.random() * 8)); // 4..11
     const set=new Set();
 
     // ✅ mix padrão (mercado): quente + morna + fria
@@ -1119,6 +1125,49 @@ function gerarJogoForte(freq, metrics){
     }
 
     while(set.size<15) set.add(Math.floor(Math.random()*25)+1);
+    // ✅ ajustar repetidas do último concurso para ficar no alvo
+    function countRepeats(){
+      let r=0;
+      for(const n of set){ if(lastSet.has(n)) r++; }
+      return r;
+    }
+
+    let rep = countRepeats();
+
+    // se repetiu demais, troca repetidas por não repetidas
+    while(rep > 11 || rep > targetRepeat){
+      // pega um número repetido
+      const repNums = [...set].filter(n=>lastSet.has(n));
+      if(!repNums.length) break;
+      const remove = repNums[Math.floor(Math.random()*repNums.length)];
+      set.delete(remove);
+
+      // coloca um não repetido
+      const nonRepPool = [];
+      for(let n=1;n<=25;n++) if(!lastSet.has(n) && !set.has(n)) nonRepPool.push(n);
+      if(nonRepPool.length) set.add(nonRepPool[Math.floor(Math.random()*nonRepPool.length)]);
+      else set.add(Math.floor(Math.random()*25)+1);
+
+      rep = countRepeats();
+    }
+
+    // se repetiu de menos, força entrada de repetidas
+    while(rep < 4 || rep < targetRepeat){
+      // adiciona um repetido que não está no set
+      const repPool = [];
+      for(const n of lastSet) if(!set.has(n)) repPool.push(n);
+      if(repPool.length){
+        // remove um não repetido para manter 15
+        const nonRepNums = [...set].filter(n=>!lastSet.has(n));
+        if(nonRepNums.length){
+          set.delete(nonRepNums[Math.floor(Math.random()*nonRepNums.length)]);
+        }
+        set.add(repPool[Math.floor(Math.random()*repPool.length)]);
+      }else{
+        break;
+      }
+      rep = countRepeats();
+    }
 
     const jogo = sortNum([...set]);
     const pi = contarParesImpares(jogo);
@@ -1541,6 +1590,64 @@ async function fetchUltimoResultado(){
 /* =========================
    Estado global
 ========================= */
+  /* =========================
+   SALVAMENTO (localStorage) — 1 arquivo de cada (sobrescreve)
+========================= */
+const SAVE_KEY_PACK = "lf_saved_pack_v1";     // Principal + Invertida + Técnica
+const SAVE_KEY_15P  = "lf_saved_15p_v1";      // 15P (linhas + jogos)
+
+function savePrincipalPack(){
+  if(!lastPrincipalGame) return alert("Gere o Jogo Principal primeiro.");
+  if(!lastInvertidaGame || !lastTecnicaGames?.g1 || !lastTecnicaGames?.g2){
+    return alert("Para salvar o pacote completo, gere também Invertida + Técnica 1 e Técnica 2.");
+  }
+
+  const pack = {
+    savedAt: new Date().toISOString(),
+    principal: lastPrincipalGame,
+    invertida: lastInvertidaGame,
+    tecnica1: lastTecnicaGames.g1,
+    tecnica2: lastTecnicaGames.g2
+  };
+
+  localStorage.setItem(SAVE_KEY_PACK, JSON.stringify(pack));
+  alert("✅ Salvo! (Principal + Invertida + Técnica). Se salvar de novo, substitui automaticamente.");
+}
+
+function loadPrincipalPack(){
+  const raw = localStorage.getItem(SAVE_KEY_PACK);
+  if(!raw) return alert("Não existe pacote salvo ainda.");
+  const pack = JSON.parse(raw);
+
+  lastPrincipalGame = pack.principal || null;
+  lastInvertidaGame = pack.invertida || null;
+  lastTecnicaGames = { g1: pack.tecnica1 || null, g2: pack.tecnica2 || null };
+
+  alert("✅ Pacote carregado! Agora você pode ir em 'Verificar jogos gerados' e conferir.");
+  updateCheckButtons();
+}
+
+function save15P(){
+  if(!linesSystem15) return alert("Gere a análise 15P primeiro.");
+  const obj = {
+    savedAt: new Date().toISOString(),
+    systemLines: linesSystem15,
+    userLines: linesUser15
+  };
+  localStorage.setItem(SAVE_KEY_15P, JSON.stringify(obj));
+  alert("✅ Salvo! (15P). Se salvar de novo, substitui automaticamente.");
+}
+
+function load15P(){
+  const raw = localStorage.getItem(SAVE_KEY_15P);
+  if(!raw) return alert("Não existe 15P salvo ainda.");
+  const obj = JSON.parse(raw);
+
+  linesSystem15 = obj.systemLines || null;
+  linesUser15 = obj.userLines || null;
+
+  alert("✅ 15P carregado! Abra a tela 15P e gere os 10 jogos com suas linhas, se quiser.");
+}
 let lastPayload=null;
 let lastCtx=null;
 
@@ -1793,7 +1900,7 @@ async function acaoPrincipal(){
     setStatus(true,"Gerando jogo principal (15 dezenas)…");
     setProgress(80);
 
-    const jogo = gerarJogoForte(freq, modern);
+    const jogo = gerarJogoForte(freq, modern, payload.latest.dezenas);
 
     lastPrincipalGame = jogo.slice();
     lastInvertidaGame = null;
@@ -1839,9 +1946,11 @@ async function acaoPrincipal(){
           <div class="mini">Janela: <b>${payload.inicio}</b> a <b>${payload.ultimo}</b> (${payload.concursos.length} concursos)</div>
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
-          <button class="btn btnGhost" type="button" onclick="verConcursos()">📅 Ver concursos</button>
-          <button class="btn btnGhost" type="button" onclick="abrirGraficoBlocos(lastPrincipalMeta.blocos)">📊 Blocos A–E</button>
-        </div>
+  <button class="btn btnGhost" type="button" onclick="verConcursos()">📅 Ver concursos</button>
+  <button class="btn btnGhost" type="button" onclick="abrirGraficoBlocos(lastPrincipalMeta.blocos)">📊 Blocos A–E</button>
+  <button class="btn btnGhost" type="button" onclick="savePrincipalPack()">💾 Salvar pacote</button>
+  <button class="btn btnGhost" type="button" onclick="loadPrincipalPack()">📂 Carregar pacote</button>
+</div>
       </div>
 
       <div class="numbers">${balls}</div>
@@ -2148,8 +2257,52 @@ function montarTelaCheck(){
 /* =========================
    15P (mais forte + editor manual)
 ========================= */
+  /* ✅ Conta em quantos concursos um grupo apareceu completo */
+function countGroupTogether(group, drawSets){
+  let c=0;
+  for(const s of drawSets){
+    let ok=true;
+    for(const n of group){
+      if(!s.has(n)){ ok=false; break; }
+    }
+    if(ok) c++;
+  }
+  return c;
+}
+
+/* ✅ Melhor subgrupo (k) dentro de uma linha */
+function bestSubgroupTogether(line, k, drawSets){
+  const nums = line.slice().sort((a,b)=>a-b);
+  if(nums.length < k) return { group: [], count: 0 };
+
+  let best = { group: [], count: -1 };
+
+  function rec(start, comb){
+    if(comb.length === k){
+      const cnt = countGroupTogether(comb, drawSets);
+      if(cnt > best.count){
+        best = { group: comb.slice(), count: cnt };
+      }
+      return;
+    }
+    for(let i=start;i<nums.length;i++){
+      comb.push(nums[i]);
+      rec(i+1, comb);
+      comb.pop();
+    }
+  }
+
+  rec(0, []);
+  if(best.count < 0) best.count = 0;
+  return best;
+}
 function calcCoocAndStats(concursos){
   const n = concursos.length;
+    // ✅ sets por concurso (para contar grupos 2/3/4/5 juntas)
+  const drawSets = concursos.map(c=>{
+    const arr = (c.dezenas||[]).map(toNum).filter(x=>x>=1 && x<=25);
+    return new Set(arr);
+  });
   const freq = Array(26).fill(0);
   const co = Array.from({length:26}, ()=>Array(26).fill(0));
 
@@ -2193,7 +2346,7 @@ function calcCoocAndStats(concursos){
       lift[a][b] = denom>0 ? (pab/denom) : 0;
     }
   }
-  return { n, freq, co, p, lift, decay, gap };
+  return { n, freq, co, p, lift, decay, gap, drawSets };
 }
 
 function pairStrength(a,b, stats){
@@ -2397,7 +2550,7 @@ function explainLine(lineIdx, line, stats, kind){
     return `<span class="chip" style="padding:7px 10px;font-size:12px">${sign} ${format2(p.a)}-${format2(p.b)} • juntos: <b>${p.co}</b>x • lift: <b>${p.lift.toFixed(2)}</b></span>`;
   }).join(" ");
 
-  const resumo = (kind==="forte")
+  const resumo
     ? `Linha construída combinando <b>frequência + recência</b> com pares que “andam juntos” (coocorrência e lift).`
     : `Linha construída para ser <b>diversa</b>, evitando excesso de pares muito “colados”, mantendo mix de frequência.`;
 
@@ -2607,12 +2760,15 @@ async function gerar15P(){
     }).join("");
 
     document.getElementById("p15Area").innerHTML = `
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
-        <div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+  <button class="btn btnGhost" type="button" onclick="verConcursos()">📅 Ver concursos</button>
+  <button class="btn btnGhost" type="button" onclick="save15P()">💾 Salvar 15P</button>
+  <button class="btn btnGhost" type="button" onclick="load15P()">📂 Carregar 15P</button>
+</div>
           <div style="font-weight:1000;font-size:16px">✅ 15 Pontos (Estratégia) • 10 jogos</div>
           <div class="mini">Janela: <b>${payload.inicio}</b> a <b>${payload.ultimo}</b> (${payload.concursos.length} concursos)</div>
           <div class="mini" style="margin-top:8px">
-            📌 Regra do método: cobrimos todas as combinações de <b>3 linhas entre 5</b> (10 jogos). <b>Não garante premiação</b>.
+            📌 REGRA DO MÉTODO: COBRIMOS TODAS AS COMBINAÇÕES DE <b>3 LINHAS ENTRE 5</b> (10 JOGOS). <b>SE 3 LINHAS DEREM 15/15, UM DOS 10 JOGOS SERÁ 15/15.</b>
           </div>
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
