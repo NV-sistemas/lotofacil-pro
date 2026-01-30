@@ -1626,10 +1626,27 @@ const SOURCES = [
   }
 ];
 
-async function tryFetchJson(url){
-  const r = await fetch(url, { cache:"no-store" });
-  if(!r.ok) throw new Error("HTTP "+r.status);
-  return await r.json();
+async function tryFetchJson(url, timeoutMs = 8000){
+  const ctrl = new AbortController();
+  const t = setTimeout(()=> ctrl.abort(), timeoutMs);
+
+  try{
+    const r = await fetch(url, {
+      cache: "no-store",
+      signal: ctrl.signal
+    });
+
+    if(!r.ok) throw new Error("HTTP " + r.status);
+    return await r.json();
+  }catch(e){
+    // transforma abort em erro “normal”
+    if(String(e?.name) === "AbortError"){
+      throw new Error("TIMEOUT");
+    }
+    throw e;
+  }finally{
+    clearTimeout(t);
+  }
 }
 
 async function getOnlineConcursos(qtd){
@@ -2026,8 +2043,16 @@ function usarManualComoPrincipal(){
    AÇÃO: JOGO PRINCIPAL (PRIME + MODERNO + MANUAL)
 ========================= */
 async function acaoPrincipal(){
-  alert("CLIQUE NO JOGO PRINCIPAL OK ✅");
   const qtd = qtdSelecionada();
+goView("viewPrincipal");
+document.getElementById("principalArea").innerHTML = `
+  <div class="box">
+    <b>⏳ Carregando dados...</b>
+    <div class="mini" style="margin-top:8px">
+      Se a API demorar, o sistema entra em modo demonstração automaticamente.
+    </div>
+  </div>
+`;
 
   if(!access.premium && isFreeUsed()){
     alert("🔒 Você já usou a geração grátis. Para liberar, ative o Premium.");
@@ -2910,8 +2935,17 @@ function gerar15PComMinhasLinhas(){
 }
 
 async function gerar15P(){
-  alert("CLIQUE NO 15P OK ✅");
-  const can15p = ((access.premium && access.addon15) || access.isAdmin);
+    const can15p = ((access.premium && access.addon15) || access.isAdmin);
+  goView("view15p");
+document.getElementById("p15Area").innerHTML = `
+  <div class="box">
+    <b>⏳ Preparando análise 15P...</b>
+    <div class="mini" style="margin-top:8px">
+      Buscando concursos e calculando combinações. Se a API demorar, entra em modo demonstração.
+    </div>
+  </div>
+`;
+
   if(!can15p) return alert("🔒 O recurso '15 pontos garantido' é um EXTRA comprado separadamente (libera via claims).");
 
   const qtd = qtdSelecionada();
