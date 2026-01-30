@@ -548,9 +548,11 @@ const functions = firebase.app().functions("us-central1");
         <button class="btn btnGhost" type="button" onclick="goView('viewHome')">⬅ Voltar</button>
       </div>
       <div class="right">
-        <button class="btn btnGhost" type="button" onclick="verConcursos()">📅 Ver concursos</button>
-      </div>
-    </div>
+  <button class="btn btnGhost" type="button" onclick="conferirGerados()">Conferir com último concurso</button>
+  <button class="btn btnGhost" type="button" onclick="salvarBundlePrincipal()">💾 Salvar jogos</button>
+  <button class="btn btnGhost" type="button" onclick="carregarBundlePrincipal()">📂 Carregar salvos</button>
+  <button class="btn btnGhost" type="button" onclick="apagarBundlePrincipal()">🗑️ Apagar salvos</button>
+</div>
 
     <div class="card" id="analiseArea">
       <div class="footerNote">Clique em “Gerar análise” na tela principal.</div>
@@ -1213,7 +1215,14 @@ function gerarJogoComRegrasUltimo(freq, metrics, dezenasUltimo){
   }
 
   for(let tries=0; tries<1200; tries++){
-    const r = 6 + Math.floor(Math.random()*6); // 6..11
+    const r = 6 +// ✅ repetição do último: 4..11
+// ✅ a cada 5 tentativas, forçar preferência em 7 ou 8 (mais comum)
+let r;
+if(tries % 5 === 0){
+  r = (Math.random() < 0.5) ? 7 : 8;
+}else{
+  r = 4 + Math.floor(Math.random()*8); // 4..11
+}
     const rep = pickRandom(ultimo, Math.min(r, ultimo.length));
     const restCount = 15 - rep.length;
 
@@ -2916,6 +2925,7 @@ async function gerar15P(){
     lines = optimizeLines(lines, stats);
 
     const jogos = gerarJogos15P(lines);
+    window.__lastJogos15P = jogos;
     const sourceInfo = { source: payload.source, mode: payload.mode };
 
     setStatus(false,"");
@@ -2952,9 +2962,11 @@ async function gerar15P(){
           </div>
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
-          <button class="btn btnGhost" type="button" onclick="verConcursos()">📅 Ver concursos</button>
-        </div>
-      </div>
+  <button class="btn btnGhost" type="button" onclick="verConcursos()">📅 Ver concursos</button>
+  <button class="btn btnGhost" type="button" onclick="(function(){ const n=prompt('Qual Jogo deseja salvar? (1 a 10)'); if(!n) return; salvarJogo15P(n, window.__lastJogos15P||[]); })()">💾 Salvar 1 jogo</button>
+  <button class="btn btnGhost" type="button" onclick="carregarJogo15P()">📂 Ver jogo salvo</button>
+  <button class="btn btnGhost" type="button" onclick="apagarJogo15P()">🗑️ Apagar jogo salvo</button>
+</div>
 
       <div class="box" style="margin-top:12px">
         <b>📌 Linhas 1 a 5 (geradas pelo sistema)</b>
