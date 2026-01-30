@@ -1180,101 +1180,69 @@ function gerarJogoForte(freq, metrics){
    - Complemento: dentre as 10 que NÃO saíram no último (completa até 15)
    - Retorna { jogo, motivos }
 ========================= */
-function gerarJogoComRegrasUltimo(freq, metrics, dezenasUltimo){
-  const ultimo = (dezenasUltimo||[]).map(toNum).filter(n=>n>=1 && n<=25);
-  const setUlt = new Set(ultimo);
-
-  // 10 dezenas que NÃO saíram no último
-  const naoSaiu = [];
-  for(let n=1;n<=25;n++){
-    if(!setUlt.has(n)) naoSaiu.push(n);
-  }
-
-  function scoreJogo(jogo){
-    const pi = contarParesImpares(jogo);
-    const soma = somaDezenas(jogo);
-    const blocos = distribuicaoBlocos(jogo);
-    const seq = contarSequencias(jogo);
-
-    let score=0;
-
-    // (1) Pares/ímpares: ideal 7/8
-    score += (pi.pares===7 || pi.pares===8) ? 25 : (pi.pares===6 || pi.pares===9) ? 12 : 0;
-
-    // (2) Soma: faixa comum
-    score += (soma>=170 && soma<=230) ? 20 : (soma>=160 && soma<=240) ? 10 : 0;
-
-    // (3) Blocos: evitar concentração
-    const maxBlock = Math.max(blocos.A,blocos.B,blocos.C,blocos.D,blocos.E);
-    score += (maxBlock<=5) ? 20 : (maxBlock===6) ? 10 : 0;
-
-    // (4) Sequência: evitar sequência enorme
-    score += (seq.maxLen<=4) ? 15 : (seq.maxLen===5) ? 6 : 0;
-
-    // (5) Frequência (janela)
-    score += Math.min(20, Math.round(jogo.reduce((a,n)=>a+(freq[n]||0),0)/10));
-
-    // (6) Recência (se tiver metrics)
-    if(metrics){
-      const recScore = jogo.reduce((a,n)=>a+(metrics.decay?.[n]||0),0);
-      score += Math.min(12, recScore);
-    }
-
-    return score;
-  }
-
-  // escolhe uma combinação boa dentro das regras:
-  // repete r (6..11) do último e completa com (15-r) das 10 que não saíram
-  let best=null;
+function gerarJogoComRegrasUltimo(ultimo, freq, metrics){
+  const setUlt = new Set((ultimo||[]).map(String));
+  const dezenas = Array.from({length:25}, (_,i)=>String(i+1).padStart(2,"0"));
 
   function pickRandom(arr, k){
-    const a=arr.slice().sort(()=>Math.random()-0.5);
+    const a = arr.slice();
+    for(let i=a.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i],a[j]]=[a[j],a[i]];
+    }
     return a.slice(0,k);
   }
 
-  for(let tries=0; tries<1200; tries++){
-    const r = 5 + Math.floor(Math.random()*7); // 5..11
-    const rep = pickRandom(ultimo, Math.min(r, ultimo.length));
-    const restCount = 15 - rep.length;
+  function scoreJogo(jogo){
+    let score = 0;
 
-    const comp = pickRandom(naoSaiu, restCount);
-
-    const set = new Set([...rep, ...comp]);
-    while(set.size<15){
-      set.add(Math.floor(Math.random()*25)+1);
+    // peso básico por frequência
+    for(const d of jogo){
+      score += (freq[d] || 0);
     }
 
-    const jogo = sortNum([...set]);
+    // repetidas do último (regra 4..11)
+    const repsCount = jogo.filter(n=>setUlt.has(n)).length;
 
-    // garante que a quantidade de repetidas do último está entre 6 e 11
-    const reps = jogo.filter(n=>setUlt.has(n));
-    if(reps.length < 5 || reps.length > 11) continue;
+    // bônus por ficar dentro de 4..11
+    if(repsCount >= 4 && repsCount <= 11) score += 50;
 
-    // garante que veio uma quantidade boa do grupo "não saiu"
-    const doNaoSaiu = jogo.filter(n=>!setUlt.has(n));
-    // você falou que costuma sair de 4 a 10 dessas 10
-    if(doNaoSaiu.length < 4 || doNaoSaiu.length > 10) continue;
+    // penaliza viciar em 10 (e também 9/11)
+    if(repsCount === 10) score -= 60;
+    if(repsCount === 9 || repsCount === 11) score -= 30;
 
-    let sc = scoreJogo(jogo);
+    // (opcional) você pode ajustar os pesos depois
+    return score;
+  }
 
-// ✅ bônus leve para não viciar em 10 repetidas sempre
-const repsCount = reps.length;
-if(repsCount === 10) sc -= 3;
-if(repsCount === 9 || repsCount === 11) sc -= 1;
+  let best = null;
+  let bestScore = -Infinity;
+
+  // tenta várias vezes e escolhe o melhor
+  for(let t=0; t<350; t++){
+    const r = 4 + Math.floor(Math.random()*8); // 4..11 repetidas do último
+    const doUlt = pickRandom(Array.from(setUlt), Math.min(r, setUlt.size));
+
+    const restantes = dezenas.filter(d=>!setUlt.has(d));
+    const faltam = 15 - doUlt.length;
+    const complet = pickRandom(restantes, faltam);
+
+    const jogo = [...doUlt, ...complet].sort();
+    const sc = scoreJogo(jogo);
+
+    if(sc > bestScore){
+      bestScore = sc;
+      best = jogo;
     }
   }
 
-  // fallback: se por algum motivo não achou (raro), usa o antigo
-  // fallback: se por algum motivo não achou (raro), usa o antigo
-// fallback: se por algum motivo não achou (raro), usa o antigo
-if(!best){
-  const fallback = gerarJogoForte(freq, metrics);
-  return { jogo: fallback, motivos: buildMotivos(fallback, ultimo, freq, metrics) };
-}
-  // monta motivos (pra mostrar ao usuário)
-  const motivos = buildMotivos(best.jogo, ultimo, freq, metrics);
+  // fallback seguro
+  if(!best){
+    const fallback = gerarJogoForte(freq, metrics);
+    return { jogo: fallback, motivos: buildMotivos(fallback, ultimo, freq, metrics) };
+  }
 
-  return { jogo: best.jogo, motivos };
+  return { jogo: best, motivos: buildMotivos(best, ultimo, freq, metrics) };
 }
 
 /* ✅ Motivos “populares” por dezena */
@@ -1535,7 +1503,7 @@ function renderSumsTop(sums, total){
 }
 
 function renderBlocksPrime(totals, patterns, total){
-  const top = patterns.slice(0,5).map(p=>{
+  const top = (patterns || []).slice(0,5).map(p=>{
     const pct = Math.round((p.count/Math.max(1,total))*100);
     return `
       <div style="display:flex;align-items:center;justify-content:space-between;padding:10px;border-bottom:1px solid rgba(255,255,255,.08)">
