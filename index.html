@@ -2451,3 +2451,387 @@ document.getElementById("btnAtivar15p").addEventListener("click", jaComprei15p);
 
 </body>
 </html>
+<!-- =========================
+     PARTE 2/2 (continução)
+     Cole abaixo da linha 2453
+========================= -->
+
+<script>
+/* =========================
+   (CORREÇÃO) Blocos A–E (padrões) — versão limpa
+========================= */
+function renderBlocksPrime(blockTotals, patterns, total){
+  const top = (patterns || []).slice(0,5).map(p=>{
+    const pct = Math.round((p.count/Math.max(1,total))*100);
+    return `
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px;border-bottom:1px solid rgba(255,255,255,.08)">
+        <div class="mini" style="margin:0">
+          <b>Padrão:</b> <span class="mono">${p.A}-${p.B}-${p.C}-${p.D}-${p.E}</span>
+          <span class="mini" style="margin:0;opacity:.9"> (A–E)</span>
+        </div>
+        <div class="mini" style="margin:0"><b>${p.count}x</b> • ${pct}%</div>
+      </div>
+    `;
+  }).join("");
+
+  return `
+    <div class="box" style="margin-top:12px">
+      <b>🧩 Blocos A–E (padrões que mais se repetem)</b>
+      <div class="mini" style="margin-top:6px">
+        Padrões A–E mais frequentes por concurso (sem gráfico).
+      </div>
+
+      <div class="mini" style="margin-top:10px">
+        <b>Padrões mais frequentes (A–E por concurso):</b>
+      </div>
+      <div style="margin-top:10px;border:1px solid rgba(255,255,255,.10);border-radius:14px;overflow:hidden">
+        ${top || `<div style="padding:12px" class="mini">—</div>`}
+      </div>
+    </div>
+  `;
+}
+</script>
+
+<script>
+/* =========================
+   (CORREÇÃO) Motor “regra do último concurso”
+   - Repetição: 6..11 dezenas do último (como você pediu)
+   - Completa com dezenas que NÃO saíram no último
+   - Retorna { jogo, motivos }
+========================= */
+function gerarJogoComRegrasUltimo(ultimoObj, freq, metrics){
+  const ultimoNums = Array.isArray(ultimoObj?.dezenas)
+    ? ultimoObj.dezenas.map(toNum).filter(n=>n>=1 && n<=25)
+    : [];
+
+  const setUlt = new Set(ultimoNums);
+  const universo = Array.from({length:25}, (_,i)=>i+1);
+
+  function pickRandom(arr, k){
+    const a = arr.slice();
+    for(let i=a.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i],a[j]]=[a[j],a[i]];
+    }
+    return a.slice(0,k);
+  }
+
+  function scoreJogo(jogo){
+    let score = 0;
+
+    // peso por frequência
+    jogo.forEach(n=> score += (freq?.[n] || 0));
+
+    // bônus recência
+    if(metrics?.decay){
+      const rec = jogo.reduce((a,n)=>a+(metrics.decay[n]||0),0);
+      score += Math.min(20, rec);
+    }
+
+    // regra repetidas do último (6..11)
+    const repsCount = jogo.filter(n=>setUlt.has(n)).length;
+    if(repsCount>=6 && repsCount<=11) score += 80;
+
+    // evita “viciar” em 10 repetidas (muito comum e pode deixar o jogo previsível)
+    if(repsCount===10) score -= 60;
+
+    return score;
+  }
+
+  let best=null;
+  let bestScore=-Infinity;
+
+  // tenta várias vezes e pega o melhor
+  for(let t=0;t<420;t++){
+    const r = 6 + Math.floor(Math.random()*6); // 6..11
+    const doUlt = pickRandom(ultimoNums, Math.min(r, ultimoNums.length));
+
+    const restantes = universo.filter(n=>!setUlt.has(n)); // as 10 que não saíram no último
+    const faltam = 15 - doUlt.length;
+    const complet = pickRandom(restantes, faltam);
+
+    const jogo = sortNum([...doUlt, ...complet]);
+    const sc = scoreJogo(jogo);
+
+    if(sc > bestScore){
+      bestScore = sc;
+      best = jogo;
+    }
+  }
+
+  // fallback seguro
+  if(!best){
+    const fallback = gerarJogoForte(freq, metrics);
+    return { jogo: fallback, motivos: buildMotivos(fallback, ultimoObj, freq, metrics) };
+  }
+
+  return { jogo: best, motivos: buildMotivos(best, ultimoObj, freq, metrics) };
+}
+
+/* =========================
+   (CORREÇÃO) Motivos “populares” por dezena (sem erro de variável)
+========================= */
+function buildMotivos(jogo, ultimoObj, freq, metrics){
+  const ultimoNums = Array.isArray(ultimoObj?.dezenas)
+    ? ultimoObj.dezenas.map(toNum).filter(n=>n>=1 && n<=25)
+    : [];
+
+  const setUlt = new Set(ultimoNums);
+
+  const ord = ordenarPorFreq(freq);
+  const rank={};
+  ord.forEach((x,i)=>rank[x.dez]=i+1);
+
+  return jogo.map(n=>{
+    const isRep = setUlt.has(n);
+    const r = rank[n] || 999;
+
+    const quente = r<=8;
+    const morna  = r>8 && r<=17;
+    const fria   = r>17;
+
+    const gap = metrics?.gap?.[n];
+    const trend = metrics?.trend?.[n];
+
+    const motivos = [];
+
+    if(isRep) motivos.push("🔁 veio do último concurso (tende a repetir bastante)");
+    else motivos.push("🆕 não saiu no último (normal entrar várias no próximo)");
+
+    if(quente) motivos.push("🔥 é ‘quente’ na janela (aparece direto)");
+    else if(morna) motivos.push("🌡️ é ‘morna’ (equilibrada)");
+    else motivos.push("🧊 é ‘fria’ (entra como aposta)");
+
+    if(typeof gap === "number"){
+      if(gap>=8) motivos.push(`⏳ está há ${gap} concursos sem aparecer (pode ‘pintar’)`);
+      else if(gap<=2) motivos.push("⚡ apareceu recentemente (recência forte)");
+    }
+
+    if(typeof trend === "number"){
+      if(trend>0.03) motivos.push("📈 está ‘subindo’ agora (últimos concursos)");
+    }
+
+    return { dezena:n, texto: motivos.join(" • ") };
+  });
+}
+</script>
+
+<script>
+/* =========================
+   (CORREÇÃO) Ajuste na ação do Principal
+   - chamada do motor estava com parâmetros invertidos
+========================= */
+async function acaoPrincipal(){
+  const qtd = qtdSelecionada();
+
+  if(!access.premium && isFreeUsed()){
+    alert("🔒 Você já usou a geração grátis. Para liberar, ative o Premium.");
+    return;
+  }
+
+  try{
+    await prepararContextoBase(qtd);
+    const payload = lastPayload;
+    const {freq, modern} = lastCtx;
+
+    setStatus(true,"Gerando jogo principal (15 dezenas)…");
+    setProgress(80);
+
+    // ✅ CHAMADA CERTA
+    const result = gerarJogoComRegrasUltimo(payload.latest, freq, modern);
+    const jogo = result.jogo;
+
+    lastPrincipalGame = jogo.slice();
+    lastInvertidaGame = null;
+    lastTecnicaGames = null;
+
+    const cls = classificarDezenas(freq, jogo);
+    const pi = contarParesImpares(jogo);
+    const soma = somaDezenas(jogo);
+    const seq = contarSequencias(jogo);
+    const blocos = distribuicaoBlocos(jogo);
+    const reps = repetidasDoUltimo(jogo, payload.latest.dezenas);
+
+    lastPrincipalMeta = { cls, pi, soma, seq, blocos, reps };
+
+    setStatus(false,""); setProgress(0);
+
+    if(!access.premium) markFreeUsed();
+    aplicarAcessos();
+
+    const balls = jogo.map(n=>`<div class="ball">${format2(n)}</div>`).join("");
+
+    // ✅ agrupa motivos iguais
+    const motivosAgrupados = {};
+    (result?.motivos || []).forEach(m=>{
+      const key = (m.texto || "").trim();
+      if(!motivosAgrupados[key]) motivosAgrupados[key] = [];
+      motivosAgrupados[key].push(m.dezena);
+    });
+
+    const motivosHtml = Object.entries(motivosAgrupados)
+      .map(([texto, dezenas])=>{
+        const lista = dezenas.sort((x,y)=>x-y).map(n=>format2(n)).join(", ");
+        return `
+          <div style="padding:10px;border-bottom:1px solid rgba(255,255,255,.08)">
+            <b class="mono">${lista}</b>
+            <div class="mini" style="margin-top:6px">${texto}</div>
+          </div>
+        `;
+      }).join("") || `<div class="mini" style="padding:12px">—</div>`;
+
+    const resumoPares = (pi.pares===7||pi.pares===8)
+      ? `Distribuição ideal (${pi.pares} pares / ${pi.impares} ímpares).`
+      : `Distribuição fora do ideal (melhor: 7/8).`;
+
+    const resumoSoma = (soma>=170 && soma<=230)
+      ? `Soma ${soma} dentro da faixa estatística mais comum (evita extremos).`
+      : `Soma ${soma} fora da faixa mais comum — combinação mais “arriscada”.`;
+
+    const resumoSeq = seq.temSequencia
+      ? `Possui sequência, máximo de ${seq.maxLen} números seguidos.`
+      : `Sem sequência (padrão mais “quebrado”).`;
+
+    const maxBlock = Math.max(blocos.A,blocos.B,blocos.C,blocos.D,blocos.E);
+    const resumoBlocos = (maxBlock<=5)
+      ? `Blocos equilibrados (máx ${maxBlock} em um bloco).`
+      : `Concentração alta em blocos (máx ${maxBlock}).`;
+
+    const resumoRep = reps.length
+      ? `${reps.length} repetidas do último concurso (${payload.latest.concurso}).`
+      : `Sem repetidas do último concurso (${payload.latest.concurso}).`;
+
+    document.getElementById("principalArea").innerHTML = `
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
+        <div>
+          <div style="font-weight:1000;font-size:16px">🎯 Jogo Principal gerado (15 dezenas)</div>
+          <div class="mini">Janela: <b>${payload.inicio}</b> a <b>${payload.ultimo}</b> (${payload.concursos.length} concursos)</div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btnGhost" type="button" onclick="verConcursos()">📅 Ver concursos</button>
+          <button class="btn btnGhost" type="button" onclick="abrirGraficoBlocos(lastPrincipalMeta.blocos)">📊 Blocos A–E</button>
+        </div>
+      </div>
+
+      <div class="numbers">${balls}</div>
+
+      <div class="box" style="margin-top:12px">
+        <b>🧾 Por que essas dezenas foram escolhidas?</b>
+        <div class="mini" style="margin-top:8px">
+          Explicação simples (regra do último + mix de quentes/mornas/frias + recência).
+        </div>
+        <div style="margin-top:10px;border:1px solid rgba(255,255,255,.10);border-radius:14px;overflow:hidden">
+          ${motivosHtml}
+        </div>
+      </div>
+
+      <div class="box" style="margin-top:12px">
+        <b>🧾 Resumo PRIME (detalhado)</b>
+        <div class="grid" style="margin-top:12px">
+          <div class="box">
+            <b>🔥🌡️🧊 Quentes / Mornas / Frias (no jogo)</b>
+            <div class="mini" style="margin-top:8px">
+              🔥 <b>${cls.hot.length ? cls.hot.map(format2).join(", ") : "—"}</b><br/>
+              🌡️ <b>${cls.warm.length ? cls.warm.map(format2).join(", ") : "—"}</b><br/>
+              🧊 <b>${cls.cold.length ? cls.cold.map(format2).join(", ") : "—"}</b>
+            </div>
+            <div class="mini">Classificado pelo ranking da janela selecionada.</div>
+          </div>
+
+          <div class="box">
+            <b>🔁 Repetidas do último</b>
+            <div class="mini" style="margin-top:8px"><b>${reps.length ? reps.map(format2).join(", ") : "Nenhuma"}</b></div>
+            <div class="mini">${resumoRep}</div>
+          </div>
+
+          <div class="box">
+            <b>⚖️ Pares x Ímpares</b>
+            <div class="mini" style="margin-top:8px"><b>${pi.pares}</b> pares • <b>${pi.impares}</b> ímpares</div>
+            <div class="mini">${resumoPares}</div>
+          </div>
+
+          <div class="box">
+            <b>➕ Soma</b>
+            <div class="mini" style="margin-top:8px"><b>${soma}</b></div>
+            <div class="mini">${resumoSoma}</div>
+          </div>
+
+          <div class="box">
+            <b>🧩 Blocos A–E</b>
+            <div class="mini" style="margin-top:8px">A: <b>${blocos.A}</b> • B: <b>${blocos.B}</b> • C: <b>${blocos.C}</b> • D: <b>${blocos.D}</b> • E: <b>${blocos.E}</b></div>
+            <div class="mini">${resumoBlocos}</div>
+          </div>
+
+          <div class="box">
+            <b>🔗 Sequências</b>
+            <div class="mini" style="margin-top:8px"><b>${seq.temSequencia ? "Sim" : "Não"}</b> • Máx: <b>${seq.maxLen}</b></div>
+            <div class="mini">${resumoSeq}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid" style="margin-top:12px">
+        <div class="box">
+          <b>🤖 Jogo do Sistema (atual)</b>
+          <div class="numbers" style="justify-content:flex-start;margin-top:10px">
+            ${jogo.map(n=>`<div class="ball">${format2(n)}</div>`).join("")}
+          </div>
+          <div class="mini">Você pode usar este ou montar o seu jogo manual e substituir o principal.</div>
+        </div>
+        <div class="box">
+          <div id="manualPrincipalArea"></div>
+        </div>
+      </div>
+
+      <div class="panelCheck" id="panelGerados">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+          <b>✅ Verificar jogos gerados (base: Jogo Principal)</b>
+          <button class="btn btnGhost" type="button" id="btnVerificarGeradosInline" style="display:none" onclick="goView('viewCheck')">Abrir verificação</button>
+        </div>
+        <div class="mini" style="margin-top:8px">
+          Gere também a <b>Invertida</b> e a <b>Técnica</b> para liberar a verificação automática de acertos.
+        </div>
+      </div>
+    `;
+
+    goView("viewPrincipal");
+
+    manualPrincipalSet = new Set();
+    renderManualPrincipalUI();
+
+    updateCheckButtons();
+  }catch(e){
+    setStatus(false,""); setProgress(0);
+    document.getElementById("principalArea").innerHTML = `
+      <div class="box">
+        <b>⚠️ Erro</b>
+        <div class="mini" style="margin-top:8px">${String(e?.message || e)}</div>
+      </div>
+    `;
+    goView("viewPrincipal");
+  }
+}
+</script>
+
+<script>
+/* =========================
+   Eventos (mantém igual)
+========================= */
+document.getElementById("btnEntrar").addEventListener("click", entrar);
+document.getElementById("btnForgot").addEventListener("click", forgotPassword);
+
+document.getElementById("btnComprar").addEventListener("click", comprarPremium);
+document.getElementById("btnJaComprei").addEventListener("click", jaComprei);
+document.getElementById("btnSair").addEventListener("click", sair);
+
+document.getElementById("btnComprar15p").addEventListener("click", comprar15p);
+document.getElementById("btnAtivar15p").addEventListener("click", jaComprei15p);
+
+["btnHomePrincipal","btnHomeAnalise","btnHomeInvertida","btnHomeTecnica","btnHome15p"].forEach(id=>{
+  const el = document.getElementById(id);
+  if(el) bindCardKey(el);
+});
+</script>
+
+</body>
+</html>
