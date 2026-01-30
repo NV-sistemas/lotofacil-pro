@@ -936,6 +936,12 @@ auth.onAuthStateChanged(async (user)=>{
    MOTOR BASE
 ========================= */
 function format2(n){ return String(n).padStart(2,"0"); }
+function renderBallsInline(nums){
+  return (nums||[]).map(n=>{
+    const v = Number(String(n).replace(/^0+/,"")) || Number(n) || 0;
+    return `<div class="ball">${format2(v)}</div>`;
+  }).join("");
+}
 function toNum(d){ return Number(String(d).replace(/^0+/,"")) || Number(d); }
 function sortNum(arr){ return arr.slice().sort((a,b)=>a-b); }
 
