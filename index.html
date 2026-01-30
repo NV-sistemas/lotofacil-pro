@@ -2486,14 +2486,10 @@ function gerarJogos15P(linhas){
 function renderBallsInline(nums){
   return nums.map(n=>`<div class="ball">${format2(n)}</div>`).join("");
 }
-
-function explainLine(lineIdx, line, stats, kind){
-  const gs = groupStrength(line, stats);
-  const co = groupCoSum(line, stats);
-  const lf = groupLiftAvg(line, stats);
-  const fs = groupFreqSum(line, stats);
-
-  function explainLineTogether(lineIdx, line, stats, meta){
+/* =========================
+   EXPLICAÇÃO DAS LINHAS 15P (GLOBAL)
+========================= */
+function explainLineTogether(lineIdx, line, stats, meta){
   const origem = meta?.origem || "—";
   const suporte = meta?.suporte ?? 0;
   const base = meta?.baseGroup || [];
@@ -2505,15 +2501,63 @@ function explainLine(lineIdx, line, stats, kind){
 
   const baseTxt = base.length ? base.map(format2).join(" - ") : "—";
 
-  // quais foram completadas (não fazem parte do grupo real)
   const baseSet = new Set(base);
   const extras = line.filter(n=>!baseSet.has(n));
   const extrasTxt = extras.length ? extras.map(format2).join(" - ") : "—";
 
   const pairsTop = topPairsInGroup(line, stats, 3);
   const pairsTxt = pairsTop.map(p=>{
-    return `<span class="chip" style="padding:7px 10px;font-size:12px">↑ ${format2(p.a)}-${format2(p.b)} • juntos: <b>${p.co}</b>x • lift: <b>${p.lift.toFixed(2)}</b></span>`;
+    return `<span class="chip" style="padding:7px 10px;font-size:12px">
+      ↑ ${format2(p.a)}-${format2(p.b)} • juntos: <b>${p.co}</b>x • lift: <b>${p.lift.toFixed(2)}</b>
+    </span>`;
   }).join(" ");
+
+  let resumoBase = "";
+  let suporteTxt = "";
+
+  if(origem==="QUINTETO"){
+    resumoBase = `Linha formada por um <b>QUINTETO real</b> encontrado nos concursos analisados.`;
+    suporteTxt = `✅ Esse <b>quinteto</b> saiu junto <b>${suporte} vez(es)</b> na janela selecionada.`;
+  }else if(origem==="QUADRA+1"){
+    resumoBase = `Linha formada por uma <b>QUADRA real</b> + 1 dezena escolhida por compatibilidade.`;
+    suporteTxt = `✅ Essa <b>quadra</b> saiu junto <b>${suporte} vez(es)</b> na janela selecionada.`;
+  }else if(origem==="TERNO+2"){
+    resumoBase = `Linha formada por um <b>TERNO real</b> + 2 dezenas escolhidas por compatibilidade.`;
+    suporteTxt = `✅ Esse <b>terno</b> saiu junto <b>${suporte} vez(es)</b> na janela selecionada.`;
+  }else{
+    resumoBase = `Linha completada por força estatística geral (freq + recência).`;
+    suporteTxt = `—`;
+  }
+
+  return `
+    <div class="box">
+      <b>📌 Linha ${lineIdx} • ${origem}</b>
+      <div class="numbers" style="justify-content:flex-start;margin-top:10px">
+        ${renderBallsInline(line)}
+      </div>
+
+      <div class="mini" style="margin-top:10px">
+        <b>Grupo real encontrado:</b> <span class="mono">${baseTxt}</span><br/>
+        <b>Completadas pelo sistema:</b> <span class="mono">${extrasTxt}</span><br/>
+        <b>Resumo:</b> ${resumoBase}<br/>
+        <b>Quantas vezes saiu junto:</b> ${suporteTxt}
+      </div>
+
+      <div class="mini" style="margin-top:10px">
+        <b>Pares mais fortes da linha:</b>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">${pairsTxt}</div>
+      </div>
+    </div>
+  `;
+}
+
+function explainLine(lineIdx, line, stats, kind){
+  const gs = groupStrength(line, stats);
+  const co = groupCoSum(line, stats);
+  const lf = groupLiftAvg(line, stats);
+  const fs = groupFreqSum(line, stats);
+
+  ).join(" ");
 
   let resumoBase = "";
   let suporteTxt = "";
