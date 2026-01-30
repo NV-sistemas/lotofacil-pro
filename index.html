@@ -475,7 +475,7 @@ const functions = firebase.app().functions("us-central1");
         <div class="col">
           <label>Progresso</label>
           <div id="status" class="status">
-            <div id="statusText">Carregando…</div>
+            <div id="statusText">Carregando</div>
             <div class="bar"><div id="barFill"></div></div>
           </div>
           <div class="mini">
@@ -904,11 +904,11 @@ async function entrar(){
 
   try{
     await auth.signInWithEmailAndPassword(e,s);
-    showOk("Bem-vindo! Carregando seu acesso…");
+    showOk("Bem-vindo! Carregando seu acesso");
   }catch(err){
     try{
       await auth.createUserWithEmailAndPassword(e,s);
-      showOk("Conta criada ✅ Carregando seu acesso…");
+      showOk("Conta criada ✅ Carregando seu acesso");
     }catch(e2){
       showErr(e2?.message || "Falha no login.");
     }
@@ -943,7 +943,7 @@ async function ativarComCodigo(){
     const code = prompt("Cole aqui seu CÓDIGO de ativação (ex: PRIME-0001):");
     if(!code) return;
 
-    showOk("Ativando código…");
+    showOk("Ativando código");
     const redeemCode = functions.httpsCallable("redeemCode");
     await redeemCode({ code: code.trim() });
 
@@ -1164,7 +1164,7 @@ function gerarJogoForte(freq, metrics){
 
     while(set.size<15) set.add(Math.floor(Math.random()*25)+1);
 
-    const jogo = sortNum([...set]);
+    const jogo = sortNum([set]);
     const pi = contarParesImpares(jogo);
     const soma = somaDezenas(jogo);
     const blocos = distribuicaoBlocos(jogo);
@@ -1284,12 +1284,12 @@ function pickRWeighted(){
 
     const comp = pickRandom(naoSaiu, restCount);
 
-    const set = new Set([...rep, ...comp]);
+    const set = new Set([rep, comp]);
     while(set.size<15){
       set.add(Math.floor(Math.random()*25)+1);
     }
 
-    const jogo = sortNum([...set]);
+    const jogo = sortNum([set]);
 
     // garante que a quantidade de repetidas do último está entre 6 e 11
     const reps = jogo.filter(n=>setUlt.has(n));
@@ -1580,7 +1580,7 @@ function renderBlocksPrime(totals, patterns, total){
   // ✅ (Removeu o gráfico de totais A–E)
 
   const toplist = (patterns || []).slice(0, 10); // Top 10 padrões
-  const maxCount = Math.max(...toplist.map(p => p.count || 0), 1);
+  const maxCount = Math.max(toplist.map(p => p.count || 0), 1);
 
   const rows = toplist.map(p => {
     const pctBar = Math.round(((p.count || 0) / maxCount) * 100);
@@ -1829,7 +1829,7 @@ function buildDemo(qtd){
   for(let c=inicio;c<=ultimo;c++){
     const dezenas=new Set();
     while(dezenas.size<15) dezenas.add(Math.floor(Math.random()*25)+1);
-    concursos.push({ concurso:c, data:"—", dezenas:[...dezenas].map(n=>format2(n)) });
+    concursos.push({ concurso:c, data:"—", dezenas:[dezenas].map(n=>format2(n)) });
   }
   const latest = concursos[concursos.length-1];
   return { mode:"demo", source:"Demonstração (offline)", latest, concursos, inicio, ultimo };
@@ -1841,13 +1841,13 @@ async function fetchUltimoResultado(){
     try{
       const latestRaw = await tryFetchJson(src.latest);
       const latest = src.adapt(latestRaw);
-      return { ...latest, source: src.name, mode: "online" };
+      return { latest, source: src.name, mode: "online" };
     }catch(e){
       lastErr=e;
     }
   }
   const demo = buildDemo(1);
-  return { ...demo.latest, source:"DEMO", mode:"demo" };
+  return { demo.latest, source:"DEMO", mode:"demo" };
 }
 </script>
 
@@ -1914,7 +1914,7 @@ function timeBR(ms){
 function qtdSelecionada(){ return Number(document.getElementById("qtdConcursos").value); }
 
 async function prepararContextoBase(qtd){
-  setStatus(true,"Carregando concursos…");
+  setStatus(true,"Carregando concursos");
   // ✅ cache por 2 minutos
 const now = Date.now();
 if (cacheBase.payload && cacheBase.qtd === qtd && (now - cacheBase.at) < 120000) {
@@ -1928,7 +1928,7 @@ if (cacheBase.payload && cacheBase.qtd === qtd && (now - cacheBase.at) < 120000)
 
   let payload;
   try{
-    setStatus(true,"Buscando concursos reais…");
+    setStatus(true,"Buscando concursos reais");
     setProgress(25);
     payload = await getOnlineConcursos(qtd);
   }catch(e){
@@ -1938,7 +1938,7 @@ if (cacheBase.payload && cacheBase.qtd === qtd && (now - cacheBase.at) < 120000)
   // garante ordem crescente
   payload.concursos = payload.concursos.slice().sort((a,b)=>a.concurso-b.concurso);
 
-  setStatus(true,"Calculando análises do período…");
+  setStatus(true,"Calculando análises do período");
   setProgress(62);
 
   const freq = calcularFrequencias(payload.concursos);
@@ -1975,7 +1975,7 @@ async function acaoAnalise(){
     const payload = lastPayload;
     const {freq, modern} = lastCtx;
 
-    setStatus(true,"Montando resumo PRIME…");
+    setStatus(true,"Montando resumo PRIME");
     setProgress(82);
 
     const evenOdd = calcEvenOddDistribution(payload.concursos);
@@ -2066,7 +2066,7 @@ function renderManualPrincipalUI(){
   const area = document.getElementById("manualPrincipalArea");
   if(!area) return;
 
-  const selected = [...manualPrincipalSet].sort((a,b)=>a-b);
+  const selected = [manualPrincipalSet].sort((a,b)=>a-b);
 
   area.innerHTML = `
     <div class="box" style="margin-top:12px">
@@ -2114,7 +2114,7 @@ function usarManualComoPrincipal(){
   if(manualPrincipalSet.size !== 15){
     return alert("Marque exatamente 15 dezenas.");
   }
-  const jogo = [...manualPrincipalSet].sort((a,b)=>a-b);
+  const jogo = [manualPrincipalSet].sort((a,b)=>a-b);
 
   lastPrincipalGame = jogo.slice();
   lastInvertidaGame = null;
@@ -2154,7 +2154,7 @@ async function acaoPrincipal(){
     const payload = lastPayload;
     const {freq, modern} = lastCtx;
 
-    setStatus(true,"Gerando jogo principal (15 dezenas)…");
+    setStatus(true,"Gerando jogo principal (15 dezenas)");
     setProgress(80);
 
     const result = gerarJogoComRegrasUltimo(freq, modern, payload.latest.dezenas);
@@ -2843,7 +2843,7 @@ function gerarJogos15P(linhas){
   return comb.map((idxs)=>{
     const set = new Set();
     idxs.forEach(i=> linhas[i-1].forEach(n=>set.add(n)) );
-    return sortNum([...set]);
+    return sortNum([set]);
   });
 }
 
@@ -3007,7 +3007,7 @@ function render15Editor(){
       </div>
 
       <div class="pickGrid" id="pickGrid15">
-        ${[...Array(25)].map((_,i)=>{
+        ${[Array(25)].map((_,i)=>{
           const n=i+1;
           const sel = current.includes(n) ? " sel" : "";
           const lock = used.has(n) ? " lock" : "";
@@ -3110,7 +3110,7 @@ async function gerar15P(){
     await prepararContextoBase(qtd);
     const payload = lastPayload;
 
-    setStatus(true,"15P: analisando e montando 5 linhas…");
+    setStatus(true,"15P: analisando e montando 5 linhas");
     setProgress(82);
 
     const stats = calcCoocAndStats(payload.concursos);
@@ -3280,7 +3280,7 @@ async function gerar15P(){
 }
 
 async function check15PGames(){
-  ...
+  
 }
 </script>
 
