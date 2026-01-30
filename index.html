@@ -2261,51 +2261,187 @@ function montarTelaCheck(){
 
 <script>
 /* =========================
-   15P LIMPO (OFICIAL)
+   15P PRIME (SEM GAMBIARRA)
+   - 3 linhas "MAIS SAEM JUNTAS"
+   - 2 linhas "MENOS SAEM JUNTAS"
+   - resumo PRIME + explicação por linha
 ========================= */
 
-function calcCoocAndStats(concursos){
-  const freq = Array(26).fill(0);
-  const co = Array.from({length:26}, ()=>Array(26).fill(0));
-  const drawSets = [];
-
-  concursos.forEach(c=>{
-    const nums=(c.dezenas||[]).map(n=>Number(n));
-    drawSets.push(new Set(nums));
-
-    nums.forEach(a=>freq[a]++);
-    for(let i=0;i<nums.length;i++){
-      for(let j=i+1;j<nums.length;j++){
-        co[nums[i]][nums[j]]++;
-        co[nums[j]][nums[i]]++;
-      }
+function combosK(arr, k){
+  const res=[];
+  const a=arr.slice().sort((x,y)=>x-y);
+  function rec(start, comb){
+    if(comb.length===k){ res.push(comb.slice()); return; }
+    for(let i=start;i<=a.length-(k-comb.length);i++){
+      comb.push(a[i]);
+      rec(i+1, comb);
+      comb.pop();
     }
+  }
+  rec(0, []);
+  return res;
+}
+
+function buildDrawSets(concursos){
+  return concursos.map(c=>{
+    const nums=(c.dezenas||[]).map(toNum).filter(n=>n>=1 && n<=25);
+    return new Set(nums);
   });
-
-  return { freq, co, drawSets };
 }
 
-/* força simples da linha */
-function lineStrength(line, stats){
-  return line.reduce((s,n)=>s+(stats.freq[n]||0),0);
+function supportCount(combo, drawSets){
+  let count=0;
+  for(const s of drawSets){
+    let ok=true;
+    for(const n of combo){ if(!s.has(n)) { ok=false; break; } }
+    if(ok) count++;
+  }
+  return count;
 }
 
-/* gera 5 linhas base */
-function buildInitialLines(stats){
-  const ord=[...Array(25)].map((_,i)=>i+1)
-    .sort((a,b)=>stats.freq[b]-stats.freq[a]);
-
-  return [
-    ord.slice(0,5),
-    ord.slice(5,10),
-    ord.slice(10,15),
-    ord.slice(15,20),
-    ord.slice(20,25)
-  ];
+function contestsWhere(combo, concursos, limit=20){
+  const out=[];
+  for(const c of concursos){
+    const s=new Set((c.dezenas||[]).map(toNum));
+    let ok=true;
+    for(const n of combo){ if(!s.has(n)) { ok=false; break; } }
+    if(ok) out.push(c.concurso);
+    if(out.length>=limit) break;
+  }
+  return out;
 }
 
-/* otimiza (mantém simples e estável) */
-function optimizeLines(lines){ return lines; }
+function calcFreq15(concursos){
+  const freq=Array(26).fill(0);
+  concursos.forEach(c=>{
+    (c.dezenas||[]).map(toNum).filter(n=>n>=1 && n<=25).forEach(n=>freq[n]++);
+  });
+  return freq;
+}
+
+function topNumbersByFreq(freq, limit=18){
+  const arr=[];
+  for(let n=1;n<=25;n++) arr.push({n, f:freq[n]});
+  arr.sort((a,b)=>b.f-a.f);
+  return arr.slice(0, Math.max(10, Math.min(25, limit))).map(x=>x.n);
+}
+
+function bottomNumbersByFreq(freq, limit=18){
+  const arr=[];
+  for(let n=1;n<=25;n++) arr.push({n, f:freq[n]});
+  arr.sort((a,b)=>a.f-b.f);
+  return arr.slice(0, Math.max(10, Math.min(25, limit))).map(x=>x.n);
+}
+
+function pickNonOverlapping(list, take, maxOverlap){
+  const chosen=[];
+  for(const it of list){
+    if(chosen.length>=take) break;
+    let ok=true;
+    for(const ch of chosen){
+      const inter = it.combo.filter(x=>ch.combo.includes(x)).length;
+      if(inter>maxOverlap){ ok=false; break; }
+    }
+    if(ok) chosen.push(it);
+  }
+  return chosen;
+}
+
+function build15PLinesPrime(payload){
+  const concursos = payload.concursos;
+  const drawSets = buildDrawSets(concursos);
+  const freq = calcFreq15(concursos);
+
+  const topBase = topNumbersByFreq(freq, 18);
+  const botBase = bottomNumbersByFreq(freq, 18);
+
+  function findCombos(baseNums, size, pickTop){
+    const cand = combosK(baseNums, size);
+    const scored = cand.map(combo=>({ combo, sup: supportCount(combo, drawSets) }));
+    scored.sort((a,b)=> pickTop ? (b.sup-a.sup) : (a.sup-b.sup));
+    return scored;
+  }
+
+  // ===== Fortes (preferência: 5 -> 4 -> 3) =====
+  let fortes5 = findCombos(topBase, 5, true).filter(x=>x.sup>0);
+  let fortesSel=[];
+
+  if(fortes5.length){
+    fortesSel = pickNonOverlapping(fortes5, 3, 2).map(x=>({combo:x.combo, sup:x.sup, note:"Quinteto real"}));
+  }else{
+    let fortes4 = findCombos(topBase, 4, true).filter(x=>x.sup>0);
+    const sel4 = pickNonOverlapping(fortes4, 3, 2);
+    fortesSel = sel4.map(x=>{
+      const set=new Set(x.combo);
+      for(const n of topBase){ if(set.size>=5) break; if(!set.has(n)) set.add(n); }
+      return { combo:[...set].sort((a,b)=>a-b), sup:x.sup, note:"Quadra completada" };
+    });
+
+    if(!fortesSel.length){
+      let fortes3 = findCombos(topBase, 3, true).filter(x=>x.sup>0);
+      const sel3 = pickNonOverlapping(fortes3, 3, 1);
+      fortesSel = sel3.map(x=>{
+        const set=new Set(x.combo);
+        for(const n of topBase){ if(set.size>=5) break; if(!set.has(n)) set.add(n); }
+        return { combo:[...set].sort((a,b)=>a-b), sup:x.sup, note:"Terno completado" };
+      });
+    }
+  }
+
+  while(fortesSel.length<3){
+    const set=new Set();
+    for(const n of topBase){ if(set.size>=5) break; set.add(n); }
+    const combo=[...set].sort((a,b)=>a-b);
+    fortesSel.push({ combo, sup: supportCount(combo, drawSets), note:"Linha forte por frequência" });
+  }
+  fortesSel = fortesSel.slice(0,3);
+
+  // ===== Fracas (preferência: 5 -> 4 -> 3, permitindo sup=0) =====
+  let fracos5 = findCombos(botBase, 5, false); // menor suporte primeiro (inclui 0)
+  let fracosSel = pickNonOverlapping(fracos5, 2, 2).map(x=>({combo:x.combo, sup:x.sup, note:"Quinteto raro"}));
+
+  if(fracosSel.length<2){
+    let fracos4 = findCombos(botBase, 4, false);
+    const sel4 = pickNonOverlapping(fracos4, 2, 2);
+    fracosSel = sel4.map(x=>{
+      const set=new Set(x.combo);
+      for(const n of botBase){ if(set.size>=5) break; if(!set.has(n)) set.add(n); }
+      return { combo:[...set].sort((a,b)=>a-b), sup:x.sup, note:"Quadra fraca completada" };
+    });
+  }
+
+  while(fracosSel.length<2){
+    const set=new Set();
+    for(const n of botBase){ if(set.size>=5) break; set.add(n); }
+    const combo=[...set].sort((a,b)=>a-b);
+    fracosSel.push({ combo, sup: supportCount(combo, drawSets), note:"Linha fraca por baixa frequência" });
+  }
+  fracosSel = fracosSel.slice(0,2);
+
+  const lines = [
+    { tipo:"Forte", ...fortesSel[0] },
+    { tipo:"Forte", ...fortesSel[1] },
+    { tipo:"Forte", ...fortesSel[2] },
+    { tipo:"Fraca", ...fracosSel[0] },
+    { tipo:"Fraca", ...fracosSel[1] },
+  ].map(x=>({
+    tipo: x.tipo,
+    line: x.combo.slice().sort((a,b)=>a-b),
+    sup: x.sup,
+    note: x.note || ""
+  }));
+
+  // Resumo: top combos fortes (5) e combos raros (3)
+  const resumoFortes = findCombos(topBase, 5, true).slice(0,6).map(x=>({
+    combo:x.combo, sup:x.sup, concursos: contestsWhere(x.combo, concursos, 10)
+  }));
+
+  const resumoFracos = findCombos(topBase, 3, false).slice(0,6).map(x=>({
+    combo:x.combo, sup:x.sup
+  }));
+
+  return { lines, resumoFortes, resumoFracos };
+}
 
 /* 10 jogos (combinações 3 de 5) */
 function gerarJogos15P(linhas){
@@ -2321,29 +2457,98 @@ function gerarJogos15P(linhas){
   });
 }
 
-function explainLine(idx,line,stats){
+function explainLinePrime(idx, obj, payload){
+  const concursosOnde = contestsWhere(obj.line, payload.concursos, 18);
+  const concursosTxt = concursosOnde.length ? concursosOnde.join(", ") : "—";
+
+  const tag = obj.tipo==="Forte"
+    ? `<span style="display:inline-flex;padding:6px 10px;border-radius:999px;border:1px solid rgba(34,197,94,.30);background:rgba(34,197,94,.14);font-weight:1000;font-size:11px">MAIS SAEM JUNTAS</span>`
+    : `<span style="display:inline-flex;padding:6px 10px;border-radius:999px;border:1px solid rgba(251,113,133,.28);background:rgba(251,113,133,.12);font-weight:1000;font-size:11px">MENOS SAEM JUNTAS</span>`;
+
   return `
     <div class="box">
-      <b>Linha ${idx}</b>
-      <div class="numbers">${renderBallsInline(line)}</div>
-      <div class="mini">Força (freq): <b>${lineStrength(line,stats)}</b></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+        <b>Linha ${idx}</b>
+        ${tag}
+      </div>
+
+      <div class="numbers">${renderBallsInline(obj.line)}</div>
+
+      <div class="mini" style="margin-top:8px">
+        <b>Ocorrências do quinteto na janela:</b> <b>${obj.sup}</b><br/>
+        <b>Concursos onde apareceu:</b> <span class="mono">${concursosTxt}</span>
+        ${obj.note ? `<br/><span class="mini">Obs: ${obj.note}</span>` : ``}
+      </div>
+    </div>
+  `;
+}
+
+function render15PSummaryPrime(payload, data){
+  const top = (data.resumoFortes||[]).map(x=>`
+    <div style="padding:10px;border-bottom:1px solid rgba(255,255,255,.08)">
+      <div class="mini"><b>Combo:</b> <span class="mono">${x.combo.map(format2).join(" - ")}</span></div>
+      <div class="mini"><b>Juntos:</b> <b>${x.sup}</b>x • <b>Concursos:</b> <span class="mono">${(x.concursos||[]).join(", ") || "—"}</span></div>
+    </div>
+  `).join("");
+
+  const low = (data.resumoFracos||[]).map(x=>`
+    <div style="padding:10px;border-bottom:1px solid rgba(255,255,255,.08)">
+      <div class="mini"><b>Combo:</b> <span class="mono">${x.combo.map(format2).join(" - ")}</span></div>
+      <div class="mini"><b>Juntos:</b> <b>${x.sup}</b>x (quanto menor, mais “fraco”)</div>
+    </div>
+  `).join("");
+
+  return `
+    <div class="box" style="margin-top:12px">
+      <b>📌 Resumo PRIME 15P (baseado na janela)</b>
+      <div class="mini" style="margin-top:8px">
+        Janela: <b>${payload.inicio}</b> a <b>${payload.ultimo}</b> (${payload.concursos.length} concursos)
+      </div>
+
+      <div class="grid" style="margin-top:12px">
+        <div class="box">
+          <b>🔥 Combinações mais fortes (quintetos)</b>
+          <div style="margin-top:10px;border:1px solid rgba(255,255,255,.10);border-radius:14px;overflow:hidden">
+            ${top || `<div style="padding:12px" class="mini">—</div>`}
+          </div>
+        </div>
+
+        <div class="box">
+          <b>🧊 Combinações mais fracas (menos saem juntas)</b>
+          <div class="mini" style="margin-top:6px">
+            Aqui o foco é achar combinações raras para formar as 2 linhas “de erro”.
+          </div>
+          <div style="margin-top:10px;border:1px solid rgba(255,255,255,.10);border-radius:14px;overflow:hidden">
+            ${low || `<div style="padding:12px" class="mini">—</div>`}
+          </div>
+        </div>
+      </div>
     </div>
   `;
 }
 
 async function gerar15P(){
+  // ✅ Gate correto do EXTRA (sem gambiarra)
+  const can15p = ((access.premium && access.addon15) || access.isAdmin);
+  if(!can15p){
+    alert("🔒 O recurso '15 pontos garantido' é um EXTRA comprado separadamente (libera via claims).");
+    return;
+  }
+
   const qtd = qtdSelecionada();
 
   await prepararContextoBase(qtd);
   const payload = lastPayload;
 
-  const stats = calcCoocAndStats(payload.concursos);
+  const data = build15PLinesPrime(payload);
+  const linesObj = data.lines;
 
-  let lines = buildInitialLines(stats);
-  lines = optimizeLines(lines);
+  // salva no estado (se quiser usar depois)
+  linesSystem15 = linesObj.map(x=>x.line);
 
-  const jogos = gerarJogos15P(lines);
+  const linesHtml = linesObj.map((obj,i)=>explainLinePrime(i+1, obj, payload)).join("");
 
+  const jogos = gerarJogos15P(linesSystem15);
   const jogosHtml = jogos.map((j,i)=>`
     <div class="box">
       <b>Jogo ${i+1}</b>
@@ -2351,24 +2556,34 @@ async function gerar15P(){
     </div>
   `).join("");
 
-  const linesHtml = lines.map((l,i)=>explainLine(i+1,l,stats)).join("");
-
   document.getElementById("p15Area").innerHTML = `
     <div class="box">
       <b>REGRA DO MÉTODO:</b><br>
       <b style="color:#22c55e">ACERTANDO 3 LINHAS COMPLETAS, PRÊMIO GARANTIDO!</b>
+      <div class="mini" style="margin-top:8px">
+        O sistema cria <b>3 linhas</b> com dezenas que <b>MAIS saem juntas</b> e <b>2 linhas</b> com dezenas que <b>MENOS saem juntas</b>.
+      </div>
     </div>
+
+    ${render15PSummaryPrime(payload, data)}
 
     <div class="grid" style="margin-top:12px">${linesHtml}</div>
 
     <div class="box" style="margin-top:12px">
-      <b>10 Jogos Gerados</b>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+        <b>🎯 10 Jogos Gerados (3 de 5 linhas)</b>
+        <button class="btn btnGhost" type="button" onclick="save15P()">💾 Salvar 15P</button>
+      </div>
       <div class="grid" style="margin-top:12px">${jogosHtml}</div>
+      <div class="mini">Dica: você pode salvar e carregar suas linhas depois.</div>
     </div>
+
+    <div class="tinyFoot">Fonte: ${payload.source || "—"} • Modo: ${String(payload.mode||"—").toUpperCase()}</div>
   `;
 
   goView("view15p");
 }
+</script>
   
   /* =========================
    Eventos
