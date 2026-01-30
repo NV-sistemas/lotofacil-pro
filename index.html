@@ -1307,6 +1307,52 @@ function calcTopPairsCooc(concursos, topN=12){
   arr.sort((x,y)=>y.count-x.count);
   return arr.slice(0, topN);
 }
+  
+/* ===== GRUPOS QUE SAEM JUNTOS / NÃO SAEM JUNTOS ===== */
+function genComb(nums, k, start, path, cb){
+  if(path.length === k){ cb(path); return; }
+  for(let i=start;i<=nums.length-(k-path.length);i++){
+    path.push(nums[i]);
+    genComb(nums,k,i+1,path,cb);
+    path.pop();
+  }
+}
+
+function countCombosInWindow(concursos,k){
+  const map=new Map();
+  concursos.forEach(c=>{
+    const nums=(c.dezenas||[]).map(toNum).sort((a,b)=>a-b);
+    genComb(nums,k,0,[],combo=>{
+      const key=combo.join("-");
+      map.set(key,(map.get(key)||0)+1);
+    });
+  });
+  return map;
+}
+
+function getTopGroupsAll(concursos,sizes=[10,9,8,7,6,5,4,3,2]){
+  const res=[];
+  sizes.forEach(k=>{
+    const map=countCombosInWindow(concursos,k);
+    const arr=[...map.entries()]
+      .filter(e=>e[1]>=2)
+      .map(e=>({nums:e[0].split("-").map(Number),count:e[1]}))
+      .sort((a,b)=>b.count-a.count)
+      .slice(0,5);
+    if(arr.length) res.push({k,top:arr});
+  });
+  return res;
+}
+
+function getLowPairs(co){
+  const arr=[];
+  for(let a=1;a<=25;a++){
+    for(let b=a+1;b<=25;b++){
+      arr.push({a,b,count:co[a][b]||0});
+    }
+  }
+  return arr.sort((x,y)=>x.count-y.count).slice(0,12);
+}
 
 function renderHotWarmColdPeriod(freq){
   const {hot,warm,cold} = buildHotWarmColdFromFreq(freq);
@@ -1806,6 +1852,9 @@ async function acaoPrincipal(){
     const seq = contarSequencias(jogo);
     const blocos = distribuicaoBlocos(jogo);
     const reps = repetidasDoUltimo(jogo, payload.latest.dezenas);
+    const gruposJuntos = getTopGroupsAll(payload.concursos);
+const statsTmp = calcCoocAndStats(payload.concursos);
+const gruposNaoJuntos = getLowPairs(statsTmp.co);
 
     lastPrincipalMeta = { cls, pi, soma, seq, blocos, reps };
 
@@ -1848,6 +1897,32 @@ async function acaoPrincipal(){
       <div class="numbers">${balls}</div>
 
       <div class="box" style="margin-top:12px">
+      <div class="box" style="margin-top:12px">
+  <b>🧠 Quadro Resumo – Jogo Principal</b>
+  <div class="mini" style="margin-top:8px">
+    Dezenas que <b>mais saem juntas</b> e dezenas que <b>menos saem juntas</b>.
+    Repetidas do último concurso: <b>${reps.length}</b>
+  </div>
+
+  <div class="grid" style="margin-top:12px">
+    <div class="box">
+      <b>✅ Mais saem juntas</b>
+      ${gruposJuntos.map(g=>`
+        <div class="mini"><b>Grupos de ${g.k}</b></div>
+        ${g.top.map(t=>`
+          <div class="mono">${t.nums.map(format2).join(" - ")} • ${t.count}x</div>
+        `).join("")}
+      `).join("")}
+    </div>
+
+    <div class="box">
+      <b>❌ Menos saem juntas</b>
+      ${gruposNaoJuntos.map(p=>`
+        <div class="mono">${format2(p.a)}-${format2(p.b)} • ${p.count}x</div>
+      `).join("")}
+    </div>
+  </div>
+</div>
         <b>🧾 Resumo PRIME (detalhado)</b>
         <div class="grid" style="margin-top:12px">
           <div class="box">
@@ -2576,6 +2651,8 @@ async function gerar15P(){
     setProgress(82);
 
     const stats = calcCoocAndStats(payload.concursos);
+    const grupos15 = getTopGroupsAll(payload.concursos,[5,4,3,2]);
+const paresFracos15 = getLowPairs(stats.co);
 
     let lines = buildInitialLines(stats);
     lines = optimizeLines(lines, stats);
@@ -2622,6 +2699,32 @@ async function gerar15P(){
       </div>
 
       <div class="box" style="margin-top:12px">
+      <div class="box" style="margin-top:12px">
+  <b>🧾 Resumo Estratégico 15P</b>
+  <div class="mini" style="margin-top:8px">
+    Procuramos primeiro <b>quintetos</b>.  
+    Se não existir, usamos <b>quadras</b>, depois <b>ternos</b> e <b>pares</b>.
+  </div>
+
+  <div class="grid" style="margin-top:12px">
+    <div class="box">
+      <b>✅ Grupos que mais saem juntas</b>
+      ${grupos15.map(g=>`
+        <div class="mini"><b>Grupos de ${g.k}</b></div>
+        ${g.top.map(t=>`
+          <div class="mono">${t.nums.map(format2).join(" - ")} • ${t.count}x</div>
+        `).join("")}
+      `).join("")}
+    </div>
+
+    <div class="box">
+      <b>❌ Pares que menos saem juntos</b>
+      ${paresFracos15.map(p=>`
+        <div class="mono">${format2(p.a)}-${format2(p.b)} • ${p.count}x</div>
+      `).join("")}
+    </div>
+  </div>
+</div>
         <b>📌 Linhas 1 a 5 (geradas pelo sistema)</b>
         <div class="mini" style="margin-top:6px">
           O sistema usa: <b>frequência + recência + coocorrência + lift</b>, com controle de paridade e blocos.
