@@ -1,3 +1,12 @@
+Baseado no script abaixo, vou te passar algumas mudanças:
+
+Vou te passar algumas mudança a fazer, 
+
+
+ 1º Regra do método: cobrimos todas as combinações de 3 linhas entre 5 (10 jogos). Não garante premiação(Alterar está frase, acertando 3 linhas completas, prêmio garantido! se possivel em maiusculo); 2º 5 juntas: 04-06-07-09-11 • 3xMelhor 4 juntas: 04-06-07-09 • 3xMelhor 3 juntas: 04-06-07 • 4xMelhor 2 juntas: 04-07 • 5x(tirar a palavra melhor); 3º Opção para salvamento de 1 jogo 15 premiado e 1 principal + invertido+ técnica, e conferência depois, quando for salvar novamente sobrepor ! Assim ele terá a opção de salvar para conferir um arquivo de cada desse! 4º Jogo principal : o sistema sempre esta escolhendo 10 numeros do concurso anterior , a regra é de 4 a 11, isso em que ser analisado quais podem se repetir, não pode ser sempre 10 igual esta acontecendo, vamos dar a cada 5 combinações preferencia entre 7 e 8 que são a quantidade que mais se repetem.
+
+Quero que me de passo a passo da correção, com onde ir, o que mudar e ate onde mudar, tudo bem detalhada pra eu não errar.
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -936,12 +945,6 @@ auth.onAuthStateChanged(async (user)=>{
    MOTOR BASE
 ========================= */
 function format2(n){ return String(n).padStart(2,"0"); }
-function renderBallsInline(nums){
-  return (nums||[]).map(n=>{
-    const v = Number(String(n).replace(/^0+/,"")) || Number(n) || 0;
-    return `<div class="ball">${format2(v)}</div>`;
-  }).join("");
-}
 function toNum(d){ return Number(String(d).replace(/^0+/,"")) || Number(d); }
 function sortNum(arr){ return arr.slice().sort((a,b)=>a-b); }
 
@@ -1087,8 +1090,9 @@ function renderModernInsights(metrics){
 /* =========================
    GERAÇÃO DO JOGO (melhorada)
 ========================= */
-function gerarJogoForte(freq, metrics, lastDezenas){
+function gerarJogoForte(freq, metrics){
   const ord = ordenarPorFreq(freq);
+
   const hotPool = ord.slice(0,10).map(x=>x.dez);
   const warmPool = ord.slice(10,18).map(x=>x.dez);
   const coldPool = ord.slice(-7).map(x=>x.dez);
@@ -1104,14 +1108,7 @@ function gerarJogoForte(freq, metrics, lastDezenas){
   }
 
   let best=null;
-  for(let t=0;t<820;t++){
-        const lastSet = new Set((lastDezenas||[]).map(toNum));
-
-    // ✅ alvo de repetidas: entre 4 e 11, com preferência 7/8
-    // regra: 70% das vezes tenta 7 ou 8
-    const targetRepeat = (Math.random() < 0.70)
-      ? (Math.random() < 0.5 ? 7 : 8)
-      : (4 + Math.floor(Math.random() * 8)); // 4..11
+  for(let t=0;t<180;t++){
     const set=new Set();
 
     // ✅ mix padrão (mercado): quente + morna + fria
@@ -1131,49 +1128,6 @@ function gerarJogoForte(freq, metrics, lastDezenas){
     }
 
     while(set.size<15) set.add(Math.floor(Math.random()*25)+1);
-    // ✅ ajustar repetidas do último concurso para ficar no alvo
-    function countRepeats(){
-      let r=0;
-      for(const n of set){ if(lastSet.has(n)) r++; }
-      return r;
-    }
-
-    let rep = countRepeats();
-
-    // se repetiu demais, troca repetidas por não repetidas
-    while(rep > 11 || rep > targetRepeat){
-      // pega um número repetido
-      const repNums = [...set].filter(n=>lastSet.has(n));
-      if(!repNums.length) break;
-      const remove = repNums[Math.floor(Math.random()*repNums.length)];
-      set.delete(remove);
-
-      // coloca um não repetido
-      const nonRepPool = [];
-      for(let n=1;n<=25;n++) if(!lastSet.has(n) && !set.has(n)) nonRepPool.push(n);
-      if(nonRepPool.length) set.add(nonRepPool[Math.floor(Math.random()*nonRepPool.length)]);
-      else set.add(Math.floor(Math.random()*25)+1);
-
-      rep = countRepeats();
-    }
-
-    // se repetiu de menos, força entrada de repetidas
-    while(rep < 4 || rep < targetRepeat){
-      // adiciona um repetido que não está no set
-      const repPool = [];
-      for(const n of lastSet) if(!set.has(n)) repPool.push(n);
-      if(repPool.length){
-        // remove um não repetido para manter 15
-        const nonRepNums = [...set].filter(n=>!lastSet.has(n));
-        if(nonRepNums.length){
-          set.delete(nonRepNums[Math.floor(Math.random()*nonRepNums.length)]);
-        }
-        set.add(repPool[Math.floor(Math.random()*repPool.length)]);
-      }else{
-        break;
-      }
-      rep = countRepeats();
-    }
 
     const jogo = sortNum([...set]);
     const pi = contarParesImpares(jogo);
@@ -1208,6 +1162,143 @@ function gerarJogoForte(freq, metrics, lastDezenas){
     if(!best || score>best.score) best={jogo, score};
   }
   return best.jogo;
+}
+/* =========================
+   ✅ NOVO MOTOR (Jogo Principal por regra do último concurso)
+   - Repetição: 6 a 11 dezenas do último
+   - Complemento: dentre as 10 que NÃO saíram no último (completa até 15)
+   - Retorna { jogo, motivos }
+========================= */
+function gerarJogoComRegrasUltimo(freq, metrics, dezenasUltimo){
+  const ultimo = (dezenasUltimo||[]).map(toNum).filter(n=>n>=1 && n<=25);
+  const setUlt = new Set(ultimo);
+
+  // 10 dezenas que NÃO saíram no último
+  const naoSaiu = [];
+  for(let n=1;n<=25;n++){
+    if(!setUlt.has(n)) naoSaiu.push(n);
+  }
+
+  function scoreJogo(jogo){
+    const pi = contarParesImpares(jogo);
+    const soma = somaDezenas(jogo);
+    const blocos = distribuicaoBlocos(jogo);
+    const seq = contarSequencias(jogo);
+
+    let score=0;
+
+    // (1) Pares/ímpares: ideal 7/8
+    score += (pi.pares===7 || pi.pares===8) ? 25 : (pi.pares===6 || pi.pares===9) ? 12 : 0;
+
+    // (2) Soma: faixa comum
+    score += (soma>=170 && soma<=230) ? 20 : (soma>=160 && soma<=240) ? 10 : 0;
+
+    // (3) Blocos: evitar concentração
+    const maxBlock = Math.max(blocos.A,blocos.B,blocos.C,blocos.D,blocos.E);
+    score += (maxBlock<=5) ? 20 : (maxBlock===6) ? 10 : 0;
+
+    // (4) Sequência: evitar sequência enorme
+    score += (seq.maxLen<=4) ? 15 : (seq.maxLen===5) ? 6 : 0;
+
+    // (5) Frequência (janela)
+    score += Math.min(20, Math.round(jogo.reduce((a,n)=>a+(freq[n]||0),0)/10));
+
+    // (6) Recência (se tiver metrics)
+    if(metrics){
+      const recScore = jogo.reduce((a,n)=>a+(metrics.decay?.[n]||0),0);
+      score += Math.min(12, recScore);
+    }
+
+    return score;
+  }
+
+  // escolhe uma combinação boa dentro das regras:
+  // repete r (6..11) do último e completa com (15-r) das 10 que não saíram
+  let best=null;
+
+  function pickRandom(arr, k){
+    const a=arr.slice().sort(()=>Math.random()-0.5);
+    return a.slice(0,k);
+  }
+
+  for(let tries=0; tries<1200; tries++){
+    const r = 6 + Math.floor(Math.random()*6); // 6..11
+    const rep = pickRandom(ultimo, Math.min(r, ultimo.length));
+    const restCount = 15 - rep.length;
+
+    const comp = pickRandom(naoSaiu, restCount);
+
+    const set = new Set([...rep, ...comp]);
+    while(set.size<15){
+      set.add(Math.floor(Math.random()*25)+1);
+    }
+
+    const jogo = sortNum([...set]);
+
+    // garante que a quantidade de repetidas do último está entre 6 e 11
+    const reps = jogo.filter(n=>setUlt.has(n));
+    if(reps.length < 6 || reps.length > 11) continue;
+
+    // garante que veio uma quantidade boa do grupo "não saiu"
+    const doNaoSaiu = jogo.filter(n=>!setUlt.has(n));
+    // você falou que costuma sair de 4 a 10 dessas 10
+    if(doNaoSaiu.length < 4 || doNaoSaiu.length > 10) continue;
+
+    const sc = scoreJogo(jogo);
+    if(!best || sc > best.score){
+      best = { jogo, score: sc, reps, doNaoSaiu };
+    }
+  }
+
+  // fallback: se por algum motivo não achou (raro), usa o antigo
+  if(!best){
+    const fallback = gerarJogoForte(freq, metrics);
+    return { jogo: fallback, motivos: buildMotivos(fallback, ultimo, freq, metrics) };
+  }
+
+  // monta motivos (pra mostrar ao usuário)
+  const motivos = buildMotivos(best.jogo, ultimo, freq, metrics);
+
+  return { jogo: best.jogo, motivos };
+}
+
+/* ✅ Motivos “populares” por dezena */
+function buildMotivos(jogo, dezenasUltimoNums, freq, metrics){
+  const setUlt = new Set((dezenasUltimoNums||[]).map(toNum));
+  const ord = ordenarPorFreq(freq);
+  const rank = {};
+  ord.forEach((x,i)=>rank[x.dez]=i+1);
+
+  return jogo.map(n=>{
+    const isRep = setUlt.has(n);
+    const r = rank[n] || 999;
+    const quente = r<=8;
+    const morna  = r>8 && r<=17;
+    const fria   = r>17;
+
+    const gap = metrics?.gap?.[n];
+    const trend = metrics?.trend?.[n];
+
+    const motivos = [];
+
+    if(isRep) motivos.push("🔁 veio do último concurso (tende a repetir bastante)");
+    else motivos.push("🆕 não saiu no último (normal entrar 4 a 10 dessas no próximo)");
+
+    if(quente) motivos.push("🔥 é ‘quente’ na janela (aparece direto)");
+    else if(morna) motivos.push("🌡️ é ‘morna’ (equilibrada, nem some nem estoura)");
+    else if(fria) motivos.push("🧊 é ‘fria’ (aparece pouco — entra como aposta)");
+
+    if(typeof gap === "number"){
+      if(gap>=8) motivos.push(`⏳ está há ${gap} concursos sem aparecer (pode ‘pintar’)`);
+      else if(gap<=2) motivos.push("⚡ apareceu recentemente (recência forte)");
+    }
+
+    if(typeof trend === "number"){
+      if(trend>0.03) motivos.push("📈 está ‘subindo’ agora (últimos concursos)");
+    }
+
+    return { dezena:n, texto: motivos.join(" • ") };
+  });
 }
 </script>
 
@@ -1385,19 +1476,19 @@ function renderEvenOddDist(patterns, total){
     const pct = Math.round((p.count/Math.max(1,total))*100);
     return `
       <div style="display:flex;align-items:center;justify-content:space-between;padding:10px;border-bottom:1px solid rgba(255,255,255,.08)">
-        <div><b>Formato ${p.pares}-${p.impares}</b> <span class="mini" style="margin:0;opacity:.9">(${pct}%)</span></div>
+        <div><b>${p.pares} pares / ${p.impares} ímpares</b> <span class="mini" style="margin:0;opacity:.9">(${pct}%)</span></div>
         <div class="mini" style="margin:0"><b>${p.count}x</b></div>
       </div>
     `;
   }).join("");
   return `
     <div class="box" style="margin-top:12px">
-      <b>⚖️ Padrões de distribuição mais comuns</b>
+      <b>⚖️ Padrões de Pares × Ímpares mais comuns</b>
       <div class="mini" style="margin-top:6px">Mostra a distribuição mais recorrente na janela analisada.</div>
       <div style="margin-top:10px;border:1px solid rgba(255,255,255,.10);border-radius:14px;overflow:hidden">
         ${rows || `<div style="padding:12px" class="mini">—</div>`}
       </div>
-      ${top ? `<div class="mini" style="margin-top:10px">🔥 Dominante: <b>Formato ${top.pares}-${top.impares}</b> (${top.count} ocorrências)</div>` : ``}
+      ${top ? `<div class="mini" style="margin-top:10px">🔥 Dominante: <b>${top.pares} pares / ${top.impares} ímpares</b> (${top.count} ocorrências)</div>` : ``}
     </div>
   `;
 }
@@ -1482,7 +1573,7 @@ function renderBlocksPrime(totals, patterns, total){
 function renderTopPairs(pairs, total){
   const rows = pairs.map(p=>{
     const pct = Math.round((p.count/Math.max(1,total))*100);
-    const type = (p.a%2===0 && p.b%2===0) ? "mesmo grupo" : (p.a%2===1 && p.b%2===1) ? "mesmo grupo" : "misto";
+    const type = (p.a%2===0 && p.b%2===0) ? "par-par" : (p.a%2===1 && p.b%2===1) ? "ímpar-ímpar" : "misto";
     return `
       <tr>
         <td class="mono"><b>${format2(p.a)}-${format2(p.b)}</b></td>
@@ -1495,13 +1586,13 @@ function renderTopPairs(pairs, total){
 
   return `
     <div class="box" style="margin-top:12px">
-      <b>🔗 Dezenas que mais se repetiram juntas (combinações mais fortes)</b>
+      <b>🔗 Dezenas que mais se repetiram juntas (pares mais fortes)</b>
       <div class="mini" style="margin-top:6px">Pares com maior coocorrência na janela selecionada.</div>
       <div style="margin-top:10px;overflow:auto">
         <table class="table">
           <thead>
             <tr>
-              <th>Dupla</th><th>Tipo</th><th>Juntos</th><th>% na janela</th>
+              <th>Par</th><th>Tipo</th><th>Juntos</th><th>% na janela</th>
             </tr>
           </thead>
           <tbody>
@@ -1550,12 +1641,21 @@ async function getOnlineConcursos(qtd){
       const ultimo = latest.concurso;
       const inicio = Math.max(1, ultimo - qtd + 1);
 
-      const concursos=[];
-      for(let c=inicio;c<=ultimo;c++){
-        const raw = await tryFetchJson(src.byId(c));
-        concursos.push(src.adapt(raw));
-      }
-      return { mode:"online", source:src.name, latest, concursos, inicio, ultimo };
+     const ids = [];
+for (let c = inicio; c <= ultimo; c++) ids.push(c);
+
+// busca tudo em paralelo (muito mais rápido)
+const results = await Promise.allSettled(ids.map(c => tryFetchJson(src.byId(c))));
+
+const concursos = results
+  .filter(r => r.status === "fulfilled")
+  .map(r => src.adapt(r.value))
+  .filter(x => x && x.concurso && x.dezenas && x.dezenas.length);
+
+// garante que veio tudo; se faltou algum, força fallback para outra fonte
+if (concursos.length !== ids.length) throw new Error("API incompleta (faltou concurso).");
+
+return { mode:"online", source:src.name, latest, concursos, inicio, ultimo };
     }catch(e){
       lastErr=e;
     }
@@ -1596,65 +1696,8 @@ async function fetchUltimoResultado(){
 /* =========================
    Estado global
 ========================= */
-  /* =========================
-   SALVAMENTO (localStorage) — 1 arquivo de cada (sobrescreve)
-========================= */
-const SAVE_KEY_PACK = "lf_saved_pack_v1";     // Principal + Invertida + Técnica
-const SAVE_KEY_15P  = "lf_saved_15p_v1";      // 15P (linhas + jogos)
-
-function savePrincipalPack(){
-  if(!lastPrincipalGame) return alert("Gere o Jogo Principal primeiro.");
-  if(!lastInvertidaGame || !lastTecnicaGames?.g1 || !lastTecnicaGames?.g2){
-    return alert("Para salvar o pacote completo, gere também Invertida + Técnica 1 e Técnica 2.");
-  }
-
-  const pack = {
-    savedAt: new Date().toISOString(),
-    principal: lastPrincipalGame,
-    invertida: lastInvertidaGame,
-    tecnica1: lastTecnicaGames.g1,
-    tecnica2: lastTecnicaGames.g2
-  };
-
-  localStorage.setItem(SAVE_KEY_PACK, JSON.stringify(pack));
-  alert("✅ Salvo! (Principal + Invertida + Técnica). Se salvar de novo, substitui automaticamente.");
-}
-
-function loadPrincipalPack(){
-  const raw = localStorage.getItem(SAVE_KEY_PACK);
-  if(!raw) return alert("Não existe pacote salvo ainda.");
-  const pack = JSON.parse(raw);
-
-  lastPrincipalGame = pack.principal || null;
-  lastInvertidaGame = pack.invertida || null;
-  lastTecnicaGames = { g1: pack.tecnica1 || null, g2: pack.tecnica2 || null };
-
-  alert("✅ Pacote carregado! Agora você pode ir em 'Verificar jogos gerados' e conferir.");
-  updateCheckButtons();
-}
-
-function save15P(){
-  if(!linesSystem15) return alert("Gere a análise 15P primeiro.");
-  const obj = {
-    savedAt: new Date().toISOString(),
-    systemLines: linesSystem15,
-    userLines: linesUser15
-  };
-  localStorage.setItem(SAVE_KEY_15P, JSON.stringify(obj));
-  alert("✅ Salvo! (15P). Se salvar de novo, substitui automaticamente.");
-}
-
-function load15P(){
-  const raw = localStorage.getItem(SAVE_KEY_15P);
-  if(!raw) return alert("Não existe 15P salvo ainda.");
-  const obj = JSON.parse(raw);
-
-  linesSystem15 = obj.systemLines || null;
-  linesUser15 = obj.userLines || null;
-
-  alert("✅ 15P carregado! Abra a tela 15P e gere os 10 jogos com suas linhas, se quiser.");
-}
 let lastPayload=null;
+let cacheBase = { qtd: null, at: 0, payload: null, freq: null, modern: null };
 let lastCtx=null;
 
 let lastPrincipalGame=null;
@@ -1680,6 +1723,15 @@ function qtdSelecionada(){ return Number(document.getElementById("qtdConcursos")
 
 async function prepararContextoBase(qtd){
   setStatus(true,"Carregando concursos…");
+  // ✅ cache por 2 minutos
+const now = Date.now();
+if (cacheBase.payload && cacheBase.qtd === qtd && (now - cacheBase.at) < 120000) {
+  lastPayload = cacheBase.payload;
+  lastCtx = { freq: cacheBase.freq, modern: cacheBase.modern };
+  setStatus(false,"");
+  setProgress(0);
+  return { payload: lastPayload, freq: lastCtx.freq, modern: lastCtx.modern };
+}
   setProgress(12);
 
   let payload;
@@ -1705,6 +1757,8 @@ async function prepararContextoBase(qtd){
 
   setStatus(false,"");
   setProgress(0);
+
+  cacheBase = { qtd, at: Date.now(), payload, freq, modern };
 
   return { payload, freq, modern };
 }
@@ -1906,7 +1960,8 @@ async function acaoPrincipal(){
     setStatus(true,"Gerando jogo principal (15 dezenas)…");
     setProgress(80);
 
-    const jogo = gerarJogoForte(freq, modern, payload.latest.dezenas);
+    const result = gerarJogoComRegrasUltimo(freq, modern, payload.latest.dezenas);
+const jogo = result.jogo;
 
     lastPrincipalGame = jogo.slice();
     lastInvertidaGame = null;
@@ -1927,10 +1982,29 @@ async function acaoPrincipal(){
     aplicarAcessos();
 
     const balls = jogo.map(n=>`<div class="ball">${format2(n)}</div>`).join("");
+// ✅ AGRUPA motivos iguais para ocupar menos espaço
+const motivosAgrupados = {};
+(result?.motivos || []).forEach(m=>{
+  const key = (m.texto || "").trim();
+  if(!motivosAgrupados[key]) motivosAgrupados[key] = [];
+  motivosAgrupados[key].push(m.dezena);
+});
+
+const motivosHtml = Object.entries(motivosAgrupados)
+  .sort((a,b)=>a[1][0]-b[1][0])
+  .map(([texto, dezenas])=>{
+    const lista = dezenas.sort((x,y)=>x-y).map(n=>format2(n)).join(", ");
+    return `
+      <div style="padding:10px;border-bottom:1px solid rgba(255,255,255,.08)">
+        <b class="mono">${lista}</b>
+        <div class="mini" style="margin-top:6px">${texto}</div>
+      </div>
+    `;
+  }).join("") || `<div class="mini">—</div>`;
 
     const resumoPares = (pi.pares===7||pi.pares===8)
-  ? `Distribuição ideal (Formato ${pi.pares}-${pi.impares}).`
-  : `Distribuição fora do ideal (melhor: formato 7-8 ou 8-7).`;
+      ? `Distribuição ideal (${pi.pares} pares / ${pi.impares} ímpares).`
+      : `Distribuição fora do ideal (melhor: 7/8).`;
     const resumoSoma = (soma>=170 && soma<=230)
       ? `Soma ${soma} dentro da faixa estatística mais comum (evita extremos).`
       : `Soma ${soma} fora da faixa mais comum — combinação mais “arriscada”.`;
@@ -1952,14 +2026,21 @@ async function acaoPrincipal(){
           <div class="mini">Janela: <b>${payload.inicio}</b> a <b>${payload.ultimo}</b> (${payload.concursos.length} concursos)</div>
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
-  <button class="btn btnGhost" type="button" onclick="verConcursos()">📅 Ver concursos</button>
-  <button class="btn btnGhost" type="button" onclick="abrirGraficoBlocos(lastPrincipalMeta.blocos)">📊 Blocos A–E</button>
-  <button class="btn btnGhost" type="button" onclick="savePrincipalPack()">💾 Salvar pacote</button>
-  <button class="btn btnGhost" type="button" onclick="loadPrincipalPack()">📂 Carregar pacote</button>
-</div>
+          <button class="btn btnGhost" type="button" onclick="verConcursos()">📅 Ver concursos</button>
+          <button class="btn btnGhost" type="button" onclick="abrirGraficoBlocos(lastPrincipalMeta.blocos)">📊 Blocos A–E</button>
+        </div>
       </div>
 
       <div class="numbers">${balls}</div>
+<div class="box" style="margin-top:12px">
+  <b>🧾 Por que essas dezenas foram escolhidas?</b>
+  <div class="mini" style="margin-top:8px">
+    Explicação simples (repetição do último + mix de quentes/mornas/frias + recência).
+  </div>
+  <div style="margin-top:10px;border:1px solid rgba(255,255,255,.10);border-radius:14px;overflow:hidden">
+    ${motivosHtml}
+  </div>
+</div>
 
       <div class="box" style="margin-top:12px">
         <b>🧾 Resumo PRIME (detalhado)</b>
@@ -1981,8 +2062,8 @@ async function acaoPrincipal(){
           </div>
 
           <div class="box">
-            <b>⚖️ Distribuição</b>
-            <div class="mini" style="margin-top:8px"><b>Formato:</b> <b>${pi.pares}-${pi.impares}</b></div>
+            <b>⚖️ Pares x Ímpares</b>
+            <div class="mini" style="margin-top:8px"><b>${pi.pares}</b> pares • <b>${pi.impares}</b> ímpares</div>
             <div class="mini">${resumoPares}</div>
           </div>
 
@@ -2005,9 +2086,6 @@ async function acaoPrincipal(){
           </div>
         </div>
       </div>
-
-      ${renderModernInsights(modern)}
-      ${renderTop10(freq, payload.concursos.length)}
 
       <div class="grid" style="margin-top:12px">
         <div class="box">
@@ -2261,331 +2339,646 @@ function montarTelaCheck(){
 
 <script>
 /* =========================
-   15P PRIME (SEM GAMBIARRA)
-   - 3 linhas "MAIS SAEM JUNTAS"
-   - 2 linhas "MENOS SAEM JUNTAS"
-   - resumo PRIME + explicação por linha
+   15P (mais forte + editor manual)
 ========================= */
+function calcCoocAndStats(concursos){
+  const n = concursos.length;
+  const freq = Array(26).fill(0);
+  const co = Array.from({length:26}, ()=>Array(26).fill(0));
 
-function combosK(arr, k){
-  const res=[];
-  const a=arr.slice().sort((x,y)=>x-y);
-  function rec(start, comb){
-    if(comb.length===k){ res.push(comb.slice()); return; }
-    for(let i=start;i<=a.length-(k-comb.length);i++){
-      comb.push(a[i]);
-      rec(i+1, comb);
-      comb.pop();
+  // recência (exponencial)
+  const decay = Array(26).fill(0);
+  const lastSeen = Array(26).fill(-1);
+  const DECAY = 0.92;
+
+  concursos.forEach((c,idx)=>{
+    const nums = (c.dezenas||[])
+      .map(d=>Number(String(d).replace(/^0+/,"")))
+      .filter(x=>x>=1 && x<=25);
+    const w = Math.pow(DECAY, (n-1-idx));
+
+    nums.forEach(a=>{
+      freq[a]++; decay[a]+=w; lastSeen[a]=idx;
+    });
+
+    for(let i=0;i<nums.length;i++){
+      for(let j=i+1;j<nums.length;j++){
+        const a=nums[i], b=nums[j];
+        co[a][b]++; co[b][a]++;
+      }
+    }
+  });
+
+  const p = Array(26).fill(0);
+  for(let i=1;i<=25;i++) p[i] = freq[i] / Math.max(1,n);
+
+  const gap = Array(26).fill(999);
+  for(let i=1;i<=25;i++){
+    gap[i] = (lastSeen[i]===-1) ? n : (n-1-lastSeen[i]);
+  }
+
+  const lift = Array.from({length:26}, ()=>Array(26).fill(0));
+  for(let a=1;a<=25;a++){
+    for(let b=1;b<=25;b++){
+      if(a===b) continue;
+      const pab = co[a][b] / Math.max(1,n);
+      const denom = (p[a] * p[b]);
+      lift[a][b] = denom>0 ? (pab/denom) : 0;
     }
   }
-  rec(0, []);
-  return res;
+  return { n, freq, co, p, lift, decay, gap };
 }
 
-function buildDrawSets(concursos){
-  return concursos.map(c=>{
-    const nums=(c.dezenas||[]).map(toNum).filter(n=>n>=1 && n<=25);
-    return new Set(nums);
+function pairStrength(a,b, stats){
+  // força = cooc + lift + recência dos números
+  const {co, lift, decay} = stats;
+  const base = (co[a][b] * 1.0) + (lift[a][b] * 2.2);
+  const rec = (decay[a] + decay[b]) * 0.55;
+  return base + rec;
+}
+
+function groupStrength(group, stats){
+  let sum=0, pairs=0;
+  for(let i=0;i<group.length;i++){
+    for(let j=i+1;j<group.length;j++){
+      sum += pairStrength(group[i], group[j], stats);
+      pairs++;
+    }
+  }
+  return { sum, avg: pairs? (sum/pairs):0 };
+}
+
+function groupCoSum(group, stats){
+  const {co} = stats;
+  let sum=0, pairs=0;
+  for(let i=0;i<group.length;i++){
+    for(let j=i+1;j<group.length;j++){
+      sum += co[group[i]][group[j]];
+      pairs++;
+    }
+  }
+  return { sum, avg: pairs? (sum/pairs):0 };
+}
+
+function groupLiftAvg(group, stats){
+  const {lift} = stats;
+  let sum=0, pairs=0;
+  for(let i=0;i<group.length;i++){
+    for(let j=i+1;j<group.length;j++){
+      sum += lift[group[i]][group[j]];
+      pairs++;
+    }
+  }
+  return { sum, avg: pairs? (sum/pairs):0 };
+}
+
+function groupFreqSum(group, stats){
+  const {freq} = stats;
+  return group.reduce((a,n)=>a+freq[n],0);
+}
+
+function topPairsInGroup(group, stats, topN=3){
+  const arr=[];
+  for(let i=0;i<group.length;i++){
+    for(let j=i+1;j<group.length;j++){
+      const a=group[i], b=group[j];
+      arr.push({ a,b, co: stats.co[a][b], lift: stats.lift[a][b], score: pairStrength(a,b,stats) });
+    }
+  }
+  arr.sort((x,y)=>y.score-x.score);
+  return arr.slice(0, topN);
+}
+function worstPairsInGroup(group, stats, topN=3){
+  const arr=[];
+  for(let i=0;i<group.length;i++){
+    for(let j=i+1;j<group.length;j++){
+      const a=group[i], b=group[j];
+      arr.push({ a,b, co: stats.co[a][b], lift: stats.lift[a][b], score: pairStrength(a,b,stats) });
+    }
+  }
+  arr.sort((x,y)=>x.score-y.score);
+  return arr.slice(0, topN);
+}
+
+/* ✅ NOVO: construção inicial por score (freq + recência + atraso controlado) */
+function buildInitialLines(stats){
+  const order = [];
+  for(let i=1;i<=25;i++){
+    // score: frequência + recência, com bônus leve para atraso (sem exagero)
+    const s = (stats.freq[i]*1.0) + (stats.decay[i]*3.0) + Math.min(6, stats.gap[i]*0.35);
+    order.push({i, s});
+  }
+  order.sort((a,b)=>b.s-a.s);
+
+  const lines = [[],[],[],[],[]];
+  // distribuição round-robin para já evitar concentração
+  for(let k=0;k<order.length;k++){
+    lines[k%5].push(order[k].i);
+  }
+  lines.forEach(l=>l.sort((a,b)=>a-b));
+  return lines;
+}
+
+/* ✅ NOVO: penalidades por paridade + bloco + mix de frequências */
+function objective(lines, stats){
+  const scoredLines = lines.map(l=>{
+    const st = groupStrength(l, stats).sum;
+    const pares = l.filter(n=>n%2===0).length;
+    const imp = 5 - pares;
+    const blocos = distribuicaoBlocos(l);
+    const maxBlock = Math.max(blocos.A,blocos.B,blocos.C,blocos.D,blocos.E);
+
+    // mistura freq (evitar 5 todas muito quentes ou muito frias)
+    const fvals = l.map(n=>stats.freq[n]).sort((a,b)=>a-b);
+    const spread = (fvals[4]-fvals[0]);
+
+    let penalty=0;
+    // paridade ideal na linha: 2/3 ou 3/2
+    if(!(pares===2 || pares===3)) penalty += 6;
+
+    // bloco: evitar 4 ou 5 no mesmo bloco
+    if(maxBlock>=4) penalty += (maxBlock-3)*10;
+
+    // spread mínimo (mistura) — se muito baixo, é “tudo igual”
+    if(spread<=1) penalty += 6;
+
+    return { st, penalty };
+  });
+
+  // 3 fortes + 2 diversas
+  const sorted = scoredLines.slice().sort((a,b)=> (b.st-b.penalty) - (a.st-a.penalty));
+  const strong = sorted.slice(0,3).reduce((a,x)=>a+(x.st - x.penalty),0);
+  const diverse = sorted.slice(3).reduce((a,x)=>a+(x.st - x.penalty),0);
+
+  // diversidade: queremos 2 linhas com menor cooc e penalty baixo
+  return (strong * 1.0) + (diverse * 0.55);
+}
+
+function optimizeLines(lines, stats){
+  let best = lines.map(l=>l.slice());
+  let bestScore = objective(best, stats);
+
+  function clone(x){ return x.map(l=>l.slice()); }
+  const ITER = 5200;
+
+  for(let t=0;t<ITER;t++){
+    const cand = clone(best);
+
+    const i = Math.floor(Math.random()*5);
+    let j = Math.floor(Math.random()*5);
+    if(i===j) j = (j+1)%5;
+
+    const ai = Math.floor(Math.random()*5);
+    const aj = Math.floor(Math.random()*5);
+
+    const tmp = cand[i][ai];
+    cand[i][ai] = cand[j][aj];
+    cand[j][aj] = tmp;
+
+    cand[i].sort((a,b)=>a-b);
+    cand[j].sort((a,b)=>a-b);
+
+    const sc = objective(cand, stats);
+    if(sc > bestScore || Math.random() < 0.02){
+      best = cand; bestScore = sc;
+    }
+  }
+
+  // ordena linhas por força (para explicar)
+  const withScore = best.map((l)=>({l, s: groupStrength(l,stats).sum}));
+  withScore.sort((a,b)=>b.s-a.s);
+
+  const strong = withScore.slice(0,3).map(x=>x.l);
+  const diverse = withScore.slice(3).map(x=>x.l);
+
+  return strong.concat(diverse);
+}
+
+function combos3de5(){
+  const r=[];
+  for(let a=1;a<=3;a++){
+    for(let b=a+1;b<=4;b++){
+      for(let c=b+1;c<=5;c++){
+        r.push([a,b,c]);
+      }
+    }
+  }
+  return r;
+}
+function gerarJogos15P(linhas){
+  const comb = combos3de5();
+  return comb.map((idxs)=>{
+    const set = new Set();
+    idxs.forEach(i=> linhas[i-1].forEach(n=>set.add(n)) );
+    return sortNum([...set]);
   });
 }
 
-function supportCount(combo, drawSets){
-  let count=0;
-  for(const s of drawSets){
-    let ok=true;
-    for(const n of combo){ if(!s.has(n)) { ok=false; break; } }
+function renderBallsInline(nums){
+  return nums.map(n=>`<div class="ball">${format2(n)}</div>`).join("");
+}
+
+// ✅ Conta quantas vezes um grupo (2..5 dezenas) apareceu inteiro no mesmo concurso
+function countGroupTogether(group, concursos){
+  const gset = new Set(group.map(Number));
+  let count = 0;
+  for(const c of concursos){
+    const setC = new Set((c.dezenas||[]).map(toNum));
+    let ok = true;
+    for(const n of gset){
+      if(!setC.has(n)){ ok = false; break; }
+    }
     if(ok) count++;
   }
   return count;
 }
 
-function contestsWhere(combo, concursos, limit=20){
-  const out=[];
-  for(const c of concursos){
-    const s=new Set((c.dezenas||[]).map(toNum));
-    let ok=true;
-    for(const n of combo){ if(!s.has(n)) { ok=false; break; } }
-    if(ok) out.push(c.concurso);
-    if(out.length>=limit) break;
-  }
-  return out;
-}
+// ✅ Acha o melhor subgrupo de tamanho k dentro da linha (maior “juntos”)
+function bestSubgroupTogether(line, k, concursos){
+  const arr = line.slice().map(Number).sort((a,b)=>a-b);
 
-function calcFreq15(concursos){
-  const freq=Array(26).fill(0);
-  concursos.forEach(c=>{
-    (c.dezenas||[]).map(toNum).filter(n=>n>=1 && n<=25).forEach(n=>freq[n]++);
-  });
-  return freq;
-}
-
-function topNumbersByFreq(freq, limit=18){
-  const arr=[];
-  for(let n=1;n<=25;n++) arr.push({n, f:freq[n]});
-  arr.sort((a,b)=>b.f-a.f);
-  return arr.slice(0, Math.max(10, Math.min(25, limit))).map(x=>x.n);
-}
-
-function bottomNumbersByFreq(freq, limit=18){
-  const arr=[];
-  for(let n=1;n<=25;n++) arr.push({n, f:freq[n]});
-  arr.sort((a,b)=>a.f-b.f);
-  return arr.slice(0, Math.max(10, Math.min(25, limit))).map(x=>x.n);
-}
-
-function pickNonOverlapping(list, take, maxOverlap){
-  const chosen=[];
-  for(const it of list){
-    if(chosen.length>=take) break;
-    let ok=true;
-    for(const ch of chosen){
-      const inter = it.combo.filter(x=>ch.combo.includes(x)).length;
-      if(inter>maxOverlap){ ok=false; break; }
-    }
-    if(ok) chosen.push(it);
-  }
-  return chosen;
-}
-
-function build15PLinesPrime(payload){
-  const concursos = payload.concursos;
-  const drawSets = buildDrawSets(concursos);
-  const freq = calcFreq15(concursos);
-
-  const topBase = topNumbersByFreq(freq, 18);
-  const botBase = bottomNumbersByFreq(freq, 18);
-
-  function findCombos(baseNums, size, pickTop){
-    const cand = combosK(baseNums, size);
-    const scored = cand.map(combo=>({ combo, sup: supportCount(combo, drawSets) }));
-    scored.sort((a,b)=> pickTop ? (b.sup-a.sup) : (a.sup-b.sup));
-    return scored;
-  }
-
-  // ===== Fortes (preferência: 5 -> 4 -> 3) =====
-  let fortes5 = findCombos(topBase, 5, true).filter(x=>x.sup>0);
-  let fortesSel=[];
-
-  if(fortes5.length){
-    fortesSel = pickNonOverlapping(fortes5, 3, 2).map(x=>({combo:x.combo, sup:x.sup, note:"Quinteto real"}));
-  }else{
-    let fortes4 = findCombos(topBase, 4, true).filter(x=>x.sup>0);
-    const sel4 = pickNonOverlapping(fortes4, 3, 2);
-    fortesSel = sel4.map(x=>{
-      const set=new Set(x.combo);
-      for(const n of topBase){ if(set.size>=5) break; if(!set.has(n)) set.add(n); }
-      return { combo:[...set].sort((a,b)=>a-b), sup:x.sup, note:"Quadra completada" };
-    });
-
-    if(!fortesSel.length){
-      let fortes3 = findCombos(topBase, 3, true).filter(x=>x.sup>0);
-      const sel3 = pickNonOverlapping(fortes3, 3, 1);
-      fortesSel = sel3.map(x=>{
-        const set=new Set(x.combo);
-        for(const n of topBase){ if(set.size>=5) break; if(!set.has(n)) set.add(n); }
-        return { combo:[...set].sort((a,b)=>a-b), sup:x.sup, note:"Terno completado" };
-      });
+  const comb = [];
+  function backtrack(start, pick){
+    if(pick.length === k){ comb.push(pick.slice()); return; }
+    for(let i=start;i<arr.length;i++){
+      pick.push(arr[i]);
+      backtrack(i+1, pick);
+      pick.pop();
     }
   }
+  backtrack(0, []);
 
-  while(fortesSel.length<3){
-    const set=new Set();
-    for(const n of topBase){ if(set.size>=5) break; set.add(n); }
-    const combo=[...set].sort((a,b)=>a-b);
-    fortesSel.push({ combo, sup: supportCount(combo, drawSets), note:"Linha forte por frequência" });
+  let best = { group:null, count:-1 };
+  for(const g of comb){
+    const ct = countGroupTogether(g, concursos);
+    if(ct > best.count){
+      best = { group:g, count:ct };
+    }
   }
-  fortesSel = fortesSel.slice(0,3);
-
-  // ===== Fracas (preferência: 5 -> 4 -> 3, permitindo sup=0) =====
-  let fracos5 = findCombos(botBase, 5, false); // menor suporte primeiro (inclui 0)
-  let fracosSel = pickNonOverlapping(fracos5, 2, 2).map(x=>({combo:x.combo, sup:x.sup, note:"Quinteto raro"}));
-
-  if(fracosSel.length<2){
-    let fracos4 = findCombos(botBase, 4, false);
-    const sel4 = pickNonOverlapping(fracos4, 2, 2);
-    fracosSel = sel4.map(x=>{
-      const set=new Set(x.combo);
-      for(const n of botBase){ if(set.size>=5) break; if(!set.has(n)) set.add(n); }
-      return { combo:[...set].sort((a,b)=>a-b), sup:x.sup, note:"Quadra fraca completada" };
-    });
-  }
-
-  while(fracosSel.length<2){
-    const set=new Set();
-    for(const n of botBase){ if(set.size>=5) break; set.add(n); }
-    const combo=[...set].sort((a,b)=>a-b);
-    fracosSel.push({ combo, sup: supportCount(combo, drawSets), note:"Linha fraca por baixa frequência" });
-  }
-  fracosSel = fracosSel.slice(0,2);
-
-  const lines = [
-    { tipo:"Forte", ...fortesSel[0] },
-    { tipo:"Forte", ...fortesSel[1] },
-    { tipo:"Forte", ...fortesSel[2] },
-    { tipo:"Fraca", ...fracosSel[0] },
-    { tipo:"Fraca", ...fracosSel[1] },
-  ].map(x=>({
-    tipo: x.tipo,
-    line: x.combo.slice().sort((a,b)=>a-b),
-    sup: x.sup,
-    note: x.note || ""
-  }));
-
-  // Resumo: top combos fortes (5) e combos raros (3)
-  const resumoFortes = findCombos(topBase, 5, true).slice(0,6).map(x=>({
-    combo:x.combo, sup:x.sup, concursos: contestsWhere(x.combo, concursos, 10)
-  }));
-
-  const resumoFracos = findCombos(topBase, 3, false).slice(0,6).map(x=>({
-    combo:x.combo, sup:x.sup
-  }));
-
-  return { lines, resumoFortes, resumoFracos };
+  return best;
 }
 
-/* 10 jogos (combinações 3 de 5) */
-function gerarJogos15P(linhas){
-  const combs = [
-    [0,1,2],[0,1,3],[0,1,4],[0,2,3],[0,2,4],
-    [0,3,4],[1,2,3],[1,2,4],[1,3,4],[2,3,4]
-  ];
+function explainLine(lineIdx, line, stats, kind){
+  const gs = groupStrength(line, stats);
+  const co = groupCoSum(line, stats);
+  const lf = groupLiftAvg(line, stats);
+  const fs = groupFreqSum(line, stats);
+    // ✅ Resumo real: 5/4/3/2 juntas na janela
+  const concursosRef = stats.concursosRef || [];
+  const odd = line.filter(n=>n%2===1).length;
+  const even = 5 - odd;
 
-  return combs.map(c=>{
-    const s=new Set();
-    c.forEach(i=>linhas[i].forEach(n=>s.add(n)));
-    return [...s].sort((a,b)=>a-b);
-  });
-}
+  const c5 = countGroupTogether(line, concursosRef);
+  const b4 = bestSubgroupTogether(line, 4, concursosRef);
+  const b3 = bestSubgroupTogether(line, 3, concursosRef);
+  const b2 = bestSubgroupTogether(line, 2, concursosRef);
 
-function explainLinePrime(idx, obj, payload){
-  const concursosOnde = contestsWhere(obj.line, payload.concursos, 18);
-  const concursosTxt = concursosOnde.length ? concursosOnde.join(", ") : "—";
+  const txtParidade =
+    (odd>even)
+      ? `${odd} ímpares / ${even} pares (mais comum na Lotofácil)`
+      : (even>odd)
+        ? `${odd} ímpares / ${even} pares (um pouco mais “par”, mas ok)`
+        : `${odd} ímpares / ${even} pares (equilibrado)`;
 
-  const tag = obj.tipo==="Forte"
-    ? `<span style="display:inline-flex;padding:6px 10px;border-radius:999px;border:1px solid rgba(34,197,94,.30);background:rgba(34,197,94,.14);font-weight:1000;font-size:11px">MAIS SAEM JUNTAS</span>`
-    : `<span style="display:inline-flex;padding:6px 10px;border-radius:999px;border:1px solid rgba(251,113,133,.28);background:rgba(251,113,133,.12);font-weight:1000;font-size:11px">MENOS SAEM JUNTAS</span>`;
+  const realMsg = (c5>0)
+    ? `✅ As 5 dezenas já saíram juntas <b>${c5}x</b> nessa janela.`
+    : `ℹ️ As 5 juntas é raro (0x), então olhe principalmente as melhores 4/3/2 que mais se repetem.`;
+
+  const pairs = (kind==="forte") ? topPairsInGroup(line, stats, 3) : worstPairsInGroup(line, stats, 3);
+  const pairsTxt = pairs.map(p=>{
+  const isStrong = (kind==="forte");
+  const icon = isStrong ? "✅" : "⚠️";
+  const label = isStrong ? "apareceu junto" : "quase não aparece junto";
+  return `<span class="chip" style="padding:7px 10px;font-size:12px">
+    ${icon} <b>${format2(p.a)}-${format2(p.b)}</b> • ${label}: <b>${p.co}x</b>
+  </span>`;
+}).join(" ");
+
+  const resumo = (kind==="forte")
+  ? `Linha montada com base em <b>frequência + recência</b> e combinações de dezenas que costumam aparecer juntas.`
+  : `Linha montada para ser <b>mais diferente</b>, evitando ficar “presa” nas mesmas combinações e mantendo um mix mais equilibrado.`;
 
   return `
     <div class="box">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
-        <b>Linha ${idx}</b>
-        ${tag}
+        <b>${kind==="forte" ? "🔥 Linha " + lineIdx + " (FORTE)" : "🧊 Linha " + lineIdx + " (DIVERSA)"}</b>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <span class="chip" style="padding:7px 10px;font-size:12px">Força: <b>${gs.sum.toFixed(1)}</b></span>
+          <span class="chip" style="padding:7px 10px;font-size:12px">Lift médio: <b>${lf.avg.toFixed(2)}</b></span>
+          <span class="chip" style="padding:7px 10px;font-size:12px">Co médio: <b>${co.avg.toFixed(2)}</b></span>
+          <span class="chip" style="padding:7px 10px;font-size:12px">Soma freq: <b>${fs}</b></span>
+        </div>
       </div>
 
-      <div class="numbers">${renderBallsInline(obj.line)}</div>
+      <div class="numbers" style="justify-content:flex-start;margin-top:10px">${renderBallsInline(line)}</div>
+      <div class="mini"><b>Por que se juntaram:</b> ${resumo}</div>
+            <div class="mini" style="margin-top:10px">
+        <b>📌 Resumo real (juntas na janela):</b><br/>
+        <b>5 juntas:</b> <span class="mono">${line.map(format2).join("-")}</span> • <b>${c5}x</b><br/>
+        <b>Melhor 4 juntas:</b> <span class="mono">${(b4.group||[]).map(format2).join("-")}</span> • <b>${b4.count}x</b><br/>
+        <b>Melhor 3 juntas:</b> <span class="mono">${(b3.group||[]).map(format2).join("-")}</span> • <b>${b3.count}x</b><br/>
+        <b>Melhor 2 juntas:</b> <span class="mono">${(b2.group||[]).map(format2).join("-")}</span> • <b>${b2.count}x</b><br/>
+        <div style="margin-top:8px">${realMsg}</div>
+      </div>
 
-      <div class="mini" style="margin-top:8px">
-        <b>Ocorrências do quinteto na janela:</b> <b>${obj.sup}</b><br/>
-        <b>Concursos onde apareceu:</b> <span class="mono">${concursosTxt}</span>
-        ${obj.note ? `<br/><span class="mini">Obs: ${obj.note}</span>` : ``}
+      <div class="mini" style="margin-top:10px">
+        <b>${kind==="forte" ? "Combinações mais fortes (2 dezenas)" : "Combinações menos comuns (2 dezenas)"}:</b>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">${pairsTxt}</div>
       </div>
     </div>
   `;
 }
 
-function render15PSummaryPrime(payload, data){
-  const top = (data.resumoFortes||[]).map(x=>`
-    <div style="padding:10px;border-bottom:1px solid rgba(255,255,255,.08)">
-      <div class="mini"><b>Combo:</b> <span class="mono">${x.combo.map(format2).join(" - ")}</span></div>
-      <div class="mini"><b>Juntos:</b> <b>${x.sup}</b>x • <b>Concursos:</b> <span class="mono">${(x.concursos||[]).join(", ") || "—"}</span></div>
-    </div>
-  `).join("");
+/* ===== EDITOR MANUAL 15P ===== */
+function initUserLines15FromSystem(lines){
+  linesSystem15 = lines.map(l=>l.slice());
+  linesUser15 = lines.map(l=>l.slice());
+  linesUser15[4] = [];   // ✅ Linha 5 em branco
+  activeLine15 = 4;
+}
 
-  const low = (data.resumoFracos||[]).map(x=>`
-    <div style="padding:10px;border-bottom:1px solid rgba(255,255,255,.08)">
-      <div class="mini"><b>Combo:</b> <span class="mono">${x.combo.map(format2).join(" - ")}</span></div>
-      <div class="mini"><b>Juntos:</b> <b>${x.sup}</b>x (quanto menor, mais “fraco”)</div>
-    </div>
-  `).join("");
+function setActiveLine15(i){ activeLine15=i; render15Editor(); }
 
-  return `
+function usedNumbersExceptLine(lineIdx){
+  const used = new Set();
+  for(let i=0;i<5;i++){
+    if(i===lineIdx) continue;
+    (linesUser15?.[i]||[]).forEach(n=>used.add(n));
+  }
+  return used;
+}
+
+function render15Editor(){
+  const root = document.getElementById("editor15Area");
+  if(!root || !linesUser15) return;
+
+  const lineBtns = [1,2,3,4,5].map(i=>{
+    return `<button class="lineBtn ${activeLine15===i-1?"on":""}" type="button" onclick="setActiveLine15(${i-1})">Linha ${i}</button>`;
+  }).join("");
+
+  const current = linesUser15[activeLine15] || [];
+  const used = usedNumbersExceptLine(activeLine15);
+
+  root.innerHTML = `
     <div class="box" style="margin-top:12px">
-      <b>📌 Resumo PRIME 15P (baseado na janela)</b>
-      <div class="mini" style="margin-top:8px">
-        Janela: <b>${payload.inicio}</b> a <b>${payload.ultimo}</b> (${payload.concursos.length} concursos)
+      <b>🧩 Monte suas linhas (15P) — manual</b>
+      <div class="mini" style="margin-top:6px">
+        Selecione uma linha e complete com <b>5 dezenas</b>. Não permitimos repetição entre linhas (mantém a lógica dos 10 jogos).
       </div>
 
-      <div class="grid" style="margin-top:12px">
-        <div class="box">
-          <b>🔥 Combinações mais fortes (quintetos)</b>
-          <div style="margin-top:10px;border:1px solid rgba(255,255,255,.10);border-radius:14px;overflow:hidden">
-            ${top || `<div style="padding:12px" class="mini">—</div>`}
-          </div>
-        </div>
+      <div class="lineTabs">${lineBtns}</div>
 
-        <div class="box">
-          <b>🧊 Combinações mais fracas (menos saem juntas)</b>
-          <div class="mini" style="margin-top:6px">
-            Aqui o foco é achar combinações raras para formar as 2 linhas “de erro”.
-          </div>
-          <div style="margin-top:10px;border:1px solid rgba(255,255,255,.10);border-radius:14px;overflow:hidden">
-            ${low || `<div style="padding:12px" class="mini">—</div>`}
-          </div>
+      <div class="mini" style="margin-top:10px"><b>Linha ${activeLine15+1}:</b></div>
+      <div class="slotRow">
+        ${[0,1,2,3,4].map(i=>`<div class="slot">${current[i] ? format2(current[i]) : "—"}</div>`).join("")}
+      </div>
+
+      <div class="pickGrid" id="pickGrid15">
+        ${[...Array(25)].map((_,i)=>{
+          const n=i+1;
+          const sel = current.includes(n) ? " sel" : "";
+          const lock = used.has(n) ? " lock" : "";
+          return `<div class="pickCell${sel}${lock}" data-n="${n}">${format2(n)}</div>`;
+        }).join("")}
+      </div>
+
+      <div class="row" style="margin-top:12px">
+        <div class="col">
+          <button class="btn btnGhost" type="button" onclick="linesUser15[activeLine15]=[];render15Editor()">Limpar linha</button>
         </div>
+        <div class="col">
+          <button class="btn btnPrimary" type="button" onclick="gerar15PComMinhasLinhas()">Gerar 10 jogos (minhas linhas)</button>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:10px">
+        <div class="col">
+          <button class="btn btnGhost" type="button" onclick="initUserLines15FromSystem(linesSystem15);render15Editor();document.getElementById('user15Output').innerHTML=''">Resetar para linhas do sistema</button>
+        </div>
+        <div class="col">
+          <button class="btn btnGhost" type="button" onclick="goView('view15p')">Ok</button>
+        </div>
+      </div>
+
+      <div class="mini" style="margin-top:10px">
+        Dica PRIME: em cada linha, tente manter <b>2/3 pares</b>, mix de frequência e evitar 4+ no mesmo bloco.
       </div>
     </div>
   `;
+
+  bindPickGrid("pickGrid15", (n)=>{
+    if(used.has(n)) return;
+    const line = linesUser15[activeLine15];
+    const idx = line.indexOf(n);
+    if(idx>=0) line.splice(idx,1);
+    else{
+      if(line.length>=5) return alert("Essa linha já tem 5 dezenas.");
+      line.push(n); line.sort((a,b)=>a-b);
+    }
+    render15Editor();
+  });
+}
+
+function allLinesComplete(lines){
+  return lines && lines.length===5 && lines.every(l=>Array.isArray(l) && l.length===5);
+}
+
+function gerar15PComMinhasLinhas(){
+  if(!allLinesComplete(linesUser15)){
+    return alert("Complete as 5 linhas com 5 dezenas cada.");
+  }
+
+  const jogos = gerarJogos15P(linesUser15);
+
+  const jogosHtml = jogos.map((j, idx)=>`
+    <div class="box">
+      <b>Jogo ${idx+1}</b>
+      <div class="numbers" style="justify-content:flex-start;margin-top:10px">${renderBallsInline(j)}</div>
+    </div>
+  `).join("");
+
+  const linesTable = linesUser15.map((l,idx)=>`
+    <tr>
+      <td><b>${idx+1}</b></td>
+      <td class="mono">${l.map(format2).join(" - ")}</td>
+    </tr>
+  `).join("");
+
+  document.getElementById("user15Output").innerHTML = `
+    <div class="box" style="margin-top:12px">
+      <b>📌 Suas linhas (manual)</b>
+      <div style="margin-top:10px;overflow:auto">
+        <table class="table">
+          <thead><tr><th>Linha</th><th>Dezenas</th></tr></thead>
+          <tbody>${linesTable}</tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="box" style="margin-top:12px">
+      <b>🎯 Seus 10 jogos (com suas linhas)</b>
+      <div class="grid" style="margin-top:12px">${jogosHtml}</div>
+      <div class="mini" style="margin-top:10px">
+        Este método cobre todas as combinações de 3 linhas entre 5 (10 jogos). <b>Não é garantia de prêmio</b>.
+      </div>
+    </div>
+  `;
+
+  alert("✅ 10 jogos gerados com suas linhas!");
 }
 
 async function gerar15P(){
-  // ✅ Gate correto do EXTRA (sem gambiarra)
   const can15p = ((access.premium && access.addon15) || access.isAdmin);
-  if(!can15p){
-    alert("🔒 O recurso '15 pontos garantido' é um EXTRA comprado separadamente (libera via claims).");
-    return;
-  }
+  if(!can15p) return alert("🔒 O recurso '15 pontos garantido' é um EXTRA comprado separadamente (libera via claims).");
 
   const qtd = qtdSelecionada();
+  try{
+    await prepararContextoBase(qtd);
+    const payload = lastPayload;
 
-  await prepararContextoBase(qtd);
-  const payload = lastPayload;
+    setStatus(true,"15P: analisando e montando 5 linhas…");
+    setProgress(82);
 
-  const data = build15PLinesPrime(payload);
-  const linesObj = data.lines;
+    const stats = calcCoocAndStats(payload.concursos);
+    stats.concursosRef = payload.concursos; // ✅ usado para calcular 5/4/3/2 juntas
 
-  // salva no estado (se quiser usar depois)
-  linesSystem15 = linesObj.map(x=>x.line);
+    let lines = buildInitialLines(stats);
+    lines = optimizeLines(lines, stats);
 
-  const linesHtml = linesObj.map((obj,i)=>explainLinePrime(i+1, obj, payload)).join("");
+    const jogos = gerarJogos15P(lines);
+    const sourceInfo = { source: payload.source, mode: payload.mode };
 
-  const jogos = gerarJogos15P(linesSystem15);
-  const jogosHtml = jogos.map((j,i)=>`
-    <div class="box">
-      <b>Jogo ${i+1}</b>
-      <div class="numbers">${renderBallsInline(j)}</div>
-    </div>
-  `).join("");
+    setStatus(false,"");
+    setProgress(0);
 
-  document.getElementById("p15Area").innerHTML = `
-    <div class="box">
-      <b>REGRA DO MÉTODO:</b><br>
-      <b style="color:#22c55e">ACERTANDO 3 LINHAS COMPLETAS, PRÊMIO GARANTIDO!</b>
-      <div class="mini" style="margin-top:8px">
-        O sistema cria <b>3 linhas</b> com dezenas que <b>MAIS saem juntas</b> e <b>2 linhas</b> com dezenas que <b>MENOS saem juntas</b>.
+    initUserLines15FromSystem(lines);
+
+    const lineMeta = lines.map((l,idx)=>({
+      idx: idx+1,
+      kind: (idx<3) ? "forte" : "diversa",
+      strength: groupStrength(l,stats).sum,
+      coAvg: groupCoSum(l,stats).avg,
+      liftAvg: groupLiftAvg(l,stats).avg,
+      freqSum: groupFreqSum(l,stats),
+      line: l
+    }));
+
+    const jogosHtml = jogos.map((j, idx)=>{
+      return `
+        <div class="box">
+          <b>Jogo ${idx+1}</b>
+          <div class="numbers" style="justify-content:flex-start;margin-top:10px">${renderBallsInline(j)}</div>
+        </div>
+      `;
+    }).join("");
+
+    document.getElementById("p15Area").innerHTML = `
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
+        <div>
+          <div style="font-weight:1000;font-size:16px">✅ 15 Pontos (Estratégia) • 10 jogos</div>
+          <div class="mini">Janela: <b>${payload.inicio}</b> a <b>${payload.ultimo}</b> (${payload.concursos.length} concursos)</div>
+          <div class="mini" style="margin-top:8px">
+            📌 Regra do método: cobrimos todas as combinações de <b>3 linhas entre 5</b> (10 jogos). <b>Não garante premiação</b>.
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btnGhost" type="button" onclick="verConcursos()">📅 Ver concursos</button>
+        </div>
       </div>
-    </div>
 
-    ${render15PSummaryPrime(payload, data)}
+      <div class="box" style="margin-top:12px">
+        <b>📌 Linhas 1 a 5 (geradas pelo sistema)</b>
+        <div class="mini" style="margin-top:6px">
+          O sistema usa: <b>frequência + recência + coocorrência + lift</b>, com controle de paridade e blocos.
+        </div>
+        <div style="margin-top:12px;overflow:auto">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Linha</th>
+                <th>Tipo</th>
+                <th>Dezenas</th>
+                <th>Força</th>
+                <th>
+                  <span class="tip" data-tip="Co médio = média de vezes que os pares da linha aparecem juntos nos concursos da janela. Quanto maior, mais ‘andam juntos’.">
+                    Co médio <span class="q">ⓘ</span>
+                  </span>
+                </th>
+                <th>
+                  <span class="tip" data-tip="Lift médio = quão acima do esperado (pelo acaso) os pares aparecem juntos. >1 indica associação positiva; quanto maior, mais forte a relação.">
+                    Lift médio <span class="q">ⓘ</span>
+                  </span>
+                </th>
+                <th>Soma freq</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${lineMeta.map(m=>`
+                <tr>
+                  <td><b>${m.idx}</b></td>
+                  <td>${m.kind==="forte" ? "FORTE" : "DIVERSA"}</td>
+                  <td class="mono">${m.line.map(format2).join(" - ")}</td>
+                  <td><b>${m.strength.toFixed(1)}</b></td>
+                  <td>${m.coAvg.toFixed(2)}</td>
+                  <td>${m.liftAvg.toFixed(2)}</td>
+                  <td>${m.freqSum}</td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
 
-    <div class="grid" style="margin-top:12px">${linesHtml}</div>
-
-    <div class="box" style="margin-top:12px">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
-        <b>🎯 10 Jogos Gerados (3 de 5 linhas)</b>
-        <button class="btn btnGhost" type="button" onclick="save15P()">💾 Salvar 15P</button>
+        <div class="row" style="margin-top:10px">
+          <div class="col">
+            <button class="btn btnBlue" type="button" onclick="render15Editor()">✍️ Criar minhas linhas (manual)</button>
+          </div>
+          <div class="col">
+            <button class="btn btnGhost" type="button" onclick="document.getElementById('user15Output').innerHTML=''">Limpar resultado manual</button>
+          </div>
+        </div>
       </div>
-      <div class="grid" style="margin-top:12px">${jogosHtml}</div>
-      <div class="mini">Dica: você pode salvar e carregar suas linhas depois.</div>
-    </div>
 
-    <div class="tinyFoot">Fonte: ${payload.source || "—"} • Modo: ${String(payload.mode||"—").toUpperCase()}</div>
-  `;
+      <div id="editor15Area"></div>
+      <div id="user15Output"></div>
 
-  goView("view15p");
+      <div class="box" style="margin-top:12px">
+        <b>🔍 Explicação detalhada das linhas</b>
+        <div class="grid" style="margin-top:12px">
+          ${explainLine(1, lines[0], stats, "forte")}
+          ${explainLine(2, lines[1], stats, "forte")}
+          ${explainLine(3, lines[2], stats, "forte")}
+          ${explainLine(4, lines[3], stats, "diversa")}
+          ${explainLine(5, lines[4], stats, "diversa")}
+        </div>
+      </div>
+
+      <div class="box" style="margin-top:12px">
+        <b>🎯 10 jogos do sistema</b>
+        <div class="grid" style="margin-top:12px">${jogosHtml}</div>
+        <div class="mini" style="margin-top:10px">
+          Estratégia estatística com base na janela selecionada. <b>Não há garantia de acerto</b>.
+        </div>
+      </div>
+
+      <div class="tinyFoot">Fonte: ${sourceInfo.source || "—"} • Modo: ${String(sourceInfo.mode||"—").toUpperCase()}</div>
+    `;
+
+    goView("view15p");
+  }catch(e){
+    setStatus(false,""); setProgress(0);
+    document.getElementById("p15Area").innerHTML = `
+      <div class="box">
+        <b>⚠️ Erro</b>
+        <div class="mini" style="margin-top:8px">${String(e?.message || e)}</div>
+      </div>
+    `;
+    goView("view15p");
+  }
 }
 </script>
-  
-  /* =========================
+
+<script>
+/* =========================
    Eventos
 ========================= */
 document.getElementById("btnEntrar").addEventListener("click", entrar);
@@ -2603,7 +2996,6 @@ document.getElementById("btnAtivar15p").addEventListener("click", jaComprei15p);
   if(el) bindCardKey(el);
 });
 </script>
-<script>
 
 </body>
 </html>
