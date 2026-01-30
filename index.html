@@ -2306,8 +2306,7 @@ meta.push({
 // 2) Quadras + 1 for(const q of quad){ if(lines.length>=5) break; if(q.group.some(n=>used.has(n))) continue; 
 
 const extra = bestExtraForBase(q.group); 
-const line = q.group.concat(extra); 
-if(line.length!==5); 
+const line = q.group.concat(extra);  
 if(!acceptGroup(line)) continue; 
 pushLine(line, "QUADRA+1", q.count, q.group); 
  
