@@ -2026,6 +2026,7 @@ function usarManualComoPrincipal(){
    AÇÃO: JOGO PRINCIPAL (PRIME + MODERNO + MANUAL)
 ========================= */
 async function acaoPrincipal(){
+  alert("CLIQUE NO JOGO PRINCIPAL OK ✅");
   const qtd = qtdSelecionada();
 
   if(!access.premium && isFreeUsed()){
@@ -2909,6 +2910,7 @@ function gerar15PComMinhasLinhas(){
 }
 
 async function gerar15P(){
+  alert("CLIQUE NO 15P OK ✅");
   const can15p = ((access.premium && access.addon15) || access.isAdmin);
   if(!can15p) return alert("🔒 O recurso '15 pontos garantido' é um EXTRA comprado separadamente (libera via claims).");
 
