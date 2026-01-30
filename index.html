@@ -2318,7 +2318,7 @@ function explainLine(lineIdx, line, stats, kind){
     return `<span class="chip" style="padding:7px 10px;font-size:12px">${sign} ${format2(p.a)}-${format2(p.b)} • juntos: <b>${p.co}</b>x • lift: <b>${p.lift.toFixed(2)}</b></span>`;
   }).join(" ");
 
-  const resumo
+  let resumo = "";
     ? `Linha construída combinando <b>frequência + recência</b> com pares que “andam juntos” (coocorrência e lift).`
     : `Linha construída para ser <b>diversa</b>, evitando excesso de pares muito “colados”, mantendo mix de frequência.`;
 
