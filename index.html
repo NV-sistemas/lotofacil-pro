@@ -2255,399 +2255,18 @@ function montarTelaCheck(){
 
 <script>
 /* =========================
-   15P (mais forte + editor manual)
+   15P LIMPO (OFICIAL)
 ========================= */
-  /* ✅ Conta em quantos concursos um grupo apareceu completo */
-function countGroupTogether(group, drawSets){
-  let c=0;
-  for(const s of drawSets){
-    let ok=true;
-    for(const n of group){
-      if(!s.has(n)){ ok=false; break; }
-    }
-    if(ok) c++;
-  }
-  return c;
-}
 
-/* ✅ Melhor subgrupo (k) dentro de uma linha */
-/* ✅ Melhor subgrupo (k) dentro de uma linha */
-function bestSubgroupTogether(line, k, drawSets){
-  const nums = line.slice().sort((a,b)=>a-b);
-  if(nums.length < k) return { group: [], count: 0 };
-
-  let best = { group: [], count: -1 };
-
-  function rec(start, comb){
-    if(comb.length === k){
-      const cnt = countGroupTogether(comb, drawSets);
-      if(cnt > best.count){
-        best = { group: comb.slice(), count: cnt };
-      }
-      return;
-    }
-    for(let i=start;i<nums.length;i++){
-      comb.push(nums[i]);
-      rec(i+1, comb);
-      comb.pop();
-    }
-  }
-
-  rec(0, []);
-  if(best.count < 0) best.count = 0;
-  return best;
-}
-function explainLine(lineIdx, line, stats, kind){
-  const gs = groupStrength(line, stats);
-  const co = groupCoSum(line, stats);
-  const lf = groupLiftAvg(line, stats);
-  const fs = groupFreqSum(line, stats);
-    // ✅ grupos que mais saem juntos (2,3,4,5) dentro desta linha
-  const g5 = { group: line.slice().sort((a,b)=>a-b), count: countGroupTogether(line, stats.drawSets) };
-  const g4 = bestSubgroupTogether(line, 4, stats.drawSets);
-  const g3 = bestSubgroupTogether(line, 3, stats.drawSets);
-  const g2 = bestSubgroupTogether(line, 2, stats.drawSets);
-
-  function fmtGroup(g){
-    return (g.group || []).map(format2).join("-");
-  }
-
-  const pairs = (kind==="forte") ? topPairsInGroup(line, stats, 3) : worstPairsInGroup(line, stats, 3);
-  const pairsTxt = pairs.map(p=>{
-    const sign = (kind==="forte") ? "↑" : "↓";
-    return `<span class="chip" style="padding:7px 10px;font-size:12px">${sign} ${format2(p.a)}-${format2(p.b)} • juntos: <b>${p.co}</b>x • lift: <b>${p.lift.toFixed(2)}</b></span>`;
-  }).join(" ");
-
-  const resumo = (kind==="forte") ? `Linha construída combinando <b>frequência + recência</b> com pares que “andam juntos” (coocorrência e lift).` : `Linha construída para ser <b>diversa</b>, evitando excesso de pares muito “colados”, mantendo mix de frequência.`;
-
-  return `
-    <div class="box">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
-        <b>${kind==="forte" ? "🔥 Linha " + lineIdx + " (FORTE)" : "🧊 Linha " + lineIdx + " (DIVERSA)"}</b>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <span class="chip" style="padding:7px 10px;font-size:12px">Força: <b>${gs.sum.toFixed(1)}</b></span>
-          <span class="chip" style="padding:7px 10px;font-size:12px">Lift médio: <b>${lf.avg.toFixed(2)}</b></span>
-          <span class="chip" style="padding:7px 10px;font-size:12px">Co médio: <b>${co.avg.toFixed(2)}</b></span>
-          <span class="chip" style="padding:7px 10px;font-size:12px">Soma freq: <b>${fs}</b></span>
-        </div>
-      </div>
-
-      <div class="numbers" style="justify-content:flex-start;margin-top:10px">${renderBallsInline(line)}</div>
-      <div class="mini"><b>Por que se juntaram:</b> ${resumo}</div>
-            <div class="mini" style="margin-top:10px">
-        <b>Grupos que mais saem juntos (na janela):</b><br/>
-        <span class="mono"><b>5 juntas:</b> ${fmtGroup(g5)} • <b>${g5.count}x</b></span><br/>
-        <span class="mono"><b>4 juntas:</b> ${fmtGroup(g4)} • <b>${g4.count}x</b></span><br/>
-        <span class="mono"><b>3 juntas:</b> ${fmtGroup(g3)} • <b>${g3.count}x</b></span><br/>
-        <span class="mono"><b>2 juntas:</b> ${fmtGroup(g2)} • <b>${g2.count}x</b></span>
-      </div>
-
-      <div class="mini" style="margin-top:10px">
-        <b>${kind==="forte" ? "Pares mais fortes" : "Pares mais fracos"}:</b>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">${pairsTxt}</div>
-      </div>
-    </div>
-  `;
-}
-
-/* ===== EDITOR MANUAL 15P ===== */
-function initUserLines15FromSystem(lines){
-  linesSystem15 = lines.map(l=>l.slice());
-  linesUser15 = lines.map(l=>l.slice());
-  linesUser15[4] = [];   // ✅ Linha 5 em branco
-  activeLine15 = 4;
-}
-
-function setActiveLine15(i){ activeLine15=i; render15Editor(); }
-
-function usedNumbersExceptLine(lineIdx){
-  const used = new Set();
-  for(let i=0;i<5;i++){
-    if(i===lineIdx) continue;
-    (linesUser15?.[i]||[]).forEach(n=>used.add(n));
-  }
-  return used;
-}
-
-function render15Editor(){
-  const root = document.getElementById("editor15Area");
-  if(!root || !linesUser15) return;
-
-  const lineBtns = [1,2,3,4,5].map(i=>{
-    return `<button class="lineBtn ${activeLine15===i-1?"on":""}" type="button" onclick="setActiveLine15(${i-1})">Linha ${i}</button>`;
-  }).join("");
-
-  const current = linesUser15[activeLine15] || [];
-  const used = usedNumbersExceptLine(activeLine15);
-
-  root.innerHTML = `
-    <div class="box" style="margin-top:12px">
-      <b>🧩 Monte suas linhas (15P) — manual</b>
-      <div class="mini" style="margin-top:6px">
-        Selecione uma linha e complete com <b>5 dezenas</b>. Não permitimos repetição entre linhas (mantém a lógica dos 10 jogos).
-      </div>
-
-      <div class="lineTabs">${lineBtns}</div>
-
-      <div class="mini" style="margin-top:10px"><b>Linha ${activeLine15+1}:</b></div>
-      <div class="slotRow">
-        ${[0,1,2,3,4].map(i=>`<div class="slot">${current[i] ? format2(current[i]) : "—"}</div>`).join("")}
-      </div>
-
-      <div class="pickGrid" id="pickGrid15">
-        ${[...Array(25)].map((_,i)=>{
-          const n=i+1;
-          const sel = current.includes(n) ? " sel" : "";
-          const lock = used.has(n) ? " lock" : "";
-          return `<div class="pickCell${sel}${lock}" data-n="${n}">${format2(n)}</div>`;
-        }).join("")}
-      </div>
-
-      <div class="row" style="margin-top:12px">
-        <div class="col">
-          <button class="btn btnGhost" type="button" onclick="linesUser15[activeLine15]=[];render15Editor()">Limpar linha</button>
-        </div>
-        <div class="col">
-          <button class="btn btnPrimary" type="button" onclick="gerar15PComMinhasLinhas()">Gerar 10 jogos (minhas linhas)</button>
-        </div>
-      </div>
-
-      <div class="row" style="margin-top:10px">
-        <div class="col">
-          <button class="btn btnGhost" type="button" onclick="initUserLines15FromSystem(linesSystem15);render15Editor();document.getElementById('user15Output').innerHTML=''">Resetar para linhas do sistema</button>
-        </div>
-        <div class="col">
-          <button class="btn btnGhost" type="button" onclick="goView('view15p')">Ok</button>
-        </div>
-      </div>
-
-      <div class="mini" style="margin-top:10px">
-        Dica PRIME: em cada linha, tente manter <b>2/3 pares</b>, mix de frequência e evitar 4+ no mesmo bloco.
-      </div>
-    </div>
-  `;
-
-  bindPickGrid("pickGrid15", (n)=>{
-    if(used.has(n)) return;
-    const line = linesUser15[activeLine15];
-    const idx = line.indexOf(n);
-    if(idx>=0) line.splice(idx,1);
-    else{
-      if(line.length>=5) return alert("Essa linha já tem 5 dezenas.");
-      line.push(n); line.sort((a,b)=>a-b);
-    }
-    render15Editor();
-  });
-}
-
-function allLinesComplete(lines){
-  return lines && lines.length===5 && lines.every(l=>Array.isArray(l) && l.length===5);
-}
-
-function gerar15PComMinhasLinhas(){
-  if(!allLinesComplete(linesUser15)){
-    return alert("Complete as 5 linhas com 5 dezenas cada.");
-  }
-
-  const jogos = gerarJogos15P(linesUser15);
-
-  const jogosHtml = jogos.map((j, idx)=>`
-    <div class="box">
-      <b>Jogo ${idx+1}</b>
-      <div class="numbers" style="justify-content:flex-start;margin-top:10px">${renderBallsInline(j)}</div>
-    </div>
-  `).join("");
-
-  const linesTable = linesUser15.map((l,idx)=>`
-    <tr>
-      <td><b>${idx+1}</b></td>
-      <td class="mono">${l.map(format2).join(" - ")}</td>
-    </tr>
-  `).join("");
-
-  document.getElementById("user15Output").innerHTML = `
-    <div class="box" style="margin-top:12px">
-      <b>📌 Suas linhas (manual)</b>
-      <div style="margin-top:10px;overflow:auto">
-        <table class="table">
-          <thead><tr><th>Linha</th><th>Dezenas</th></tr></thead>
-          <tbody>${linesTable}</tbody>
-        </table>
-      </div>
-    </div>
-
-    <div class="box" style="margin-top:12px">
-      <b>🎯 Seus 10 jogos (com suas linhas)</b>
-      <div class="grid" style="margin-top:12px">${jogosHtml}</div>
-      <div class="mini" style="margin-top:10px">
-        Este método cobre todas as combinações de 3 linhas entre 5 (10 jogos). <b>Não é garantia de prêmio</b>.
-      </div>
-    </div>
-  `;
-
-  alert("✅ 10 jogos gerados com suas linhas!");
-}
-
-async function gerar15P(){
-  const can15p = ((access.premium && access.addon15) || access.isAdmin);
-  if(!can15p) return alert("🔒 O recurso '15 pontos garantido' é um EXTRA comprado separadamente (libera via claims).");
-
-  const qtd = qtdSelecionada();
-  try{
-    await prepararContextoBase(qtd);
-    const payload = lastPayload;
-
-    setStatus(true,"15P: analisando e montando 5 linhas…");
-    setProgress(82);
-
-    const stats = calcCoocAndStats(payload.concursos);
-
-    let lines = buildInitialLines(stats);
-    lines = optimizeLines(lines, stats);
-
-    const jogos = gerarJogos15P(lines);
-    const sourceInfo = { source: payload.source, mode: payload.mode };
-
-    setStatus(false,"");
-    setProgress(0);
-
-    initUserLines15FromSystem(lines);
-
-    const lineMeta = lines.map((l,idx)=>({
-      idx: idx+1,
-      kind: (idx<3) ? "forte" : "diversa",
-      strength: groupStrength(l,stats).sum,
-      coAvg: groupCoSum(l,stats).avg,
-      liftAvg: groupLiftAvg(l,stats).avg,
-      freqSum: groupFreqSum(l,stats),
-      line: l
-    }));
-
-    const jogosHtml = jogos.map((j, idx)=>{
-      return `
-        <div class="box">
-          <b>Jogo ${idx+1}</b>
-          <div class="numbers" style="justify-content:flex-start;margin-top:10px">${renderBallsInline(j)}</div>
-        </div>
-      `;
-    }).join("");
-
-    document.getElementById("p15Area").innerHTML = `
-      <div style="display:flex;gap:10px;flex-wrap:wrap">
-  <button class="btn btnGhost" type="button" onclick="verConcursos()">📅 Ver concursos</button>
-  <button class="btn btnGhost" type="button" onclick="save15P()">💾 Salvar 15P</button>
-  <button class="btn btnGhost" type="button" onclick="load15P()">📂 Carregar 15P</button>
-</div>
-          <div style="font-weight:1000;font-size:16px">✅ 15 Pontos (Estratégia) • 10 jogos</div>
-          <div class="mini">Janela: <b>${payload.inicio}</b> a <b>${payload.ultimo}</b> (${payload.concursos.length} concursos)</div>
-          <div class="mini" style="margin-top:8px">
-            📌 REGRA DO MÉTODO: COBRIMOS TODAS AS COMBINAÇÕES DE <b>3 LINHAS ENTRE 5</b> (10 JOGOS). <b>SE 3 LINHAS DEREM 15/15, UM DOS 10 JOGOS SERÁ 15/15.</b>
-          </div>
-        </div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap">
-          <button class="btn btnGhost" type="button" onclick="verConcursos()">📅 Ver concursos</button>
-        </div>
-      </div>
-
-      <div class="box" style="margin-top:12px">
-        <b>📌 Linhas 1 a 5 (geradas pelo sistema)</b>
-        <div class="mini" style="margin-top:6px">
-          O sistema usa: <b>frequência + recência + coocorrência + lift</b>, com controle de paridade e blocos.
-        </div>
-        <div style="margin-top:12px;overflow:auto">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Linha</th>
-                <th>Tipo</th>
-                <th>Dezenas</th>
-                <th>Força</th>
-                <th>
-                  <span class="tip" data-tip="Co médio = média de vezes que os pares da linha aparecem juntos nos concursos da janela. Quanto maior, mais ‘andam juntos’.">
-                    Co médio <span class="q">ⓘ</span>
-                  </span>
-                </th>
-                <th>
-                  <span class="tip" data-tip="Lift médio = quão acima do esperado (pelo acaso) os pares aparecem juntos. >1 indica associação positiva; quanto maior, mais forte a relação.">
-                    Lift médio <span class="q">ⓘ</span>
-                  </span>
-                </th>
-                <th>Soma freq</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${lineMeta.map(m=>`
-                <tr>
-                  <td><b>${m.idx}</b></td>
-                  <td>${m.kind==="forte" ? "FORTE" : "DIVERSA"}</td>
-                  <td class="mono">${m.line.map(format2).join(" - ")}</td>
-                  <td><b>${m.strength.toFixed(1)}</b></td>
-                  <td>${m.coAvg.toFixed(2)}</td>
-                  <td>${m.liftAvg.toFixed(2)}</td>
-                  <td>${m.freqSum}</td>
-                </tr>
-              `).join("")}
-            </tbody>
-          </table>
-        </div>
-
-        <div class="row" style="margin-top:10px">
-          <div class="col">
-            <button class="btn btnBlue" type="button" onclick="render15Editor()">✍️ Criar minhas linhas (manual)</button>
-          </div>
-          <div class="col">
-            <button class="btn btnGhost" type="button" onclick="document.getElementById('user15Output').innerHTML=''">Limpar resultado manual</button>
-          </div>
-        </div>
-      </div>
-
-      <div id="editor15Area"></div>
-      <div id="user15Output"></div>
-
-      <div class="box" style="margin-top:12px">
-        <b>🔍 Explicação detalhada das linhas</b>
-        <div class="grid" style="margin-top:12px">
-          ${explainLine(1, lines[0], stats, "forte")}
-          ${explainLine(2, lines[1], stats, "forte")}
-          ${explainLine(3, lines[2], stats, "forte")}
-          ${explainLine(4, lines[3], stats, "diversa")}
-          ${explainLine(5, lines[4], stats, "diversa")}
-        </div>
-      </div>
-
-      <div class="box" style="margin-top:12px">
-        <b>🎯 10 jogos do sistema</b>
-        <div class="grid" style="margin-top:12px">${jogosHtml}</div>
-        <div class="mini" style="margin-top:10px">
-          Estratégia estatística com base na janela selecionada. <b>Não há garantia de acerto</b>.
-        </div>
-      </div>
-
-      <div class="tinyFoot">Fonte: ${sourceInfo.source || "—"} • Modo: ${String(sourceInfo.mode||"—").toUpperCase()}</div>
-    `;
-
-    goView("view15p");
-  }catch(e){
-    setStatus(false,""); setProgress(0);
-    document.getElementById("p15Area").innerHTML = `
-      <div class="box">
-        <b>⚠️ Erro</b>
-        <div class="mini" style="margin-top:8px">${String(e?.message || e)}</div>
-      </div>
-    `;
-    goView("view15p");
-  }
-}
-</script>
-<script>
-/* FIX EMERGÊNCIA – garante que a função exista */
-if(typeof calcCoocAndStats !== "function"){
 function calcCoocAndStats(concursos){
   const freq = Array(26).fill(0);
   const co = Array.from({length:26}, ()=>Array(26).fill(0));
+  const drawSets = [];
 
   concursos.forEach(c=>{
     const nums=(c.dezenas||[]).map(n=>Number(n));
+    drawSets.push(new Set(nums));
+
     nums.forEach(a=>freq[a]++);
     for(let i=0;i<nums.length;i++){
       for(let j=i+1;j<nums.length;j++){
@@ -2657,13 +2276,95 @@ function calcCoocAndStats(concursos){
     }
   });
 
-  return { freq, co, lift: co, decay: freq, gap: freq, drawSets: [] };
+  return { freq, co, drawSets };
 }
-}
-</script>
 
-<script>
-/* =========================
+/* força simples da linha */
+function lineStrength(line, stats){
+  return line.reduce((s,n)=>s+(stats.freq[n]||0),0);
+}
+
+/* gera 5 linhas base */
+function buildInitialLines(stats){
+  const ord=[...Array(25)].map((_,i)=>i+1)
+    .sort((a,b)=>stats.freq[b]-stats.freq[a]);
+
+  return [
+    ord.slice(0,5),
+    ord.slice(5,10),
+    ord.slice(10,15),
+    ord.slice(15,20),
+    ord.slice(20,25)
+  ];
+}
+
+/* otimiza (mantém simples e estável) */
+function optimizeLines(lines){ return lines; }
+
+/* 10 jogos (combinações 3 de 5) */
+function gerarJogos15P(linhas){
+  const combs = [
+    [0,1,2],[0,1,3],[0,1,4],[0,2,3],[0,2,4],
+    [0,3,4],[1,2,3],[1,2,4],[1,3,4],[2,3,4]
+  ];
+
+  return combs.map(c=>{
+    const s=new Set();
+    c.forEach(i=>linhas[i].forEach(n=>s.add(n)));
+    return [...s].sort((a,b)=>a-b);
+  });
+}
+
+function explainLine(idx,line,stats){
+  return `
+    <div class="box">
+      <b>Linha ${idx}</b>
+      <div class="numbers">${renderBallsInline(line)}</div>
+      <div class="mini">Força (freq): <b>${lineStrength(line,stats)}</b></div>
+    </div>
+  `;
+}
+
+async function gerar15P(){
+  const qtd = qtdSelecionada();
+
+  await prepararContextoBase(qtd);
+  const payload = lastPayload;
+
+  const stats = calcCoocAndStats(payload.concursos);
+
+  let lines = buildInitialLines(stats);
+  lines = optimizeLines(lines);
+
+  const jogos = gerarJogos15P(lines);
+
+  const jogosHtml = jogos.map((j,i)=>`
+    <div class="box">
+      <b>Jogo ${i+1}</b>
+      <div class="numbers">${renderBallsInline(j)}</div>
+    </div>
+  `).join("");
+
+  const linesHtml = lines.map((l,i)=>explainLine(i+1,l,stats)).join("");
+
+  document.getElementById("p15Area").innerHTML = `
+    <div class="box">
+      <b>REGRA DO MÉTODO:</b><br>
+      <b style="color:#22c55e">ACERTANDO 3 LINHAS COMPLETAS, PRÊMIO GARANTIDO!</b>
+    </div>
+
+    <div class="grid" style="margin-top:12px">${linesHtml}</div>
+
+    <div class="box" style="margin-top:12px">
+      <b>10 Jogos Gerados</b>
+      <div class="grid" style="margin-top:12px">${jogosHtml}</div>
+    </div>
+  `;
+
+  goView("view15p");
+}
+  
+  /* =========================
    Eventos
 ========================= */
 document.getElementById("btnEntrar").addEventListener("click", entrar);
