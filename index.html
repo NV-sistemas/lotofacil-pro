@@ -1632,7 +1632,6 @@ async function getOnlineConcursos(qtd){
       const ultimo = latest.concurso;
       const inicio = Math.max(1, ultimo - qtd + 1);
 
-      const concursos=[];
      const ids = [];
 for (let c = inicio; c <= ultimo; c++) ids.push(c);
 
