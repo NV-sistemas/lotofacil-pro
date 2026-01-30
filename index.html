@@ -197,11 +197,12 @@
 
   /* Cartão Lotofácil (5x5) */
   .cartaoWrap{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
+
   /* ✅ MOBILE: ajustes extras (apenas no celular) */
-@media (max-width: 520px){
-  .actionGrid{ grid-template-columns: 1fr; }
-  .header{ margin-bottom: 10px; }
-}
+  @media (max-width: 520px){
+    .actionGrid{ grid-template-columns: 1fr; }
+    .header{ margin-bottom: 10px; }
+  }
 
   .cartao{
     display:grid;grid-template-columns: repeat(5, 44px);
@@ -296,46 +297,45 @@
   .tip:hover::after{ opacity:1; transform: translateY(0); }
   .tip .q{opacity:.8}
 
-  /* ✅ Fix mobile geral */
   /* ✅ FIX ANDROID: remove o "buraco" no login quando vira coluna */
-@media (max-width: 520px){
-  #loginWrap .row{
-    flex-direction: column;
-    gap: 10px;
+  @media (max-width: 520px){
+    #loginWrap .row{
+      flex-direction: column;
+      gap: 10px;
+    }
+    #loginWrap .col{
+      flex: 1 1 auto !important;
+    }
   }
-  #loginWrap .col{
-    flex: 1 1 auto !important;
+
+  /* ===== MANUAL PICK (principal + 15P) ===== */
+  .pickGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;max-width:460px;margin-top:10px}
+  .pickCell{
+    height:44px;border-radius:12px;
+    display:flex;align-items:center;justify-content:center;
+    border:1px solid rgba(255,255,255,.14);
+    background:rgba(255,255,255,.05);
+    font-weight:1000;cursor:pointer;user-select:none;
   }
-}
+  .pickCell.sel{background:rgba(34,197,94,.16);border-color:rgba(34,197,94,.35);color:#eafff4;box-shadow:0 12px 30px rgba(0,0,0,.25)}
+  .pickCell.lock{opacity:.35;cursor:not-allowed}
 
-/* ===== MANUAL PICK (principal + 15P) ===== */
-.pickGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;max-width:460px;margin-top:10px}
-.pickCell{
-  height:44px;border-radius:12px;
-  display:flex;align-items:center;justify-content:center;
-  border:1px solid rgba(255,255,255,.14);
-  background:rgba(255,255,255,.05);
-  font-weight:1000;cursor:pointer;user-select:none;
-}
-.pickCell.sel{background:rgba(34,197,94,.16);border-color:rgba(34,197,94,.35);color:#eafff4;box-shadow:0 12px 30px rgba(0,0,0,.25)}
-.pickCell.lock{opacity:.35;cursor:not-allowed}
-
-.lineTabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-.lineBtn{
-  padding:8px 10px;border-radius:12px;
-  border:1px solid rgba(255,255,255,.14);
-  background:rgba(255,255,255,.05);
-  color:var(--text);font-weight:1000;cursor:pointer
-}
-.lineBtn.on{border-color:rgba(56,189,248,.35);background:rgba(56,189,248,.12);color:#e6f8ff}
-.slotRow{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-.slot{
-  min-width:52px;
-  padding:8px 10px;border-radius:12px;
-  border:1px dashed rgba(255,255,255,.18);
-  background:rgba(255,255,255,.04);
-  font-weight:1000;
-}
+  .lineTabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .lineBtn{
+    padding:8px 10px;border-radius:12px;
+    border:1px solid rgba(255,255,255,.14);
+    background:rgba(255,255,255,.05);
+    color:var(--text);font-weight:1000;cursor:pointer
+  }
+  .lineBtn.on{border-color:rgba(56,189,248,.35);background:rgba(56,189,248,.12);color:#e6f8ff}
+  .slotRow{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  .slot{
+    min-width:52px;
+    padding:8px 10px;border-radius:12px;
+    border:1px dashed rgba(255,255,255,.18);
+    background:rgba(255,255,255,.04);
+    font-weight:1000;
+  }
 </style>
 </head>
 
@@ -457,18 +457,20 @@ const functions = firebase.app().functions("us-central1");
       <div class="row">
         <div class="col">
           <label>Quantidade de concursos para análise</label>
+
+          <!-- ✅ CORRIGIDO: removido </select> duplicado -->
           <select id="qtdConcursos">
-  <option value="3">Últimos 3 concursos (rápido)</option>
-  <option value="5">Últimos 5 concursos (rápido)</option>
-  <option value="10" selected>Últimos 10 concursos (rápido)</option>
-  <option value="15">Últimos 15 concursos (rápido)</option>
-  <option value="20">Últimos 20 concursos (rápido)</option>
-  <option value="30">Últimos 30 concursos (rápido)</option>
-  <option value="50">Últimos 50 concursos (mais demorado)</option>
-  <option value="75">Últimos 75 concursos (mais demorado)</option>
-  <option value="100">Últimos 100 concursos (mais demorado)</option>
-</select>
+            <option value="3">Últimos 3 concursos (rápido)</option>
+            <option value="5">Últimos 5 concursos (rápido)</option>
+            <option value="10" selected>Últimos 10 concursos (rápido)</option>
+            <option value="15">Últimos 15 concursos (rápido)</option>
+            <option value="20">Últimos 20 concursos (rápido)</option>
+            <option value="30">Últimos 30 concursos (rápido)</option>
+            <option value="50">Últimos 50 concursos (mais demorado)</option>
+            <option value="75">Últimos 75 concursos (mais demorado)</option>
+            <option value="100">Últimos 100 concursos (mais demorado)</option>
           </select>
+
           <div class="mini" style="margin-top:10px">
             Dica: quanto maior o período, mais “robusta” fica a estatística. Se APIs bloquearem, o app entra em modo demonstração automaticamente.
           </div>
@@ -532,22 +534,22 @@ const functions = firebase.app().functions("us-central1");
     </div>
 
     <div class="card">
-  <b>💾 Salvos (1 por tipo)</b>
-  <div class="mini" style="margin-top:8px">
-    Você pode salvar <b>1 pacote do Principal</b> (Principal + Invertida + Técnica) e <b>1 do 15P</b>.
-    Ao salvar de novo, o anterior é substituído.
-  </div>
+      <b>💾 Salvos (1 por tipo)</b>
+      <div class="mini" style="margin-top:8px">
+        Você pode salvar <b>1 pacote do Principal</b> (Principal + Invertida + Técnica) e <b>1 do 15P</b>.
+        Ao salvar de novo, o anterior é substituído.
+      </div>
 
-  <div class="row" style="margin-top:12px">
-    <div class="col"><button class="btn btnBlue" type="button" onclick="savePrincipalBundle()">Salvar Principal</button></div>
-    <div class="col"><button class="btn btnGhost" type="button" onclick="loadPrincipalBundle()">Carregar Principal</button></div>
-  </div>
+      <div class="row" style="margin-top:12px">
+        <div class="col"><button class="btn btnBlue" type="button" onclick="savePrincipalBundle()">Salvar Principal</button></div>
+        <div class="col"><button class="btn btnGhost" type="button" onclick="loadPrincipalBundle()">Carregar Principal</button></div>
+      </div>
 
-  <div class="row" style="margin-top:10px">
-    <div class="col"><button class="btn btnPurple" type="button" onclick="save15PBundle()">Salvar 15P</button></div>
-    <div class="col"><button class="btn btnGhost" type="button" onclick="load15PBundle()">Carregar 15P</button></div>
-  </div>
-</div>
+      <div class="row" style="margin-top:10px">
+        <div class="col"><button class="btn btnPurple" type="button" onclick="save15PBundle()">Salvar 15P</button></div>
+        <div class="col"><button class="btn btnGhost" type="button" onclick="load15PBundle()">Carregar 15P</button></div>
+      </div>
+    </div>
 
     <div class="card" id="resultadoHome">
       <div class="footerNote">Selecione a janela e escolha uma opção acima.</div>
@@ -956,7 +958,11 @@ auth.onAuthStateChanged(async (user)=>{
    MOTOR BASE
 ========================= */
 function format2(n){ return String(n).padStart(2,"0"); }
-function toNum(d){ return Number(String(d).replace(/^0+/,"")) || Number(d); }
+function toNum(d){
+  const s = String(d);
+  const n = Number(s.replace(/^0+/,""));
+  return Number.isFinite(n) ? n : Number(d);
+}
 function sortNum(arr){ return arr.slice().sort((a,b)=>a-b); }
 
 function calcularFrequencias(concursos){
@@ -1027,17 +1033,16 @@ function classificarDezenas(freq, jogo){
 
 /* ===== MÉTRICAS MODERNAS (tendência/recência/atraso) ===== */
 function calcModernMetrics(concursos){
-  // concursos esperado em ordem crescente (início -> último)
   const n = concursos.length;
   const freq = Array(26).fill(0);
   const decay = Array(26).fill(0);
   const recent10 = Array(26).fill(0);
   const lastSeen = Array(26).fill(-1);
 
-  const DECAY = 0.92; // peso para recência (mais novo = mais peso)
+  const DECAY = 0.92;
   for(let i=0;i<n;i++){
     const nums=(concursos[i].dezenas||[]).map(toNum).filter(x=>x>=1 && x<=25);
-    const w = Math.pow(DECAY, (n-1-i)); // último concurso = w=1
+    const w = Math.pow(DECAY, (n-1-i)); // último = 1
     nums.forEach(x=>{
       freq[x] += 1;
       decay[x] += w;
@@ -1051,7 +1056,6 @@ function calcModernMetrics(concursos){
     gap[x] = (lastSeen[x]===-1) ? n : (n-1-lastSeen[x]);
   }
 
-  // tendência simples: recente10 comparado com base
   const trend = Array(26).fill(0);
   for(let x=1;x<=25;x++){
     const baseRate = freq[x] / Math.max(1,n);
@@ -1063,7 +1067,7 @@ function calcModernMetrics(concursos){
 }
 
 function renderModernInsights(metrics){
-  const {n,freq,decay,recent10,gap,trend} = metrics;
+  const {n,decay,recent10,gap,trend} = metrics;
 
   const topTrend = [];
   const topOverdue = [];
@@ -1090,11 +1094,7 @@ function renderModernInsights(metrics){
         <b>⚡ Mais fortes na recência (peso exponencial):</b> <span class="mono">${recencyList}</span>
       </div>
       <div class="mini">
-        Tendência e atraso ajudam a montar “mix” inteligente (quentes + frias + recência). Não é garantia de acerto.
-      </div>
-    </div>
-  `;
-}
+    }
 </script>
 
 <script>
