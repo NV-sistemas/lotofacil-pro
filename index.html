@@ -1356,7 +1356,7 @@ addFonteJP(n, "pool");
      R=10 -> +1 top10 freq (a mais do top10) +2 dupla forte +2 atrasadas
    - Retorna { jogo, motivos }
 ========================= */
-function gerarJogoComRegrasUltimo(freq, modern, coocStats, dezenasUltimo){
+function gerarJogoForte(freq, modern, coocStats, dezenasUltimo){
 
   // ---------------- helpers ----------------
   const ultimo = (dezenasUltimo||[]).map(toNum).filter(n=>n>=1 && n<=25);
@@ -2421,7 +2421,7 @@ async function acaoPrincipal(){
     setProgress(80);
 
     const coocStats = calcCoocAndStats(payload.concursos);
-const result = gerarJogoComRegrasUltimo(freq, modern, coocStats, payload.latest.dezenas);
+const result = gerarJogoForte(freq, modern, coocStats, payload.latest.dezenas);
 const jogo = result.jogo;
 
     lastPrincipalGame = jogo.slice();
