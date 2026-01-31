@@ -716,7 +716,7 @@ const functions = firebase.app().functions("us-central1");
 <!-- =========================
    TELA: JOGOS SALVOS
 ========================= -->
-<div class="view" id="viewSavedGames" onshow="renderJogosSalvosAoAbrir()">
+<div class="view" id="viewSavedGames">
   <div class="topNav">
     <div class="left">
       <button class="btn btnGhost" type="button" onclick="goView('viewHome')">⬅ Voltar</button>
@@ -3806,6 +3806,25 @@ function checkSavedGames(){
   })();
 }
 function renderJogosSalvosAoAbrir(){
+  function renderJogosSalvosAoAbrir(){
+  carregarJogosDoStorage();
+
+  const lista = document.getElementById("savedPacksList");
+  if(!lista) return;
+
+  if(!jogosSalvos.length){
+    lista.innerHTML = `<div class="mini">Nenhum jogo salvo ainda.</div>`;
+    return;
+  }
+
+  lista.innerHTML = jogosSalvos.map(item => `
+    <div class="box" style="cursor:pointer;margin-bottom:8px"
+      onclick="selectedSavedSlot='${item.slot}';checkSavedGames()">
+      <b>${item.nome || item.slot}</b>
+      <div class="mini">Salvo em ${timeBR(item.at)}</div>
+    </div>
+  `).join("");
+}
   // garante que jogosSalvos está atualizado
   carregarJogosDoStorage();
 
