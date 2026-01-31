@@ -3207,6 +3207,39 @@ async function gerar15P(){
 </script>
 
 <script>
+// ===== JOGOS SALVOS (NÃO SOME) =====
+const KEY_JOGOS_SALVOS = "lotofacil_jogos_salvos";
+
+let jogosSalvos = [];
+try {
+  jogosSalvos = JSON.parse(localStorage.getItem(KEY_JOGOS_SALVOS) || "[]");
+  if (!Array.isArray(jogosSalvos)) jogosSalvos = [];
+} catch (e) {
+  jogosSalvos = [];
+}
+
+function salvarJogoNoStorage(obj) {
+  // se tiver slot, sobrepõe o mesmo slot
+  if (obj && obj.slot) {
+    const i = jogosSalvos.findIndex(x => x && x.slot === obj.slot);
+    if (i >= 0) jogosSalvos[i] = obj;
+    else jogosSalvos.push(obj);
+  } else {
+    // sem slot, adiciona
+    jogosSalvos.push(obj);
+  }
+
+  localStorage.setItem(KEY_JOGOS_SALVOS, JSON.stringify(jogosSalvos));
+}
+
+function carregarJogosDoStorage() {
+  try {
+    const arr = JSON.parse(localStorage.getItem(KEY_JOGOS_SALVOS) || "[]");
+    jogosSalvos = Array.isArray(arr) ? arr : [];
+  } catch (e) {
+    jogosSalvos = [];
+  }
+}
 /* =========================
    Eventos
 ========================= */
