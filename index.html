@@ -345,67 +345,6 @@
   background:rgba(255,255,255,.04);
   font-weight:1000;
 }
-/* ====== QUADRO: Linhas 1 a 5 (salvas) ====== */
-.lines-box{
-  background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
-  border: 1px solid var(--stroke);
-  border-radius: 14px;
-  padding: 12px;
-  margin-top: 10px;
-}
-
-.lines-table{
-  width:100%;
-  border-collapse: collapse;
-}
-
-.lines-table th,
-.lines-table td{
-  padding: 10px;
-  border-bottom: 1px solid rgba(255,255,255,.06);
-  font-size: 13px;
-  text-align:left;
-}
-
-.lines-table th{
-  font-weight:800;
-}
-
-.badge-tipo{
-  padding:4px 10px;
-  border-radius:999px;
-  font-size:12px;
-  font-weight:900;
-}
-
-.badge-tipo.forte{
-  background: rgba(34,197,94,.15);
-}
-
-.badge-tipo.diversa{
-  background: rgba(56,189,248,.15);
-}
-.savedPackSimple{
-  padding: 14px 14px;
-  border: 1px solid var(--stroke);
-  border-radius: 14px;
-  background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
-  box-shadow: var(--shadow);
-  margin-bottom: 12px;
-}
-.savedPackSimple__title{
-  font-weight: 800;
-  letter-spacing: .2px;
-  margin-bottom: 10px;
-}
-.savedPackSimple__nums{
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  font-size: 14px;
-  line-height: 1.5;
-  color: var(--text);
-  opacity: .95;
-}
-
 </style>
 </head>
 
@@ -736,7 +675,7 @@ const functions = firebase.app().functions("us-central1");
 <!-- =========================
    TELA: JOGOS SALVOS
 ========================= -->
-<div class="view" id="viewSavedGames">
+<div class="view" id="viewSavedGames" onshow="renderJogosSalvosAoAbrir()">
   <div class="topNav">
     <div class="left">
       <button class="btn btnGhost" type="button" onclick="goView('viewHome')">⬅ Voltar</button>
@@ -2956,18 +2895,17 @@ function salvar15P(){
 
   // ✅ salva também dentro de "JOGOS SALVOS"
   salvarJogoNoStorage({
-  slot: "15 pontos garantidos",
-  tipo: "15p",
-  nome: "15 pontos garantidos",
-  at: Date.now(),
-  payload: {
-    linhas: linesSystem15,   // 🔥 ESSENCIAL
-    linesSystem15,
-    linesUser15,
-    jogosSystem,
-    jogosUser
-  }
-});
+    slot: "15 pontos garantidos",
+    tipo: "15p",
+    nome: "15 pontos garantidos",
+    at: Date.now(),
+    payload: {
+      linesSystem15,
+      linesUser15,
+      jogosSystem,
+      jogosUser
+    }
+  });
 
   alert("✅ 15P salvo em JOGOS SALVOS: 15 pontos garantidos (sobrescreve ao salvar de novo)");
 }
@@ -3796,20 +3734,14 @@ function checkSavedGames(){
           });
 
           html += `
-  <div class="box" style="margin-top:10px">
-
-    <b>✅ 15P • Jogo ${idx+1}</b>
-
-    ${item.payload?.linhas ? renderLinesSystemBox(item.payload.linhas) : ''}
-
-    <div class="numbers" style="justify-content:flex-start;margin-top:8px">
-      ${jogo.map(format2).join(" - ")}
-    </div>
-
-    <div style="margin-top:10px">${linhasResultados}</div>
-  </div>
-`;
-
+            <div class="box" style="margin-top:10px">
+              <b>✅ 15P • Jogo ${idx+1}</b>
+              <div class="numbers" style="justify-content:flex-start;margin-top:8px">
+                ${jogo.map(format2).join(" - ")}
+              </div>
+              <div style="margin-top:10px">${linhasResultados}</div>
+            </div>
+          `;
         });
       }
       else{
@@ -3827,99 +3759,41 @@ function checkSavedGames(){
 }
 function renderJogosSalvosAoAbrir(){
   // garante que jogosSalvos está atualizado
-  carregaJogosDoStorage();
+  carregarJogosDoStorage();
 
   const box = document.getElementById("savedPacksList");
   if(!box) return;
 
-  // CRÍTICO: limpa antes de renderizar (evita duplicar)
-  box.innerHTML = "";
-
   // se não existe lista ou está vazia
-  if(!Array.isArray(jogosSalvos) || jogosSalvos.length === 0){
+  if(!Array.isArray(jogosSalvos) || !jogosSalvos.length){
     box.innerHTML = '<div class="mini">Nenhum jogo salvo ainda.</div>';
     return;
   }
 
-  // pega o MAIS RECENTE
+  // ordena do mais recente para o mais antigo (se tiver "at")
   const sorted = [...jogosSalvos].sort((a,b)=>{
     const ta = a?.at ? new Date(a.at).getTime() : 0;
     const tb = b?.at ? new Date(b.at).getTime() : 0;
     return tb - ta;
   });
 
-  const pack = sorted[0]; // mostra SOMENTE 1
+  let html = "";
+  sorted.forEach(item=>{
+    const isOn = (item.slot === selectedSavedSlot);
 
-  // tenta achar as dezenas em campos comuns (depende do seu save)
-  const arr =
-    (Array.isArray(pack?.dezenas) && pack.dezenas) ||
-    (Array.isArray(pack?.numeros) && pack.numeros) ||
-    (Array.isArray(pack?.nums) && pack.nums) ||
-    [];
-
-  const dezenasStr = arr
-    .slice()
-    .map(n => Number(n))
-    .filter(n => Number.isFinite(n))
-    .sort((a,b)=>a-b)
-    .map(n => String(n).padStart(2,"0"))
-    .join(" - ");
-
-  // título fixo (sem Jogo 01/02/03)
-  const titulo = (pack?.nome && String(pack.nome).trim()) ? pack.nome : "15 pontos garantidos";
-
-  // monta SOMENTE o topo (igual seu print 2, mas com dezenas)
-  const wrap = document.createElement("div");
-  wrap.className = "savedPackSimple";
-
-  const t = document.createElement("div");
-  t.className = "savedPackSimple__title";
-  t.textContent = titulo;
-
-  const d = document.createElement("div");
-  d.className = "savedPackSimple__nums";
-  d.textContent = dezenasStr || "—";
-
-  wrap.appendChild(t);
-  wrap.appendChild(d);
-  box.appendChild(wrap);
-}
-function renderLinesSystemBox(linhas){
-
-  const rows = (linhas || []).map((l, i)=>{
-    const tipo = (l.tipo || '').toUpperCase();
-    const tipoClass = tipo === 'FORTE' ? 'forte' : 'diversa';
-
-    const dezenas = (l.dezenas || [])
-      .map(n => String(n).padStart(2,'0'))
-      .join(' - ');
-
-    return `
-      <tr>
-        <td>${i+1}</td>
-        <td><span class="badge-tipo ${tipoClass}">${tipo}</span></td>
-        <td>${dezenas}</td>
-      </tr>
+    html += `
+      <div class="box" style="margin-top:10px;cursor:pointer;border:1px solid ${isOn ? "rgba(56,189,248,.35)" : "rgba(255,255,255,.14)"};background:${isOn ? "rgba(56,189,248,.06)" : "transparent"}"
+        onclick="selectedSavedSlot='${item.slot}'; renderJogosSalvosAoAbrir();">
+        <b>💾 ${item.nome || item.slot}</b><br/>
+        <span class="mini">Salvo em: ${item.at ? new Date(item.at).toLocaleString("pt-BR") : "-"}</span>
+        <div class="mini" style="margin-top:6px">${isOn ? "✅ Selecionado para conferência" : "Toque para selecionar"}</div>
+      </div>
     `;
-  }).join('');
+  });
 
-  return `
-    <div class="lines-box">
-      <table class="lines-table">
-        <thead>
-          <tr>
-            <th>Linha</th>
-            <th>Tipo</th>
-            <th>Dezenas</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${rows}
-        </tbody>
-      </table>
-    </div>
-  `;
+  box.innerHTML = html;
 }
+
 </script>
 
 </body>
