@@ -2936,17 +2936,18 @@ function salvar15P(){
 
   // ✅ salva também dentro de "JOGOS SALVOS"
   salvarJogoNoStorage({
-    slot: "15 pontos garantidos",
-    tipo: "15p",
-    nome: "15 pontos garantidos",
-    at: Date.now(),
-    payload: {
-      linesSystem15,
-      linesUser15,
-      jogosSystem,
-      jogosUser
-    }
-  });
+  slot: "15 pontos garantidos",
+  tipo: "15p",
+  nome: "15 pontos garantidos",
+  at: Date.now(),
+  payload: {
+    linhas: linesSystem15,   // 🔥 ESSENCIAL
+    linesSystem15,
+    linesUser15,
+    jogosSystem,
+    jogosUser
+  }
+});
 
   alert("✅ 15P salvo em JOGOS SALVOS: 15 pontos garantidos (sobrescreve ao salvar de novo)");
 }
@@ -3775,14 +3776,20 @@ function checkSavedGames(){
           });
 
           html += `
-            <div class="box" style="margin-top:10px">
-              <b>✅ 15P • Jogo ${idx+1}</b>
-              <div class="numbers" style="justify-content:flex-start;margin-top:8px">
-                ${jogo.map(format2).join(" - ")}
-              </div>
-              <div style="margin-top:10px">${linhasResultados}</div>
-            </div>
-          `;
+  <div class="box" style="margin-top:10px">
+
+    <b>✅ 15P • Jogo ${idx+1}</b>
+
+    ${item.payload?.linhas ? renderLinesSystemBox(item.payload.linhas) : ''}
+
+    <div class="numbers" style="justify-content:flex-start;margin-top:8px">
+      ${jogo.map(format2).join(" - ")}
+    </div>
+
+    <div style="margin-top:10px">${linhasResultados}</div>
+  </div>
+`;
+
         });
       }
       else{
