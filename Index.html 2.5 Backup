@@ -2601,17 +2601,42 @@ function montarTelaCheck(){
    15P (mais forte + editor manual)
 ========================= */
 function salvar15P(){
-  if(!linesUser15 || !Array.isArray(linesUser15)){
+  if(!linesSystem15 || !Array.isArray(linesSystem15) || linesSystem15.length !== 5){
     alert("Gere o 15P primeiro.");
     return;
   }
+
+  // salva no slot local (como já fazia)
   const data = {
     linesUser15,
     linesSystem15,
     activeLine15
   };
   saveLocal(SAVE_15P_KEY, data);
-  alert("✅ 15P salvo! (Sobrescreve automaticamente quando salvar de novo)");
+
+  // ✅ gera os 10 jogos do SISTEMA (sempre completo)
+  const jogosSystem = gerarJogos15P(linesSystem15);
+
+  // ✅ se o usuário completou as 5 linhas manuais, salva também os 10 jogos do usuário
+  const jogosUser = (typeof allLinesComplete === "function" && allLinesComplete(linesUser15))
+    ? gerarJogos15P(linesUser15)
+    : null;
+
+  // ✅ salva também dentro de "JOGOS SALVOS"
+  salvarJogoNoStorage({
+    slot: "15 pontos garantidos",
+    tipo: "15p",
+    nome: "15 pontos garantidos",
+    at: Date.now(),
+    payload: {
+      linesSystem15,
+      linesUser15,
+      jogosSystem,
+      jogosUser
+    }
+  });
+
+  alert("✅ 15P salvo em JOGOS SALVOS: 15 pontos garantidos (sobrescreve ao salvar de novo)");
 }
 
 function carregar15P(){
@@ -3277,6 +3302,9 @@ async function gerar15P(){
 const KEY_JOGOS_SALVOS = "lotofacil_jogos_salvos";
 
 let jogosSalvos = [];
+// ✅ slot selecionado na tela Jogos Salvos
+let selectedSavedSlot = "Principal+Invertida+Tecnica";
+
 try {
   jogosSalvos = JSON.parse(localStorage.getItem(KEY_JOGOS_SALVOS) || "[]");
   if (!Array.isArray(jogosSalvos)) jogosSalvos = [];
@@ -3334,37 +3362,23 @@ document.getElementById("btnHomeSaved").onclick = ()=>{
 function checkSavedGames(){
   const qtd = Number(document.getElementById("savedCheckQtd").value);
 
-  // 1) Puxa o pacote salvo do localStorage (isso NÃO some)
-  const saved = loadLocal(SAVE_PACK_KEY);
-  if(!saved?.data){
-    alert("Nenhum pacote salvo ainda. Vá em Jogo Principal e clique em 💾 Salvar pacote.");
-    return;
-  }
-
-  const pack = saved.data;
-
-  // 2) Monta a lista de jogos QUE FORAM SALVOS (não os 'last...' da memória)
-  const jogosSalvos = [
-    { nome: "🎯 Principal (salvo)", nums: Array.isArray(pack.principal) ? pack.principal : null },
-    { nome: "🔄 Invertida (salva)", nums: Array.isArray(pack.invertida) ? pack.invertida : null },
-    { nome: "🏆 Técnica 1 (salva)", nums: Array.isArray(pack.tecnica1) ? pack.tecnica1 : null },
-    { nome: "🏆 Técnica 2 (salva)", nums: Array.isArray(pack.tecnica2) ? pack.tecnica2 : null }
-  ].filter(x => Array.isArray(x.nums) && x.nums.length);
+  carregarJogosDoStorage();
 
   if(!jogosSalvos.length){
-    alert("O pacote salvo não tem jogos válidos. Gere e salve novamente.");
+    alert("Nenhum jogo salvo ainda.");
     return;
   }
 
-  // 3) Garante que temos concursos para conferir.
-  // Se o usuário entrar direto aqui sem ter gerado nada antes,
-  // a gente carrega concursos agora.
+  const item = jogosSalvos.find(x => x && x.slot === selectedSavedSlot) || jogosSalvos[0];
+  if(!item){
+    alert("Selecione um jogo salvo.");
+    return;
+  }
+
   (async ()=>{
     try{
-      // Se não tiver payload ainda, carrega online com a quantidade escolhida na tela principal (qtdConcursos)
-      // e depois recorta para os últimos 'qtd' da conferência.
       if(!lastPayload || !lastPayload.concursos){
-        const qtdBase = qtdSelecionada(); // usa o select da home (5/10/20/...)
+        const qtdBase = qtdSelecionada();
         await prepararContextoBase(qtdBase);
       }
 
@@ -3374,61 +3388,95 @@ function checkSavedGames(){
         return;
       }
 
-      // 4) Renderiza resultado
-      let html = "";
-
-      // Cabeçalho do pacote salvo (data e janela salva)
-      const infoJanela = pack.window
-        ? `Janela salva: <b>${pack.window.inicio}</b> a <b>${pack.window.ultimo}</b> (${pack.window.qtd || "—"} concursos)`
-        : "Janela salva: —";
-
-      html += `
-        <div class="box" style="margin-top:10px">
-          <b>💾 Pacote salvo</b>
-          <div class="mini" style="margin-top:6px">
-            Salvo em: <b>${timeBR(saved.at)}</b><br/>
-            ${infoJanela}
-          </div>
-        </div>
-      `;
-
-      // Função de acertos
       function hitsCount(gameNums, concursoDezenas){
         const set = new Set((concursoDezenas || []).map(toNum));
         return (gameNums || []).filter(n => set.has(Number(n))).length;
       }
 
-      jogosSalvos.forEach((obj, idx)=>{
-        const jogo = obj.nums.slice().map(Number).sort((a,b)=>a-b);
+      let html = `
+        <div class="box" style="margin-top:10px">
+          <b>📌 Conferindo:</b> <b>${item.nome || item.slot}</b>
+          <div class="mini" style="margin-top:6px">Base: últimos <b>${qtd}</b> concursos</div>
+        </div>
+      `;
 
-        let linhasResultados = "";
-        concursos.forEach(c=>{
-          const hits = hitsCount(jogo, c.dezenas);
+      if(item.tipo === "pack" && item.pack){
+        const pack = item.pack;
 
-          // ✅ cor 11..15
-          const cls = (hits >= 11 && hits <= 15) ? `hit-${hits}` : "";
+        const jogos = [
+          { nome: "🎯 Principal (salvo)", nums: Array.isArray(pack.principal) ? pack.principal : null },
+          { nome: "🔄 Invertida (salva)", nums: Array.isArray(pack.invertida) ? pack.invertida : null },
+          { nome: "🏆 Técnica 1 (salva)", nums: Array.isArray(pack.tecnica1) ? pack.tecnica1 : null },
+          { nome: "🏆 Técnica 2 (salva)", nums: Array.isArray(pack.tecnica2) ? pack.tecnica2 : null }
+        ].filter(x => Array.isArray(x.nums) && x.nums.length);
 
-          linhasResultados += `
-            <div class="mini ${cls}">
-              Concurso <b>${c.concurso}</b> → <b>${hits} acertos</b>
+        if(!jogos.length){
+          alert("O pacote salvo não tem jogos válidos.");
+          return;
+        }
+
+        jogos.forEach(obj=>{
+          const jogo = obj.nums.slice().map(Number).sort((a,b)=>a-b);
+
+          let linhasResultados = "";
+          concursos.forEach(c=>{
+            const hits = hitsCount(jogo, c.dezenas);
+            const cls = (hits >= 11 && hits <= 15) ? `hit-${hits}` : "";
+            linhasResultados += `
+              <div class="mini ${cls}">
+                Concurso <b>${c.concurso}</b> → <b>${hits} acertos</b>
+              </div>
+            `;
+          });
+
+          html += `
+            <div class="box" style="margin-top:10px">
+              <b>${obj.nome}</b>
+              <div class="numbers" style="justify-content:flex-start;margin-top:8px">
+                ${jogo.map(format2).join(" - ")}
+              </div>
+              <div style="margin-top:10px">${linhasResultados}</div>
             </div>
           `;
         });
+      }
+      else if(item.tipo === "15p" && item.payload){
+        const jogos = Array.isArray(item.payload.jogosSystem) ? item.payload.jogosSystem : null;
 
-        html += `
-          <div class="box" style="margin-top:10px">
-            <b>${obj.nome}</b>
+        if(!jogos || !jogos.length){
+          alert("Esse 15P salvo não tem os 10 jogos do sistema.");
+          return;
+        }
 
-            <div class="numbers" style="justify-content:flex-start;margin-top:8px">
-              ${jogo.map(format2).join(" - ")}
+        jogos.forEach((jogoNums, idx)=>{
+          const jogo = jogoNums.slice().map(Number).sort((a,b)=>a-b);
+
+          let linhasResultados = "";
+          concursos.forEach(c=>{
+            const hits = hitsCount(jogo, c.dezenas);
+            const cls = (hits >= 11 && hits <= 15) ? `hit-${hits}` : "";
+            linhasResultados += `
+              <div class="mini ${cls}">
+                Concurso <b>${c.concurso}</b> → <b>${hits} acertos</b>
+              </div>
+            `;
+          });
+
+          html += `
+            <div class="box" style="margin-top:10px">
+              <b>✅ 15P • Jogo ${idx+1}</b>
+              <div class="numbers" style="justify-content:flex-start;margin-top:8px">
+                ${jogo.map(format2).join(" - ")}
+              </div>
+              <div style="margin-top:10px">${linhasResultados}</div>
             </div>
-
-            <div style="margin-top:10px">
-              ${linhasResultados}
-            </div>
-          </div>
-        `;
-      });
+          `;
+        });
+      }
+      else{
+        alert("Tipo de jogo salvo não reconhecido.");
+        return;
+      }
 
       document.getElementById("savedGamesResult").innerHTML = html;
 
@@ -3438,94 +3486,36 @@ function checkSavedGames(){
     }
   })();
 }
+function renderJogosSalvosAoAbrir(){
+  // garante que jogosSalvos está atualizado
+  carregarJogosDoStorage();
 
-  let html = "";
+  const box = document.getElementById("savedPacksList");
+  if(!box) return;
 
-  (jogosSalvos || []).forEach((obj, idx)=>{
+  // se não existe lista ou está vazia
+  if(!Array.isArray(jogosSalvos) || !jogosSalvos.length){
+    box.innerHTML = '<div class="mini">Nenhum jogo salvo ainda.</div>';
+    return;
+  }
 
-    let linhasResultados = "";
-
-    const concursos = (lastPayload?.concursos || []);
-    concursos.forEach(c=>{
-      const set = new Set(c.dezenas.map(toNum));
-      const hits = jogo.filter(n=>set.has(n)).length;
-
-      // ✅ Classe de cor quando fizer 11,12,13,14,15
-const cls = (hits >= 11 && hits <= 15) ? `hit-${hits}` : "";
-
-linhasResultados += `
-  <div class="mini ${cls}">
-    Concurso <b>${c.concurso}</b> → <b>${hits} acertos</b>
-  </div>
-`;
-    });
-
-    html += `
-      <div class="box" style="margin-top:10px">
-        <b>Jogo ${idx+1}</b>
-
-        <div class="numbers" style="justify-content:flex-start;margin-top:8px">
-          ${(Array.isArray(obj?.nums) ? obj.nums : []).map(format2).join(" - ")}
-        </div>
-
-        <div style="margin-top:10px">
-          ${linhasResultados}
-        </div>
-      </div>
-    `;
+  // ordena do mais recente para o mais antigo (se tiver "at")
+  const sorted = [...jogosSalvos].sort((a,b)=>{
+    const ta = a?.at ? new Date(a.at).getTime() : 0;
+    const tb = b?.at ? new Date(b.at).getTime() : 0;
+    return tb - ta;
   });
 
-  document.getElementById("savedGamesResult").innerHTML = html;
-function renderJogosSalvosAoAbrir(){
-  function renderJogosSalvosAoAbrir(){
-  carregarJogosDoStorage();
-
-  const box = document.getElementById("savedPacksList");
-  if(!box) return;
-
-  const pack = loadLocal(SAVE_PACK_KEY, null);
-
-  if(!pack){
-    box.innerHTML = `<div class="muted">Nenhum pacote salvo ainda.</div>`;
-    return;
-  }
-
-  const nums =
-    (Array.isArray(pack?.principal?.nums) ? pack.principal.nums :
-    (Array.isArray(pack?.principal) ? pack.principal :
-    (Array.isArray(pack?.nums) ? pack.nums :
-    (Array.isArray(pack?.dezenas) ? pack.dezenas : []))));
-
-  const txtNums = (nums || []).map(format2).join(" - ");
-
-  box.innerHTML = `
-    <div class="box" style="margin-top:10px">
-      <b>💾 Pacote salvo</b><br>
-      <div class="numbers" style="justify-content:flex-start;margin-top:8px">
-        ${txtNums || '<span class="muted">Sem dezenas no pacote.</span>'}
-      </div>
-    </div>
-  `;
-}
-  carregarJogosDoStorage();
-
-  const box = document.getElementById("savedPacksList");
-  if(!box) return;
-
-  if(!jogosSalvos.length){
-    box.innerHTML = `<div class="mini">Nenhum jogo salvo ainda.</div>`;
-    return;
-  }
-
   let html = "";
+  sorted.forEach(item=>{
+    const isOn = (item.slot === selectedSavedSlot);
 
-  jogosSalvos.forEach(item=>{
     html += `
-      <div class="card" style="margin-top:10px">
+      <div class="box" style="margin-top:10px;cursor:pointer;border:1px solid ${isOn ? "rgba(56,189,248,.35)" : "rgba(255,255,255,.14)"};background:${isOn ? "rgba(56,189,248,.06)" : "transparent"}"
+        onclick="selectedSavedSlot='${item.slot}'; renderJogosSalvosAoAbrir();">
         <b>💾 ${item.nome || item.slot}</b><br/>
-        <span class="mini">
-          Salvo em: ${new Date(item.at).toLocaleString('pt-BR')}
-        </span>
+        <span class="mini">Salvo em: ${item.at ? new Date(item.at).toLocaleString("pt-BR") : "-"}</span>
+        <div class="mini" style="margin-top:6px">${isOn ? "✅ Selecionado para conferência" : "Toque para selecionar"}</div>
       </div>
     `;
   });
