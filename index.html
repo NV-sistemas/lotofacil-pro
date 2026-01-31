@@ -3487,58 +3487,34 @@ function checkSavedGames(){
   })();
 }
 function renderJogosSalvosAoAbrir(){
+  // garante que jogosSalvos está atualizado
   carregarJogosDoStorage();
 
   const box = document.getElementById("savedPacksList");
   if(!box) return;
 
-  if(!jogosSalvos || !jogosSalvos.length){
+  // se não existe lista ou está vazia
+  if(!Array.isArray(jogosSalvos) || !jogosSalvos.length){
     box.innerHTML = '<div class="mini">Nenhum jogo salvo ainda.</div>';
     return;
   }
 
-  let html = "";
-
-  jogosSalvos.forEach(item=>{
-    const isOn = (typeof selectedSavedSlot !== "undefined" && selectedSavedSlot === item.slot);
-
-    html += `
-      <div class="box" style="margin-top:10px;cursor:pointer;border:1px solid ${isOn ? "rgba(56,189,248,.35)" : "rgba(255,255,255,.14)"};background:${isOn ? "rgba(56,189,248,.08)" : "transparent"}"
-        onclick="selectedSavedSlot=${item.slot}; renderJogosSalvosAoAbrir();">
-        <b>${item.nome || item.slot}</b><br>
-        <span class="muted">Salvo em: ${new Date(item.at).toLocaleString("pt-BR")}</span>
-        <div class="mini" style="margin-top:6px">${isOn ? "✅ Selecionado para conferência" : "Toque para selecionar"}</div>
-      </div>
-    `;
+  // ordena do mais recente para o mais antigo (se tiver "at")
+  const sorted = [...jogosSalvos].sort((a,b)=>{
+    const ta = a?.at ? new Date(a.at).getTime() : 0;
+    const tb = b?.at ? new Date(b.at).getTime() : 0;
+    return tb - ta;
   });
-
-  box.innerHTML = html;
-}
-
-  // ✅ força ordem desejada
-  const order = ["Principal+Invertida+Tecnica", "15 pontos garantidos"];
-  const sorted = jogosSalvos.slice().sort((a,b)=>{
-    const ia = order.indexOf(a.slot);
-    const ib = order.indexOf(b.slot);
-    const ra = (ia === -1) ? 999 : ia;
-    const rb = (ib === -1) ? 999 : ib;
-    if(ra !== rb) return ra - rb;
-    return (b.at||0) - (a.at||0);
-  });
-
-  if(!selectedSavedSlot || !sorted.some(x=>x.slot === selectedSavedSlot)){
-    selectedSavedSlot = sorted[0].slot;
-  }
 
   let html = "";
   sorted.forEach(item=>{
-    const isOn = item.slot === selectedSavedSlot;
+    const isOn = (item.slot === selectedSavedSlot);
 
     html += `
-      <div class="box" style="margin-top:10px;cursor:pointer;border:1px solid ${isOn ? "rgba(56,189,248,.35)" : "rgba(255,255,255,.14)"};background:${isOn ? "rgba(56,189,248,.10)" : "rgba(255,255,255,.04)"}"
-           onclick="selectedSavedSlot='${item.slot}'; renderJogosSalvosAoAbrir();">
-        <b>${item.nome || item.slot}</b><br/>
-        <span class="mini">Salvo em: ${new Date(item.at).toLocaleString('pt-BR')}</span>
+      <div class="box" style="margin-top:10px;cursor:pointer;border:1px solid ${isOn ? "rgba(56,189,248,.35)" : "rgba(255,255,255,.14)"};background:${isOn ? "rgba(56,189,248,.06)" : "transparent"}"
+        onclick="selectedSavedSlot='${item.slot}'; renderJogosSalvosAoAbrir();">
+        <b>💾 ${item.nome || item.slot}</b><br/>
+        <span class="mini">Salvo em: ${item.at ? new Date(item.at).toLocaleString("pt-BR") : "-"}</span>
         <div class="mini" style="margin-top:6px">${isOn ? "✅ Selecionado para conferência" : "Toque para selecionar"}</div>
       </div>
     `;
