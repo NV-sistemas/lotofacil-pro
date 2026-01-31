@@ -3546,22 +3546,6 @@ function renderJogosSalvosAoAbrir(){
 
   box.innerHTML = html;
 }
-  
-  let html = "";
-
-  jogosSalvos.forEach(item=>{
-    html += `
-      <div class="card" style="margin-top:10px">
-        <b>💾 ${item.nome || item.slot}</b><br/>
-        <span class="mini">
-          Salvo em: ${new Date(item.at).toLocaleString('pt-BR')}
-        </span>
-      </div>
-    `;
-  });
-
-  box.innerHTML = html;
-}
 
 </script>
 
