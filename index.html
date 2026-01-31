@@ -3413,7 +3413,7 @@ linhasResultados += `
         <b>Jogo ${idx+1}</b>
 
         <div class="numbers" style="justify-content:flex-start;margin-top:8px">
-          ${obj.nums.map(format2).join(" - ")}
+          ${(Array.isArray(obj?.nums) ? obj.nums : []).map(format2).join(" - ")}
         </div>
 
         <div style="margin-top:10px">
