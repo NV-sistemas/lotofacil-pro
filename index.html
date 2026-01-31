@@ -3392,6 +3392,7 @@ function checkSavedGames(){
 
     let linhasResultados = "";
 
+    const concursos = (lastPayload?.concursos || []);
     concursos.forEach(c=>{
       const set = new Set(c.dezenas.map(toNum));
       const hits = jogo.filter(n=>set.has(n)).length;
