@@ -1385,26 +1385,21 @@ function renderTop10Atrasadas(modern, totalConcursos){
   }).join("");
 
   return `
-    <div class="box" style="margin-top:12px">
-      <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center">
-        <b>⏳ TOP 10 DE DEZENAS ATRASADAS</b>
-        <span class="mini" style="margin:0">Base: <b>${totalConcursos}</b> concursos</span>
-      </div>
-
-      <div class="mini" style="margin-top:6px">
-        Barra maior = dezena há mais concursos sem aparecer (atraso).
-      </div>
-
-      <div style="margin-top:10px">${bars}</div>
-
-      <div class="hr" style="margin:12px 0"></div>
-
-      <div>
-        <b class="mini" style="display:block;margin-bottom:6px">📌 Lista (Top 10 atrasadas)</b>
-        ${lista || `<div class="mini">—</div>`}
-      </div>
+  <div class="box" style="margin-top:12px">
+    <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center">
+      <b>⏳ TOP 10 DE DEZENAS ATRASADAS</b>
+      <span class="mini" style="margin:0">Base: <b>${totalConcursos}</b> concursos</span>
     </div>
-  `;
+
+    <div class="mini" style="margin-top:6px">
+      Barra maior = dezena há mais concursos sem aparecer (atraso).
+    </div>
+
+    <div style="margin-top:10px">
+      ${bars}
+    </div>
+  </div>
+`;
 }
 
 function renderListaConcursos(concursos){
