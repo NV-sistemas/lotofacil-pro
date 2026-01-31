@@ -368,6 +368,22 @@ const ADMIN_EMAIL = "admin@lotofacilprime.com";
 
 /* ✅ Limite Free (1x) por usuário */
 function freeKey(uid){ return `lf_free_used_v1_${uid||"anon"}`; }
+/* =========================
+   ✅ NOVA SEQUÊNCIA 8/9/10 (20% / 50% / 30%)
+   A cada 10 jogos: 2 serão de 8, 5 serão de 9, 3 serão de 10.
+   (sequência fixa, sem aleatório)
+========================= */
+const PRINCIPAL_SEQ_KEY = "lf_principal_seq_v1";
+
+/* Sequência fixa (10 posições) -> 2x8, 5x9, 3x10 */
+const PRINCIPAL_SEQ = [9, 8, 9, 10, 9, 8, 9, 10, 9, 10];
+
+function getNextPrincipalBaseSize(){
+  let n = Number(localStorage.getItem(PRINCIPAL_SEQ_KEY) || "0");
+  const k = PRINCIPAL_SEQ[n % PRINCIPAL_SEQ.length];
+  localStorage.setItem(PRINCIPAL_SEQ_KEY, String(n + 1));
+  return k; // 8, 9 ou 10
+}
 </script>
 
 <script>
@@ -1052,6 +1068,145 @@ function classificarDezenas(freq, jogo){
   });
   return {hot:sortNum(hot), warm:sortNum(warm), cold:sortNum(cold), rank};
 }
+/* =========================
+   ✅ HELPERS NOVA LÓGICA (SEM ALEATÓRIO)
+========================= */
+
+/* Conta quantas vezes um grupo aparece inteiro em um concurso */
+function countGroupTogetherInWindow(group, concursos){
+  const gset = new Set(group.map(Number));
+  let count = 0;
+  for(const c of (concursos || [])){
+    const setC = new Set((c.dezenas||[]).map(toNum));
+    let ok = true;
+    for(const n of gset){
+      if(!setC.has(n)){ ok=false; break; }
+    }
+    if(ok) count++;
+  }
+  return count;
+}
+
+/* Gera todas combinações k de um array ordenado */
+function combosK(arr, k){
+  const res = [];
+  function rec(start, path){
+    if(path.length === k){ res.push(path.slice()); return; }
+    for(let i=start;i<arr.length;i++){
+      path.push(arr[i]);
+      rec(i+1, path);
+      path.pop();
+    }
+  }
+  rec(0, []);
+  return res;
+}
+
+/* Escolhe o melhor subconjunto (k) DENTRO do último concurso:
+   "os que mais aparecem juntos na janela"
+   Critérios determinísticos:
+   1) maior "juntos" (countGroupTogether)
+   2) empate -> maior soma de frequência (freq)
+   3) empate -> menor soma de gap (menos extremo)
+   4) empate -> ordem lexicográfica
+*/
+function bestSubsetFromLastDraw(lastNums, k, concursos, freq, modern){
+  const last = lastNums.slice().map(toNum).filter(n=>n>=1 && n<=25).sort((a,b)=>a-b);
+  const all = combosK(last, k);
+
+  let best = null;
+
+  for(const g of all){
+    const together = countGroupTogetherInWindow(g, concursos);
+    const sumFreq = g.reduce((a,n)=>a+(freq?.[n]||0),0);
+    const sumGap  = g.reduce((a,n)=>a+Number(modern?.gap?.[n]||0),0);
+    const key = g.map(format2).join("-");
+
+    const cand = { g, together, sumFreq, sumGap, key };
+
+    if(!best) best = cand;
+    else{
+      if(cand.together > best.together) best = cand;
+      else if(cand.together === best.together && cand.sumFreq > best.sumFreq) best = cand;
+      else if(cand.together === best.together && cand.sumFreq === best.sumFreq && cand.sumGap < best.sumGap) best = cand;
+      else if(cand.together === best.together && cand.sumFreq === best.sumFreq && cand.sumGap === best.sumGap && cand.key < best.key) best = cand;
+    }
+  }
+
+  return best?.g || last.slice(0,k);
+}
+
+/* Top10 frequentes (ordenado desc) */
+function getTop10FreqList(freq){
+  return ordenarPorFreq(freq).slice(0,10).map(x=>x.dez);
+}
+
+/* Top10 atrasadas (ordenado por maior gap) */
+function getTop10AtrasadasList(modern){
+  const arr = [];
+  for(let d=1; d<=25; d++){
+    arr.push({ dez:d, gap:Number(modern?.gap?.[d] ?? 0) });
+  }
+  arr.sort((a,b)=>b.gap-a.gap);
+  return arr.slice(0,10).map(x=>x.dez);
+}
+
+/* Dupla mais forte da janela (coocorrência real)
+   - usa calcTopPairsCooc que você já tem na Análise Prime
+*/
+function getStrongPair(concursos){
+  const pairs = calcTopPairsCooc(concursos, 25); // pega mais para ter fallback
+  // primeiro par com count>0
+  for(const p of pairs){
+    if(p.count > 0) return [p.a, p.b];
+  }
+  // fallback determinístico (nunca aleatório)
+  return [1,2];
+}
+
+/* Padrão dominante de pares/ímpares na janela */
+function getDominantEvenOdd(concursos){
+  const dist = calcEvenOddDistribution(concursos);
+  if(dist && dist.length){
+    return { pares: dist[0].pares, impares: dist[0].impares };
+  }
+  // fallback determinístico (Lotofácil tende ao equilíbrio)
+  return { pares: 7, impares: 8 };
+}
+
+/* Seleciona X itens de uma lista, sem repetir e com preferência por paridade
+   - sem aleatório
+*/
+function pickFromListDeterministic(list, needed, set, targetPares){
+  const out = [];
+  while(out.length < needed){
+    const cur = [...set];
+    const curPares = cur.filter(n=>n%2===0).length;
+    const needMoreEven = (curPares < targetPares);
+
+    // 1) tenta pegar número com paridade “necessária”
+    let picked = null;
+    for(const n of list){
+      if(set.has(n)) continue;
+      if(needMoreEven && (n%2===0)) { picked = n; break; }
+      if(!needMoreEven && (n%2===1)) { picked = n; break; }
+    }
+
+    // 2) se não achou por paridade, pega o primeiro disponível
+    if(picked === null){
+      for(const n of list){
+        if(!set.has(n)){ picked = n; break; }
+      }
+    }
+
+    // 3) se não tem mais, encerra (não deveria acontecer)
+    if(picked === null) break;
+
+    set.add(picked);
+    out.push(picked);
+  }
+  return out;
+}
 
 /* ===== MÉTRICAS MODERNAS (tendência/recência/atraso) ===== */
 function calcModernMetrics(concursos){
@@ -1094,80 +1249,196 @@ function calcModernMetrics(concursos){
 
 <script>
 /* =========================
-   GERAÇÃO DO JOGO (melhorada)
+   ✅ NOVO MOTOR JOGO PRINCIPAL (100% PRIME / SEM ALEATÓRIO)
+   Regra:
+   - Base k=8/9/10 do último concurso (k vem da sequência 20/50/30)
+   - Base escolhida como "as que mais aparecem juntas na janela"
+   - Completa com % exatas:
+     k=8  -> +3 Top10 freq (2 mais + 1 menos) +2 (dupla forte) +2 atrasadas (mais + menos)
+     k=9  -> +2 Top10 freq (1 mais + 1 menos) +2 (dupla forte) +2 atrasadas (mais + menos)
+     k=10 -> +2 Top10 freq (1 mais + 1 menos) +2 (dupla forte) +1 atrasada (mais atrasada)
+   - Paridade: segue o padrão dominante da janela (ex: 7 pares / 8 ímpares)
 ========================= */
-function gerarJogoForte(freq, metrics){
-  const ord = ordenarPorFreq(freq);
+function gerarJogoPrincipalPrime(freq, modern, concursos, dezenasUltimo){
+  const last = (dezenasUltimo||[]).map(toNum).filter(n=>n>=1 && n<=25).sort((a,b)=>a-b);
 
-  const hotPool = ord.slice(0,10).map(x=>x.dez);
-  const warmPool = ord.slice(10,18).map(x=>x.dez);
-  const coldPool = ord.slice(-7).map(x=>x.dez);
+  // 1) define k (8/9/10) pela sequência exata 20/50/30
+  const k = getNextPrincipalBaseSize();
 
-  function addFromPool(pool, count, set){
-    const shuffled = pool.slice().sort(()=>Math.random()-0.5);
-    let added=0;
-    for(const n of shuffled){
-      if(set.has(n)) continue;
-      set.add(n); added++;
-      if(added>=count) break;
+  // 2) padrão dominante pares/ímpares
+  const dom = getDominantEvenOdd(concursos);
+  const targetPares = dom.pares;
+
+  // 3) base: escolhe o melhor subconjunto do último (mais juntos na janela)
+  const base = bestSubsetFromLastDraw(last, k, concursos, freq, modern);
+
+  const set = new Set(base);
+
+  // 4) Top10 frequentes
+  const top10freq = getTop10FreqList(freq); // desc
+  const freqMost = top10freq.slice();               // do mais pro menos
+  const freqLeast = top10freq.slice().reverse();    // do menos pro mais
+
+  // 5) dupla forte (2 dezenas)
+  const pair = getStrongPair(concursos); // [a,b]
+
+  // 6) Top10 atrasadas
+  const top10atr = getTop10AtrasadasList(modern);   // do mais atrasado pro menos
+  const atrMost = top10atr.slice();
+  const atrLeast = top10atr.slice().reverse();
+
+  // ---- Montagem por regra exata (sem aleatório) ----
+  const picks = {
+    k,
+    base: base.slice(),
+    freq: [],
+    pair: [],
+    atrasadas: []
+  };
+
+  if(k === 8){
+    // +3 freq = 2 mais + 1 menos
+    picks.freq.push(...pickFromListDeterministic(freqMost, 2, set, targetPares));
+    picks.freq.push(...pickFromListDeterministic(freqLeast, 1, set, targetPares));
+
+    // +2 dupla forte (se já estiverem, busca próxima dupla no ranking)
+    // (determinístico: varre a lista de pares)
+    const allPairs = calcTopPairsCooc(concursos, 80);
+    let chosenPair = null;
+    for(const p of allPairs){
+      const a=p.a, b=p.b;
+      if(a===b) continue;
+      if(set.has(a) && set.has(b)) continue;
+      chosenPair = [a,b];
+      break;
+    }
+    chosenPair = chosenPair || pair;
+
+    picks.pair.push(...pickFromListDeterministic([chosenPair[0], chosenPair[1]], 2, set, targetPares));
+
+    // +2 atrasadas = mais atrasada + menos atrasada (dentro do top10)
+    picks.atrasadas.push(...pickFromListDeterministic(atrMost, 1, set, targetPares));
+    picks.atrasadas.push(...pickFromListDeterministic(atrLeast, 1, set, targetPares));
+  }
+
+  if(k === 9){
+    // +2 freq = 1 mais + 1 menos
+    picks.freq.push(...pickFromListDeterministic(freqMost, 1, set, targetPares));
+    picks.freq.push(...pickFromListDeterministic(freqLeast, 1, set, targetPares));
+
+    // +2 dupla forte
+    const allPairs = calcTopPairsCooc(concursos, 80);
+    let chosenPair = null;
+    for(const p of allPairs){
+      const a=p.a, b=p.b;
+      if(a===b) continue;
+      if(set.has(a) && set.has(b)) continue;
+      chosenPair = [a,b];
+      break;
+    }
+    chosenPair = chosenPair || pair;
+
+    picks.pair.push(...pickFromListDeterministic([chosenPair[0], chosenPair[1]], 2, set, targetPares));
+
+    // +2 atrasadas = mais atrasada + menos atrasada (dentro do top10)
+    picks.atrasadas.push(...pickFromListDeterministic(atrMost, 1, set, targetPares));
+    picks.atrasadas.push(...pickFromListDeterministic(atrLeast, 1, set, targetPares));
+  }
+
+  if(k === 10){
+    // +2 freq = 1 mais + 1 menos
+    picks.freq.push(...pickFromListDeterministic(freqMost, 1, set, targetPares));
+    picks.freq.push(...pickFromListDeterministic(freqLeast, 1, set, targetPares));
+
+    // +2 dupla forte
+    const allPairs = calcTopPairsCooc(concursos, 80);
+    let chosenPair = null;
+    for(const p of allPairs){
+      const a=p.a, b=p.b;
+      if(a===b) continue;
+      if(set.has(a) && set.has(b)) continue;
+      chosenPair = [a,b];
+      break;
+    }
+    chosenPair = chosenPair || pair;
+
+    picks.pair.push(...pickFromListDeterministic([chosenPair[0], chosenPair[1]], 2, set, targetPares));
+
+    // +1 atrasada = mais atrasada
+    picks.atrasadas.push(...pickFromListDeterministic(atrMost, 1, set, targetPares));
+  }
+
+  // 7) garantia final: deve fechar exatamente 15
+  const jogo = [...set].sort((a,b)=>a-b);
+
+  // Se por algum motivo raro tiver <15 (por repetição grande), completa determinístico
+  if(jogo.length < 15){
+    // completa usando top10freq (do mais pro menos), depois atrasadas, depois 1..25
+    pickFromListDeterministic(freqMost, 15 - set.size, set, targetPares);
+    if(set.size < 15) pickFromListDeterministic(atrMost, 15 - set.size, set, targetPares);
+    if(set.size < 15){
+      const all = [];
+      for(let n=1;n<=25;n++) all.push(n);
+      pickFromListDeterministic(all, 15 - set.size, set, targetPares);
     }
   }
 
-  let best=null;
-  for(let t=0;t<180;t++){
-    const set=new Set();
+  const finalGame = [...set].sort((a,b)=>a-b);
 
-    // ✅ mix padrão (mercado): quente + morna + fria
-    addFromPool(hotPool, 5, set);
-    addFromPool(warmPool, 7, set);
-    addFromPool(coldPool, 2, set);
+  // 8) Motivos “no padrão do print”
+  const motivos = buildMotivosPrime(finalGame, picks, dom, modern, freq, concursos);
 
-    // ✅ “atrasadas” (gap alto) entram como 1 slot opcional
-    if(metrics){
-      const overdue = [];
-      for(let i=1;i<=25;i++) overdue.push({i, g: metrics.gap[i], f: metrics.freq[i]});
-      overdue.sort((a,b)=>b.g-a.g);
-      for(const cand of overdue.slice(0,8)){
-        if(set.size>=15) break;
-        if(!set.has(cand.i)) { set.add(cand.i); break; }
-      }
+  return { jogo: finalGame, motivos, picks, dom };
+}
+
+/* ✅ Motivos por grupo (igual ao padrão do print, agrupável) */
+function buildMotivosPrime(jogo, picks, domEvenOdd, modern, freq, concursos){
+  const baseSet = new Set((picks.base||[]).map(Number));
+  const freqSet = new Set((picks.freq||[]).map(Number));
+  const pairSet = new Set((picks.pair||[]).map(Number));
+  const atrSet  = new Set((picks.atrasadas||[]).map(Number));
+
+  const top10freq = getTop10FreqList(freq);
+  const top10atr  = getTop10AtrasadasList(modern);
+
+  function motivoPara(n){
+    const parts = [];
+
+    // Origem (categoria)
+    if(baseSet.has(n)) parts.push(`🔁 veio do último concurso (núcleo ${picks.k})`);
+    if(freqSet.has(n)){
+      const idx = top10freq.indexOf(n);
+      if(idx === 0) parts.push("📊 é a MAIS frequente do Top10");
+      else if(idx === top10freq.length-1) parts.push("📊 é a MENOS frequente do Top10");
+      else parts.push("📊 faz parte do Top10 frequentes");
+    }
+    if(pairSet.has(n)) parts.push("🔗 pertence à DUPLA forte (mais saem juntas na janela)");
+    if(atrSet.has(n)){
+      const idx = top10atr.indexOf(n);
+      if(idx === 0) parts.push("⏳ é a MAIS atrasada do Top10");
+      else if(idx === top10atr.length-1) parts.push("⏳ é a MENOS atrasada do Top10");
+      else parts.push("⏳ faz parte do Top10 atrasadas");
     }
 
-    while(set.size<15) set.add(Math.floor(Math.random()*25)+1);
+    // Recência / atraso (info extra, sem mudar regra)
+    const gap = Number(modern?.gap?.[n] ?? 0);
+    if(gap <= 2) parts.push("⚡ apareceu recentemente (recência forte)");
+    if(gap >= 8) parts.push(`⏳ está há ${gap} concursos sem aparecer`);
 
-    const jogo = sortNum([...set]);
-    const pi = contarParesImpares(jogo);
-    const soma = somaDezenas(jogo);
-    const blocos = distribuicaoBlocos(jogo);
-    const seq = contarSequencias(jogo);
+    // Paridade dominante (info)
+    parts.push(`⚖️ segue padrão dominante: ${domEvenOdd.pares} pares / ${domEvenOdd.impares} ímpares`);
 
-    let score=0;
-
-    // pares/ímpares
-    score += (pi.pares===7 || pi.pares===8) ? 25 : (pi.pares===6 || pi.pares===9) ? 12 : 0;
-
-    // soma
-    score += (soma>=170 && soma<=230) ? 20 : (soma>=160 && soma<=240) ? 10 : 0;
-
-    // blocos
-    const maxBlock = Math.max(blocos.A,blocos.B,blocos.C,blocos.D,blocos.E);
-    score += (maxBlock<=5) ? 20 : (maxBlock===6) ? 10 : 0;
-
-    // sequências
-    score += (seq.maxLen<=4) ? 15 : (seq.maxLen===5) ? 6 : 0;
-
-    // força freq
-    score += Math.min(20, Math.round(jogo.reduce((a,n)=>a+(freq[n]||0),0)/10));
-
-    // recência (se tiver)
-    if(metrics){
-      const recScore = jogo.reduce((a,n)=>a+(metrics.decay[n]||0),0);
-      score += Math.min(12, recScore);
+    // Remove duplicatas determinístico
+    const uniq = [];
+    const seen = new Set();
+    for(const p of parts){
+      if(!seen.has(p)){ seen.add(p); uniq.push(p); }
     }
 
-    if(!best || score>best.score) best={jogo, score};
+    return uniq.join(" • ");
   }
-  return best.jogo;
+
+  return jogo.map(n=>({ dezena:n, texto: motivoPara(n) }));
 }
 /* =========================
    ✅ NOVO MOTOR (Jogo Principal por regra do último concurso)
@@ -2175,7 +2446,7 @@ async function acaoPrincipal(){
     setStatus(true,"Gerando jogo principal (15 dezenas)…");
     setProgress(80);
 
-    const result = gerarJogoComRegrasUltimo(freq, modern, payload.latest.dezenas);
+    const result = gerarJogoPrincipalPrime(freq, modern, payload.concursos, payload.latest.dezenas);
 const jogo = result.jogo;
 
     lastPrincipalGame = jogo.slice();
