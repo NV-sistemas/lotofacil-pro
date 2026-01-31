@@ -3182,6 +3182,40 @@ function countGroupTogether(group, concursos){
 
 // ✅ Acha o melhor subgrupo de tamanho k dentro da linha (maior “juntos”)
 function bestSubgroupTogether(line, k, concursos){
+  // ================================
+// PIOR GRUPO (MENOS JUNTAS) ✅
+// ================================
+function worstSubgroupTogether(line, k, concursos){
+  const arr = line.slice().map(Number).sort((a,b)=>a-b);
+
+  const comb = [];
+  function backtrack(start, pick){
+    if(pick.length === k){ comb.push(pick.slice()); return; }
+    for(let i=start;i<arr.length;i++){
+      pick.push(arr[i]);
+      backtrack(i+1, pick);
+      pick.pop();
+    }
+  }
+  backtrack(0, []);
+
+  let worst = { group:null, count:Infinity, key:"" };
+
+  for(const g of comb){
+    const ct = countGroupTogether(g, concursos);
+    const key = g.map(format2).join("-");
+
+    if(ct < worst.count){
+      worst = { group:g, count:ct, key };
+    }else if(ct === worst.count && key < worst.key){
+      worst = { group:g, count:ct, key };
+    }
+  }
+
+  if(!worst.group) return { group: arr.slice(0,k), count: 0 };
+
+  return worst;
+}
   // ✅ Acha o pior subgrupo de tamanho k dentro da linha (menor “juntos”)
 // Critério determinístico: menor count; empate -> chave alfabética
 function worstSubgroupTogether(line, k, concursos){
