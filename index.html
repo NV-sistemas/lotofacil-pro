@@ -3492,10 +3492,28 @@ function renderJogosSalvosAoAbrir(){
   const box = document.getElementById("savedPacksList");
   if(!box) return;
 
-  if(!jogosSalvos.length){
-    box.innerHTML = `<div class="mini">Nenhum jogo salvo ainda.</div>`;
+  if(!jogosSalvos || !jogosSalvos.length){
+    box.innerHTML = '<div class="mini">Nenhum jogo salvo ainda.</div>';
     return;
   }
+
+  let html = "";
+
+  jogosSalvos.forEach(item=>{
+    const isOn = (typeof selectedSavedSlot !== "undefined" && selectedSavedSlot === item.slot);
+
+    html += `
+      <div class="box" style="margin-top:10px;cursor:pointer;border:1px solid ${isOn ? "rgba(56,189,248,.35)" : "rgba(255,255,255,.14)"};background:${isOn ? "rgba(56,189,248,.08)" : "transparent"}"
+        onclick="selectedSavedSlot=${item.slot}; renderJogosSalvosAoAbrir();">
+        <b>${item.nome || item.slot}</b><br>
+        <span class="muted">Salvo em: ${new Date(item.at).toLocaleString("pt-BR")}</span>
+        <div class="mini" style="margin-top:6px">${isOn ? "✅ Selecionado para conferência" : "Toque para selecionar"}</div>
+      </div>
+    `;
+  });
+
+  box.innerHTML = html;
+}
 
   // ✅ força ordem desejada
   const order = ["Principal+Invertida+Tecnica", "15 pontos garantidos"];
@@ -3528,32 +3546,7 @@ function renderJogosSalvosAoAbrir(){
 
   box.innerHTML = html;
 }
-
-  const nums =
-    (Array.isArray(pack?.principal?.nums) ? pack.principal.nums :
-    (Array.isArray(pack?.principal) ? pack.principal :
-    (Array.isArray(pack?.nums) ? pack.nums :
-    (Array.isArray(pack?.dezenas) ? pack.dezenas : []))));
-const box = document.getElementById("savedPacksList");
-if(!box) return;
-
-const txtNums = (nums || []).map(format2).join(" - ");
-
-box.innerHTML = `
-  <div class="box" style="margin-top:10px">
-    <b>💾 Pacote salvo</b><br>
-    <div class="numbers" style="justify-content:flex-start;margin-top:8px">
-      ${txtNums || '<span class="muted">Sem dezenas no pacote.</span>'}
-    </div>
-  </div>
-`;
-
-carregarJogosDoStorage();
-
-if(!jogosSalvos.length){
-  box.innerHTML = '<div class="mini">Nenhum jogo salvo ainda.</div>';
-  return;
-}
+  
   let html = "";
 
   jogosSalvos.forEach(item=>{
