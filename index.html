@@ -451,27 +451,45 @@ const functions = firebase.app().functions("us-central1");
     </div>
   </div>
 
-  <!-- ===== TELAS ===== -->
+      <!-- ===== TELAS ===== -->
   <div class="view on" id="viewHome">
     <div class="card">
+
+      <!-- Linha superior: seletor + progresso -->
       <div class="row">
         <div class="col">
-          <div class="mini" style="margin-top:10px">
-            </div>
+          <label>Quantidade de concursos para analisar</label>
+          <select id="qtdConcursos">
+            <option value="5">5 concursos (rápido)</option>
+            <option value="10">10 concursos</option>
+            <option value="20" selected>20 concursos (ideal)</option>
+            <option value="30">30 concursos</option>
+            <option value="50">50 concursos (mais pesado)</option>
+            <option value="80">80 concursos (bem pesado)</option>
+          </select>
+
+          <div class="mini" style="margin-top:8px">
+            Escolha a janela e depois selecione uma das opções abaixo.
+          </div>
         </div>
 
         <div class="col">
           <label>Progresso</label>
+
           <div id="status" class="status">
             <div id="statusText">Carregando…</div>
             <div class="bar"><div id="barFill"></div></div>
           </div>
+
           <div class="mini">
-            </div>
+            Se a análise estiver pesada, use 10 ou 20 concursos.
+          </div>
+        </div>
       </div>
 
       <div class="hr"></div>
 
+      <!-- Cards de ações -->
       <div class="actionGrid">
         <!-- FREE -->
         <div class="actionCard" id="btnHomePrincipal" role="button" tabindex="0">
@@ -499,18 +517,16 @@ const functions = firebase.app().functions("us-central1");
           <p class="actionDesc">Gera 2 jogos extras a partir do Principal (reordenação por blocos).</p>
         </div>
 
-        <!-- =========================
-     ✅ NOVO CARD: JOGOS SALVOS
-     (SEMPRE ÚLTIMO)
-========================= -->
-<div class="actionCard" id="btnHomeSaved" role="button" tabindex="0">
-  <span class="badge premium">PREMIUM</span>
-  <p class="actionTitle">💾 Jogos salvos</p>
-  <p class="actionDesc">
-    Confira seus jogos salvos e veja quantos pontos faria nos últimos 5, 10, 20 ou 30 concursos.
-  </p>
-</div>
-        <!-- EXTRA -->
+        <!-- ✅ JOGOS SALVOS (ANTES DO EXTRA) -->
+        <div class="actionCard" id="btnHomeSaved" role="button" tabindex="0">
+          <span class="badge premium">PREMIUM</span>
+          <p class="actionTitle">💾 Jogos salvos</p>
+          <p class="actionDesc">
+            Confira seus jogos salvos e veja quantos pontos faria nos últimos 5, 10, 20 ou 30 concursos.
+          </p>
+        </div>
+
+        <!-- EXTRA (SEMPRE POR ÚLTIMO) -->
         <div class="actionCard extraCard" id="btnHome15p" role="button" tabindex="0">
           <span class="extraBadge">EXTRA</span>
           <div class="extraHeadline">
@@ -520,7 +536,6 @@ const functions = firebase.app().functions("us-central1");
           <p class="actionDesc">Tela separada: 5 linhas + análise avançada e 10 jogos. Você também pode criar suas próprias linhas.</p>
         </div>
       </div>
-      
     </div>
 
     <div class="card" id="resultadoHome">
