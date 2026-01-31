@@ -385,6 +385,26 @@
 .badge-tipo.diversa{
   background: rgba(56,189,248,.15);
 }
+.savedPackSimple{
+  padding: 14px 14px;
+  border: 1px solid var(--stroke);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+  box-shadow: var(--shadow);
+  margin-bottom: 12px;
+}
+.savedPackSimple__title{
+  font-weight: 800;
+  letter-spacing: .2px;
+  margin-bottom: 10px;
+}
+.savedPackSimple__nums{
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text);
+  opacity: .95;
+}
 
 </style>
 </head>
@@ -3806,59 +3826,63 @@ function checkSavedGames(){
   })();
 }
 function renderJogosSalvosAoAbrir(){
-  function renderJogosSalvosAoAbrir(){
-  carregarJogosDoStorage();
-
-  const lista = document.getElementById("savedPacksList");
-  if(!lista) return;
-
-  if(!jogosSalvos.length){
-    lista.innerHTML = `<div class="mini">Nenhum jogo salvo ainda.</div>`;
-    return;
-  }
-
-  lista.innerHTML = jogosSalvos.map(item => `
-    <div class="box" style="cursor:pointer;margin-bottom:8px"
-      onclick="selectedSavedSlot='${item.slot}';checkSavedGames()">
-      <b>${item.nome || item.slot}</b>
-      <div class="mini">Salvo em ${timeBR(item.at)}</div>
-    </div>
-  `).join("");
-}
   // garante que jogosSalvos está atualizado
-  carregarJogosDoStorage();
+  carregaJogosDoStorage();
 
   const box = document.getElementById("savedPacksList");
   if(!box) return;
 
+  // CRÍTICO: limpa antes de renderizar (evita duplicar)
+  box.innerHTML = "";
+
   // se não existe lista ou está vazia
-  if(!Array.isArray(jogosSalvos) || !jogosSalvos.length){
+  if(!Array.isArray(jogosSalvos) || jogosSalvos.length === 0){
     box.innerHTML = '<div class="mini">Nenhum jogo salvo ainda.</div>';
     return;
   }
 
-  // ordena do mais recente para o mais antigo (se tiver "at")
+  // pega o MAIS RECENTE
   const sorted = [...jogosSalvos].sort((a,b)=>{
     const ta = a?.at ? new Date(a.at).getTime() : 0;
     const tb = b?.at ? new Date(b.at).getTime() : 0;
     return tb - ta;
   });
 
-  let html = "";
-  sorted.forEach(item=>{
-    const isOn = (item.slot === selectedSavedSlot);
+  const pack = sorted[0]; // mostra SOMENTE 1
 
-    html += `
-      <div class="box" style="margin-top:10px;cursor:pointer;border:1px solid ${isOn ? "rgba(56,189,248,.35)" : "rgba(255,255,255,.14)"};background:${isOn ? "rgba(56,189,248,.06)" : "transparent"}"
-        onclick="selectedSavedSlot='${item.slot}'; renderJogosSalvosAoAbrir();">
-        <b>💾 ${item.nome || item.slot}</b><br/>
-        <span class="mini">Salvo em: ${item.at ? new Date(item.at).toLocaleString("pt-BR") : "-"}</span>
-        <div class="mini" style="margin-top:6px">${isOn ? "✅ Selecionado para conferência" : "Toque para selecionar"}</div>
-      </div>
-    `;
-  });
+  // tenta achar as dezenas em campos comuns (depende do seu save)
+  const arr =
+    (Array.isArray(pack?.dezenas) && pack.dezenas) ||
+    (Array.isArray(pack?.numeros) && pack.numeros) ||
+    (Array.isArray(pack?.nums) && pack.nums) ||
+    [];
 
-  box.innerHTML = html;
+  const dezenasStr = arr
+    .slice()
+    .map(n => Number(n))
+    .filter(n => Number.isFinite(n))
+    .sort((a,b)=>a-b)
+    .map(n => String(n).padStart(2,"0"))
+    .join(" - ");
+
+  // título fixo (sem Jogo 01/02/03)
+  const titulo = (pack?.nome && String(pack.nome).trim()) ? pack.nome : "15 pontos garantidos";
+
+  // monta SOMENTE o topo (igual seu print 2, mas com dezenas)
+  const wrap = document.createElement("div");
+  wrap.className = "savedPackSimple";
+
+  const t = document.createElement("div");
+  t.className = "savedPackSimple__title";
+  t.textContent = titulo;
+
+  const d = document.createElement("div");
+  d.className = "savedPackSimple__nums";
+  d.textContent = dezenasStr || "—";
+
+  wrap.appendChild(t);
+  wrap.appendChild(d);
+  box.appendChild(wrap);
 }
 function renderLinesSystemBox(linhas){
 
