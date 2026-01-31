@@ -3303,17 +3303,13 @@ document.getElementById("btnAtivar15p").addEventListener("click", jaComprei15p);
   if(el) bindCardKey(el);
 });
 /* =========================
-   ✅ JOGOS SALVOS + CONFERÊNCIA (VERSÃO LIMPA E ÚNICA)
+   ✅ JOGOS SALVOS + CONFERÊNCIA (BLOCO LIMPO DEFINITIVO)
 ========================= */
 
 document.getElementById("btnHomeSaved")?.addEventListener("click", () => {
   goView("viewSavedGames");
 });
 
-
-/* =========================================
-   FUNÇÃO PRINCIPAL DE CONFERÊNCIA DOS JOGOS
-========================================= */
 
 async function checkSavedGames(){
 
@@ -3324,7 +3320,6 @@ async function checkSavedGames(){
     return;
   }
 
-  // garante que temos concursos suficientes
   await prepararContextoBase(qtd);
 
   if(!lastPayload || !lastPayload.concursos){
@@ -3347,6 +3342,7 @@ async function checkSavedGames(){
     lastTecnicaGames?.g2
   ].filter(j => Array.isArray(j) && j.length === 15);
 
+
   if(!jogos.length){
     alert("Nenhum jogo salvo ou gerado ainda.");
     return;
@@ -3354,8 +3350,68 @@ async function checkSavedGames(){
 
 
   function hitsForGame(game, dezenas){
-    const set = new Set(dezenas.
-  
+    const set = new Set(dezenas.map(Number));
+    return game.filter(n => set.has(Number(n))).length;
+  }
+
+
+  let html = `
+    <div class="box">
+      <b>📌 Conferência detalhada</b>
+    </div>
+  `;
+
+
+  jogos.forEach((game, idx)=>{
+
+    let soma = 0;
+    let melhor = 0;
+    let pior = 15;
+
+    const linhas = concursos.map(c=>{
+
+      const acertos = hitsForGame(game, c.dezenas);
+
+      soma += acertos;
+      melhor = Math.max(melhor, acertos);
+      pior = Math.min(pior, acertos);
+
+      return `
+        <tr>
+          <td>${c.concurso}</td>
+          <td>${acertos} acertos</td>
+        </tr>
+      `;
+    }).join("");
+
+
+    const media = (soma / concursos.length).toFixed(1);
+
+
+    html += `
+      <div class="box" style="margin-top:14px">
+
+        <b>Jogo ${idx+1}</b>
+
+        <div class="mini">
+          Média: ${media} • Melhor: ${melhor} • Pior: ${pior}
+        </div>
+
+        <div class="numbers">
+          ${game.map(n=>`<div class="ball">${String(n).padStart(2,'0')}</div>`).join("")}
+        </div>
+
+        <table class="table">
+          ${linhas}
+        </table>
+
+      </div>
+    `;
+  });
+
+
+  document.getElementById("savedGamesResult").innerHTML = html;
+}
 </script>
 
 </body>
