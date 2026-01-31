@@ -3589,30 +3589,48 @@ function renderJogosSalvosAoAbrir(){
 /* =====================================================
    ✅ buildMotivos LIMPA (nunca retorna undefined)
 ===================================================== */
+/* =====================================================
+   ✅ buildMotivos (formato compatível com a UI)
+   Retorna [{ texto: "..." }, { texto: "..." }, ...]
+===================================================== */
 function buildMotivos(jogo, ultimo, freq, modern){
 
-  const setUlt = new Set(ultimo||[]);
-  const motivos = [];
+  const arrJogo  = Array.isArray(jogo) ? jogo : [];
+  const arrUlt   = Array.isArray(ultimo) ? ultimo : [];
+  const setUlt   = new Set(arrUlt);
 
-  // repetidas
-  const repetidas = jogo.filter(n=>setUlt.has(n)).length;
-  motivos.push(`🔁 ${repetidas} repetidas do último concurso`);
+  // 1) Repetidas do último
+  const repetidas = arrJogo.filter(n => setUlt.has(n)).length;
 
-  // força frequência
-  const freqScore = jogo.reduce((a,n)=>a+(freq?.[n]||0),0);
-  motivos.push(`📊 força estatística alta`);
+  // 2) Força por frequência (se freq existir)
+  const scoreFreq = arrJogo.reduce((acc, n) => acc + (freq && freq[n] ? freq[n] : 0), 0);
 
-  // atrasadas fortes
-  if(modern?.gap){
-    const atrasadas = jogo.filter(n=>(modern.gap[n]||0)>=8).length;
-
-    if(atrasadas>0){
-      motivos.push(`⏳ ${atrasadas} atrasadas fortes`);
-    }
+  // 3) Atraso/recência (se modern.gap existir)
+  let atrasadasFortes = 0;
+  if (modern && modern.gap){
+    atrasadasFortes = arrJogo.filter(n => (modern.gap[n] || 0) >= 8).length;
   }
 
-  // ✅ limpa qualquer lixo
-  return motivos.filter(Boolean);
+  // ✅ Sempre devolve objetos com .texto (pra não dar undefined)
+  const motivos = [];
+
+  motivos.push({ texto: `🔁 ${repetidas} repetidas do último concurso` });
+
+  // deixa a frase simples (sem números técnicos)
+  motivos.push({ texto: `📊 selecionadas por força estatística (frequência no período)` });
+
+  if (modern && modern.gap){
+    if (atrasadasFortes > 0) {
+      motivos.push({ texto: `⏳ ${atrasadasFortes} dezenas com atraso alto (podem “voltar”)` });
+    } else {
+      motivos.push({ texto: `⚡ equilíbrio de atraso/recência nas dezenas` });
+    }
+  } else {
+    motivos.push({ texto: `⚡ equilíbrio no conjunto escolhido` });
+  }
+
+  // ✅ garante que não vai sair vazio
+  return motivos.filter(m => m && m.texto);
 }
 
 </script>
