@@ -669,17 +669,18 @@ const functions = firebase.app().functions("us-central1");
   <div class="card">
     <label>Conferir últimos concursos</label>
     <select id="savedCheckQtd">
-    <div id="savedPacksList" style="margin-top:14px"></div>
-      <option value="5">Últimos 5</option>
-      <option value="10" selected>Últimos 10</option>
-      <option value="20">Últimos 20</option>
-    </select>
+  <option value="5">Últimos 5</option>
+  <option value="10" selected>Últimos 10</option>
+  <option value="20">Últimos 20</option>
+</select>
 
-    <button class="btn btnPrimary" style="margin-top:10px" onclick="checkSavedGames()">
-      Conferir jogos
-    </button>
+<div id="savedPacksList" style="margin-top:14px"></div>
 
-    <div id="savedGamesResult" style="margin-top:14px"></div>
+<button class="btn btnPrimary" style="margin-top:10px" onclick="checkSavedGames()">
+  Conferir jogos
+</button>
+
+<div id="savedGamesResult" style="margin-top:14px"></div>
   </div>
 </div>
 
@@ -3424,6 +3425,36 @@ linhasResultados += `
 
   document.getElementById("savedGamesResult").innerHTML = html;
 function renderJogosSalvosAoAbrir(){
+  function renderJogosSalvosAoAbrir(){
+  carregarJogosDoStorage();
+
+  const box = document.getElementById("savedPacksList");
+  if(!box) return;
+
+  const pack = loadLocal(SAVE_PACK_KEY, null);
+
+  if(!pack){
+    box.innerHTML = `<div class="muted">Nenhum pacote salvo ainda.</div>`;
+    return;
+  }
+
+  const nums =
+    (Array.isArray(pack?.principal?.nums) ? pack.principal.nums :
+    (Array.isArray(pack?.principal) ? pack.principal :
+    (Array.isArray(pack?.nums) ? pack.nums :
+    (Array.isArray(pack?.dezenas) ? pack.dezenas : []))));
+
+  const txtNums = (nums || []).map(format2).join(" - ");
+
+  box.innerHTML = `
+    <div class="box" style="margin-top:10px">
+      <b>💾 Pacote salvo</b><br>
+      <div class="numbers" style="justify-content:flex-start;margin-top:8px">
+        ${txtNums || '<span class="muted">Sem dezenas no pacote.</span>'}
+      </div>
+    </div>
+  `;
+}
   carregarJogosDoStorage();
 
   const box = document.getElementById("savedPacksList");
