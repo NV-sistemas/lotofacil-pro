@@ -3757,13 +3757,31 @@ sorted.forEach(item => {
 });
 
 box.innerHTML = html;
-      <div class="box" style="margin-top:10px;cursor:pointer;border:1px solid ${isOn ? "rgba(56,189,248,.35)" : "rgba(255,255,255,.14)"};background:${isOn ? "rgba(56,189,248,.06)" : "transparent"}"
-        onclick="selectedSavedSlot='${item.slot}'; renderJogosSalvosAoAbrir();">
-        <b>💾 ${item.nome || item.slot}</b><br/>
-        <span class="mini">Salvo em: ${item.at ? new Date(item.at).toLocaleString("pt-BR") : "-"}</span>
-        <div class="mini" style="margin-top:6px">${isOn ? "✅ Selecionado para conferência" : "Toque para selecionar"}</div>
-      </div>
-    `;
+      let html = "";
+
+sorted.forEach(item => {
+  const isOn = (item.slot === selectedSavedSlot);
+
+  const border = isOn ? "rgba(56,189,248,.35)" : "rgba(255,255,255,.14)";
+  const bg     = isOn ? "rgba(56,189,248,.08)" : "transparent";
+
+  const when = item.at ? new Date(item.at).toLocaleString("pt-BR") : "--";
+  const info = isOn ? "✅ Selecionado para conferência" : "Toque para selecionar";
+
+  const nome = item.nome || item.slot || "Salvo";
+  const slotSafe = String(item.slot || "");
+
+  html +=
+    '<div class="box" style="margin-top:10px;cursor:pointer;border:1px solid ' + border + ';background:' + bg + ';" ' +
+      'onclick="selectedSavedSlot=\\'' + slotSafe + '\\'; renderJogosSalvosAoAbrir();">' +
+      '<b>💾 ' + nome + '</b><br>' +
+      '<span class="mini">Salvo em: ' + when + '</span>' +
+      '<div class="mini" style="margin-top:6px">' + info + '</div>' +
+    '</div>';
+});
+
+box.innerHTML = html;
+
   });
 
   box.innerHTML = html;
