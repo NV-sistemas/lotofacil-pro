@@ -2305,7 +2305,16 @@ function salvarPacotePrincipal(){
   };
 
   saveLocal(SAVE_PACK_KEY, pack);
-  alert("✅ Pacote salvo! (Sobrescreve automaticamente quando salvar de novo)");
+  // Salva também como item fixo em "JOGOS SALVOS"
+salvarJogoNoStorage({
+  slot: "Principal+Invertida+Tecnica",
+  tipo: "pack",
+  nome: "Principal+Invertida+Tecnica",
+  pack: pack,
+  at: Date.now()
+});
+
+alert("✅ Pacote salvo em JOGOS SALVOS: Principal+Invertida+Tecnica (sobrescreve ao salvar de novo)");
 }
 
 function carregarPacotePrincipal(){
