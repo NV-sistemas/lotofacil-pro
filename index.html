@@ -78,7 +78,7 @@
   /* Cards do APP (não limitar largura) */
   #app .card{max-width:none}
 
-  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:12px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:12px};align-items: stretch;
   .box{
     background:rgba(255,255,255,.045);
     border:1px solid rgba(255,255,255,.10);
@@ -141,18 +141,24 @@
   /* Opções */
   .actionGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-top:12px}
   .actionCard{
-    text-align:left;border:1px solid rgba(255,255,255,.14);
+        text-align:left;border:1px solid rgba(255,255,255,.14);
     background:rgba(255,255,255,.055);
     border-radius:20px;padding:18px 18px;
     cursor:pointer;transition:.15s;
     position:relative;min-height:126px;
     box-shadow: 0 18px 55px rgba(0,0,0,.38);
-  }
+    .actionCard{
+  height: 100%;
+  min-height: 140px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
   .actionCard:hover{transform:translateY(-2px);background:rgba(255,255,255,.07)}
   .actionCard:active{transform:translateY(0px)}
   .actionCard.disabled{opacity:.55;cursor:not-allowed;transform:none;box-shadow:none}
   .actionTitle{font-weight:1000;font-size:16px;margin:0 0 8px}
-  .actionDesc{margin:0;color:var(--muted);font-size:13px;line-height:1.55}
+  .actionDesc{margin:0;color:var(--muted);font-size:13px;line-height:1.55; flex: 1}
 
   .badge{
     position:absolute;top:14px;right:14px;
@@ -516,18 +522,7 @@ const functions = firebase.app().functions("us-central1");
           <p class="actionTitle">🏆 Técnica premiada</p>
           <p class="actionDesc">Gera 2 jogos extras a partir do Principal (reordenação por blocos).</p>
         </div>
-
-        <!-- EXTRA -->
-        <div class="actionCard extraCard" id="btnHome15p" role="button" tabindex="0">
-          <span class="extraBadge">EXTRA</span>
-          <div class="extraHeadline">
-            <p class="actionTitle" style="margin:0">✅ 15 pontos garantido</p>
-            <span class="extraHighlight">ESTRATÉGIA (10 JOGOS)</span>
-          </div>
-          <p class="actionDesc">Tela separada: 5 linhas + análise avançada e 10 jogos. Você também pode criar suas próprias linhas.</p>
-        </div>
-      </div>
-      <!-- =========================
+        <!-- =========================
      ✅ NOVO CARD: JOGOS SALVOS
      (SEMPRE ÚLTIMO)
 ========================= -->
@@ -538,7 +533,17 @@ const functions = firebase.app().functions("us-central1");
     Confira seus jogos salvos e veja quantos pontos faria nos últimos 5, 10, 20 ou 30 concursos.
   </p>
 </div>
-
+        <!-- EXTRA -->
+        <div class="actionCard extraCard" id="btnHome15p" role="button" tabindex="0">
+          <span class="extraBadge">EXTRA</span>
+          <div class="extraHeadline">
+            <p class="actionTitle" style="margin:0">✅ 15 pontos garantido</p>
+            <span class="extraHighlight">ESTRATÉGIA (10 JOGOS)</span>
+          </div>
+          <p class="actionDesc">Tela separada: 5 linhas + análise avançada e 10 jogos. Você também pode criar suas próprias linhas.</p>
+        </div>
+      </div>
+      
     </div>
 
     <div class="card" id="resultadoHome">
