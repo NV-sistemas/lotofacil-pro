@@ -475,7 +475,7 @@ const functions = firebase.app().functions("us-central1");
         <div class="col">
           <label>Progresso</label>
           <div id="status" class="status">
-            <div id="statusText">Carregando</div>
+            <div id="statusText">Carregando…</div>
             <div class="bar"><div id="barFill"></div></div>
           </div>
           <div class="mini">
@@ -517,7 +517,17 @@ const functions = firebase.app().functions("us-central1");
           <p class="actionDesc">Gera 2 jogos extras a partir do Principal (reordenação por blocos).</p>
         </div>
 
-         <!-- =========================
+        <!-- EXTRA -->
+        <div class="actionCard extraCard" id="btnHome15p" role="button" tabindex="0">
+          <span class="extraBadge">EXTRA</span>
+          <div class="extraHeadline">
+            <p class="actionTitle" style="margin:0">✅ 15 pontos garantido</p>
+            <span class="extraHighlight">ESTRATÉGIA (10 JOGOS)</span>
+          </div>
+          <p class="actionDesc">Tela separada: 5 linhas + análise avançada e 10 jogos. Você também pode criar suas próprias linhas.</p>
+        </div>
+      </div>
+      <!-- =========================
      ✅ NOVO CARD: JOGOS SALVOS
      (SEMPRE ÚLTIMO)
 ========================= -->
@@ -543,17 +553,6 @@ const functions = firebase.app().functions("us-central1");
     </div>
   </div>
 
-        <!-- EXTRA -->
-        <div class="actionCard extraCard" id="btnHome15p" role="button" tabindex="0">
-          <span class="extraBadge">EXTRA</span>
-          <div class="extraHeadline">
-            <p class="actionTitle" style="margin:0">✅ 15 pontos garantido</p>
-            <span class="extraHighlight">ESTRATÉGIA (10 JOGOS)</span>
-          </div>
-          <p class="actionDesc">Tela separada: 5 linhas + análise avançada e 10 jogos. Você também pode criar suas próprias linhas.</p>
-        </div>
-      </div>
-     
   <!-- TELA: ANÁLISE -->
   <div class="view" id="viewAnalise">
     <div class="topNav">
@@ -643,7 +642,7 @@ const functions = firebase.app().functions("us-central1");
         <button class="btn btnGhost" type="button" onclick="goView('viewHome')">⬅ Voltar</button>
       </div>
       <div class="right">
-        <button class="btn btnPrimary" type="button" addEventListener>Gerar análise 15P</button>
+        <button class="btn btnPrimary" type="button" onclick="gerar15P()">Gerar análise 15P</button>
       </div>
     </div>
 
@@ -847,7 +846,6 @@ function aplicarAcessos(){
   const btnInvertida= document.getElementById("btnHomeInvertida");
   const btnTecnica  = document.getElementById("btnHomeTecnica");
   const btn15       = document.getElementById("btnHome15p");
-  const btnSaved = document.getElementById("btnHomeSaved");
 
   setCardEnabled(btnAnalise, access.premium, acaoAnalise, "🔒 Gerar análise exige Premium.");
 
@@ -860,10 +858,6 @@ function aplicarAcessos(){
     if(!lastPrincipalGame) return alert("Gere primeiro um Jogo Principal.");
     goView("viewTecnica"); gerarTecnicaPremiada();
   }, "🔒 Técnica premiada exige Premium.");
-
-  setCardEnabled(btnSaved, access.premium, ()=>{
-  goView("viewSavedGames");
-}, "🔒 Jogos salvos exige Premium.");
 
   if(!access.premium && isFreeUsed()){
     btnPrincipal?.classList.add("disabled");
@@ -904,11 +898,11 @@ async function entrar(){
 
   try{
     await auth.signInWithEmailAndPassword(e,s);
-    showOk("Bem-vindo! Carregando seu acesso");
+    showOk("Bem-vindo! Carregando seu acesso…");
   }catch(err){
     try{
       await auth.createUserWithEmailAndPassword(e,s);
-      showOk("Conta criada ✅ Carregando seu acesso");
+      showOk("Conta criada ✅ Carregando seu acesso…");
     }catch(e2){
       showErr(e2?.message || "Falha no login.");
     }
@@ -943,7 +937,7 @@ async function ativarComCodigo(){
     const code = prompt("Cole aqui seu CÓDIGO de ativação (ex: PRIME-0001):");
     if(!code) return;
 
-    showOk("Ativando código");
+    showOk("Ativando código…");
     const redeemCode = functions.httpsCallable("redeemCode");
     await redeemCode({ code: code.trim() });
 
@@ -1024,8 +1018,7 @@ function distribuicaoBlocos(jogo){
   return b;
 }
 function repetidasDoUltimo(jogo, ultimoDezenas){
-  const setUlt = const x = [...new Set(...)]
-(ultimoDezenas||[]).map(toNum));
+  const setUlt = new Set((ultimoDezenas||[]).map(toNum));
   return sortNum(jogo.filter(n=>setUlt.has(n)));
 }
 
@@ -1145,8 +1138,7 @@ function gerarJogoForte(freq, metrics){
 
   let best=null;
   for(let t=0;t<180;t++){
-    const set=const x = [...new Set(...)]
-);
+    const set=new Set();
 
     // ✅ mix padrão (mercado): quente + morna + fria
     addFromPool(hotPool, 5, set);
@@ -1166,7 +1158,7 @@ function gerarJogoForte(freq, metrics){
 
     while(set.size<15) set.add(Math.floor(Math.random()*25)+1);
 
-    const jogo = sortNum([set]);
+    const jogo = sortNum([...set]);
     const pi = contarParesImpares(jogo);
     const soma = somaDezenas(jogo);
     const blocos = distribuicaoBlocos(jogo);
@@ -1208,8 +1200,7 @@ function gerarJogoForte(freq, metrics){
 ========================= */
 function gerarJogoComRegrasUltimo(freq, metrics, dezenasUltimo){
   const ultimo = (dezenasUltimo||[]).map(toNum).filter(n=>n>=1 && n<=25);
-  const setUlt = const x = [...new Set(...)]
-ultimo);
+  const setUlt = new Set(ultimo);
 
   // 10 dezenas que NÃO saíram no último
   const naoSaiu = [];
@@ -1287,13 +1278,12 @@ function pickRWeighted(){
 
     const comp = pickRandom(naoSaiu, restCount);
 
-    const set = const x = [...new Set(...)]
-[rep, comp]);
+    const set = new Set([...rep, ...comp]);
     while(set.size<15){
       set.add(Math.floor(Math.random()*25)+1);
     }
 
-    const jogo = sortNum([set]);
+    const jogo = sortNum([...set]);
 
     // garante que a quantidade de repetidas do último está entre 6 e 11
     const reps = jogo.filter(n=>setUlt.has(n));
@@ -1324,8 +1314,7 @@ function pickRWeighted(){
 
 /* ✅ Motivos “populares” por dezena */
 function buildMotivos(jogo, dezenasUltimoNums, freq, metrics){
-  const setUlt = const x = [...new Set(...)]
-(dezenasUltimoNums||[]).map(toNum));
+  const setUlt = new Set((dezenasUltimoNums||[]).map(toNum));
   const ord = ordenarPorFreq(freq);
   const rank = {};
   ord.forEach((x,i)=>rank[x.dez]=i+1);
@@ -1585,7 +1574,7 @@ function renderBlocksPrime(totals, patterns, total){
   // ✅ (Removeu o gráfico de totais A–E)
 
   const toplist = (patterns || []).slice(0, 10); // Top 10 padrões
-  const maxCount = Math.max(toplist.map(p => p.count || 0), 1);
+  const maxCount = Math.max(...toplist.map(p => p.count || 0), 1);
 
   const rows = toplist.map(p => {
     const pctBar = Math.round(((p.count || 0) / maxCount) * 100);
@@ -1832,10 +1821,9 @@ function buildDemo(qtd){
   const inicio = ultimo - qtd + 1;
   const concursos=[];
   for(let c=inicio;c<=ultimo;c++){
-    const dezenas=const x = [...new Set(...)]
-);
+    const dezenas=new Set();
     while(dezenas.size<15) dezenas.add(Math.floor(Math.random()*25)+1);
-    concursos.push({ concurso:c, data:"—", dezenas:[dezenas].map(n=>format2(n)) });
+    concursos.push({ concurso:c, data:"—", dezenas:[...dezenas].map(n=>format2(n)) });
   }
   const latest = concursos[concursos.length-1];
   return { mode:"demo", source:"Demonstração (offline)", latest, concursos, inicio, ultimo };
@@ -1847,13 +1835,13 @@ async function fetchUltimoResultado(){
     try{
       const latestRaw = await tryFetchJson(src.latest);
       const latest = src.adapt(latestRaw);
-      return { latest, source: src.name, mode: "online" };
+      return { ...latest, source: src.name, mode: "online" };
     }catch(e){
       lastErr=e;
     }
   }
   const demo = buildDemo(1);
-return { latest: demo.latest, source:"DEMO", mode:"demo" };
+  return { ...demo.latest, source:"DEMO", mode:"demo" };
 }
 </script>
 
@@ -1870,11 +1858,9 @@ let lastPrincipalMeta=null;
 
 let lastInvertidaGame=null;
 let lastTecnicaGames=null;
-let last15Games = null;   // guarda os 10 jogos gerados do 15P
 
 /* ✅ MANUAL (Principal) */
-let manualPrincipalSet = const x = [...new Set(...)]
-);
+let manualPrincipalSet = new Set();
 
 /* ✅ 15P manual */
 let linesSystem15 = null;
@@ -1921,7 +1907,7 @@ function timeBR(ms){
 function qtdSelecionada(){ return Number(document.getElementById("qtdConcursos").value); }
 
 async function prepararContextoBase(qtd){
-  setStatus(true,"Carregando concursos");
+  setStatus(true,"Carregando concursos…");
   // ✅ cache por 2 minutos
 const now = Date.now();
 if (cacheBase.payload && cacheBase.qtd === qtd && (now - cacheBase.at) < 120000) {
@@ -1935,7 +1921,7 @@ if (cacheBase.payload && cacheBase.qtd === qtd && (now - cacheBase.at) < 120000)
 
   let payload;
   try{
-    setStatus(true,"Buscando concursos reais");
+    setStatus(true,"Buscando concursos reais…");
     setProgress(25);
     payload = await getOnlineConcursos(qtd);
   }catch(e){
@@ -1945,7 +1931,7 @@ if (cacheBase.payload && cacheBase.qtd === qtd && (now - cacheBase.at) < 120000)
   // garante ordem crescente
   payload.concursos = payload.concursos.slice().sort((a,b)=>a.concurso-b.concurso);
 
-  setStatus(true,"Calculando análises do período");
+  setStatus(true,"Calculando análises do período…");
   setProgress(62);
 
   const freq = calcularFrequencias(payload.concursos);
@@ -1982,7 +1968,7 @@ async function acaoAnalise(){
     const payload = lastPayload;
     const {freq, modern} = lastCtx;
 
-    setStatus(true,"Montando resumo PRIME");
+    setStatus(true,"Montando resumo PRIME…");
     setProgress(82);
 
     const evenOdd = calcEvenOddDistribution(payload.concursos);
@@ -2073,7 +2059,7 @@ function renderManualPrincipalUI(){
   const area = document.getElementById("manualPrincipalArea");
   if(!area) return;
 
-  const selected = [manualPrincipalSet].sort((a,b)=>a-b);
+  const selected = [...manualPrincipalSet].sort((a,b)=>a-b);
 
   area.innerHTML = `
     <div class="box" style="margin-top:12px">
@@ -2094,8 +2080,7 @@ function renderManualPrincipalUI(){
 
       <div class="row" style="margin-top:12px">
         <div class="col">
-          <button class="btn btnGhost" type="button" onclick="manualPrincipalSet=const x = [...new Set(...)]
-);renderManualPrincipalUI()">Limpar</button>
+          <button class="btn btnGhost" type="button" onclick="manualPrincipalSet=new Set();renderManualPrincipalUI()">Limpar</button>
         </div>
         <div class="col">
           <button class="btn btnPrimary" type="button" onclick="usarManualComoPrincipal()">Usar meu jogo</button>
@@ -2122,7 +2107,7 @@ function usarManualComoPrincipal(){
   if(manualPrincipalSet.size !== 15){
     return alert("Marque exatamente 15 dezenas.");
   }
-  const jogo = [manualPrincipalSet].sort((a,b)=>a-b);
+  const jogo = [...manualPrincipalSet].sort((a,b)=>a-b);
 
   lastPrincipalGame = jogo.slice();
   lastInvertidaGame = null;
@@ -2162,7 +2147,7 @@ async function acaoPrincipal(){
     const payload = lastPayload;
     const {freq, modern} = lastCtx;
 
-    setStatus(true,"Gerando jogo principal (15 dezenas)");
+    setStatus(true,"Gerando jogo principal (15 dezenas)…");
     setProgress(80);
 
     const result = gerarJogoComRegrasUltimo(freq, modern, payload.latest.dezenas);
@@ -2327,9 +2312,7 @@ const motivosHtml = Object.entries(motivosAgrupados)
     goView("viewPrincipal");
 
     // reset seleção manual para o usuário começar “do zero”
-    manualPrincipalSet = const x = [...const x = [...new Set(...)]
-...)]
-);
+    manualPrincipalSet = new Set();
     renderManualPrincipalUI();
 
     updateCheckButtons();
@@ -2405,9 +2388,7 @@ function inverterJogoPorPerm(jogo, perm){
   return jogo.map(n=>remapPorPermutacao(Number(n), perm)).sort((a,b)=>a-b);
 }
 function renderCartao(jogo, clsName){
-  const set = const x = [...const x = [...new Set(...)]
-...)]
-jogo.map(Number));
+  const set = new Set(jogo.map(Number));
   let html = `<div class="cartao">`;
   for(let n=1;n<=25;n++){
     const active = set.has(n) ? ` ${clsName}` : "";
@@ -2510,9 +2491,7 @@ async function conferirGerados(){
   const resultNums = (res.dezenas||[]).map(toNum);
 
   function hits(gameNums){
-    const setR=const x = [...const x = [...new Set(...)]
-...)]
-resultNums);
+    const setR=new Set(resultNums);
     const h = sortNum(gameNums.filter(n=>setR.has(Number(n))).map(Number));
     return {count:h.length, hits:h};
   }
@@ -2855,10 +2834,9 @@ function combos3de5(){
 function gerarJogos15P(linhas){
   const comb = combos3de5();
   return comb.map((idxs)=>{
-    const set = const x = [...new Set(...)]
-);
+    const set = new Set();
     idxs.forEach(i=> linhas[i-1].forEach(n=>set.add(n)) );
-    return sortNum([set]);
+    return sortNum([...set]);
   });
 }
 
@@ -2868,13 +2846,10 @@ function renderBallsInline(nums){
 
 // ✅ Conta quantas vezes um grupo (2..5 dezenas) apareceu inteiro no mesmo concurso
 function countGroupTogether(group, concursos){
-  const gset = const x = [...const x = [...new Set(...)]
-...)]
-group.map(Number));
+  const gset = new Set(group.map(Number));
   let count = 0;
   for(const c of concursos){
-    const setC = const x = [...new Set(...)]
-(c.dezenas||[]).map(toNum));
+    const setC = new Set((c.dezenas||[]).map(toNum));
     let ok = true;
     for(const n of gset){
       if(!setC.has(n)){ ok = false; break; }
@@ -2991,8 +2966,7 @@ function initUserLines15FromSystem(lines){
 function setActiveLine15(i){ activeLine15=i; render15Editor(); }
 
 function usedNumbersExceptLine(lineIdx){
-  const used = const x = [...new Set(...)]
-);
+  const used = new Set();
   for(let i=0;i<5;i++){
     if(i===lineIdx) continue;
     (linesUser15?.[i]||[]).forEach(n=>used.add(n));
@@ -3026,7 +3000,7 @@ function render15Editor(){
       </div>
 
       <div class="pickGrid" id="pickGrid15">
-        ${[Array(25)].map((_,i)=>{
+        ${[...Array(25)].map((_,i)=>{
           const n=i+1;
           const sel = current.includes(n) ? " sel" : "";
           const lock = used.has(n) ? " lock" : "";
@@ -3129,7 +3103,7 @@ async function gerar15P(){
     await prepararContextoBase(qtd);
     const payload = lastPayload;
 
-    setStatus(true,"15P: analisando e montando 5 linhas");
+    setStatus(true,"15P: analisando e montando 5 linhas…");
     setProgress(82);
 
     const stats = calcCoocAndStats(payload.concursos);
@@ -3139,7 +3113,6 @@ async function gerar15P(){
     lines = optimizeLines(lines, stats);
 
     const jogos = gerarJogos15P(lines);
-    last15Games = jogos.map(j => j.slice());
     const sourceInfo = { source: payload.source, mode: payload.mode };
 
     setStatus(false,"");
@@ -3250,29 +3223,6 @@ async function gerar15P(){
       </div>
 
       <div class="box" style="margin-top:12px">
-      <div class="box" style="margin-top:12px">
-  <b>✅ Conferir os 10 jogos do 15P (detalhado por concurso)</b>
-  <div class="mini" style="margin-top:6px">
-    Escolha quantos concursos anteriores você quer testar (limite 30).
-  </div>
-
-  <div class="row" style="margin-top:10px">
-    <div class="col">
-      <label>Conferir últimos concursos</label>
-      <select id="p15CheckQtd">
-        <option value="5">Últimos 5</option>
-        <option value="10" selected>Últimos 10</option>
-        <option value="20">Últimos 20</option>
-        <option value="30">Últimos 30</option>
-      </select>
-    </div>
-    <div class="col" style="display:flex;align-items:flex-end">
-      <button class="btn btnPrimary" type="button" onclick="check15PGames()">Conferir agora</button>
-    </div>
-  </div>
-
-  <div id="p15CheckResult" style="margin-top:12px"></div>
-</div>
         <b>🎯 10 jogos do sistema</b>
         <div class="grid" style="margin-top:12px">${jogosHtml}</div>
         <div class="mini" style="margin-top:10px">
@@ -3295,12 +3245,6 @@ async function gerar15P(){
     goView("view15p");
   }
 }
-async function gerar15P(){
-}
-
-async function check15PGames(){
-  
-}
 </script>
 
 <script>
@@ -3322,115 +3266,59 @@ document.getElementById("btnAtivar15p").addEventListener("click", jaComprei15p);
   if(el) bindCardKey(el);
 });
 /* =========================
-   ✅ JOGOS SALVOS + CONFERÊNCIA (BLOCO LIMPO DEFINITIVO)
+   ✅ JOGOS SALVOS + CONFERÊNCIA
 ========================= */
 
-document.getElementById("btnHomeSaved")?.addEventListener("click", () => {
+document.getElementById("btnHomeSaved").onclick = ()=>{
   goView("viewSavedGames");
-});
+};
 
-
-async function checkSavedGames(){
-
+function checkSavedGames(){
   const qtd = Number(document.getElementById("savedCheckQtd").value);
 
-  if(!qtd || qtd < 1){
-    alert("Informe a quantidade de concursos.");
-    return;
-  }
-
-  await prepararContextoBase(qtd);
-
   if(!lastPayload || !lastPayload.concursos){
-    alert("Dados ainda não carregados.");
+    alert("Gere uma análise primeiro para carregar os concursos.");
     return;
   }
 
   const concursos = lastPayload.concursos.slice(-qtd);
 
-  const saved = loadLocal(SAVE_PACK_KEY)?.data || null;
-
+  // 👉 usa jogo principal salvo
   const jogos = [
-    saved?.principal,
-    saved?.invertida,
-    saved?.tecnica1,
-    saved?.tecnica2,
     lastPrincipalGame,
     lastInvertidaGame,
     lastTecnicaGames?.g1,
     lastTecnicaGames?.g2
-  ].filter(j => Array.isArray(j) && j.length === 15);
-
+  ].filter(Boolean);
 
   if(!jogos.length){
-    alert("Nenhum jogo salvo ou gerado ainda.");
+    alert("Nenhum jogo gerado ainda.");
     return;
   }
 
+  let html="";
 
-  function hitsForGame(game, dezenas){
-    const set = const x = [...new Set(...)]
-dezenas.map(Number));
-    return game.filter(n => set.has(Number(n))).length;
-  }
+  jogos.forEach((jogo, idx)=>{
+    let total=0;
 
+    concursos.forEach(c=>{
+      const set=new Set(c.dezenas.map(toNum));
+      const hits=jogo.filter(n=>set.has(n)).length;
+      total+=hits;
+    });
 
-  let html = `
-    <div class="box">
-      <b>📌 Conferência detalhada</b>
-    </div>
-  `;
+    const media=(total/concursos.length).toFixed(1);
 
-
-  jogos.forEach((game, idx)=>{
-
-    let soma = 0;
-    let melhor = 0;
-    let pior = 15;
-
-    const linhas = concursos.map(c=>{
-
-      const acertos = hitsForGame(game, c.dezenas);
-
-      soma += acertos;
-      melhor = Math.max(melhor, acertos);
-      pior = Math.min(pior, acertos);
-
-      return `
-        <tr>
-          <td>${c.concurso}</td>
-          <td>${acertos} acertos</td>
-        </tr>
-      `;
-    }).join("");
-
-
-    const media = (soma / concursos.length).toFixed(1);
-
-
-    html += `
-      <div class="box" style="margin-top:14px">
-
-        <b>Jogo ${idx+1}</b>
-
-        <div class="mini">
-          Média: ${media} • Melhor: ${melhor} • Pior: ${pior}
-        </div>
-
-        <div class="numbers">
-          ${game.map(n=>`<div class="ball">${String(n).padStart(2,'0')}</div>`).join("")}
-        </div>
-
-        <table class="table">
-          ${linhas}
-        </table>
-
+    html+=`
+      <div class="box" style="margin-top:10px">
+        <b>Jogo ${idx+1}</b><br>
+        Média acertos: <b>${media}</b><br>
+        ${jogo.map(format2).join(" - ")}
       </div>
     `;
   });
 
-
-  document.getElementById("savedGamesResult").innerHTML = html;
+  document.getElementById("savedGamesResult").innerHTML=html;
 }
 </script>
 
