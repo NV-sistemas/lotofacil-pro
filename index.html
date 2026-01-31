@@ -1186,95 +1186,134 @@ function gerarJogoForte(freq, metrics){
      • Top10 atrasadas (mais atrasada + menos atrasada dentro do top10)
 ========================= */
 
-function pickWeightedScenario(){
-  // pode ajustar pesos se quiser mais 8, por exemplo
-  const opts = [
-    {k:7, w:4},
-    {k:8, w:5},
-    {k:9, w:3}
-  ];
-  const total = opts.reduce((a,x)=>a+x.w,0);
-  let r = Math.random()*total;
-  for(const o of opts){
-    r -= o.w;
-    if(r<=0) return o.k;
-  }
-  return 8;
-}
+function pickScenarioDeterministico(payload, freq){
+  // cenários permitidos pela sua regra
+  const cenarios = [10, 9, 8];
 
-function uniqPush(arr, n){
-  if(!arr.includes(n)) arr.push(n);
-}
+  const last = toNums25(payload?.latest?.dezenas || []);
+  const concursos = payload?.concursos || [];
 
-function toNums25(list){
-  return (list||[]).map(toNum).filter(n=>n>=1 && n<=25);
-}
-
-function getTop10Freq(freq){
-  // retorna [{dez,f}] ordenado desc
-  return ordenarPorFreq(freq).slice(0,10);
-}
-
-function getTop10Atrasadas(modern){
-  // modern.gap[d] = quantos concursos sem sair (0 = saiu no último)
-  const arr = [];
+  // cooc total de cada dezena (o quanto ela "anda junto" no período)
+  // score[d] = soma das coocorrências dela com as outras dezenas
+  const co = calcCoocPairs(concursos);
+  const score = {};
   for(let d=1; d<=25; d++){
-    arr.push({ dez:d, gap:Number(modern?.gap?.[d] ?? 0) });
+    let s = 0;
+    for(let k=1; k<=25; k++) s += co[d][k];
+    score[d] = s;
   }
-  arr.sort((a,b)=>b.gap-a.gap);
-  return arr.slice(0,10); // maior atraso primeiro
-}
 
-function calcCoocPairs(concursos){
-  const co = Array.from({length:26}, ()=>Array(26).fill(0));
-  for(const c of (concursos||[])){
-    const nums = toNums25(c.dezenas).sort((a,b)=>a-b);
-    for(let i=0;i<nums.length;i++){
-      for(let j=i+1;j<nums.length;j++){
-        const a=nums[i], b=nums[j];
-        co[a][b]++; co[b][a]++;
-      }
-    }
-  }
-  return co;
-}
+  // ranking do último concurso por "mais juntas no período"
+  const lastRanked = [...new Set(last)].sort((a,b)=>{
+    const sa = Number(score[a] || 0), sb = Number(score[b] || 0);
+    if(sb !== sa) return sb - sa;
 
-function bestStrongPair(concursos){
-  const co = calcCoocPairs(concursos);
-  let best = {a:null,b:null,count:-1};
-  for(let a=1;a<=25;a++){
-    for(let b=a+1;b<=25;b++){
-      const ct = co[a][b];
-      if(ct > best.count){
-        best = {a,b,count:ct};
-      }
-    }
-  }
-  // fallback seguro
-  if(!best.a || !best.b) return null;
-  return [best.a, best.b];
-}
+    // desempate: frequência no período
+    const fa = Number(freq?.[a] || 0), fb = Number(freq?.[b] || 0);
+    if(fb !== fa) return fb - fa;
 
-function bestStrongTrio(concursos, freq){
-  // para não pesar, busca trio dentro do pool dos 12 mais frequentes
-  const pool = ordenarPorFreq(freq).slice(0,12).map(x=>x.dez);
-  const co = calcCoocPairs(concursos);
+    return a - b;
+  });
 
-  let best = { trio:null, score:-1 };
+  // quotas por cenário (100% fechado)
+  const planoPorCenario = {
+    8: { base:8, freqMais:2, freqMenos:1, pair:2, atrasMais:1, atrasMenos:1 },
+    9: { base:9, freqMais:1, freqMenos:1, pair:2, atrasMais:1, atrasMenos:1 },
+    10:{ base:10,freqMais:1, freqMenos:1, pair:2, atrasMais:1, atrasMenos:0 },
+  };
 
-  for(let i=0;i<pool.length;i++){
-    for(let j=i+1;j<pool.length;j++){
-      for(let k=j+1;k<pool.length;k++){
-        const a=pool[i], b=pool[j], c=pool[k];
-        // score = soma de cooc dos pares do trio
-        const s = co[a][b] + co[a][c] + co[b][c];
-        if(s > best.score){
-          best = { trio:[a,b,c], score:s };
+  // Função para testar se o cenário fecha 15 sem precisar inventar nada
+  function consegueFechar(c){
+    const p = planoPorCenario[c];
+    const chosen = new Set();
+
+    // base
+    lastRanked.slice(0,p.base).forEach(n=>chosen.add(n));
+
+    // top10 freq
+    const top10 = getTop10Freq(freq).map(x=>x.dez);
+    const top10Mais = [...new Set(top10)].sort((a,b)=>{
+      const fa = Number(freq?.[a] || 0), fb = Number(freq?.[b] || 0);
+      if(fb !== fa) return fb - fa;
+      return a - b;
+    });
+    const top10Menos = [...new Set(top10)].sort((a,b)=>{
+      const fa = Number(freq?.[a] || 0), fb = Number(freq?.[b] || 0);
+      if(fa !== fb) return fa - fb;
+      return a - b;
+    });
+
+    // tenta completar quotas usando próximos do ranking (mesma categoria)
+    function addFrom(list, qtd){
+      let add = 0;
+      for(const n of list){
+        if(!chosen.has(n)){
+          chosen.add(n);
+          add++;
+          if(add>=qtd) break;
         }
       }
+      return add === qtd;
     }
+
+    if(!addFrom(top10Mais, p.freqMais)) return false;
+    if(!addFrom(top10Menos, p.freqMenos)) return false;
+
+    // dupla forte
+    const pair = bestStrongPair(concursos);
+    if(pair){
+      // precisa colocar 2 dezenas; se uma já existe, tenta "compensar" pegando próximo par melhor
+      // como você ainda não tem lista ordenada de pares, fazemos compensação com o ranking de pares por força:
+      // (isso continua determinístico)
+      const okPair = addFrom(pair, 2); // tenta adicionar as 2
+      if(!okPair){
+        // fallback determinístico: varre pares por contagem e pega o primeiro que adicionar 2 novas
+        const co2 = calcCoocPairs(concursos);
+        let found = false;
+        outer: for(let a=1;a<=25;a++){
+          for(let b=a+1;b<=25;b++){
+            if(co2[a][b] <= 0) continue;
+            if(!chosen.has(a) && !chosen.has(b)){
+              chosen.add(a); chosen.add(b);
+              found = true;
+              break outer;
+            }
+          }
+        }
+        if(!found) return false;
+      }
+    } else {
+      return false;
+    }
+
+    // atrasadas
+    const top10Atr = getTop10Atrasadas(payload?.modern || payload).map(x=>x.dez);
+    const gap = {};
+    for(const obj of getTop10Atrasadas(payload?.modern || payload)) gap[obj.dez] = obj.gap;
+
+    const atrMais = [...new Set(top10Atr)].sort((a,b)=>{
+      const ga = Number(gap[a]||0), gb = Number(gap[b]||0);
+      if(gb !== ga) return gb - ga;
+      return a - b;
+    });
+    const atrMenos = [...new Set(top10Atr)].sort((a,b)=>{
+      const ga = Number(gap[a]||0), gb = Number(gap[b]||0);
+      if(ga !== gb) return ga - gb;
+      return a - b;
+    });
+
+    if(!addFrom(atrMais, p.atrasMais)) return false;
+    if(!addFrom(atrMenos, p.atrasMenos)) return false;
+
+    return chosen.size === 15;
   }
-  return best.trio ? best.trio.slice().sort((x,y)=>x-y) : null;
+
+  // prioridade determinística: tenta 10, depois 9, depois 8
+  for(const c of cenarios){
+    if(consegueFechar(c)) return c;
+  }
+  // se nenhum fecha, cai no 9 (mas isso indica problema nos dados/rankings)
+  return 9;
 }
 
 function scoreByUltimoTogether(ultimoNums, concursos, freq){
