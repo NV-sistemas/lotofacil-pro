@@ -3854,8 +3854,8 @@ function renderLinesSystemBox(linesSystem15){
     `;
   }).join('');
 
- return (
-  `<div class="lines-box">
+return `
+  <div class="lines-box">
     <table class="lines-table">
       <thead>
         <tr>
@@ -3868,8 +3868,9 @@ function renderLinesSystemBox(linesSystem15){
         ${rows}
       </tbody>
     </table>
-  </div>`
-);
+  </div>
+`;
+
 
 
 </script>
