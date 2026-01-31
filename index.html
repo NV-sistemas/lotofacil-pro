@@ -3614,16 +3614,14 @@ function buildMotivos(jogo, ultimo, freq, modern){
   // ✅ Sempre devolve objetos com .texto (pra não dar undefined)
   const motivos = [];
 
-  motivos.push({ texto: `🔁 ${repetidas} repetidas do último concurso` });
-
+  motivos.push({ dezena: "", texto: `🔁 ${repetidas} repetidas do último concurso` });  
   // deixa a frase simples (sem números técnicos)
-  motivos.push({ texto: `📊 selecionadas por força estatística (frequência no período)` });
-
+  motivos.push({ dezena: "", texto: `📊 selecionadas por força estatística (frequência no período)` });  
   if (modern && modern.gap){
     if (atrasadasFortes > 0) {
-      motivos.push({ texto: `⏳ ${atrasadasFortes} dezenas com atraso alto (podem “voltar”)` });
+      motivos.push({ dezena: "", texto: `⏳ ${atrasadasFortes} dezenas com atraso alto (podem “voltar”)` });
     } else {
-      motivos.push({ texto: `⚡ equilíbrio de atraso/recência nas dezenas` });
+      motivos.push({ dezena: "", texto: `⚡ equilíbrio de atraso/recência nas dezenas` });
     }
   } else {
     motivos.push({ texto: `⚡ equilíbrio no conjunto escolhido` });
