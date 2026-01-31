@@ -1490,30 +1490,25 @@ return { jogo: finalJogo, motivos };
 <script>
 function renderTop10(freq, totalConcursos){
   const ord = ordenarPorFreq(freq).slice(0,10);
-  const max = ord[0]?.f || 1;
-  const bars = ord.map(x=>{
-    const pct = Math.round((x.f/max)*100);
+  if(!ord || !ord.length) return '<div style="opacity:.85">Sem dados.</div>';
+
+  const max = (ord[0] && ord[0].f) ? ord[0].f : 1;
+
+  return ord.map(x=>{
+    const pct = Math.round((x.f / max) * 100);
+
     return `
       <div style="display:flex;align-items:center;gap:10px;margin:10px 0">
-        <div style="width:90px;color:var(--text);font-weight:950">Dezena ${format2(x.dez)}</div>
+        <div style="width:92px;color:var(--text);font-weight:950">Dezena ${format2(x.dez)}</div>
+
         <div style="flex:1;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.12);border-radius:999px;overflow:hidden;height:16px">
           <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--blue),var(--green))"></div>
         </div>
+
         <div style="width:56px;text-align:right;color:var(--text);font-weight:950">${x.f}x</div>
       </div>
     `;
-  }).join("");
-
-  return `
-    <div class="box" style="margin-top:12px">
-      <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center">
-        <b>📊 Top 10 dezenas mais frequentes</b>
-        <span class="mini" style="margin:0">Base: <b>${totalConcursos}</b> concursos</span>
-      </div>
-      <div class="mini">Barras maiores = dezenas que mais apareceram no período analisado.</div>
-      <div style="margin-top:10px">${bars}</div>
-    </div>
-  `;
+  }).join('');
 }
 function renderTop10Atrasadas(modern, totalConcursos){
   // modern.gap[x] = quantos concursos está sem aparecer (0 = saiu no último)
