@@ -1093,247 +1093,98 @@ function calcModernMetrics(concursos){
 </script>
 
 <script>
-/* ============================
-   GERAÇÃO DO JOGO (corrigida)
-   + RESUMO "POR QUE ESSAS DEZENAS"
-   Baseado na NOVA LÓGICA 8/9/10 + Top10 + Dupla forte + Atrasadas
-   ============================ */
+/* =========================
+   GERAÇÃO DO JOGO (melhorada)
+========================= */
+function gerarJogoForte(freq, metrics){
+  const ord = ordenarPorFreq(freq);
 
-let _fontesJogoPrincipal = {}; // { dezena: Set(["texto", ...]) }
+  const hotPool = ord.slice(0,10).map(x=>x.dez);
+  const warmPool = ord.slice(10,18).map(x=>x.dez);
+  const coldPool = ord.slice(-7).map(x=>x.dez);
 
-function resetFontesJogoPrincipal(){
-  _fontesJogoPrincipal = {};
-}
-function addFonteJogoPrincipal(dez, texto){
-  const d = Number(dez);
-  if(!Number.isFinite(d)) return;
-  if(!_fontesJogoPrincipal[d]) _fontesJogoPrincipal[d] = new Set();
-  _fontesJogoPrincipal[d].add(String(texto || "sem explicação registrada"));
-}
-
-/* Se no seu projeto já existem essas funções, ok.
-   Se não existirem, é melhor você me avisar.
-   (Aqui estou assumindo que elas EXISTEM no seu index.)
-   - toNum
-   - ordenarPorFreq
-   - sortNum
-   - contarParesImpares
-   - somaDezenas
-   - distribuicaoBlocos
-   - contarSequencias
-   - renderMotivosPainel
-*/
-
-function buildMotivosPorFontes(jogo, fontesObj){
-  const fontes = fontesObj || {};
-  const motivos = [];
-  for(const n of (jogo || [])){
-    const set = fontes[n];
-    const arr = set ? Array.from(set) : ["sem explicação registrada"];
-    motivos.push({ dez: n, linhas: arr });
+  function addFromPool(pool, count, set){
+    const shuffled = pool.slice().sort(()=>Math.random()-0.5);
+    let added=0;
+    for(const n of shuffled){
+      if(set.has(n)) continue;
+      set.add(n); added++;
+      if(added>=count) break;
+    }
   }
-  return motivos;
+
+  let best=null;
+  for(let t=0;t<180;t++){
+    const set=new Set();
+
+    // ✅ mix padrão (mercado): quente + morna + fria
+    addFromPool(hotPool, 5, set);
+    addFromPool(warmPool, 7, set);
+    addFromPool(coldPool, 2, set);
+
+    // ✅ “atrasadas” (gap alto) entram como 1 slot opcional
+    if(metrics){
+      const overdue = [];
+      for(let i=1;i<=25;i++) overdue.push({i, g: metrics.gap[i], f: metrics.freq[i]});
+      overdue.sort((a,b)=>b.g-a.g);
+      for(const cand of overdue.slice(0,8)){
+        if(set.size>=15) break;
+        if(!set.has(cand.i)) { set.add(cand.i); break; }
+      }
+    }
+
+    while(set.size<15) set.add(Math.floor(Math.random()*25)+1);
+
+    const jogo = sortNum([...set]);
+    const pi = contarParesImpares(jogo);
+    const soma = somaDezenas(jogo);
+    const blocos = distribuicaoBlocos(jogo);
+    const seq = contarSequencias(jogo);
+
+    let score=0;
+
+    // pares/ímpares
+    score += (pi.pares===7 || pi.pares===8) ? 25 : (pi.pares===6 || pi.pares===9) ? 12 : 0;
+
+    // soma
+    score += (soma>=170 && soma<=230) ? 20 : (soma>=160 && soma<=240) ? 10 : 0;
+
+    // blocos
+    const maxBlock = Math.max(blocos.A,blocos.B,blocos.C,blocos.D,blocos.E);
+    score += (maxBlock<=5) ? 20 : (maxBlock===6) ? 10 : 0;
+
+    // sequências
+    score += (seq.maxLen<=4) ? 15 : (seq.maxLen===5) ? 6 : 0;
+
+    // força freq
+    score += Math.min(20, Math.round(jogo.reduce((a,n)=>a+(freq[n]||0),0)/10));
+
+    // recência (se tiver)
+    if(metrics){
+      const recScore = jogo.reduce((a,n)=>a+(metrics.decay[n]||0),0);
+      score += Math.min(12, recScore);
+    }
+
+    if(!best || score>best.score) best={jogo, score};
+  }
+  return best.jogo;
 }
-
-/* ============================
-   FUNÇÃO PRINCIPAL
-   ============================ */
-function gerarJogoForte(freq, modern, coocStats, dezenasUltimo){
-
-  // zera fontes a cada geração do jogo principal
-  resetFontesJogoPrincipal();
-
+/* =========================
+   ✅ NOVO MOTOR (Jogo Principal por regra do último concurso)
+   - Repetição: 6 a 11 dezenas do último
+   - Complemento: dentre as 10 que NÃO saíram no último (completa até 15)
+   - Retorna { jogo, motivos }
+========================= */
+function gerarJogoComRegrasUltimo(freq, metrics, dezenasUltimo){
   const ultimo = (dezenasUltimo||[]).map(toNum).filter(n=>n>=1 && n<=25);
   const setUlt = new Set(ultimo);
 
-  function uniqPush(arr, n){
-    if(n>=1 && n<=25 && !arr.includes(n)) arr.push(n);
-  }
-  function pickFirstNotUsed(list, usedSet){
-    for(const n of list){
-      if(!usedSet.has(n)){
-        usedSet.add(n);
-        return n;
-      }
-    }
-    return null;
+  // 10 dezenas que NÃO saíram no último
+  const naoSaiu = [];
+  for(let n=1;n<=25;n++){
+    if(!setUlt.has(n)) naoSaiu.push(n);
   }
 
-  // score “andar junto” dentro do último concurso
-  function scoreNumInUlt(n){
-    let s = 0;
-
-    // frequência + recência
-    if(coocStats?.freq?.[n] != null) s += coocStats.freq[n] * 0.9;
-    if(coocStats?.decay?.[n] != null) s += coocStats.decay[n] * 3.2;
-
-    // atraso leve
-    if(modern?.gap?.[n] != null) s += Math.min(4.5, modern.gap[n] * 0.25);
-
-    // coocorrência/lift com outros do último
-    if(coocStats?.co && coocStats?.lift){
-      for(const m of ultimo){
-        if(m===n) continue;
-        const co = coocStats.co[n]?.[m] ?? 0;
-        const lf = coocStats.lift[n]?.[m] ?? 0;
-        s += (co * 1.0) + (lf * 1.6);
-      }
-    }
-    return s;
-  }
-
-  function topUltimoPorAndarJunto(R){
-    const arr = ultimo.map(n=>({n, s: scoreNumInUlt(n)}));
-    arr.sort((a,b)=>b.s-a.s);
-    return arr.slice(0, Math.min(R, arr.length)).map(x=>x.n);
-  }
-
-  function getTop10Freq(){
-    return ordenarPorFreq(freq).slice(0,10).map(x=>x.dez);
-  }
-
-  function getTop10Atrasadas(){
-    const arr=[];
-    for(let d=1; d<=25; d++){
-      arr.push({d, g: Number(modern?.gap?.[d] ?? 0)});
-    }
-    arr.sort((a,b)=>b.g-a.g);
-    return arr.slice(0,10).map(x=>x.d);
-  }
-
-  function bestStrongPair(usedSet){
-    if(!coocStats?.co || !coocStats?.lift || !coocStats?.decay) return [];
-
-    function pairScore(a,b){
-      const co = coocStats.co[a]?.[b] ?? 0;
-      const lf = coocStats.lift[a]?.[b] ?? 0;
-      const rec = (coocStats.decay[a] ?? 0) + (coocStats.decay[b] ?? 0);
-      return (co * 1.0) + (lf * 2.2) + (rec * 0.55);
-    }
-
-    let best=null;
-    for(let a=1;a<=25;a++){
-      for(let b=a+1;b<=25;b++){
-        if(usedSet.has(a) || usedSet.has(b)) continue;
-        const sc = pairScore(a,b);
-        if(!best || sc > best.sc) best = {a,b, sc};
-      }
-    }
-    if(!best) return [];
-    usedSet.add(best.a);
-    usedSet.add(best.b);
-    return [best.a, best.b];
-  }
-
-  // monta o jogo pela sua regra (R=8/9/10)
-  function montarCaso(R){
-    const used = new Set();
-    const jogo = [];
-
-    // (1) Base do último: R dezenas que mais “andam juntas”
-    const baseUlt = topUltimoPorAndarJunto(R);
-    baseUlt.forEach(n=>{
-      used.add(n);
-      uniqPush(jogo, n);
-      addFonteJogoPrincipal(n, `veio do último concurso (base ${R} dezenas)`);
-    });
-
-    // (2) Top10 frequentes
-    const top10 = getTop10Freq();
-
-    if(R === 8){
-      // 3 dezenas: 2 mais frequentes + 1 menos frequente (dentro do top10)
-      const a = pickFirstNotUsed(top10, used);
-      const b = pickFirstNotUsed(top10, used);
-      const leastFirst = top10.slice().reverse();
-      const c = pickFirstNotUsed(leastFirst, used);
-
-      [a,b].filter(x=>x!=null).forEach(n=>{
-        uniqPush(jogo,n);
-        addFonteJogoPrincipal(n, "Top10 frequentes (entre as que mais saem)");
-      });
-      [c].filter(x=>x!=null).forEach(n=>{
-        uniqPush(jogo,n);
-        addFonteJogoPrincipal(n, "Top10 frequentes (entre as que menos saem no Top10)");
-      });
-    }
-
-    if(R === 9){
-      // 2 dezenas: 1 mais frequente + 1 menos frequente (dentro do top10)
-      const a = pickFirstNotUsed(top10, used);
-      const leastFirst = top10.slice().reverse();
-      const b = pickFirstNotUsed(leastFirst, used);
-
-      [a].filter(x=>x!=null).forEach(n=>{
-        uniqPush(jogo,n);
-        addFonteJogoPrincipal(n, "Top10 frequentes (entre as que mais saem)");
-      });
-      [b].filter(x=>x!=null).forEach(n=>{
-        uniqPush(jogo,n);
-        addFonteJogoPrincipal(n, "Top10 frequentes (entre as que menos saem no Top10)");
-      });
-    }
-
-    if(R === 10){
-      // 2 dezenas: 1 mais frequente + 1 menos frequente (dentro do top10)  (sua regra final)
-      const a = pickFirstNotUsed(top10, used);
-      const leastFirst = top10.slice().reverse();
-      const b = pickFirstNotUsed(leastFirst, used);
-
-      [a].filter(x=>x!=null).forEach(n=>{
-        uniqPush(jogo,n);
-        addFonteJogoPrincipal(n, "Top10 frequentes (entre as que mais saem)");
-      });
-      [b].filter(x=>x!=null).forEach(n=>{
-        uniqPush(jogo,n);
-        addFonteJogoPrincipal(n, "Top10 frequentes (entre as que menos saem no Top10)");
-      });
-    }
-
-    // (3) Dupla forte
-    const dupla = bestStrongPair(used);
-    dupla.forEach(n=>{
-      uniqPush(jogo, n);
-      addFonteJogoPrincipal(n, "Dupla forte (dezenas que mais saem juntas)");
-    });
-
-    // (4) Atrasadas
-    const atras = getTop10Atrasadas();
-    const most = pickFirstNotUsed(atras, used);
-    const less = pickFirstNotUsed(atras.slice().reverse(), used);
-
-    if(R === 10){
-      // sua regra: só 1 atrasada (a mais atrasada)
-      [most].filter(x=>x!=null).forEach(n=>{
-        uniqPush(jogo,n);
-        addFonteJogoPrincipal(n, "Top atrasadas (a mais atrasada)");
-      });
-    } else {
-      // 2 atrasadas: a mais atrasada + uma menos atrasada (dentro do top10 atrasadas)
-      [most].filter(x=>x!=null).forEach(n=>{
-        uniqPush(jogo,n);
-        addFonteJogoPrincipal(n, "Top atrasadas (a mais atrasada)");
-      });
-      [less].filter(x=>x!=null).forEach(n=>{
-        uniqPush(jogo,n);
-        addFonteJogoPrincipal(n, "Top atrasadas (uma menos atrasada do Top10)");
-      });
-    }
-
-    // Completa para 15 se por acaso faltar (por duplicações)
-    while(jogo.length < 15){
-      const n = Math.floor(Math.random()*25)+1;
-      if(!used.has(n)){
-        used.add(n);
-        jogo.push(n);
-        addFonteJogoPrincipal(n, "complemento para fechar 15 dezenas");
-      }
-    }
-
-    return sortNum(jogo);
-  }
-
-  // escolhe o melhor entre R=8,9,10
   function scoreJogo(jogo){
     const pi = contarParesImpares(jogo);
     const soma = somaDezenas(jogo);
@@ -1342,78 +1193,162 @@ function gerarJogoForte(freq, modern, coocStats, dezenasUltimo){
 
     let score=0;
 
-    // equilíbrio básico (não aparece para o usuário, só score interno)
+    // (1) Pares/ímpares: ideal 7/8
     score += (pi.pares===7 || pi.pares===8) ? 25 : (pi.pares===6 || pi.pares===9) ? 12 : 0;
+
+    // (2) Soma: faixa comum
     score += (soma>=170 && soma<=230) ? 20 : (soma>=160 && soma<=240) ? 10 : 0;
 
+    // (3) Blocos: evitar concentração
     const maxBlock = Math.max(blocos.A,blocos.B,blocos.C,blocos.D,blocos.E);
     score += (maxBlock<=5) ? 20 : (maxBlock===6) ? 10 : 0;
 
+    // (4) Sequência: evitar sequência enorme
     score += (seq.maxLen<=4) ? 15 : (seq.maxLen===5) ? 6 : 0;
 
+    // (5) Frequência (janela)
     score += Math.min(20, Math.round(jogo.reduce((a,n)=>a+(freq[n]||0),0)/10));
 
-    const recScore = jogo.reduce((a,n)=>a+(coocStats?.decay?.[n]||0),0);
-    score += Math.min(12, recScore);
-
-    const reps = jogo.filter(n=>setUlt.has(n)).length;
-    score += (reps===8 || reps===9 || reps===10) ? 14 : 0;
+    // (6) Recência (se tiver metrics)
+    if(metrics){
+      const recScore = jogo.reduce((a,n)=>a+(metrics.decay?.[n]||0),0);
+      score += Math.min(12, recScore);
+    }
 
     return score;
   }
 
-  let best = null;
-  const triesEach = 80;
+  // escolhe uma combinação boa dentro das regras:
+  // repete r (6..11) do último e completa com (15-r) das 10 que não saíram
+  let best=null;
 
-  [8,9,10].forEach(R=>{
-    for(let t=0;t<triesEach;t++){
-      const jogo = montarCaso(R);
-      const sc = scoreJogo(jogo);
-      if(!best || sc > best.score){
-        best = { jogo, score: sc, R };
-      }
-    }
-  });
-
-  const finalJogo = best ? best.jogo : montarCaso(9);
-
-  // monta motivos baseado no que foi registrado em _fontesJogoPrincipal
-  const motivos = buildMotivosPorFontes(finalJogo, _fontesJogoPrincipal);
-
-  // desenha painel
-  if(typeof renderMotivosPainel === "function"){
-    renderMotivosPainel(motivos);
+  function pickRandom(arr, k){
+    const a=arr.slice().sort(()=>Math.random()-0.5);
+    return a.slice(0,k);
   }
 
-  return { jogo: finalJogo, motivos };
+  for(let tries=0; tries<1200; tries++){
+    // ✅ repetição com PESO (preferência em 7 e 8)
+function pickRWeighted(){
+  const opts = [
+    { r: 4, w: 1 },
+    { r: 5, w: 2 },
+    { r: 6, w: 3 },
+    { r: 7, w: 7 }, // ⭐ preferido
+    { r: 8, w: 7 }, // ⭐ preferido
+    { r: 9, w: 3 },
+    { r: 10, w: 2 },
+    { r: 11, w: 1 }
+  ];
+  const total = opts.reduce((a,x)=>a+x.w,0);
+  let roll = Math.random() * total;
+  for(const o of opts){
+    roll -= o.w;
+    if(roll <= 0) return o.r;
+  }
+  return 7;
 }
 
-// deixa global
-window.gerarJogoForte = gerarJogoForte;
+    const r = pickRWeighted(); // 4..11 (com preferência em 7/8)
+    const rep = pickRandom(ultimo, Math.min(r, ultimo.length));
+    const restCount = 15 - rep.length;
+
+    const comp = pickRandom(naoSaiu, restCount);
+
+    const set = new Set([...rep, ...comp]);
+    while(set.size<15){
+      set.add(Math.floor(Math.random()*25)+1);
+    }
+
+    const jogo = sortNum([...set]);
+
+    // garante que a quantidade de repetidas do último está entre 6 e 11
+    const reps = jogo.filter(n=>setUlt.has(n));
+    if(reps.length < 4 || reps.length > 11) continue;
+
+    // garante que veio uma quantidade boa do grupo "não saiu"
+    const doNaoSaiu = jogo.filter(n=>!setUlt.has(n));
+    // você falou que costuma sair de 4 a 10 dessas 10
+    if(doNaoSaiu.length < 4 || doNaoSaiu.length > 10) continue;
+
+    const sc = scoreJogo(jogo);
+    if(!best || sc > best.score){
+      best = { jogo, score: sc, reps, doNaoSaiu };
+    }
+  }
+
+  // fallback: se por algum motivo não achou (raro), usa o antigo
+  if(!best){
+    const fallback = gerarJogoForte(freq, metrics);
+    return { jogo: fallback, motivos: buildMotivos(fallback, ultimo, freq, metrics) };
+  }
+
+  // monta motivos (pra mostrar ao usuário)
+  const motivos = buildMotivos(best.jogo, ultimo, freq, metrics);
+
+  return { jogo: best.jogo, motivos };
+}
+
+/* ✅ Motivos “populares” por dezena */
+function buildMotivos(jogo, dezenasUltimoNums, freq, metrics){
+  const setUlt = new Set((dezenasUltimoNums||[]).map(toNum));
+  const ord = ordenarPorFreq(freq);
+  const rank = {};
+  ord.forEach((x,i)=>rank[x.dez]=i+1);
+
+  return jogo.map(n=>{
+    const isRep = setUlt.has(n);
+    const r = rank[n] || 999;
+    
+    const gap = metrics?.gap?.[n];
+    const trend = metrics?.trend?.[n];
+
+    const motivos = [];
+
+    if(isRep) motivos.push("🔁 veio do último concurso (tende a repetir bastante)");
+    else motivos.push("🆕 não saiu no último (normal entrar 4 a 10 dessas no próximo)");
+
+    if(typeof gap === "number"){
+      if(gap>=8) motivos.push(`⏳ está há ${gap} concursos sem aparecer (pode ‘pintar’)`);
+      else if(gap<=2) motivos.push("⚡ apareceu recentemente (recência forte)");
+    }
+
+    if(typeof trend === "number"){
+      if(trend>0.03) motivos.push("📈 está ‘subindo’ agora (últimos concursos)");
+    }
+
+    return { dezena:n, texto: motivos.join(" • ") };
+  });
+}
 </script>
 
 <script>
 function renderTop10(freq, totalConcursos){
   const ord = ordenarPorFreq(freq).slice(0,10);
-  if(!ord || !ord.length) return '<div style="opacity:.85">Sem dados.</div>';
-
-  const max = (ord[0] && ord[0].f) ? ord[0].f : 1;
-
-  return ord.map(x=>{
-    const pct = Math.round((x.f / max) * 100);
-
+  const max = ord[0]?.f || 1;
+  const bars = ord.map(x=>{
+    const pct = Math.round((x.f/max)*100);
     return `
       <div style="display:flex;align-items:center;gap:10px;margin:10px 0">
-        <div style="width:92px;color:var(--text);font-weight:950">Dezena ${format2(x.dez)}</div>
-
+        <div style="width:90px;color:var(--text);font-weight:950">Dezena ${format2(x.dez)}</div>
         <div style="flex:1;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.12);border-radius:999px;overflow:hidden;height:16px">
           <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--blue),var(--green))"></div>
         </div>
-
         <div style="width:56px;text-align:right;color:var(--text);font-weight:950">${x.f}x</div>
       </div>
     `;
-  }).join('');
+  }).join("");
+
+  return `
+    <div class="box" style="margin-top:12px">
+      <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center">
+        <b>📊 Top 10 dezenas mais frequentes</b>
+        <span class="mini" style="margin:0">Base: <b>${totalConcursos}</b> concursos</span>
+      </div>
+      <div class="mini">Barras maiores = dezenas que mais apareceram no período analisado.</div>
+      <div style="margin-top:10px">${bars}</div>
+    </div>
+  `;
 }
 function renderTop10Atrasadas(modern, totalConcursos){
   // modern.gap[x] = quantos concursos está sem aparecer (0 = saiu no último)
@@ -2240,8 +2175,7 @@ async function acaoPrincipal(){
     setStatus(true,"Gerando jogo principal (15 dezenas)…");
     setProgress(80);
 
-    const coocStats = calcCoocAndStats(payload.concursos);
-const result = gerarJogoForte(freq, modern, coocStats, payload.latest.dezenas);
+    const result = gerarJogoComRegrasUltimo(freq, modern, payload.latest.dezenas);
 const jogo = result.jogo;
 
     lastPrincipalGame = jogo.slice();
@@ -2319,7 +2253,7 @@ const motivosHtml = Object.entries(motivosAgrupados)
 <div class="box" style="margin-top:12px">
   <b>🧾 Por que essas dezenas foram escolhidas?</b>
   <div class="mini" style="margin-top:8px">
-    Explicação simples (repetição do último + força por frequência + atraso/recência).
+    Explicação simples (repetição do último + mix de quentes/mornas/frias + recência).
   </div>
   <div style="margin-top:10px;border:1px solid rgba(255,255,255,.10);border-radius:14px;overflow:hidden">
     ${motivosHtml}
@@ -3587,56 +3521,6 @@ function renderJogosSalvosAoAbrir(){
   });
 
   box.innerHTML = html;
-}
-// ===============================
-// MOTIVOS (Painel "Por que essas dezenas...") - FORMATO ANTIGO
-// Agrupa dezenas que têm o mesmo texto de explicação
-// ===============================
-
-// fontes no formato: { 1: ["motivo A", "motivo B"], 2: ["motivo X"], ... }
-function buildMotivosPorFontes(jogo, fontes){
-  const arr = (Array.isArray(jogo) ? jogo.slice() : [])
-    .filter(n => typeof n === "number" && n >= 1 && n <= 25)
-    .sort((a,b)=>a-b);
-
-  const map = new Map(); // texto -> [dezenas]
-
-  for (const n of arr){
-    const lista = (fontes && fontes[n] && Array.isArray(fontes[n])) ? fontes[n] : [];
-    const texto = (lista.length ? lista.join(" • ") : "sem explicação registrada");
-
-    if (!map.has(texto)) map.set(texto, []);
-    map.get(texto).push(n);
-  }
-
-  // vira lista no formato do painel antigo:
-  // { dezenasTxt: "03, 04, 06", texto: "..." }
-  const out = [];
-  for (const [texto, dezenas] of map.entries()){
-    out.push({
-      dezenasTxt: dezenas.map(z => String(z).padStart(2,"0")).join(", "),
-      texto
-    });
-  }
-
-  // opcional: ordenar grupos do maior para o menor (como ficava “bonito” antes)
-  out.sort((a,b)=> b.dezenasTxt.length - a.dezenasTxt.length);
-  return out;
-}
-
-
-// ===============================
-// COMPATIBILIDADE: se algum lugar ainda chamar buildMotivos(...)
-// isso evita o erro "buildMotivos is not defined"
-// ===============================
-function buildMotivos(jogo){
-  // se existir fontes do jogo principal, usa elas
-  if (typeof __fontesJogoPrincipal !== "undefined" && __fontesJogoPrincipal){
-    return buildMotivosPorFontes(jogo, __fontesJogoPrincipal);
-  }
-  // fallback simples
-  const arr = (Array.isArray(jogo) ? jogo.slice() : []).sort((a,b)=>a-b);
-  return arr.map(n => ({ dezenasTxt: String(n).padStart(2,"0"), texto: "" }));
 }
 
 </script>
