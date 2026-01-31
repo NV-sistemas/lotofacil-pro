@@ -1085,39 +1085,6 @@ function calcModernMetrics(concursos){
   return { n, freq, decay, recent10, gap, trend };
 }
 
-function renderModernInsights(metrics){
-  const {n,freq,decay,recent10,gap,trend} = metrics;
-
-  const topTrend = [];
-  const topOverdue = [];
-  const topDecay = [];
-  for(let x=1;x<=25;x++){
-    topTrend.push({x, v: trend[x]});
-    topOverdue.push({x, v: gap[x]});
-    topDecay.push({x, v: decay[x]});
-  }
-  topTrend.sort((a,b)=>b.v-a.v);
-  topOverdue.sort((a,b)=>b.v-a.v);
-  topDecay.sort((a,b)=>b.v-a.v);
-
-  const trendList = topTrend.slice(0,8).filter(t=>t.v>0).map(t=>format2(t.x)).join(" - ") || "—";
-  const overdueList = topOverdue.slice(0,8).map(t=>`${format2(t.x)} (${t.v})`).join(" • ") || "—";
-  const recencyList = topDecay.slice(0,8).map(t=>format2(t.x)).join(" - ") || "—";
-
-  return `
-    <div class="box" style="margin-top:12px">
-      <b>🧠 Insights modernos (recência + tendência + atraso)</b>
-      <div class="mini" style="margin-top:8px">
-        <b>📈 Em tendência (últimos 10 vs janela):</b> <span class="mono">${trendList}</span><br/>
-        <b>⏳ Mais “atrasadas” (gap em concursos):</b> <span class="mono">${overdueList}</span><br/>
-        <b>⚡ Mais fortes na recência (peso exponencial):</b> <span class="mono">${recencyList}</span>
-      </div>
-      <div class="mini">
-        Tendência e atraso ajudam a montar “mix” inteligente (quentes + frias + recência). Não é garantia de acerto.
-      </div>
-    </div>
-  `;
-}
 </script>
 
 <script>
@@ -1327,10 +1294,7 @@ function buildMotivos(jogo, dezenasUltimoNums, freq, metrics){
   return jogo.map(n=>{
     const isRep = setUlt.has(n);
     const r = rank[n] || 999;
-    const quente = r<=8;
-    const morna  = r>8 && r<=17;
-    const fria   = r>17;
-
+    
     const gap = metrics?.gap?.[n];
     const trend = metrics?.trend?.[n];
 
@@ -1338,10 +1302,6 @@ function buildMotivos(jogo, dezenasUltimoNums, freq, metrics){
 
     if(isRep) motivos.push("🔁 veio do último concurso (tende a repetir bastante)");
     else motivos.push("🆕 não saiu no último (normal entrar 4 a 10 dessas no próximo)");
-
-    if(quente) motivos.push("🔥 é ‘quente’ na janela (aparece direto)");
-    else if(morna) motivos.push("🌡️ é ‘morna’ (equilibrada, nem some nem estoura)");
-    else if(fria) motivos.push("🧊 é ‘fria’ (aparece pouco — entra como aposta)");
 
     if(typeof gap === "number"){
       if(gap>=8) motivos.push(`⏳ está há ${gap} concursos sem aparecer (pode ‘pintar’)`);
@@ -1508,42 +1468,47 @@ function calcTopPairsCooc(concursos, topN=12){
   return arr.slice(0, topN);
 }
 
-function renderHotWarmColdPeriod(freq){
-  const {hot,warm,cold} = buildHotWarmColdFromFreq(freq);
-  return `
-    <div class="box" style="margin-top:12px">
-      <b>🔥🌡️🧊 Dezenas quentes, mornas e frias (na janela)</b>
-      <div class="mini" style="margin-top:8px">
-        <b>Quentes (Top 8):</b> <span class="mono">${hot.map(format2).join(" - ")}</span><br/>
-        <b>Mornas (próximas 9):</b> <span class="mono">${warm.map(format2).join(" - ")}</span><br/>
-        <b>Frias (restante):</b> <span class="mono">${cold.map(format2).join(" - ")}</span>
-      </div>
-      <div class="mini">
-        Use isso como estratégia (mix de frequências + recência), não como garantia.
-      </div>
-    </div>
-  `;
-}
-
 function renderEvenOddDist(patterns, total){
-  const top = patterns[0];
-  const rows = patterns.slice(0,6).map(p=>{
-    const pct = Math.round((p.count/Math.max(1,total))*100);
+  const top = (patterns || []).slice(0, 6);
+  const max = top[0]?.count || 1;
+
+  const rows = top.map(p=>{
+    const pctBar = Math.round((p.count / max) * 100);
+    const pctJanela = Math.round((p.count / Math.max(1,total)) * 100);
+
     return `
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px;border-bottom:1px solid rgba(255,255,255,.08)">
-        <div><b>${p.pares} números pares / ${p.impares} números ímpares</b> <span class="mini" style="margin:0;opacity:.9">(${pct}%)</span></div>
-        <div class="mini" style="margin:0"><b>${p.count}x</b></div>
+      <div style="display:flex;align-items:center;gap:10px;margin:10px 0">
+        <div style="width:220px" class="mini">
+          <b>${p.pares} pares / ${p.impares} ímpares</b><br/>
+          <span class="mini" style="margin:0;opacity:.9">${pctJanela}% na janela</span>
+        </div>
+
+        <div style="flex:1;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.12);
+                    border-radius:999px;overflow:hidden;height:16px">
+          <div style="height:100%;width:${pctBar}%;background:linear-gradient(90deg,var(--blue),var(--green))"></div>
+        </div>
+
+        <div style="width:60px;text-align:right;color:var(--text);font-weight:950">${p.count}x</div>
       </div>
     `;
   }).join("");
+
+  const dominante = patterns?.[0]
+    ? `<div class="mini" style="margin-top:10px">🔥 Dominante: <b>${patterns[0].pares} pares / ${patterns[0].impares} ímpares</b> (${patterns[0].count} ocorrências)</div>`
+    : "";
+
   return `
     <div class="box" style="margin-top:12px">
       <b>⚖️ Padrões de distribuição (equilíbrio)</b>
-      <div class="mini" style="margin-top:6px">Mostra a distribuição mais recorrente na janela analisada.</div>
-      <div style="margin-top:10px;border:1px solid rgba(255,255,255,.10);border-radius:14px;overflow:hidden">
-        ${rows || `<div style="padding:12px" class="mini">—</div>`}
+      <div class="mini" style="margin-top:6px">
+        Gráfico das distribuições mais recorrentes na janela analisada.
       </div>
-      ${top ? `<div class="mini" style="margin-top:10px">🔥 Dominante: <b>${top.pares} pares / ${top.impares} ímpares</b> (${top.count} ocorrências)</div>` : ``}
+
+      <div style="margin-top:10px">
+        ${rows || `<div class="mini">—</div>`}
+      </div>
+
+      ${dominante}
     </div>
   `;
 }
@@ -2002,8 +1967,6 @@ async function acaoAnalise(){
         </div>
       </div>
 
-      ${renderHotWarmColdPeriod(freq)}
-      ${renderModernInsights(modern)}
       ${renderEvenOddDist(evenOdd, payload.concursos.length)}
       ${renderSumsTop(sums, payload.concursos.length)}
       ${renderBlocksPrime(blockTotals, blockPatterns, payload.concursos.length)}
@@ -2093,7 +2056,7 @@ function renderManualPrincipalUI(){
       </div>
 
       <div class="mini" style="margin-top:10px">
-        Dica PRIME: misture <b>quentes + frias</b> e tente manter <b>7/8 pares</b>.
+        Dica PRIME: tente manter equilíbrio de distribuição (pares/ímpares) e evitar concentração em um único bloco.
       </div>
     </div>
   `;
@@ -2243,16 +2206,7 @@ const motivosHtml = Object.entries(motivosAgrupados)
       <div class="box" style="margin-top:12px">
         <b>🧾 Resumo PRIME (detalhado)</b>
         <div class="grid" style="margin-top:12px">
-          <div class="box">
-            <b>🔥🌡️🧊 Quentes / Mornas / Frias (no jogo)</b>
-            <div class="mini" style="margin-top:8px">
-              🔥 <b>${cls.hot.length ? cls.hot.map(format2).join(", ") : "—"}</b><br/>
-              🌡️ <b>${cls.warm.length ? cls.warm.map(format2).join(", ") : "—"}</b><br/>
-              🧊 <b>${cls.cold.length ? cls.cold.map(format2).join(", ") : "—"}</b>
-            </div>
-            <div class="mini">Classificado pelo ranking da janela selecionada.</div>
-          </div>
-
+          
           <div class="box">
             <b>🔁 Repetidas do último</b>
             <div class="mini" style="margin-top:8px"><b>${reps.length ? reps.map(format2).join(", ") : "Nenhuma"}</b></div>
