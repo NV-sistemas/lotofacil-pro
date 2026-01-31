@@ -3586,6 +3586,36 @@ function renderJogosSalvosAoAbrir(){
 
   box.innerHTML = html;
 }
+/* =====================================================
+   ✅ FUNÇÃO GLOBAL buildMotivos (OBRIGATÓRIA)
+   Corrige erro: buildMotivos is not defined
+===================================================== */
+function buildMotivos(jogo, ultimo, freq, modern){
+
+  const setUlt = new Set(ultimo||[]);
+  const motivos = [];
+
+  const repetidas = jogo.filter(n=>setUlt.has(n)).length;
+
+  motivos.push(`🔁 Repetidas do último: ${repetidas}`);
+
+  // frequência
+  const freqScore = jogo.reduce((a,n)=>a+(freq?.[n]||0),0);
+  motivos.push(`📊 Força frequência: ${freqScore}`);
+
+  // atrasos
+  if(modern?.gap){
+    const atrasadas = jogo
+      .map(n=>modern.gap[n]||0)
+      .filter(g=>g>=8).length;
+
+    if(atrasadas>0){
+      motivos.push(`⏳ ${atrasadas} atrasadas fortes`);
+    }
+  }
+
+  return motivos;
+}
 
 </script>
 
