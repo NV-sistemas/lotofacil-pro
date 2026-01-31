@@ -3712,12 +3712,66 @@ function checkSavedGames(){
         });
       }
       else if(item.tipo === "15p" && item.payload){
-        const jogos = Array.isArray(item.payload.jogosSystem) ? item.payload.jogosSystem : null;
+  const jogos = Array.isArray(item.payload.jogosSystem) ? item.payload.jogosSystem : null;
 
-        if(!jogos || !jogos.length){
-          alert("Esse 15P salvo não tem os 10 jogos do sistema.");
-          return;
-        }
+  if(!jogos || !jogos.length){
+    alert("Esse 15P salvo não tem os 10 jogos do sistema.");
+    return;
+  }
+
+  // ✅ MOSTRA AS 5 LINHAS BASE (15P) NO TOPO, UMA ÚNICA VEZ
+  const linhasBase = Array.isArray(item.payload.linesSystem15) ? item.payload.linesSystem15 : null;
+
+  if(linhasBase && linhasBase.length === 5){
+    const linesTable = linhasBase.map((l, idx)=>`
+      <tr>
+        <td><b>${idx+1}</b></td>
+        <td class="mono">${(l||[]).map(n=>format2(Number(n))).join(" - ")}</td>
+      </tr>
+    `).join("");
+
+    html += `
+      <div class="box" style="margin-top:10px">
+        <b>📌 Linhas base (15 pontos garantido)</b>
+        <div class="mini" style="margin-top:6px">
+          Essas 5 linhas são a base dos 10 jogos gerados.
+        </div>
+        <div style="margin-top:10px;overflow:auto">
+          <table class="table">
+            <thead><tr><th>Linha</th><th>Dezenas</th></tr></thead>
+            <tbody>${linesTable}</tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }
+
+  // ✅ DEPOIS LISTA OS 10 JOGOS (como já fazia)
+  jogos.forEach((jogoNums, idx)=>{
+    const jogo = jogoNums.slice().map(Number).sort((a,b)=>a-b);
+
+    let linhasResultados = "";
+    concursos.forEach(c=>{
+      const hits = hitsCount(jogo, c.dezenas);
+      const cls = (hits >= 11 && hits <= 15) ? `hit-${hits}` : "";
+      linhasResultados += `
+        <div class="mini ${cls}">
+          Concurso <b>${c.concurso}</b> → <b>${hits} acertos</b>
+        </div>
+      `;
+    });
+
+    html += `
+      <div class="box" style="margin-top:10px">
+        <b>✅ 15P • Jogo ${idx+1}</b>
+        <div class="numbers" style="justify-content:flex-start;margin-top:8px">
+          ${jogo.map(format2).join(" - ")}
+        </div>
+        <div style="margin-top:10px">${linhasResultados}</div>
+      </div>
+    `;
+  });
+}
 
         jogos.forEach((jogoNums, idx)=>{
           const jogo = jogoNums.slice().map(Number).sort((a,b)=>a-b);
