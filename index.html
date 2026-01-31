@@ -1096,19 +1096,196 @@ function calcModernMetrics(concursos){
 /* =========================
    GERAÇÃO DO JOGO (melhorada)
 ========================= */
+  /* =========================================================
+   ✅ RESUMO "POR QUE ESSAS DEZENAS..." — NOVA LÓGICA (SEM GAMBIARRA)
+   - Gera motivos baseado em "fontes" registradas por dezena
+   - Formato final: dezenas (linha) + explicação (linha)
+   ========================================================= */
+
+// ✅ Este objeto será preenchido durante a montagem do JOGO PRINCIPAL
+// Formato: { 1: Set(["texto..."]), 2: Set(["texto..."]), ... }
+let __fontesJogoPrincipal = {};
+
+// ✅ Zera antes de montar um novo jogo
+function resetFontesJogoPrincipal(){
+  __fontesJogoPrincipal = {};
+}
+
+// ✅ Marca a fonte de uma dezena (pode ter mais de 1 fonte)
+function addFonteJogoPrincipal(n, label){
+  n = Number(n);
+  if(!Number.isFinite(n)) return;
+  if(!__fontesJogoPrincipal[n]) __fontesJogoPrincipal[n] = new Set();
+  __fontesJogoPrincipal[n].add(label);
+}
+
+// ✅ Constrói o resumo agrupado (dezenas em cima, texto embaixo)
+function buildMotivosPorFontes(jogo, fontes){
+  const arrJogo = (Array.isArray(jogo) ? jogo : [])
+    .map(n => Number(n))
+    .filter(n => Number.isFinite(n) && n >= 1 && n <= 25);
+
+  const grupos = new Map(); // label -> Set(dezenas)
+
+  for(const n of arrJogo){
+    const setLabels = fontes?.[n];
+    const labels = (setLabels && typeof setLabels.forEach === "function")
+      ? Array.from(setLabels)
+      : ["📌 Selecionada pelo método (fonte não registrada)"];
+
+    for(const label of labels){
+      if(!grupos.has(label)) grupos.set(label, new Set());
+      grupos.get(label).add(n);
+    }
+  }
+
+  // ✅ Ordem fixa pra não “misturar tudo”
+  const ordem = [
+    "🟦 Base do último concurso (selecionadas por mais repetição em conjunto no período)",
+    "🟩 Top10 frequentes: mais sai no período",
+    "🟥 Top10 frequentes: menos sai no período",
+    "🟨 Dupla forte: dezenas que mais saem juntas no período",
+    "🟧 Atraso: mais atrasada (top atrasadas)",
+    "🟦 Atraso: menos atrasada (entre as top atrasadas)",
+    "📌 Selecionada pelo método (fonte não registrada)"
+  ];
+
+  const saida = [];
+
+  // Primeiro na ordem
+  for(const label of ordem){
+    if(!grupos.has(label)) continue;
+
+    const dezenasStr = Array.from(grupos.get(label))
+      .sort((a,b)=>a-b)
+      .map(x => String(x).padStart(2,"0"))
+      .join(", ");
+
+    saida.push({ dezenas: dezenasStr, texto: label });
+  }
+
+  // Depois qualquer outra
+  for(const [label, setDz] of grupos.entries()){
+    if(ordem.includes(label)) continue;
+
+    const dezenasStr = Array.from(setDz)
+      .sort((a,b)=>a-b)
+      .map(x => String(x).padStart(2,"0"))
+      .join(", ");
+
+    saida.push({ dezenas: dezenasStr, texto: label });
+  }
+
+  return saida;
+}
+
+// ✅ Render do painel — GARANTE que NÃO aparece "undefined"
+function renderMotivosPainel(motivos){
+  // Tenta achar o container do painel (ajuste 1 vez se o seu ID for diferente)
+  const box = document.querySelector("#motivosBox") 
+           || document.querySelector("[data-motivos-box]")
+           || document.querySelector(".motivosBox");
+
+  if(!box) return;
+
+  if(!Array.isArray(motivos) || motivos.length === 0){
+    box.innerHTML = `<div class="muted">Sem resumo disponível.</div>`;
+    return;
+  }
+// ===============================
+// MOTIVOS (JOGO PRINCIPAL) - NOVO
+// Formato: [{ titulo, dezenas, texto }]
+// ===============================
+function __fmtDezenas(arr){
+  const nums = (arr || [])
+    .map(n => Number(n))
+    .filter(n => Number.isFinite(n) && n >= 1 && n <= 25);
+
+  nums.sort((a,b)=>a-b);
+
+  return nums.map(n => String(n).padStart(2,"0")).join(", ");
+}
+
+function buildMotivosPorFontes(jogo, fontes){
+  if(!Array.isArray(jogo)) return [];
+
+  const setJogo = new Set(jogo.map(n => Number(n)));
+
+  const f = fontes || {};
+  const gUltimo    = Array.isArray(f.ultimo)    ? f.ultimo.map(Number).filter(n => setJogo.has(n)) : [];
+  const gFreq      = Array.isArray(f.freq)      ? f.freq.map(Number).filter(n => setJogo.has(n))   : [];
+  const gJuntas    = Array.isArray(f.juntas)    ? f.juntas.map(Number).filter(n => setJogo.has(n)) : [];
+  const gAtrasadas = Array.isArray(f.atrasadas) ? f.atrasadas.map(Number).filter(n => setJogo.has(n)) : [];
+
+  const out = [];
+
+  if(gUltimo.length){
+    out.push({
+      titulo: "📌 Repetidas do último concurso",
+      dezenas: __fmtDezenas(gUltimo),
+      texto: `✅ ${gUltimo.length} repetidas do último concurso (base do jogo).`
+    });
+  }
+
+  if(gFreq.length){
+    out.push({
+      titulo: "📊 Selecionadas por frequência (Top 10)",
+      dezenas: __fmtDezenas(gFreq),
+      texto: "📈 escolhidas por força estatística (frequência no período)."
+    });
+  }
+
+  if(gJuntas.length){
+    out.push({
+      titulo: "🔗 Dezenas que mais saem juntas (dupla forte)",
+      dezenas: __fmtDezenas(gJuntas),
+      texto: "🔗 combinação com alta recorrência nos concursos analisados."
+    });
+  }
+
+  if(gAtrasadas.length){
+    out.push({
+      titulo: "⚡ Atraso/recência (Top atrasadas)",
+      dezenas: __fmtDezenas(gAtrasadas),
+      texto: "⚡ escolhida(s) pelo ranking de atraso (mais atrasada + menos atrasada quando houver)."
+    });
+  }
+
+  return out;
+}
+
+function renderMotivosEscolha(box, motivos){
+  if(!box) return;
+
+  if(!Array.isArray(motivos) || !motivos.length){
+    box.innerHTML = `<div style="opacity:.85">Sem detalhes de escolha disponíveis.</div>`;
+    return;
+  }
+
+  renderMotivosEscolha(box, motivos);
+
 function gerarJogoForte(freq, metrics){
+  
+  // 🔵 zera as fontes a cada novo jogo
+resetFontesJP();
   const ord = ordenarPorFreq(freq);
 
   const hotPool = ord.slice(0,10).map(x=>x.dez);
   const warmPool = ord.slice(10,18).map(x=>x.dez);
   const coldPool = ord.slice(-7).map(x=>x.dez);
 
-  function addFromPool(pool, count, set){
+  function (pool, count, set){
     const shuffled = pool.slice().sort(()=>Math.random()-0.5);
     let added=0;
     for(const n of shuffled){
       if(set.has(n)) continue;
-      set.add(n); added++;
+      
+      set.add(n);
+      added++;
+
+// marca a fonte (vamos ajustar o nome depois)
+addFonteJP(n, "pool");
+      
       if(added>=count) break;
     }
   }
@@ -1118,7 +1295,8 @@ function gerarJogoForte(freq, metrics){
     const set=new Set();
 
     // ✅ mix padrão (mercado): quente + morna + fria
-    addFromPool(hotPool, 5, set);
+    (hotPool, 5, set);
+    addFromPool(warmPool, 5, set);
     addFromPool(warmPool, 7, set);
     addFromPool(coldPool, 2, set);
 
@@ -1378,10 +1556,14 @@ function gerarJogoComRegrasUltimo(freq, modern, coocStats, dezenasUltimo){
 
   const finalJogo = best ? best.jogo : montarCaso(9);
 
-  // motivos (seu painel “por que escolheu” continua funcionando)
-  const motivos = buildMotivos(finalJogo, ultimo, freq, modern);
+// ✅ motivos baseados nas fontes reais
+const motivos = buildMotivosPorFontes(finalJogo, __fontesJogoPrincipal);
 
-  return { jogo: finalJogo, motivos };
+// ✅ desenha o painel "Por que essas dezenas foram escolhidas?"
+renderMotivosPainel(motivos);
+
+return { jogo: finalJogo, motivos };
+
 }
 </script>
 
@@ -3586,106 +3768,55 @@ function renderJogosSalvosAoAbrir(){
 
   box.innerHTML = html;
 }
-/* =====================================================
-   ✅ buildMotivos LIMPA (nunca retorna undefined)
-===================================================== */
-/* =====================================================
-   ✅ buildMotivos (formato compatível com a UI)
-   Retorna [{ texto: "..." }, { texto: "..." }, ...]
-===================================================== */
-function buildMotivos(jogo, ultimo, freq, modern){
-  // Garantias básicas
-  const arrJogo = (Array.isArray(jogo) ? jogo : [])
-    .map(n => Number(n))
-    .filter(n => Number.isFinite(n) && n >= 1 && n <= 25);
+// ===============================
+// MOTIVOS (Painel "Por que essas dezenas...") - FORMATO ANTIGO
+// Agrupa dezenas que têm o mesmo texto de explicação
+// ===============================
 
-  const setUltimo = new Set((Array.isArray(ultimo) ? ultimo : []).map(Number));
+// fontes no formato: { 1: ["motivo A", "motivo B"], 2: ["motivo X"], ... }
+function buildMotivosPorFontes(jogo, fontes){
+  const arr = (Array.isArray(jogo) ? jogo.slice() : [])
+    .filter(n => typeof n === "number" && n >= 1 && n <= 25)
+    .sort((a,b)=>a-b);
 
-  // freq pode ser mapa {1:10} ou array [{dezena:1,count:10}]
-  const freqMap = {};
-  if (Array.isArray(freq)) {
-    for (const item of freq) {
-      const n = Number(item?.dezena ?? item?.n ?? item?.num ?? item?.numero);
-      const c = Number(item?.count ?? item?.c ?? item?.freq ?? item?.f);
-      if (Number.isFinite(n) && Number.isFinite(c)) freqMap[n] = c;
-    }
-  } else if (freq && typeof freq === "object") {
-    for (const k of Object.keys(freq)) {
-      const n = Number(k);
-      const c = Number(freq[k]);
-      if (Number.isFinite(n) && Number.isFinite(c)) freqMap[n] = c;
-    }
+  const map = new Map(); // texto -> [dezenas]
+
+  for (const n of arr){
+    const lista = (fontes && fontes[n] && Array.isArray(fontes[n])) ? fontes[n] : [];
+    const texto = (lista.length ? lista.join(" • ") : "sem explicação registrada");
+
+    if (!map.has(texto)) map.set(texto, []);
+    map.get(texto).push(n);
   }
 
-  // Ranking de frequência (para dizer "Top 10" etc.)
-  const ranked = Object.entries(freqMap)
-    .map(([k,v]) => ({ n:Number(k), c:Number(v) }))
-    .filter(x => Number.isFinite(x.n) && Number.isFinite(x.c))
-    .sort((a,b) => b.c - a.c);
-
-  const posFreq = {};
-  ranked.forEach((x, idx) => { posFreq[x.n] = idx + 1; });
-
-  // gap/trend opcionais (se existirem)
-  const gapMap   = modern?.gapMap && typeof modern.gapMap === "object" ? modern.gapMap : null;
-  const trendMap = modern?.trendMap && typeof modern.trendMap === "object" ? modern.trendMap : null;
-
-  // 1) Primeiro criamos o "texto" (motivos) por dezena
-  const porDezena = arrJogo.map((n) => {
-    const motivos = [];
-
-    // repetição
-    if (setUltimo.has(n)) motivos.push("🔁 veio do último concurso (tende a repetir bastante)");
-    else motivos.push("🧊 não saiu no último (normal entrar 4 a 10 dessas no próximo)");
-
-    // recência/atraso (se tiver gap)
-    if (gapMap) {
-      const gap = Number(gapMap[n]);
-      if (Number.isFinite(gap)) {
-        if (gap >= 8) motivos.push(`⏳ está há ${gap} concursos sem aparecer (pode “pintar”)`);
-        else if (gap <= 2) motivos.push("⚡ apareceu recentemente (recência forte)");
-      }
-    }
-
-    // tendência (se tiver trend)
-    if (trendMap) {
-      const tr = Number(trendMap[n]);
-      if (Number.isFinite(tr) && tr > 0.03) motivos.push("📈 está ‘subindo’ agora (últimos concursos)");
-    }
-
-    // frequência (se tiver)
-    const pos = posFreq[n];
-    if (pos && pos <= 10) motivos.push("📊 força estatística (frequência no período)");
-
-    const texto = motivos.join(" • ");
-    return { dezena: n, texto };
-  });
-
-  // 2) Agora AGRUPAMOS: mesmas frases => juntas no mesmo bloco (igual seu print)
-  const grupos = new Map(); // texto -> { dezenas: [], texto }
-  const ordem = []; // mantém ordem de aparição
-
-  for (const item of porDezena) {
-    const key = item.texto || "📌 selecionada pelo método";
-    if (!grupos.has(key)) {
-      grupos.set(key, { dezenas: [], texto: key });
-      ordem.push(key);
-    }
-    grupos.get(key).dezenas.push(item.dezena);
+  // vira lista no formato do painel antigo:
+  // { dezenasTxt: "03, 04, 06", texto: "..." }
+  const out = [];
+  for (const [texto, dezenas] of map.entries()){
+    out.push({
+      dezenasTxt: dezenas.map(z => String(z).padStart(2,"0")).join(", "),
+      texto
+    });
   }
 
-  // 3) Retorno final no formato antigo:
-  //    cada item tem "dezenas" como string "03, 04, 06" + "texto" com os motivos
-  return ordem.map((key) => {
-    const g = grupos.get(key);
-    const dezenasStr = g.dezenas
-      .slice()
-      .sort((a,b)=>a-b)
-      .map(n => String(n).padStart(2,"0"))
-      .join(", ");
+  // opcional: ordenar grupos do maior para o menor (como ficava “bonito” antes)
+  out.sort((a,b)=> b.dezenasTxt.length - a.dezenasTxt.length);
+  return out;
+}
 
-    return { dezenas: dezenasStr, texto: g.texto };
-  });
+
+// ===============================
+// COMPATIBILIDADE: se algum lugar ainda chamar buildMotivos(...)
+// isso evita o erro "buildMotivos is not defined"
+// ===============================
+function buildMotivos(jogo){
+  // se existir fontes do jogo principal, usa elas
+  if (typeof __fontesJogoPrincipal !== "undefined" && __fontesJogoPrincipal){
+    return buildMotivosPorFontes(jogo, __fontesJogoPrincipal);
+  }
+  // fallback simples
+  const arr = (Array.isArray(jogo) ? jogo.slice() : []).sort((a,b)=>a-b);
+  return arr.map(n => ({ dezenasTxt: String(n).padStart(2,"0"), texto: "" }));
 }
 
 </script>
