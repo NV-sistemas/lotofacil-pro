@@ -659,7 +659,7 @@ const functions = firebase.app().functions("us-central1");
 <!-- =========================
    TELA: JOGOS SALVOS
 ========================= -->
-<div class="view" id="viewSavedGames">
+<div class="view" id="viewSavedGames" onshow="renderJogosSalvosAoAbrir()">
   <div class="topNav">
     <div class="left">
       <button class="btn btnGhost" type="button" onclick="goView('viewHome')">⬅ Voltar</button>
@@ -669,6 +669,7 @@ const functions = firebase.app().functions("us-central1");
   <div class="card">
     <label>Conferir últimos concursos</label>
     <select id="savedCheckQtd">
+    <div id="savedPacksList" style="margin-top:14px"></div>
       <option value="5">Últimos 5</option>
       <option value="10" selected>Últimos 10</option>
       <option value="20">Últimos 20</option>
@@ -778,10 +779,13 @@ function fecharModal(){ document.getElementById("modalBack").style.display="none
 function fecharGraficoBlocos(){ document.getElementById("modalBlocosBack").style.display="none"; }
 
 function goView(id){
-  document.querySelectorAll(".view").forEach(v=>v.classList.remove("on"));
-  const el=document.getElementById(id);
-  if(el) el.classList.add("on");
-  window.scrollTo({top:0, behavior:"smooth"});
+  document.querySelectorAll('.view').forEach(v => v.style.display='none');
+  document.getElementById(id).style.display='block';
+
+  // 🔥 AQUI é a mágica
+  if(id === 'viewSavedGames'){
+    renderJogosSalvosAoAbrir();
+  }
 }
 </script>
 
@@ -3418,6 +3422,32 @@ linhasResultados += `
   });
 
   document.getElementById("savedGamesResult").innerHTML = html;
+function renderJogosSalvosAoAbrir(){
+  carregarJogosDoStorage();
+
+  const box = document.getElementById("savedPacksList");
+  if(!box) return;
+
+  if(!jogosSalvos.length){
+    box.innerHTML = `<div class="mini">Nenhum jogo salvo ainda.</div>`;
+    return;
+  }
+
+  let html = "";
+
+  jogosSalvos.forEach(item=>{
+    html += `
+      <div class="card" style="margin-top:10px">
+        <b>💾 ${item.nome || item.slot}</b><br/>
+        <span class="mini">
+          Salvo em: ${new Date(item.at).toLocaleString('pt-BR')}
+        </span>
+      </div>
+    `;
+  });
+
+  box.innerHTML = html;
+}
 
 </script>
 
