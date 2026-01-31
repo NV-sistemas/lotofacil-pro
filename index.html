@@ -2317,7 +2317,7 @@ const motivosHtml = Object.entries(motivosAgrupados)
 <div class="box" style="margin-top:12px">
   <b>🧾 Por que essas dezenas foram escolhidas?</b>
   <div class="mini" style="margin-top:8px">
-    Explicação simples (repetição do último + mix de quentes/mornas/frias + recência).
+    Explicação simples (repetição do último + força por frequência + atraso/recência).
   </div>
   <div style="margin-top:10px;border:1px solid rgba(255,255,255,.10);border-radius:14px;overflow:hidden">
     ${motivosHtml}
@@ -3587,34 +3587,32 @@ function renderJogosSalvosAoAbrir(){
   box.innerHTML = html;
 }
 /* =====================================================
-   ✅ FUNÇÃO GLOBAL buildMotivos (OBRIGATÓRIA)
-   Corrige erro: buildMotivos is not defined
+   ✅ buildMotivos LIMPA (nunca retorna undefined)
 ===================================================== */
 function buildMotivos(jogo, ultimo, freq, modern){
 
   const setUlt = new Set(ultimo||[]);
   const motivos = [];
 
+  // repetidas
   const repetidas = jogo.filter(n=>setUlt.has(n)).length;
+  motivos.push(`🔁 ${repetidas} repetidas do último concurso`);
 
-  motivos.push(`🔁 Repetidas do último: ${repetidas}`);
-
-  // frequência
+  // força frequência
   const freqScore = jogo.reduce((a,n)=>a+(freq?.[n]||0),0);
-  motivos.push(`📊 Força frequência: ${freqScore}`);
+  motivos.push(`📊 força estatística alta`);
 
-  // atrasos
+  // atrasadas fortes
   if(modern?.gap){
-    const atrasadas = jogo
-      .map(n=>modern.gap[n]||0)
-      .filter(g=>g>=8).length;
+    const atrasadas = jogo.filter(n=>(modern.gap[n]||0)>=8).length;
 
     if(atrasadas>0){
       motivos.push(`⏳ ${atrasadas} atrasadas fortes`);
     }
   }
 
-  return motivos;
+  // ✅ limpa qualquer lixo
+  return motivos.filter(Boolean);
 }
 
 </script>
