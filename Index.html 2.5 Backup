@@ -451,45 +451,45 @@ const functions = firebase.app().functions("us-central1");
     </div>
   </div>
 
-  <!-- ===== TELAS ===== -->
+      <!-- ===== TELAS ===== -->
   <div class="view on" id="viewHome">
     <div class="card">
+
+      <!-- Linha superior: seletor + progresso -->
       <div class="row">
         <div class="col">
-          <label>Quantidade de concursos para análise</label>
+          <label>Quantidade de concursos para analisar</label>
           <select id="qtdConcursos">
-            <option value="5">Últimos 5 concursos</option>
-            <option value="10" selected>Últimos 10 concursos</option>
-            <option value="15">Últimos 15 concursos</option>
-            <option value="20">Últimos 20 concursos</option>
-            <option value="25">Últimos 25 concursos</option>
-            <option value="50">Últimos 50 concursos</option>
-            <option value="75">Últimos 75 concursos</option>
-            <option value="100">Últimos 100 concursos</option>
+            <option value="5">5 concursos (rápido)</option>
+            <option value="10">10 concursos</option>
+            <option value="20" selected>20 concursos (ideal)</option>
+            <option value="30">30 concursos</option>
+            <option value="50">50 concursos (mais pesado)</option>
+            <option value="80">80 concursos (bem pesado)</option>
           </select>
-          <div class="mini" style="margin-top:10px">
-            Dica: quanto maior o período, mais “robusta” fica a estatística. Se APIs bloquearem, o app entra em modo demonstração automaticamente.
+
+          <div class="mini" style="margin-top:8px">
+            Escolha a janela e depois selecione uma das opções abaixo.
           </div>
         </div>
 
         <div class="col">
           <label>Progresso</label>
+
           <div id="status" class="status">
             <div id="statusText">Carregando…</div>
             <div class="bar"><div id="barFill"></div></div>
           </div>
+
           <div class="mini">
-            Premium: Análise, Invertida e Técnica Premiada. <br/>
-            Free: Jogo Principal (1 geração). <br/>
-            Extra: 15P (comprado separadamente).
+            Se a análise estiver pesada, use 10 ou 20 concursos.
           </div>
         </div>
       </div>
 
       <div class="hr"></div>
 
-      <label>Opções</label>
-
+      <!-- Cards de ações -->
       <div class="actionGrid">
         <!-- FREE -->
         <div class="actionCard" id="btnHomePrincipal" role="button" tabindex="0">
@@ -517,18 +517,16 @@ const functions = firebase.app().functions("us-central1");
           <p class="actionDesc">Gera 2 jogos extras a partir do Principal (reordenação por blocos).</p>
         </div>
 
-        <!-- =========================
-     ✅ NOVO CARD: JOGOS SALVOS
-     (SEMPRE ÚLTIMO)
-========================= -->
-<div class="actionCard" id="btnHomeSaved" role="button" tabindex="0">
-  <span class="badge premium">PREMIUM</span>
-  <p class="actionTitle">💾 Jogos salvos</p>
-  <p class="actionDesc">
-    Confira seus jogos salvos e veja quantos pontos faria nos últimos 5, 10, 20 ou 30 concursos.
-  </p>
-</div>
-        <!-- EXTRA -->
+        <!-- ✅ JOGOS SALVOS (ANTES DO EXTRA) -->
+        <div class="actionCard" id="btnHomeSaved" role="button" tabindex="0">
+          <span class="badge premium">PREMIUM</span>
+          <p class="actionTitle">💾 Jogos salvos</p>
+          <p class="actionDesc">
+            Confira seus jogos salvos e veja quantos pontos faria nos últimos 5, 10, 20 ou 30 concursos.
+          </p>
+        </div>
+
+        <!-- EXTRA (SEMPRE POR ÚLTIMO) -->
         <div class="actionCard extraCard" id="btnHome15p" role="button" tabindex="0">
           <span class="extraBadge">EXTRA</span>
           <div class="extraHeadline">
@@ -538,7 +536,6 @@ const functions = firebase.app().functions("us-central1");
           <p class="actionDesc">Tela separada: 5 linhas + análise avançada e 10 jogos. Você também pode criar suas próprias linhas.</p>
         </div>
       </div>
-      
     </div>
 
     <div class="card" id="resultadoHome">
@@ -3283,7 +3280,6 @@ function checkSavedGames(){
 
   const concursos = lastPayload.concursos.slice(-qtd);
 
-  // 👉 usa jogo principal salvo
   const jogos = [
     lastPrincipalGame,
     lastInvertidaGame,
@@ -3296,29 +3292,39 @@ function checkSavedGames(){
     return;
   }
 
-  let html="";
+  let html = "";
 
   jogos.forEach((jogo, idx)=>{
-    let total=0;
+
+    let linhasResultados = "";
 
     concursos.forEach(c=>{
-      const set=new Set(c.dezenas.map(toNum));
-      const hits=jogo.filter(n=>set.has(n)).length;
-      total+=hits;
+      const set = new Set(c.dezenas.map(toNum));
+      const hits = jogo.filter(n=>set.has(n)).length;
+
+      linhasResultados += `
+        <div class="mini">
+          Concurso <b>${c.concurso}</b> → <b>${hits} acertos</b>
+        </div>
+      `;
     });
 
-    const media=(total/concursos.length).toFixed(1);
-
-    html+=`
+    html += `
       <div class="box" style="margin-top:10px">
-        <b>Jogo ${idx+1}</b><br>
-        Média acertos: <b>${media}</b><br>
-        ${jogo.map(format2).join(" - ")}
+        <b>Jogo ${idx+1}</b>
+
+        <div class="numbers" style="justify-content:flex-start;margin-top:8px">
+          ${jogo.map(format2).join(" - ")}
+        </div>
+
+        <div style="margin-top:10px">
+          ${linhasResultados}
+        </div>
       </div>
     `;
   });
 
-  document.getElementById("savedGamesResult").innerHTML=html;
+  document.getElementById("savedGamesResult").innerHTML = html;
 }
 </script>
 
