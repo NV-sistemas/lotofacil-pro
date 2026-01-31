@@ -3207,6 +3207,39 @@ async function gerar15P(){
 </script>
 
 <script>
+// ===== JOGOS SALVOS (NÃO SOME) =====
+const KEY_JOGOS_SALVOS = "lotofacil_jogos_salvos";
+
+let jogosSalvos = [];
+try {
+  jogosSalvos = JSON.parse(localStorage.getItem(KEY_JOGOS_SALVOS) || "[]");
+  if (!Array.isArray(jogosSalvos)) jogosSalvos = [];
+} catch (e) {
+  jogosSalvos = [];
+}
+
+function salvarJogoNoStorage(obj) {
+  // se tiver slot, sobrepõe o mesmo slot
+  if (obj && obj.slot) {
+    const i = jogosSalvos.findIndex(x => x && x.slot === obj.slot);
+    if (i >= 0) jogosSalvos[i] = obj;
+    else jogosSalvos.push(obj);
+  } else {
+    // sem slot, adiciona
+    jogosSalvos.push(obj);
+  }
+
+  localStorage.setItem(KEY_JOGOS_SALVOS, JSON.stringify(jogosSalvos));
+}
+
+function carregarJogosDoStorage() {
+  try {
+    const arr = JSON.parse(localStorage.getItem(KEY_JOGOS_SALVOS) || "[]");
+    jogosSalvos = Array.isArray(arr) ? arr : [];
+  } catch (e) {
+    jogosSalvos = [];
+  }
+}
 /* =========================
    Eventos
 ========================= */
@@ -3235,28 +3268,114 @@ document.getElementById("btnHomeSaved").onclick = ()=>{
 function checkSavedGames(){
   const qtd = Number(document.getElementById("savedCheckQtd").value);
 
-  if(!lastPayload || !lastPayload.concursos){
-    alert("Gere uma análise primeiro para carregar os concursos.");
+  // 1) Puxa o pacote salvo do localStorage (isso NÃO some)
+  const saved = loadLocal(SAVE_PACK_KEY);
+  if(!saved?.data){
+    alert("Nenhum pacote salvo ainda. Vá em Jogo Principal e clique em 💾 Salvar pacote.");
     return;
   }
 
-  const concursos = lastPayload.concursos.slice(-qtd);
+  const pack = saved.data;
 
-  const jogos = [
-    lastPrincipalGame,
-    lastInvertidaGame,
-    lastTecnicaGames?.g1,
-    lastTecnicaGames?.g2
-  ].filter(Boolean);
+  // 2) Monta a lista de jogos QUE FORAM SALVOS (não os 'last...' da memória)
+  const jogosSalvos = [
+    { nome: "🎯 Principal (salvo)", nums: Array.isArray(pack.principal) ? pack.principal : null },
+    { nome: "🔄 Invertida (salva)", nums: Array.isArray(pack.invertida) ? pack.invertida : null },
+    { nome: "🏆 Técnica 1 (salva)", nums: Array.isArray(pack.tecnica1) ? pack.tecnica1 : null },
+    { nome: "🏆 Técnica 2 (salva)", nums: Array.isArray(pack.tecnica2) ? pack.tecnica2 : null }
+  ].filter(x => Array.isArray(x.nums) && x.nums.length);
 
-  if(!jogos.length){
-    alert("Nenhum jogo gerado ainda.");
+  if(!jogosSalvos.length){
+    alert("O pacote salvo não tem jogos válidos. Gere e salve novamente.");
     return;
   }
+
+  // 3) Garante que temos concursos para conferir.
+  // Se o usuário entrar direto aqui sem ter gerado nada antes,
+  // a gente carrega concursos agora.
+  (async ()=>{
+    try{
+      // Se não tiver payload ainda, carrega online com a quantidade escolhida na tela principal (qtdConcursos)
+      // e depois recorta para os últimos 'qtd' da conferência.
+      if(!lastPayload || !lastPayload.concursos){
+        const qtdBase = qtdSelecionada(); // usa o select da home (5/10/20/...)
+        await prepararContextoBase(qtdBase);
+      }
+
+      const concursos = (lastPayload.concursos || []).slice(-qtd);
+      if(!concursos.length){
+        alert("Não foi possível carregar concursos para conferência.");
+        return;
+      }
+
+      // 4) Renderiza resultado
+      let html = "";
+
+      // Cabeçalho do pacote salvo (data e janela salva)
+      const infoJanela = pack.window
+        ? `Janela salva: <b>${pack.window.inicio}</b> a <b>${pack.window.ultimo}</b> (${pack.window.qtd || "—"} concursos)`
+        : "Janela salva: —";
+
+      html += `
+        <div class="box" style="margin-top:10px">
+          <b>💾 Pacote salvo</b>
+          <div class="mini" style="margin-top:6px">
+            Salvo em: <b>${timeBR(saved.at)}</b><br/>
+            ${infoJanela}
+          </div>
+        </div>
+      `;
+
+      // Função de acertos
+      function hitsCount(gameNums, concursoDezenas){
+        const set = new Set((concursoDezenas || []).map(toNum));
+        return (gameNums || []).filter(n => set.has(Number(n))).length;
+      }
+
+      jogosSalvos.forEach((obj, idx)=>{
+        const jogo = obj.nums.slice().map(Number).sort((a,b)=>a-b);
+
+        let linhasResultados = "";
+        concursos.forEach(c=>{
+          const hits = hitsCount(jogo, c.dezenas);
+
+          // ✅ cor 11..15
+          const cls = (hits >= 11 && hits <= 15) ? `hit-${hits}` : "";
+
+          linhasResultados += `
+            <div class="mini ${cls}">
+              Concurso <b>${c.concurso}</b> → <b>${hits} acertos</b>
+            </div>
+          `;
+        });
+
+        html += `
+          <div class="box" style="margin-top:10px">
+            <b>${obj.nome}</b>
+
+            <div class="numbers" style="justify-content:flex-start;margin-top:8px">
+              ${jogo.map(format2).join(" - ")}
+            </div>
+
+            <div style="margin-top:10px">
+              ${linhasResultados}
+            </div>
+          </div>
+        `;
+      });
+
+      document.getElementById("savedGamesResult").innerHTML = html;
+
+    }catch(e){
+      console.log(e);
+      alert("Erro ao conferir jogos salvos: " + (e?.message || e));
+    }
+  })();
+}
 
   let html = "";
 
-  jogos.forEach((jogo, idx)=>{
+  (jogosSalvos || []).forEach((obj, idx)=>{
 
     let linhasResultados = "";
 
@@ -3290,7 +3409,7 @@ linhasResultados += `
   });
 
   document.getElementById("savedGamesResult").innerHTML = html;
-}
+
 </script>
 
 </body>
