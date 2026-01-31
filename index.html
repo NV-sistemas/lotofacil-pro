@@ -3594,41 +3594,98 @@ function renderJogosSalvosAoAbrir(){
    Retorna [{ texto: "..." }, { texto: "..." }, ...]
 ===================================================== */
 function buildMotivos(jogo, ultimo, freq, modern){
+  // Garantias básicas
+  const arrJogo = (Array.isArray(jogo) ? jogo : [])
+    .map(n => Number(n))
+    .filter(n => Number.isFinite(n) && n >= 1 && n <= 25);
 
-  const arrJogo  = Array.isArray(jogo) ? jogo : [];
-  const arrUlt   = Array.isArray(ultimo) ? ultimo : [];
-  const setUlt   = new Set(arrUlt);
+  const setUltimo = new Set((Array.isArray(ultimo) ? ultimo : []).map(Number));
 
-  // 1) Repetidas do último
-  const repetidas = arrJogo.filter(n => setUlt.has(n)).length;
-
-  // 2) Força por frequência (se freq existir)
-  const scoreFreq = arrJogo.reduce((acc, n) => acc + (freq && freq[n] ? freq[n] : 0), 0);
-
-  // 3) Atraso/recência (se modern.gap existir)
-  let atrasadasFortes = 0;
-  if (modern && modern.gap){
-    atrasadasFortes = arrJogo.filter(n => (modern.gap[n] || 0) >= 8).length;
-  }
-
-  // ✅ Sempre devolve objetos com .texto (pra não dar undefined)
-  const motivos = [];
-
-  motivos.push({ dezena: "", texto: `🔁 ${repetidas} repetidas do último concurso` });  
-  // deixa a frase simples (sem números técnicos)
-  motivos.push({ dezena: "", texto: `📊 selecionadas por força estatística (frequência no período)` });  
-  if (modern && modern.gap){
-    if (atrasadasFortes > 0) {
-      motivos.push({ dezena: "", texto: `⏳ ${atrasadasFortes} dezenas com atraso alto (podem “voltar”)` });
-    } else {
-      motivos.push({ dezena: "", texto: `⚡ equilíbrio de atraso/recência nas dezenas` });
+  // freq pode ser mapa {1:10} ou array [{dezena:1,count:10}]
+  const freqMap = {};
+  if (Array.isArray(freq)) {
+    for (const item of freq) {
+      const n = Number(item?.dezena ?? item?.n ?? item?.num ?? item?.numero);
+      const c = Number(item?.count ?? item?.c ?? item?.freq ?? item?.f);
+      if (Number.isFinite(n) && Number.isFinite(c)) freqMap[n] = c;
     }
-  } else {
-    motivos.push({ texto: `⚡ equilíbrio no conjunto escolhido` });
+  } else if (freq && typeof freq === "object") {
+    for (const k of Object.keys(freq)) {
+      const n = Number(k);
+      const c = Number(freq[k]);
+      if (Number.isFinite(n) && Number.isFinite(c)) freqMap[n] = c;
+    }
   }
 
-  // ✅ garante que não vai sair vazio
-  return motivos.filter(m => m && m.texto);
+  // Ranking de frequência (para dizer "Top 10" etc.)
+  const ranked = Object.entries(freqMap)
+    .map(([k,v]) => ({ n:Number(k), c:Number(v) }))
+    .filter(x => Number.isFinite(x.n) && Number.isFinite(x.c))
+    .sort((a,b) => b.c - a.c);
+
+  const posFreq = {};
+  ranked.forEach((x, idx) => { posFreq[x.n] = idx + 1; });
+
+  // gap/trend opcionais (se existirem)
+  const gapMap   = modern?.gapMap && typeof modern.gapMap === "object" ? modern.gapMap : null;
+  const trendMap = modern?.trendMap && typeof modern.trendMap === "object" ? modern.trendMap : null;
+
+  // 1) Primeiro criamos o "texto" (motivos) por dezena
+  const porDezena = arrJogo.map((n) => {
+    const motivos = [];
+
+    // repetição
+    if (setUltimo.has(n)) motivos.push("🔁 veio do último concurso (tende a repetir bastante)");
+    else motivos.push("🧊 não saiu no último (normal entrar 4 a 10 dessas no próximo)");
+
+    // recência/atraso (se tiver gap)
+    if (gapMap) {
+      const gap = Number(gapMap[n]);
+      if (Number.isFinite(gap)) {
+        if (gap >= 8) motivos.push(`⏳ está há ${gap} concursos sem aparecer (pode “pintar”)`);
+        else if (gap <= 2) motivos.push("⚡ apareceu recentemente (recência forte)");
+      }
+    }
+
+    // tendência (se tiver trend)
+    if (trendMap) {
+      const tr = Number(trendMap[n]);
+      if (Number.isFinite(tr) && tr > 0.03) motivos.push("📈 está ‘subindo’ agora (últimos concursos)");
+    }
+
+    // frequência (se tiver)
+    const pos = posFreq[n];
+    if (pos && pos <= 10) motivos.push("📊 força estatística (frequência no período)");
+
+    const texto = motivos.join(" • ");
+    return { dezena: n, texto };
+  });
+
+  // 2) Agora AGRUPAMOS: mesmas frases => juntas no mesmo bloco (igual seu print)
+  const grupos = new Map(); // texto -> { dezenas: [], texto }
+  const ordem = []; // mantém ordem de aparição
+
+  for (const item of porDezena) {
+    const key = item.texto || "📌 selecionada pelo método";
+    if (!grupos.has(key)) {
+      grupos.set(key, { dezenas: [], texto: key });
+      ordem.push(key);
+    }
+    grupos.get(key).dezenas.push(item.dezena);
+  }
+
+  // 3) Retorno final no formato antigo:
+  //    cada item tem "dezenas" como string "03, 04, 06" + "texto" com os motivos
+  return ordem.map((key) => {
+    const g = grupos.get(key);
+    const dezenasStr = g.dezenas
+      .slice()
+      .sort((a,b)=>a-b)
+      .map(n => String(n).padStart(2,"0"))
+      .join(", ");
+
+    return { dezenas: dezenasStr, texto: g.texto };
+  });
 }
 
 </script>
