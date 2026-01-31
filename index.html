@@ -319,6 +319,15 @@
 }
 .pickCell.sel{background:rgba(34,197,94,.16);border-color:rgba(34,197,94,.35);color:#eafff4;box-shadow:0 12px 30px rgba(0,0,0,.25)}
 .pickCell.lock{opacity:.35;cursor:not-allowed}
+/* =========================
+   ✅ Destaque de acertos (Jogos Salvos)
+   11,12,13,14,15 com cor
+========================= */
+.hit-11{ color:#38bdf8; font-weight:900; }  /* azul */
+.hit-12{ color:#a78bfa; font-weight:900; }  /* roxo */
+.hit-13{ color:#facc15; font-weight:1000; } /* amarelo */
+.hit-14{ color:#fb923c; font-weight:1000; } /* laranja */
+.hit-15{ color:#22c55e; font-weight:1000; } /* verde */
 
 .lineTabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .lineBtn{
@@ -3301,11 +3310,14 @@ function checkSavedGames(){
       const set = new Set(c.dezenas.map(toNum));
       const hits = jogo.filter(n=>set.has(n)).length;
 
-      linhasResultados += `
-        <div class="mini">
-          Concurso <b>${c.concurso}</b> → <b>${hits} acertos</b>
-        </div>
-      `;
+      // ✅ Classe de cor quando fizer 11,12,13,14,15
+const cls = (hits >= 11 && hits <= 15) ? `hit-${hits}` : "";
+
+linhasResultados += `
+  <div class="mini ${cls}">
+    Concurso <b>${c.concurso}</b> → <b>${hits} acertos</b>
+  </div>
+`;
     });
 
     html += `
