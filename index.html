@@ -3647,164 +3647,72 @@ function checkSavedGames(){
   }
 
   (async ()=>{
-    try{
-      if(!lastPayload || !lastPayload.concursos){
-        const qtdBase = qtdSelecionada();
-        await prepararContextoBase(qtdBase);
+    function conferirJogosSalvos() {
+  try {
+    carregarJogosDoStorage();
+
+    const out = document.getElementById("savedGamesResult");
+    if (!out) return;
+
+    if (!Array.isArray(jogosSalvos) || jogosSalvos.length === 0) {
+      out.innerHTML = `<div class="muted">Nenhum jogo salvo ainda.</div>`;
+      return;
+    }
+
+    let html = "";
+
+    jogosSalvos.forEach((item, idx) => {
+      const tipo = (item && item.tipo) ? String(item.tipo) : "";
+      const nome = (item && item.nome) ? String(item.nome) : "";
+      const jogo = (item && Array.isArray(item.jogo)) ? item.jogo : [];
+      const linhasResultados = (item && item.linhasResultados) ? item.linhasResultados : "";
+
+      // nomes padrão (caso não venha nome)
+      const titulo =
+        nome ||
+        (tipo === "combo" || tipo === "principal_invertida_tecnica" ? "Principal+Invertida+Tecnica" :
+         (tipo === "15p" || tipo === "15_pontos" || tipo === "15p_garantido" ? "15 pontos garantidos" :
+          `Jogo ${idx + 1}`));
+
+      // Render do jogo
+      const numerosHtml = jogo.length
+        ? jogo.map(format2).join(" - ")
+        : `<span class="muted">Sem dezenas salvas</span>`;
+
+      if (tipo === "combo" || tipo === "principal_invertida_tecnica") {
+        html += `
+          <div class="box" style="margin-top:10px">
+            <b>✅ ${titulo}</b>
+            <div class="numbers" style="justify-content:flex-start;margin-top:8px">${numerosHtml}</div>
+          </div>
+        `;
+      } else if (tipo === "15p" || tipo === "15_pontos" || tipo === "15p_garantido") {
+        html += `
+          <div class="box" style="margin-top:10px">
+            <b>✅ ${titulo} • Jogo ${idx + 1}</b>
+            <div class="numbers" style="justify-content:flex-start;margin-top:8px">${numerosHtml}</div>
+            ${linhasResultados ? `<div style="margin-top:10px">${linhasResultados}</div>` : ``}
+          </div>
+        `;
+      } else {
+        // tipo desconhecido (não quebra a tela)
+        html += `
+          <div class="box" style="margin-top:10px">
+            <b>⚠️ ${titulo}</b>
+            <div class="muted" style="margin-top:6px">Tipo não reconhecido: ${tipo || "—"}</div>
+          </div>
+        `;
       }
-
-      const concursos = (lastPayload.concursos || []).slice(-qtd);
-      if(!concursos.length){
-        alert("Não foi possível carregar concursos para conferência.");
-        return;
-      }
-
-      function hitsCount(gameNums, concursoDezenas){
-        const set = new Set((concursoDezenas || []).map(toNum));
-        return (gameNums || []).filter(n => set.has(Number(n))).length;
-      }
-
-      let html = `
-        <div class="box" style="margin-top:10px">
-          <b>📌 Conferindo:</b> <b>${item.nome || item.slot}</b>
-          <div class="mini" style="margin-top:6px">Base: últimos <b>${qtd}</b> concursos</div>
-        </div>
-      `;
-
-      if(item.tipo === "pack" && item.pack){
-        const pack = item.pack;
-
-        const jogos = [
-          { nome: "🎯 Principal (salvo)", nums: Array.isArray(pack.principal) ? pack.principal : null },
-          { nome: "🔄 Invertida (salva)", nums: Array.isArray(pack.invertida) ? pack.invertida : null },
-          { nome: "🏆 Técnica 1 (salva)", nums: Array.isArray(pack.tecnica1) ? pack.tecnica1 : null },
-          { nome: "🏆 Técnica 2 (salva)", nums: Array.isArray(pack.tecnica2) ? pack.tecnica2 : null }
-        ].filter(x => Array.isArray(x.nums) && x.nums.length);
-
-        if(!jogos.length){
-          alert("O pacote salvo não tem jogos válidos.");
-          return;
-        }
-
-        jogos.forEach(obj=>{
-          const jogo = obj.nums.slice().map(Number).sort((a,b)=>a-b);
-
-          let linhasResultados = "";
-          concursos.forEach(c=>{
-            const hits = hitsCount(jogo, c.dezenas);
-            const cls = (hits >= 11 && hits <= 15) ? `hit-${hits}` : "";
-            linhasResultados += `
-              <div class="mini ${cls}">
-                Concurso <b>${c.concurso}</b> → <b>${hits} acertos</b>
-              </div>
-            `;
-          });
-
-          html += `
-            <div class="box" style="margin-top:10px">
-              <b>${obj.nome}</b>
-              <div class="numbers" style="justify-content:flex-start;margin-top:8px">
-                ${jogo.map(format2).join(" - ")}
-              </div>
-              <div style="margin-top:10px">${linhasResultados}</div>
-            </div>
-          `;
-        });
-      }
-      else if(item.tipo === "15p" && item.payload){
-  const jogos = Array.isArray(item.payload.jogosSystem) ? item.payload.jogosSystem : null;
-
-  if(!jogos || !jogos.length){
-    alert("Esse 15P salvo não tem os 10 jogos do sistema.");
-    return;
-  }
-
-  // ✅ MOSTRA AS 5 LINHAS BASE (15P) NO TOPO, UMA ÚNICA VEZ
-  const linhasBase = Array.isArray(item.payload.linesSystem15) ? item.payload.linesSystem15 : null;
-
-  if(linhasBase && linhasBase.length === 5){
-    const linesTable = linhasBase.map((l, idx)=>`
-      <tr>
-        <td><b>${idx+1}</b></td>
-        <td class="mono">${(l||[]).map(n=>format2(Number(n))).join(" - ")}</td>
-      </tr>
-    `).join("");
-
-    html += `
-      <div class="box" style="margin-top:10px">
-        <b>📌 Linhas base (15 pontos garantido)</b>
-        <div class="mini" style="margin-top:6px">
-          Essas 5 linhas são a base dos 10 jogos gerados.
-        </div>
-        <div style="margin-top:10px;overflow:auto">
-          <table class="table">
-            <thead><tr><th>Linha</th><th>Dezenas</th></tr></thead>
-            <tbody>${linesTable}</tbody>
-          </table>
-        </div>
-      </div>
-    `;
-  }
-
-  // ✅ DEPOIS LISTA OS 10 JOGOS (como já fazia)
-  jogos.forEach((jogoNums, idx)=>{
-    const jogo = jogoNums.slice().map(Number).sort((a,b)=>a-b);
-
-    let linhasResultados = "";
-    concursos.forEach(c=>{
-      const hits = hitsCount(jogo, c.dezenas);
-      const cls = (hits >= 11 && hits <= 15) ? `hit-${hits}` : "";
-      linhasResultados += `
-        <div class="mini ${cls}">
-          Concurso <b>${c.concurso}</b> → <b>${hits} acertos</b>
-        </div>
-      `;
     });
 
-    html += `
-      <div class="box" style="margin-top:10px">
-        <b>✅ 15P • Jogo ${idx+1}</b>
-        <div class="numbers" style="justify-content:flex-start;margin-top:8px">
-          ${jogo.map(format2).join(" - ")}
-        </div>
-        <div style="margin-top:10px">${linhasResultados}</div>
-      </div>
-    `;
-  });
+    out.innerHTML = html;
+
+  } catch (e) {
+    console.log(e);
+    alert("Erro ao conferir jogos salvos: " + (e?.message || e));
+  }
 }
-
-        jogos.forEach((jogoNums, idx)=>{
-          const jogo = jogoNums.slice().map(Number).sort((a,b)=>a-b);
-
-          let linhasResultados = "";
-          concursos.forEach(c=>{
-            const hits = hitsCount(jogo, c.dezenas);
-            const cls = (hits >= 11 && hits <= 15) ? `hit-${hits}` : "";
-            linhasResultados += `
-              <div class="mini ${cls}">
-                Concurso <b>${c.concurso}</b> → <b>${hits} acertos</b>
-              </div>
-            `;
-          });
-
-          html += `
-            <div class="box" style="margin-top:10px">
-              <b>✅ 15P • Jogo ${idx+1}</b>
-              <div class="numbers" style="justify-content:flex-start;margin-top:8px">
-                ${jogo.map(format2).join(" - ")}
-              </div>
-              <div style="margin-top:10px">${linhasResultados}</div>
-            </div>
-          `;
-});
-else {
-  alert("Tipo de jogo salvo não reconhecido.");
-  return;
-}
-
-document.getElementById("savedGamesResult").innerHTML = html;
-
-} catch (e) {
+ catch (e) {
   console.log(e);
   alert("Erro ao conferir jogos salvos: " + (e?.message || e));
 }
