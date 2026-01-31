@@ -3280,7 +3280,6 @@ function checkSavedGames(){
 
   const concursos = lastPayload.concursos.slice(-qtd);
 
-  // 👉 usa jogo principal salvo
   const jogos = [
     lastPrincipalGame,
     lastInvertidaGame,
@@ -3293,29 +3292,39 @@ function checkSavedGames(){
     return;
   }
 
-  let html="";
+  let html = "";
 
   jogos.forEach((jogo, idx)=>{
-    let total=0;
+
+    let linhasResultados = "";
 
     concursos.forEach(c=>{
-      const set=new Set(c.dezenas.map(toNum));
-      const hits=jogo.filter(n=>set.has(n)).length;
-      total+=hits;
+      const set = new Set(c.dezenas.map(toNum));
+      const hits = jogo.filter(n=>set.has(n)).length;
+
+      linhasResultados += `
+        <div class="mini">
+          Concurso <b>${c.concurso}</b> → <b>${hits} acertos</b>
+        </div>
+      `;
     });
 
-    const media=(total/concursos.length).toFixed(1);
-
-    html+=`
+    html += `
       <div class="box" style="margin-top:10px">
-        <b>Jogo ${idx+1}</b><br>
-        Média acertos: <b>${media}</b><br>
-        ${jogo.map(format2).join(" - ")}
+        <b>Jogo ${idx+1}</b>
+
+        <div class="numbers" style="justify-content:flex-start;margin-top:8px">
+          ${jogo.map(format2).join(" - ")}
+        </div>
+
+        <div style="margin-top:10px">
+          ${linhasResultados}
+        </div>
       </div>
     `;
   });
 
-  document.getElementById("savedGamesResult").innerHTML=html;
+  document.getElementById("savedGamesResult").innerHTML = html;
 }
 </script>
 
