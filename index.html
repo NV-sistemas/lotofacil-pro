@@ -3834,45 +3834,42 @@ function renderJogosSalvosAoAbrir(){
 
   box.innerHTML = html;
 }
-function renderLinesSystemBox(linesSystem15){
-  if(!Array.isArray(linesSystem15)) return '';
+function renderLinesSystemBox(linhas){
 
-  const rows = linesSystem15.map((ln, idx)=>{
-    const tipo = ln.tipo || '';
-    const dezenas = (ln.dezenas || [])
-      .map(n=>String(n).padStart(2,'0'))
-      .join(' - ');
-
+  const rows = (linhas || []).map((l, i)=>{
+    const tipo = (l.tipo || '').toUpperCase();
     const tipoClass = tipo === 'FORTE' ? 'forte' : 'diversa';
+
+    const dezenas = (l.dezenas || [])
+      .map(n => String(n).padStart(2,'0'))
+      .join(' - ');
 
     return `
       <tr>
-        <td><b>${idx+1}</b></td>
+        <td>${i+1}</td>
         <td><span class="badge-tipo ${tipoClass}">${tipo}</span></td>
         <td>${dezenas}</td>
       </tr>
     `;
   }).join('');
 
-return `
-  <div class="lines-box">
-    <table class="lines-table">
-      <thead>
-        <tr>
-          <th>Linha</th>
-          <th>Tipo</th>
-          <th>Dezenas</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${rows}
-      </tbody>
-    </table>
-  </div>
-`;
-
-
-
+  return `
+    <div class="lines-box">
+      <table class="lines-table">
+        <thead>
+          <tr>
+            <th>Linha</th>
+            <th>Tipo</th>
+            <th>Dezenas</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
 </script>
 
 </body>
