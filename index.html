@@ -354,69 +354,36 @@
   margin-top: 10px;
 }
 
-.lines-box .lines-title{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  font-weight: 800;
-  letter-spacing:.2px;
-  margin: 0 0 8px 0;
-}
-
-.lines-box .lines-sub{
-  color: var(--muted2);
-  font-size: 12px;
-  margin: 0 0 10px 0;
-}
-
 .lines-table{
   width:100%;
   border-collapse: collapse;
-  overflow:hidden;
-  border-radius: 12px;
 }
 
 .lines-table th,
 .lines-table td{
-  padding: 10px 10px;
+  padding: 10px;
   border-bottom: 1px solid rgba(255,255,255,.06);
-  text-align:left;
   font-size: 13px;
+  text-align:left;
 }
 
 .lines-table th{
-  color: var(--muted);
-  font-weight: 800;
-  background: rgba(255,255,255,.03);
-}
-
-.lines-table tr:last-child td{
-  border-bottom: none;
+  font-weight:800;
 }
 
 .badge-tipo{
-  display:inline-flex;
-  align-items:center;
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 900;
-  border: 1px solid rgba(255,255,255,.10);
+  padding:4px 10px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:900;
 }
 
 .badge-tipo.forte{
-  background: rgba(34,197,94,.10);
-  border-color: rgba(34,197,94,.25);
+  background: rgba(34,197,94,.15);
 }
 
 .badge-tipo.diversa{
-  background: rgba(56,189,248,.10);
-  border-color: rgba(56,189,248,.25);
-}
-
-.lines-dezenas{
-  font-variant-numeric: tabular-nums;
-  letter-spacing: .8px;
+  background: rgba(56,189,248,.15);
 }
 
 </style>
@@ -3867,6 +3834,43 @@ function renderJogosSalvosAoAbrir(){
 
   box.innerHTML = html;
 }
+function renderLinesSystemBox(linesSystem15){
+  if(!Array.isArray(linesSystem15)) return '';
+
+  const rows = linesSystem15.map((ln, idx)=>{
+    const tipo = ln.tipo || '';
+    const dezenas = (ln.dezenas || [])
+      .map(n=>String(n).padStart(2,'0'))
+      .join(' - ');
+
+    const tipoClass = tipo === 'FORTE' ? 'forte' : 'diversa';
+
+    return `
+      <tr>
+        <td><b>${idx+1}</b></td>
+        <td><span class="badge-tipo ${tipoClass}">${tipo}</span></td>
+        <td>${dezenas}</td>
+      </tr>
+    `;
+  }).join('');
+
+ return (
+  `<div class="lines-box">
+    <table class="lines-table">
+      <thead>
+        <tr>
+          <th>Linha</th>
+          <th>Tipo</th>
+          <th>Dezenas</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rows}
+      </tbody>
+    </table>
+  </div>`
+);
+
 
 </script>
 
