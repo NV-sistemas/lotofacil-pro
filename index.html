@@ -3797,17 +3797,17 @@ function checkSavedGames(){
             </div>
           `;
 });
-} else {
-        alert("Tipo de jogo salvo não reconhecido.");
-        return;
-      }
+else {
+  alert("Tipo de jogo salvo não reconhecido.");
+  return;
+}
 
-      document.getElementById("savedGamesResult").innerHTML = html;
+document.getElementById("savedGamesResult").innerHTML = html;
 
-    } catch (e) {
-      console.log(e);
-      alert("Erro ao conferir jogos salvos: " + (e?.message || e));
-    }
+} catch (e) {
+  console.log(e);
+  alert("Erro ao conferir jogos salvos: " + (e?.message || e));
+}
   })();
 }
 function renderJogosSalvosAoAbrir(){
