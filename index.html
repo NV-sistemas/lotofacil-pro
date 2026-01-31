@@ -3534,28 +3534,26 @@ function renderJogosSalvosAoAbrir(){
     (Array.isArray(pack?.principal) ? pack.principal :
     (Array.isArray(pack?.nums) ? pack.nums :
     (Array.isArray(pack?.dezenas) ? pack.dezenas : []))));
+const box = document.getElementById("savedPacksList");
+if(!box) return;
 
-  const txtNums = (nums || []).map(format2).join(" - ");
+const txtNums = (nums || []).map(format2).join(" - ");
 
-  box.innerHTML = `
-    <div class="box" style="margin-top:10px">
-      <b>💾 Pacote salvo</b><br>
-      <div class="numbers" style="justify-content:flex-start;margin-top:8px">
-        ${txtNums || '<span class="muted">Sem dezenas no pacote.</span>'}
-      </div>
+box.innerHTML = `
+  <div class="box" style="margin-top:10px">
+    <b>💾 Pacote salvo</b><br>
+    <div class="numbers" style="justify-content:flex-start;margin-top:8px">
+      ${txtNums || '<span class="muted">Sem dezenas no pacote.</span>'}
     </div>
-  `;
+  </div>
+`;
+
+carregarJogosDoStorage();
+
+if(!jogosSalvos.length){
+  box.innerHTML = '<div class="mini">Nenhum jogo salvo ainda.</div>';
+  return;
 }
-  carregarJogosDoStorage();
-
-  const box = document.getElementById("savedPacksList");
-  if(!box) return;
-
-  if(!jogosSalvos.length){
-    box.innerHTML = `<div class="mini">Nenhum jogo salvo ainda.</div>`;
-    return;
-  }
-
   let html = "";
 
   jogosSalvos.forEach(item=>{
