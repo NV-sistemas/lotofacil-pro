@@ -1024,7 +1024,8 @@ function distribuicaoBlocos(jogo){
   return b;
 }
 function repetidasDoUltimo(jogo, ultimoDezenas){
-  const setUlt = new Set((ultimoDezenas||[]).map(toNum));
+  const setUlt = const x = [...new Set(...)]
+(ultimoDezenas||[]).map(toNum));
   return sortNum(jogo.filter(n=>setUlt.has(n)));
 }
 
@@ -1144,7 +1145,8 @@ function gerarJogoForte(freq, metrics){
 
   let best=null;
   for(let t=0;t<180;t++){
-    const set=new Set();
+    const set=const x = [...new Set(...)]
+);
 
     // ✅ mix padrão (mercado): quente + morna + fria
     addFromPool(hotPool, 5, set);
@@ -1206,7 +1208,8 @@ function gerarJogoForte(freq, metrics){
 ========================= */
 function gerarJogoComRegrasUltimo(freq, metrics, dezenasUltimo){
   const ultimo = (dezenasUltimo||[]).map(toNum).filter(n=>n>=1 && n<=25);
-  const setUlt = new Set(ultimo);
+  const setUlt = const x = [...new Set(...)]
+ultimo);
 
   // 10 dezenas que NÃO saíram no último
   const naoSaiu = [];
@@ -1284,7 +1287,8 @@ function pickRWeighted(){
 
     const comp = pickRandom(naoSaiu, restCount);
 
-    const set = new Set([rep, comp]);
+    const set = const x = [...new Set(...)]
+[rep, comp]);
     while(set.size<15){
       set.add(Math.floor(Math.random()*25)+1);
     }
@@ -1320,7 +1324,8 @@ function pickRWeighted(){
 
 /* ✅ Motivos “populares” por dezena */
 function buildMotivos(jogo, dezenasUltimoNums, freq, metrics){
-  const setUlt = new Set((dezenasUltimoNums||[]).map(toNum));
+  const setUlt = const x = [...new Set(...)]
+(dezenasUltimoNums||[]).map(toNum));
   const ord = ordenarPorFreq(freq);
   const rank = {};
   ord.forEach((x,i)=>rank[x.dez]=i+1);
@@ -1827,7 +1832,8 @@ function buildDemo(qtd){
   const inicio = ultimo - qtd + 1;
   const concursos=[];
   for(let c=inicio;c<=ultimo;c++){
-    const dezenas=new Set();
+    const dezenas=const x = [...new Set(...)]
+);
     while(dezenas.size<15) dezenas.add(Math.floor(Math.random()*25)+1);
     concursos.push({ concurso:c, data:"—", dezenas:[dezenas].map(n=>format2(n)) });
   }
@@ -1867,7 +1873,8 @@ let lastTecnicaGames=null;
 let last15Games = null;   // guarda os 10 jogos gerados do 15P
 
 /* ✅ MANUAL (Principal) */
-let manualPrincipalSet = new Set();
+let manualPrincipalSet = const x = [...new Set(...)]
+);
 
 /* ✅ 15P manual */
 let linesSystem15 = null;
@@ -2087,7 +2094,8 @@ function renderManualPrincipalUI(){
 
       <div class="row" style="margin-top:12px">
         <div class="col">
-          <button class="btn btnGhost" type="button" onclick="manualPrincipalSet=new Set();renderManualPrincipalUI()">Limpar</button>
+          <button class="btn btnGhost" type="button" onclick="manualPrincipalSet=const x = [...new Set(...)]
+);renderManualPrincipalUI()">Limpar</button>
         </div>
         <div class="col">
           <button class="btn btnPrimary" type="button" onclick="usarManualComoPrincipal()">Usar meu jogo</button>
@@ -2319,7 +2327,9 @@ const motivosHtml = Object.entries(motivosAgrupados)
     goView("viewPrincipal");
 
     // reset seleção manual para o usuário começar “do zero”
-    manualPrincipalSet = new Set();
+    manualPrincipalSet = const x = [...const x = [...new Set(...)]
+...)]
+);
     renderManualPrincipalUI();
 
     updateCheckButtons();
@@ -2395,7 +2405,9 @@ function inverterJogoPorPerm(jogo, perm){
   return jogo.map(n=>remapPorPermutacao(Number(n), perm)).sort((a,b)=>a-b);
 }
 function renderCartao(jogo, clsName){
-  const set = new Set(jogo.map(Number));
+  const set = const x = [...const x = [...new Set(...)]
+...)]
+jogo.map(Number));
   let html = `<div class="cartao">`;
   for(let n=1;n<=25;n++){
     const active = set.has(n) ? ` ${clsName}` : "";
@@ -2498,7 +2510,9 @@ async function conferirGerados(){
   const resultNums = (res.dezenas||[]).map(toNum);
 
   function hits(gameNums){
-    const setR=new Set(resultNums);
+    const setR=const x = [...const x = [...new Set(...)]
+...)]
+resultNums);
     const h = sortNum(gameNums.filter(n=>setR.has(Number(n))).map(Number));
     return {count:h.length, hits:h};
   }
@@ -2841,7 +2855,8 @@ function combos3de5(){
 function gerarJogos15P(linhas){
   const comb = combos3de5();
   return comb.map((idxs)=>{
-    const set = new Set();
+    const set = const x = [...new Set(...)]
+);
     idxs.forEach(i=> linhas[i-1].forEach(n=>set.add(n)) );
     return sortNum([set]);
   });
@@ -2853,10 +2868,13 @@ function renderBallsInline(nums){
 
 // ✅ Conta quantas vezes um grupo (2..5 dezenas) apareceu inteiro no mesmo concurso
 function countGroupTogether(group, concursos){
-  const gset = new Set(group.map(Number));
+  const gset = const x = [...const x = [...new Set(...)]
+...)]
+group.map(Number));
   let count = 0;
   for(const c of concursos){
-    const setC = new Set((c.dezenas||[]).map(toNum));
+    const setC = const x = [...new Set(...)]
+(c.dezenas||[]).map(toNum));
     let ok = true;
     for(const n of gset){
       if(!setC.has(n)){ ok = false; break; }
@@ -2973,7 +2991,8 @@ function initUserLines15FromSystem(lines){
 function setActiveLine15(i){ activeLine15=i; render15Editor(); }
 
 function usedNumbersExceptLine(lineIdx){
-  const used = new Set();
+  const used = const x = [...new Set(...)]
+);
   for(let i=0;i<5;i++){
     if(i===lineIdx) continue;
     (linesUser15?.[i]||[]).forEach(n=>used.add(n));
@@ -3350,7 +3369,8 @@ async function checkSavedGames(){
 
 
   function hitsForGame(game, dezenas){
-    const set = new Set(dezenas.map(Number));
+    const set = const x = [...new Set(...)]
+dezenas.map(Number));
     return game.filter(n => set.has(Number(n))).length;
   }
 
