@@ -9,26 +9,21 @@
 
   <style>
     :root{
-      /* Fundo preto igual a logo */
       --bg1:#000000;
       --bg2:#000000;
 
-      /* Cards e linhas */
       --card:#0b0b0b;
       --stroke: rgba(255,255,255,.12);
       --stroke2: rgba(255,255,255,.18);
       --shadow: 0 22px 70px rgba(0,0,0,.65);
 
-      /* Texto */
       --text:#ffffff;
       --muted: rgba(255,255,255,.82);
       --muted2: rgba(255,255,255,.70);
 
-      /* Amarelo da logo */
       --yellow:#facc15;
       --yellow2:#ffd84d;
 
-      /* Glow */
       --glowGold: 0 0 0 1px rgba(250,204,21,.30), 0 18px 60px rgba(250,204,21,.22);
     }
 
@@ -44,13 +39,17 @@
     a{color:inherit;text-decoration:none}
     .wrap{max-width:1120px;margin:0 auto;padding:18px}
     .section{padding:22px 0}
+
     .grid{display:grid;gap:14px}
     .grid2{grid-template-columns:1.2fr .8fr}
     .grid3{grid-template-columns:repeat(3,1fr)}
-    @media (max-width: 900px){ .grid2{grid-template-columns:1fr} }
-    @media (max-width: 860px){ .grid3{grid-template-columns:1fr} }
+    @media (max-width: 900px){
+      .grid2{grid-template-columns:1fr}
+    }
+    @media (max-width: 860px){
+      .grid3{grid-template-columns:1fr}
+    }
 
-    /* UI */
     .card{
       background:rgba(255,255,255,.05);
       border:1px solid var(--stroke);
@@ -60,22 +59,12 @@
       backdrop-filter: blur(10px);
     }
     .mini{color:var(--muted);font-size:13px;line-height:1.55}
-    .kicker{
-      display:inline-flex;align-items:center;gap:8px;
-      padding:8px 12px;border-radius:999px;
-      border:1px solid rgba(255,255,255,.16);
-      background:rgba(255,255,255,.06);
-      font-size:12px;font-weight:900;
-      box-shadow: 0 10px 30px rgba(0,0,0,.25);
-      white-space:nowrap;
-    }
-    .dot{width:7px;height:7px;border-radius:999px;background:var(--yellow);display:inline-block}
+    .muted{color:var(--muted2)}
+    .hr{height:1px;background:rgba(255,255,255,.10);margin:14px 0;border-radius:999px}
 
     h1{margin:10px 0 8px;line-height:1.08;letter-spacing:.2px;font-size:clamp(24px, 4.5vw, 44px);color:var(--yellow)}
     h2{margin:0 0 10px;font-size:clamp(20px, 3.2vw, 24px);color:var(--yellow)}
     h3{margin:0 0 8px;font-size:16px;color:var(--yellow)}
-    .muted{color:var(--muted2)}
-    .hr{height:1px;background:rgba(255,255,255,.10);margin:14px 0;border-radius:999px}
 
     .btn{
       display:inline-flex;align-items:center;justify-content:center;gap:10px;
@@ -114,37 +103,78 @@
       font-weight:1000;
     }
 
-    /* HERO */
-    .hero{padding:18px 0 8px;}
-    .heroTop{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
-    .brand{display:flex;align-items:center;gap:12px}
+    /* =========================
+       TOPO (Logo canto + Título centralizado)
+    ========================== */
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:10px 12px;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.04);
+      box-shadow: 0 18px 55px rgba(0,0,0,.35);
+      position:relative;
+    }
+    .brandLeft{display:flex;align-items:center;gap:10px;min-width:120px}
     .logo{
-      height:58px; width:auto; object-fit:contain; display:block;
+      height:44px;
+      width:auto;
+      object-fit:contain;
+      display:block;
       filter: drop-shadow(0 18px 45px rgba(0,0,0,.55));
     }
-    @media (max-width: 520px){ .logo{ height:46px; } }
+    .titleCenter{
+      position:absolute;
+      left:50%;
+      transform:translateX(-50%);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      font-weight:1100;
+      letter-spacing:.4px;
+      color:var(--yellow);
+      text-align:center;
+      white-space:nowrap;
+      padding:0 10px;
+    }
+    .titleCenter span{
+      font-size:clamp(14px, 2.2vw, 18px);
+    }
+    .rightSpacer{min-width:120px;display:flex;justify-content:flex-end}
 
+    @media (max-width: 520px){
+      .brandLeft{min-width:60px}
+      .rightSpacer{min-width:60px}
+      .logo{height:40px}
+      .titleCenter{white-space:normal; max-width:64%; line-height:1.1}
+    }
+
+    /* HERO */
+    .hero{padding:18px 0 8px;}
     .heroCard{padding:18px;}
     .heroMedia{
-      position:relative;
       border-radius:20px;
       overflow:hidden;
       border:1px solid rgba(255,255,255,.14);
       background: rgba(255,255,255,.04);
-      min-height: 300px;
     }
     .heroMediaInner{padding:16px;display:grid;gap:12px;}
+
     .mock{
       width:100%;
       border-radius:16px;
       border:1px solid rgba(255,255,255,.12);
       background:rgba(0,0,0,.55);
       display:flex;align-items:center;justify-content:center;
-      padding:16px;
+      padding:18px;
       color:rgba(255,255,255,.80);
-      min-height:190px;
+      min-height:200px;
       text-align:center;
-      font-weight:900;
+      font-weight:1000;
     }
 
     /* TAGS */
@@ -160,7 +190,7 @@
     .tag.extra{border-color:rgba(250,204,21,.35);background:rgba(250,204,21,.18);color:#fff2b0}
     .tag.combo{border-color:rgba(250,204,21,.45);background:rgba(250,204,21,.22);color:#fff2b0}
 
-    /* PRINTS */
+    /* PRINTS (click-to-zoom) */
     .shot{
       width:100%;
       height:auto;
@@ -168,6 +198,18 @@
       border-radius:16px;
       border:1px solid rgba(255,255,255,.12);
       background:rgba(0,0,0,.35);
+      cursor: zoom-in;
+    }
+    .shotWrap{
+      border-radius:16px;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.35);
+    }
+    .shotHint{
+      margin-top:10px;
+      color:rgba(255,255,255,.75);
+      font-size:12px;
     }
 
     /* OFERTAS — grid 4 cards iguais */
@@ -182,13 +224,9 @@
     @media (max-width: 900px){
       .offersGrid{ grid-template-columns: 1fr; }
     }
-    .offerCard{
-      height:100%;
-      display:flex;
-      flex-direction:column;
-    }
-    .offerBody{ flex:1; }
-    .offerCta{ margin-top:auto; }
+    .offerCard{height:100%;display:flex;flex-direction:column}
+    .offerBody{flex:1}
+    .offerCta{margin-top:auto}
 
     /* FREE destaque + botão piscando */
     .freeCard{
@@ -256,24 +294,33 @@
         0 0 0 1px rgba(250,204,21,.22),
         0 22px 70px rgba(250,204,21,.10),
         0 22px 70px rgba(0,0,0,.50);
-      transform: translateY(-2px);
     }
 
-    /* STICKY CTA (mobile) */
+    /* STICKY CTA (mobile) — corrigido para não “estragar” o layout */
     .stickyCta{
       position:fixed;left:0;right:0;bottom:0;
       padding:10px 12px;
-      background:rgba(0,0,0,.85);
+      background:rgba(0,0,0,.88);
       backdrop-filter: blur(10px);
       border-top:1px solid rgba(255,255,255,.12);
       display:none;
       z-index:999;
     }
-    .stickyRow{max-width:1120px;margin:0 auto;display:flex;gap:10px}
+    .stickyRow{
+      max-width:1120px;margin:0 auto;
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:10px;
+    }
     .stickyRow .btn{width:100%}
     @media (max-width: 900px){
       .stickyCta{display:block}
       body{padding-bottom:92px}
+    }
+    @media (max-width: 420px){
+      body{padding-bottom:104px}
+      .stickyRow{gap:8px}
+      .stickyRow .btn{padding:11px 10px;border-radius:12px;font-weight:1100}
     }
 
     /* FAQ */
@@ -301,21 +348,82 @@
       justify-content:center;
       align-items:center;
     }
+    .kicker{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:8px 12px;border-radius:999px;
+      border:1px solid rgba(255,255,255,.16);
+      background:rgba(255,255,255,.06);
+      font-size:12px;font-weight:900;
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+      white-space:nowrap;
+    }
+    .dot{width:7px;height:7px;border-radius:999px;background:var(--yellow);display:inline-block}
+
+    /* LIGHTBOX */
+    .lightbox{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.86);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+      z-index:2000;
+    }
+    .lightbox.open{display:flex}
+    .lightboxInner{
+      max-width:min(1080px, 96vw);
+      max-height:90vh;
+      width:100%;
+      border-radius:18px;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.16);
+      background:rgba(0,0,0,.55);
+      box-shadow: 0 30px 90px rgba(0,0,0,.65);
+      position:relative;
+    }
+    .lightboxImg{
+      width:100%;
+      height:auto;
+      display:block;
+      max-height:90vh;
+      object-fit:contain;
+      background:#000;
+    }
+    .lightboxClose{
+      position:absolute;
+      top:10px;
+      right:10px;
+      border:1px solid rgba(255,255,255,.18);
+      background:rgba(0,0,0,.55);
+      color:#fff;
+      border-radius:12px;
+      padding:10px 12px;
+      cursor:pointer;
+      font-weight:1000;
+    }
   </style>
 </head>
 
 <body>
-  <!-- HERO -->
+
+  <!-- TOPO (SEM "Ver oferta" aqui) -->
   <div class="wrap hero">
-    <div class="heroTop">
-      <div class="brand">
+    <div class="topbar">
+      <div class="brandLeft">
         <img class="logo" src="LOGOMARCA.png" alt="Lotofácil Prime Analytics" />
       </div>
-      <a class="kicker" href="#oferta">⬇ Ver oferta</a>
+
+      <div class="titleCenter">
+        <span>🎯 LOTOFÁCIL PRIME ANALYTICS</span>
+      </div>
+
+      <div class="rightSpacer"></div>
     </div>
 
+    <!-- HERO -->
     <div class="section">
-      <div class="grid offersGrid" style="grid-template-columns:1.2fr .8fr;gap:14px">
+      <div class="grid grid2">
         <div class="card heroCard">
           <h1><b>TRANSFORME DADOS EM DECISÕES.</b></h1>
 
@@ -372,7 +480,6 @@
 
         <div class="heroMedia">
           <div class="heroMediaInner">
-            <!-- VSL/Print -->
             <div class="mock">
               ESPAÇO PARA VÍDEO (VSL) OU PRINT DO APP<br/>
               <span class="muted" style="font-weight:900;font-size:12px">
@@ -463,7 +570,7 @@
       <h2>🔥 Veja o Prime funcionando na prática</h2>
       <div class="mini">
         Enquanto outros prometem, nós mostramos.  
-        Confira as telas reais do sistema, jogos gerados automaticamente e a análise PRIME organizando suas decisões.
+        Toque nas imagens para abrir em tela cheia (zoom).
       </div>
 
       <div class="hr"></div>
@@ -471,19 +578,28 @@
       <div class="grid grid3">
         <div class="card" style="margin:0">
           <h3>📸 Jogo Principal</h3>
-          <img class="shot" src="JOGO PRINCIPAL.png" alt="Print do Jogo Principal" />
+          <div class="shotWrap">
+            <img class="shot" src="JOGO%20PRINCIPAL.png" alt="Print do Jogo Principal" loading="lazy" />
+          </div>
+          <div class="shotHint">✅ Toque para ampliar</div>
           <div class="mini" style="margin-top:10px">Tela real do <b>Jogo Principal</b> gerado (15 dezenas + lógica PRIME).</div>
         </div>
 
         <div class="card" style="margin:0">
           <h3>📸 Jogos Salvos</h3>
-          <img class="shot" src="JOGOS SALVOS.png" alt="Print de Jogos Salvos" />
+          <div class="shotWrap">
+            <img class="shot" src="JOGOS%20SALVOS.png" alt="Print de Jogos Salvos" loading="lazy" />
+          </div>
+          <div class="shotHint">✅ Toque para ampliar</div>
           <div class="mini" style="margin-top:10px">Tela real de <b>Jogos Salvos + Conferência</b> (organização e validação).</div>
         </div>
 
         <div class="card" style="margin:0">
           <h3>📸 Extra 15 Pontos</h3>
-          <img class="shot" src="EXTRA 15 PONTOS.png" alt="Print do Extra 15 Pontos" />
+          <div class="shotWrap">
+            <img class="shot" src="EXTRA%2015%20PONTOS.png" alt="Print do Extra 15 Pontos" loading="lazy" />
+          </div>
+          <div class="shotHint">✅ Toque para ampliar</div>
           <div class="mini" style="margin-top:10px">Tela real do <b>Extra 15P</b> (estratégia + geração).</div>
         </div>
       </div>
@@ -676,7 +792,7 @@
     </div>
   </div>
 
-  <!-- SELos NO FINAL (conforme pedido) -->
+  <!-- SELos NO FINAL -->
   <div class="wrap section" id="selos">
     <div class="card">
       <h2>✅ Segurança e experiência</h2>
@@ -688,6 +804,11 @@
         <span class="kicker">⚡ Mobile Friendly</span>
         <span class="kicker">🔒 Compra Segura</span>
       </div>
+
+      <div class="hr"></div>
+
+      <!-- "Ver oferta" NO FINAL (como você pediu) -->
+      <a class="btn btnGold" href="#oferta">⬇ Ver oferta</a>
     </div>
   </div>
 
@@ -699,11 +820,19 @@
 
   <!-- Sticky CTA mobile -->
   <div class="stickyCta" aria-hidden="false">
-    <div class="stickyRow" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px">
+    <div class="stickyRow">
       <a class="btn btnGhost" href="https://lotofacil-pro.vercel.app/" target="_blank" rel="noopener">FREE</a>
       <a class="btn btnPrimary" href="https://pay.hotmart.com/O104148865Y?off=c4m0nezi" target="_blank" rel="noopener">Premium</a>
       <a class="btn btnGold" href="https://pay.hotmart.com/Y104149008G?off=eehchnv4" target="_blank" rel="noopener">15P</a>
       <a class="btn btnGold" href="https://pay.hotmart.com/S104212403J?off=qbcz91p3" target="_blank" rel="noopener">Combo</a>
+    </div>
+  </div>
+
+  <!-- Lightbox -->
+  <div class="lightbox" id="lightbox">
+    <div class="lightboxInner" role="dialog" aria-modal="true" aria-label="Imagem ampliada">
+      <button class="lightboxClose" id="lightboxClose">✕ Fechar</button>
+      <img class="lightboxImg" id="lightboxImg" alt="Imagem ampliada" />
     </div>
   </div>
 
@@ -721,6 +850,37 @@
         e.preventDefault();
         el.scrollIntoView({ behavior: "smooth", block: "start" });
       });
+    });
+
+    // Lightbox para fotos (clicar abre)
+    const lb = document.getElementById("lightbox");
+    const lbImg = document.getElementById("lightboxImg");
+    const lbClose = document.getElementById("lightboxClose");
+
+    function openLightbox(src, alt){
+      lbImg.src = src;
+      lbImg.alt = alt || "Imagem ampliada";
+      lb.classList.add("open");
+      document.body.style.overflow = "hidden";
+    }
+    function closeLightbox(){
+      lb.classList.remove("open");
+      lbImg.src = "";
+      document.body.style.overflow = "";
+    }
+
+    document.querySelectorAll(".shot").forEach(img=>{
+      img.addEventListener("click", ()=>{
+        openLightbox(img.getAttribute("src"), img.getAttribute("alt"));
+      });
+    });
+
+    lbClose.addEventListener("click", closeLightbox);
+    lb.addEventListener("click", (e)=>{
+      if(e.target === lb) closeLightbox();
+    });
+    document.addEventListener("keydown", (e)=>{
+      if(e.key === "Escape") closeLightbox();
     });
   </script>
 </body>
