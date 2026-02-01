@@ -24,7 +24,11 @@
       --yellow:#facc15;
       --yellow2:#ffd84d;
 
+      --green:#22c55e;
+      --green2:#16a34a;
+
       --glowGold: 0 0 0 1px rgba(250,204,21,.30), 0 18px 60px rgba(250,204,21,.22);
+      --glowGreen: 0 0 0 1px rgba(34,197,94,.35), 0 18px 60px rgba(34,197,94,.18);
     }
 
     *{box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -43,12 +47,8 @@
     .grid{display:grid;gap:14px}
     .grid2{grid-template-columns:1.2fr .8fr}
     .grid3{grid-template-columns:repeat(3,1fr)}
-    @media (max-width: 900px){
-      .grid2{grid-template-columns:1fr}
-    }
-    @media (max-width: 860px){
-      .grid3{grid-template-columns:1fr}
-    }
+    @media (max-width: 900px){ .grid2{grid-template-columns:1fr} }
+    @media (max-width: 860px){ .grid3{grid-template-columns:1fr} }
 
     .card{
       background:rgba(255,255,255,.05);
@@ -62,7 +62,21 @@
     .muted{color:var(--muted2)}
     .hr{height:1px;background:rgba(255,255,255,.10);margin:14px 0;border-radius:999px}
 
-    h1{margin:10px 0 8px;line-height:1.08;letter-spacing:.2px;font-size:clamp(24px, 4.5vw, 44px);color:var(--yellow)}
+    h1{
+      margin:10px 0 8px;
+      line-height:1.02;
+      letter-spacing:.2px;
+      color:var(--yellow);
+      font-weight:1100;
+      font-size: clamp(24px, 3.2vw, 40px); /* levemente menor pra caber 1 linha */
+      white-space: nowrap;                 /* força 1 linha */
+    }
+    /* Em telas bem pequenas, ainda cabe 1 linha reduzindo um pouco */
+    @media (max-width: 420px){
+      h1{ font-size: 26px; }
+    }
+    .decisoesWhite{ color:#ffffff; }
+
     h2{margin:0 0 10px;font-size:clamp(20px, 3.2vw, 24px);color:var(--yellow)}
     h3{margin:0 0 8px;font-size:16px;color:var(--yellow)}
 
@@ -104,23 +118,25 @@
     }
 
     /* =========================
-       TOPO (Logo canto + Título centralizado)
+       TOPO — MAIS DESTAQUE
     ========================== */
     .topbar{
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap:12px;
-      padding:10px 12px;
-      border-radius:18px;
-      border:1px solid rgba(255,255,255,.12);
-      background:rgba(255,255,255,.04);
-      box-shadow: 0 18px 55px rgba(0,0,0,.35);
+      padding:12px 14px;
+      border-radius:20px;
+      border:1px solid rgba(250,204,21,.22);
+      background:
+        radial-gradient(900px 220px at 30% 10%, rgba(250,204,21,.12), transparent 60%),
+        rgba(255,255,255,.04);
+      box-shadow: var(--glowGold), 0 18px 55px rgba(0,0,0,.35);
       position:relative;
     }
     .brandLeft{display:flex;align-items:center;gap:10px;min-width:120px}
     .logo{
-      height:44px;
+      height:54px; /* MAIOR */
       width:auto;
       object-fit:contain;
       display:block;
@@ -134,23 +150,29 @@
       align-items:center;
       justify-content:center;
       gap:10px;
-      font-weight:1100;
-      letter-spacing:.4px;
-      color:var(--yellow);
       text-align:center;
-      white-space:nowrap;
-      padding:0 10px;
+      padding:0 12px;
+      max-width: 78%;
     }
     .titleCenter span{
-      font-size:clamp(14px, 2.2vw, 18px);
+      font-size:clamp(18px, 2.6vw, 24px); /* MAIOR */
+      font-weight:1200;                  /* MAIS NEGRITO */
+      letter-spacing:.6px;
+      color:var(--yellow);
+      text-shadow: 0 10px 35px rgba(250,204,21,.18);
+      white-space:nowrap;
     }
     .rightSpacer{min-width:120px;display:flex;justify-content:flex-end}
 
     @media (max-width: 520px){
-      .brandLeft{min-width:60px}
-      .rightSpacer{min-width:60px}
-      .logo{height:40px}
-      .titleCenter{white-space:normal; max-width:64%; line-height:1.1}
+      .brandLeft{min-width:62px}
+      .rightSpacer{min-width:62px}
+      .logo{height:48px}
+      .titleCenter span{
+        white-space:normal;
+        line-height:1.05;
+        font-size:20px;
+      }
     }
 
     /* HERO */
@@ -163,7 +185,6 @@
       background: rgba(255,255,255,.04);
     }
     .heroMediaInner{padding:16px;display:grid;gap:12px;}
-
     .mock{
       width:100%;
       border-radius:16px;
@@ -228,14 +249,22 @@
     .offerBody{flex:1}
     .offerCta{margin-top:auto}
 
-    /* FREE destaque + botão piscando */
+    /* FREE: card inteiro piscando */
     .freeCard{
-      border:1px solid rgba(250,204,21,.30);
+      border:1px solid rgba(34,197,94,.35);
       background:
-        radial-gradient(900px 260px at 30% 20%, rgba(250,204,21,.18), transparent 60%),
+        radial-gradient(900px 260px at 30% 20%, rgba(34,197,94,.20), transparent 60%),
         rgba(255,255,255,.04);
-      box-shadow: var(--glowGold), 0 22px 70px rgba(0,0,0,.40);
+      box-shadow: var(--glowGreen), 0 22px 70px rgba(0,0,0,.40);
+      animation: cardPulseGreen 1.15s infinite;
     }
+    @keyframes cardPulseGreen{
+      0%{ transform: translateY(0); filter:brightness(1); }
+      50%{ transform: translateY(-2px); filter:brightness(1.10); }
+      100%{ transform: translateY(0); filter:brightness(1); }
+    }
+
+    /* Botão FREE (sem piscar agora) */
     .btnFree{
       position:relative;
       overflow:hidden;
@@ -253,50 +282,31 @@
       color:#0b0b0b;
       background: linear-gradient(135deg, var(--yellow), var(--yellow2));
       box-shadow:
-        0 0 0 1px rgba(250,204,21,.35),
-        0 18px 65px rgba(250,204,21,.28),
+        0 0 0 1px rgba(250,204,21,.25),
+        0 18px 65px rgba(250,204,21,.20),
         0 22px 70px rgba(0,0,0,.55);
-      animation: freePulse 1.05s infinite;
-    }
-    @keyframes freePulse{
-      0%{ transform:translateY(0); filter:brightness(1); }
-      50%{ transform:translateY(-1px); filter:brightness(1.10); }
-      100%{ transform:translateY(0); filter:brightness(1); }
-    }
-    .btnFree::before{
-      content:"";
-      position:absolute;
-      top:-40%;
-      left:-60%;
-      width:70%;
-      height:180%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,.35), transparent);
-      transform: rotate(18deg);
-      animation: freeShine 2.4s infinite;
-      pointer-events:none;
-    }
-    @keyframes freeShine{
-      0%{ left:-70%; opacity:.0; }
-      15%{ opacity:.25; }
-      45%{ opacity:.40; }
-      65%{ opacity:.25; }
-      100%{ left:130%; opacity:0; }
     }
 
-    /* COMBO ELITE — destaque mais forte */
+    /* COMBO ELITE: piscando com destaque maior */
     .comboCard{
-      border:1px solid rgba(250,204,21,.42);
+      border:1px solid rgba(250,204,21,.46);
       background:
-        radial-gradient(900px 260px at 30% 18%, rgba(250,204,21,.24), transparent 62%),
-        radial-gradient(900px 260px at 70% 18%, rgba(255,216,77,.16), transparent 62%),
+        radial-gradient(900px 260px at 30% 18%, rgba(250,204,21,.26), transparent 62%),
+        radial-gradient(900px 260px at 70% 18%, rgba(255,216,77,.18), transparent 62%),
         rgba(255,255,255,.04);
       box-shadow:
         0 0 0 1px rgba(250,204,21,.22),
-        0 22px 70px rgba(250,204,21,.10),
+        0 22px 70px rgba(250,204,21,.14),
         0 22px 70px rgba(0,0,0,.50);
+      animation: comboPulse 1.05s infinite;
+    }
+    @keyframes comboPulse{
+      0%{ transform: translateY(0); filter:brightness(1); }
+      50%{ transform: translateY(-2px); filter:brightness(1.12); }
+      100%{ transform: translateY(0); filter:brightness(1); }
     }
 
-    /* STICKY CTA (mobile) — corrigido para não “estragar” o layout */
+    /* STICKY CTA (mobile) */
     .stickyCta{
       position:fixed;left:0;right:0;bottom:0;
       padding:10px 12px;
@@ -311,8 +321,34 @@
       display:grid;
       grid-template-columns:repeat(4,1fr);
       gap:10px;
+      align-items:stretch;
     }
     .stickyRow .btn{width:100%}
+
+    /* FREE verde + um pouco maior */
+    .btnFreeSticky{
+      background: linear-gradient(135deg, var(--green), var(--green2));
+      color:#04160b;
+      box-shadow: var(--glowGreen);
+      border:1px solid rgba(34,197,94,.20);
+      font-weight:1200;
+      transform: scale(1.05); /* um pouco maior */
+    }
+
+    /* COMBO piscando no sticky */
+    .btnComboSticky{
+      background:linear-gradient(135deg,var(--yellow),var(--yellow2));
+      color:#0b0b0b;
+      box-shadow: var(--glowGold);
+      animation: comboBtnPulse 1.05s infinite;
+      font-weight:1200;
+    }
+    @keyframes comboBtnPulse{
+      0%{ transform: translateY(0); filter:brightness(1); }
+      50%{ transform: translateY(-1px); filter:brightness(1.12); }
+      100%{ transform: translateY(0); filter:brightness(1); }
+    }
+
     @media (max-width: 900px){
       .stickyCta{display:block}
       body{padding-bottom:92px}
@@ -321,6 +357,7 @@
       body{padding-bottom:104px}
       .stickyRow{gap:8px}
       .stickyRow .btn{padding:11px 10px;border-radius:12px;font-weight:1100}
+      .btnFreeSticky{transform: scale(1.04);}
     }
 
     /* FAQ */
@@ -407,7 +444,7 @@
 
 <body>
 
-  <!-- TOPO (SEM "Ver oferta" aqui) -->
+  <!-- TOPO -->
   <div class="wrap hero">
     <div class="topbar">
       <div class="brandLeft">
@@ -425,7 +462,9 @@
     <div class="section">
       <div class="grid grid2">
         <div class="card heroCard">
-          <h1><b>TRANSFORME DADOS EM DECISÕES.</b></h1>
+          <h1>
+            <b>TRANSFORME DADOS EM <span class="decisoesWhite">DECISÕES</span>.</b>
+          </h1>
 
           <div class="mini">
             Gere jogos com uma análise PRIME pronta pra usar.
@@ -631,7 +670,7 @@
         <h2>Pronto pra testar?</h2>
         <div class="mini">Entre no FREE, gere 1 jogo e veja a lógica rodando ao vivo.</div>
         <div class="hr"></div>
-        <a class="btnFree" href="https://lotofacil-pro.vercel.app/" target="_blank" rel="noopener">
+        <a class="btn btnGold" href="https://lotofacil-pro.vercel.app/" target="_blank" rel="noopener">
           🆓 Testar grátis agora (1 jogo)
         </a>
         <div class="mini" style="margin-top:10px">Depois disso, o acesso completo é liberado somente no Premium/Combo.</div>
@@ -652,10 +691,12 @@
       <div class="offersGrid">
         <!-- FREE -->
         <div class="card offerCard freeCard">
-          <span class="tag extra">🆓 FREE</span>
+          <span class="tag" style="border-color:rgba(34,197,94,.45);background:rgba(34,197,94,.18);color:#bbffd1;">
+            ✅ FREE
+          </span>
 
           <div class="offerBody">
-            <h3 style="margin-top:10px">Primeiro acesso (teste real)</h3>
+            <h3 style="margin-top:10px;color:#bbffd1">Primeiro acesso (teste real)</h3>
             <div class="mini">
               Crie login com <b>email + senha</b> e gere <b>1 Jogo Principal grátis</b>.
               Depois disso, somente Premium/Combo.
@@ -672,7 +713,7 @@
 
           <div class="offerCta">
             <div class="hr"></div>
-            <a class="btnFree" href="https://lotofacil-pro.vercel.app/" target="_blank" rel="noopener">
+            <a class="btn btnGold" href="https://lotofacil-pro.vercel.app/" target="_blank" rel="noopener">
               🚀 Entrar no FREE agora
             </a>
             <div class="mini" style="margin-top:10px">Ideal para conhecer o sistema antes de comprar.</div>
@@ -806,8 +847,6 @@
       </div>
 
       <div class="hr"></div>
-
-      <!-- "Ver oferta" NO FINAL (como você pediu) -->
       <a class="btn btnGold" href="#oferta">⬇ Ver oferta</a>
     </div>
   </div>
@@ -821,10 +860,10 @@
   <!-- Sticky CTA mobile -->
   <div class="stickyCta" aria-hidden="false">
     <div class="stickyRow">
-      <a class="btn btnGhost" href="https://lotofacil-pro.vercel.app/" target="_blank" rel="noopener">FREE</a>
+      <a class="btn btnFreeSticky" href="https://lotofacil-pro.vercel.app/" target="_blank" rel="noopener">FREE</a>
       <a class="btn btnPrimary" href="https://pay.hotmart.com/O104148865Y?off=c4m0nezi" target="_blank" rel="noopener">Premium</a>
       <a class="btn btnGold" href="https://pay.hotmart.com/Y104149008G?off=eehchnv4" target="_blank" rel="noopener">15P</a>
-      <a class="btn btnGold" href="https://pay.hotmart.com/S104212403J?off=qbcz91p3" target="_blank" rel="noopener">Combo</a>
+      <a class="btn btnComboSticky" href="https://pay.hotmart.com/S104212403J?off=qbcz91p3" target="_blank" rel="noopener">Combo</a>
     </div>
   </div>
 
@@ -837,7 +876,6 @@
   </div>
 
   <script>
-    // Ano automático
     document.getElementById("year").textContent = new Date().getFullYear();
 
     // Scroll suave
@@ -852,7 +890,7 @@
       });
     });
 
-    // Lightbox para fotos (clicar abre)
+    // Lightbox
     const lb = document.getElementById("lightbox");
     const lbImg = document.getElementById("lightboxImg");
     const lbClose = document.getElementById("lightboxClose");
@@ -876,12 +914,8 @@
     });
 
     lbClose.addEventListener("click", closeLightbox);
-    lb.addEventListener("click", (e)=>{
-      if(e.target === lb) closeLightbox();
-    });
-    document.addEventListener("keydown", (e)=>{
-      if(e.key === "Escape") closeLightbox();
-    });
+    lb.addEventListener("click", (e)=>{ if(e.target === lb) closeLightbox(); });
+    document.addEventListener("keydown", (e)=>{ if(e.key === "Escape") closeLightbox(); });
   </script>
 </body>
 </html>
