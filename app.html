@@ -2,1326 +2,846 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#07070b" />
-  <title>Lotofácil Prime Analytics — Página Oficial</title>
-  <meta name="description" content="Lotofácil Prime Analytics: painel com análise PRIME, jogo principal, invertida, técnica premiada, Tulsa de jogos salvos e o EXTRA 15P. Visual premium, rápido e moderno." />
-
-  <!-- Social preview (troque depois se quiser) -->
-  <meta property="og:title" content="Lotofácil Prime Analytics" />
-  <meta property="og:description" content="A solução completa para análise e montagem estratégica de jogos da Lotofácil — com Premium e EXTRA 15P." />
-  <meta property="og:type" content="website" />
-  <meta property="og:image" content="logo.png" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Lotofácil Prime Analytics — Página de Vendas</title>
+  <meta name="description" content="Lotofácil Prime Analytics: painel moderno com análise estatística, geração de jogos e recursos Premium. Jogo responsável. Sem promessas irreais." />
+  <meta name="theme-color" content="#050b1a" />
 
   <style>
-    /* ============================================================
-       LOTOFÁCIL PRIME ANALYTICS — SALES PAGE (4K / PREMIUM)
-       Paleta baseada na logo: fundo preto + dourado + branco
-       ============================================================ */
-
     :root{
-      --bg0:#05050a;
-      --bg1:#07070f;
-      --bg2:#0b0b16;
-      --card: rgba(255,255,255,.06);
-      --stroke: rgba(255,255,255,.12);
-      --stroke2: rgba(255,255,255,.18);
+      /* Base (do seu index) */
+      --bg1:#050b1a; --bg2:#0b1636;
+      --card:#07122a; --text:#f8fafc; --muted:#cbd5e1; --muted2:#94a3b8;
 
-      --text:#f8fafc;
-      --muted: rgba(248,250,252,.78);
-      --muted2: rgba(248,250,252,.62);
+      /* Acentos */
+      --green:#22c55e; --green2:#16a34a;
+      --blue:#38bdf8; --blue2:#0ea5e9;
+      --purple:#a78bfa; --purple2:#7c3aed;
+      --yellow:#facc15; --orange:#fb923c;
+      --red:#fb7185; --red2:#ef4444;
 
-      --gold:#f6c600;      /* dourado principal */
-      --gold2:#ffdf59;     /* highlight */
-      --ink:#0a0a12;
+      --stroke: rgba(255,255,255,.10);
+      --stroke2: rgba(255,255,255,.16);
+      --shadow: 0 22px 70px rgba(0,0,0,.45);
 
-      --white:#ffffff;
+      --glowBlue: 0 0 0 1px rgba(56,189,248,.18), 0 12px 40px rgba(56,189,248,.10);
+      --glowGreen: 0 0 0 1px rgba(34,197,94,.18), 0 12px 40px rgba(34,197,94,.10);
+      --glowGold: 0 0 0 1px rgba(250,204,21,.22), 0 18px 60px rgba(250,204,21,.18);
 
-      --shadow: 0 28px 90px rgba(0,0,0,.55);
-      --shadow2: 0 18px 60px rgba(0,0,0,.45);
-
-      --glowGold: 0 0 0 1px rgba(246,198,0,.22), 0 18px 80px rgba(246,198,0,.14);
-      --glowSoft: 0 0 0 1px rgba(255,255,255,.06), 0 26px 90px rgba(0,0,0,.55);
-
-      --radius: 22px;
-      --radius2: 16px;
-
+      /* Layout */
       --max: 1180px;
+      --r12: 12px;
+      --r16: 16px;
+      --r20: 20px;
+      --r24: 24px;
     }
 
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
       margin:0;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
       color:var(--text);
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
       background:
-        radial-gradient(1200px 700px at 15% 15%, rgba(246,198,0,.16), transparent 58%),
-        radial-gradient(1000px 650px at 85% 20%, rgba(255,255,255,.10), transparent 58%),
-        radial-gradient(900px 650px at 50% 95%, rgba(246,198,0,.10), transparent 60%),
-        linear-gradient(180deg, var(--bg0), var(--bg2));
+        radial-gradient(900px 650px at 10% 10%, rgba(56,189,248,.16), transparent 55%),
+        radial-gradient(900px 650px at 90% 10%, rgba(34,197,94,.14), transparent 55%),
+        radial-gradient(900px 650px at 50% 90%, rgba(167,139,250,.14), transparent 55%),
+        linear-gradient(135deg,var(--bg1),var(--bg2));
+      min-height:100dvh;
       overflow-x:hidden;
     }
 
-    /* Fundo com “padrão diferenciado” (discreto e premium) */
-    .noise{
-      position:fixed; inset:0;
-      pointer-events:none;
-      background:
-        radial-gradient(circle at 20% 10%, rgba(255,255,255,.05), transparent 40%),
-        radial-gradient(circle at 80% 20%, rgba(246,198,0,.06), transparent 45%),
-        radial-gradient(circle at 40% 80%, rgba(255,255,255,.04), transparent 45%);
-      mix-blend-mode: screen;
-      opacity:.7;
-      filter: blur(0.2px);
-      z-index:0;
-    }
-
-    .gridlines{
-      position:fixed; inset:-2px;
-      pointer-events:none;
-      background-image:
-        linear-gradient(to right, rgba(255,255,255,.035) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(255,255,255,.03) 1px, transparent 1px);
-      background-size: 48px 48px;
-      mask-image: radial-gradient(circle at 50% 30%, black 0%, transparent 62%);
-      opacity:.55;
-      z-index:0;
-    }
-
     a{color:inherit;text-decoration:none}
-    .wrap{width:100%; max-width:var(--max); margin:0 auto; padding: 0 18px;}
+    .wrap{max-width:var(--max); margin:0 auto; padding: 22px 16px 120px;}
+    .row{display:flex; gap:16px; flex-wrap:wrap}
+    .grid{display:grid; gap:14px}
+    .grid2{grid-template-columns:repeat(2, minmax(0, 1fr))}
+    .grid3{grid-template-columns:repeat(3, minmax(0, 1fr))}
+    .grid4{grid-template-columns:repeat(4, minmax(0, 1fr))}
+    @media (max-width: 980px){
+      .grid3,.grid4{grid-template-columns:repeat(2, minmax(0, 1fr))}
+    }
+    @media (max-width: 640px){
+      .grid2,.grid3,.grid4{grid-template-columns:1fr}
+      .wrap{padding-bottom: 140px;}
+    }
+
+    /* Topbar */
     .topbar{
       position:sticky; top:0; z-index:50;
-      backdrop-filter: blur(14px);
-      background: linear-gradient(180deg, rgba(5,5,10,.82), rgba(5,5,10,.45));
-      border-bottom: 1px solid rgba(255,255,255,.08);
+      backdrop-filter: blur(10px);
+      background: rgba(2,6,23,.55);
+      border-bottom:1px solid rgba(255,255,255,.08);
     }
-    .topbar .inner{
-      display:flex; align-items:center; justify-content:space-between;
-      padding: 14px 0;
-      gap: 12px;
+    .topbarInner{
+      max-width:var(--max); margin:0 auto;
+      padding: 12px 16px;
+      display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
     }
     .brand{
-      display:flex; align-items:center; gap:12px;
-      min-width: 220px;
+      display:flex; align-items:center; gap:10px; min-width: 220px;
     }
     .brand img{
-      width: 44px; height:44px; object-fit:contain;
-      filter: drop-shadow(0 14px 34px rgba(0,0,0,.6));
+      width:42px; height:42px; object-fit:contain;
+      filter: drop-shadow(0 14px 28px rgba(0,0,0,.35));
     }
     .brand b{letter-spacing:.2px}
     .nav{
-      display:flex; align-items:center; gap: 14px; flex-wrap:wrap;
-      justify-content:flex-end;
+      display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+      color: rgba(248,250,252,.92);
+      font-weight: 900;
+      font-size: 12px;
     }
     .nav a{
-      font-weight: 800;
-      font-size: 12px;
-      color: var(--muted);
-      padding: 10px 10px;
+      padding: 9px 10px;
       border-radius: 999px;
-      border: 1px solid transparent;
-      transition: .15s ease;
-      white-space: nowrap;
-    }
-    .nav a:hover{
-      color: var(--text);
-      border-color: rgba(255,255,255,.12);
-      background: rgba(255,255,255,.04);
-    }
-
-    .btn{
-      display:inline-flex; align-items:center; justify-content:center;
-      gap:10px;
-      padding: 12px 14px;
-      border-radius: 14px;
-      font-weight: 1000;
       border: 1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.05);
-      color: var(--text);
-      cursor:pointer;
-      transition: .16s ease;
-      box-shadow: none;
-      user-select:none;
-    }
-    .btn:hover{ transform: translateY(-1px); background: rgba(255,255,255,.07); }
-    .btn:active{ transform: translateY(0); filter: brightness(.98); }
-
-    .btnGold{
-      background: linear-gradient(135deg, var(--gold), var(--gold2));
-      color: #101018;
-      border: none;
-      box-shadow: var(--glowGold);
-    }
-    .btnGold:hover{ filter: brightness(1.03); }
-    .btnGhost{
       background: rgba(255,255,255,.04);
-      border:1px solid rgba(255,255,255,.14);
+      transition:.15s;
     }
-    .btnSmall{
-      padding: 10px 12px;
-      border-radius: 12px;
-      font-size: 12px;
-    }
-
-    /* HERO */
-    .hero{
-      position:relative;
-      z-index: 1;
-      padding: 46px 0 18px;
-    }
-    .heroGrid{
-      display:grid;
-      grid-template-columns: 1.15fr .85fr;
-      gap: 18px;
-      align-items:stretch;
-    }
-    @media (max-width: 980px){
-      .heroGrid{grid-template-columns:1fr; gap: 14px;}
-      .brand{min-width: unset;}
-    }
-
-    .card{
-      border-radius: var(--radius);
-      border: 1px solid rgba(255,255,255,.12);
-      background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.03));
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(14px);
-      overflow:hidden;
-    }
-    .cardInner{ padding: 22px; }
+    .nav a:hover{transform: translateY(-1px); background: rgba(255,255,255,.06)}
+    .nav a:active{transform: translateY(0px)}
     .pill{
       display:inline-flex; align-items:center; gap:8px;
       padding: 9px 12px;
       border-radius: 999px;
-      border: 1px solid rgba(246,198,0,.26);
-      background: rgba(246,198,0,.12);
-      color: #fff4b3;
+      border: 1px solid rgba(250,204,21,.28);
+      background: rgba(250,204,21,.10);
+      color: #fff2b0;
       font-weight: 1000;
       font-size: 12px;
-      letter-spacing:.2px;
+      box-shadow: var(--glowGold);
+      white-space:nowrap;
     }
-    .dot{
-      width: 7px; height:7px; border-radius: 999px;
-      background: rgba(246,198,0,.92);
-      box-shadow: 0 0 18px rgba(246,198,0,.35);
+    .dot{width:7px;height:7px;border-radius:99px;background: rgba(34,197,94,.9); display:inline-block}
+
+    /* Cards */
+    .card{
+      border:1px solid var(--stroke);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border-radius: var(--r24);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+    .pad{padding: 18px}
+    .soft{
+      background: rgba(255,255,255,.045);
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: var(--r20);
+      padding: 14px;
+    }
+
+    /* Buttons */
+    .btn{
+      display:inline-flex; align-items:center; justify-content:center; gap:10px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border:none;
+      cursor:pointer;
+      font-weight: 1000;
+      transition: .15s;
+      box-shadow: 0 18px 45px rgba(0,0,0,.35);
+      user-select:none;
+      white-space:nowrap;
+    }
+    .btn:hover{filter:brightness(1.05); transform: translateY(-1px)}
+    .btn:active{filter:brightness(.98); transform: translateY(0px)}
+    .btnGold{
+      background: linear-gradient(135deg, var(--yellow), var(--orange));
+      color:#201500;
+      box-shadow: var(--glowGold);
+    }
+    .btnGreen{
+      background: linear-gradient(135deg, var(--green), var(--green2));
+      color:#04130b;
+      box-shadow: var(--glowGreen);
+    }
+    .btnBlue{
+      background: linear-gradient(135deg, var(--blue), var(--blue2));
+      color:#041018;
+      box-shadow: var(--glowBlue);
+    }
+    .btnGhost{
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.14);
+      color: var(--text);
+      box-shadow:none;
+    }
+    .btnBlock{width:100%}
+
+    /* Hero */
+    .hero{
+      padding: 26px 0 14px;
+    }
+    .heroGrid{
+      display:grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 16px;
+      align-items: stretch;
+    }
+    @media (max-width: 980px){
+      .heroGrid{grid-template-columns:1fr}
+    }
+    .kicker{
+      display:inline-flex; align-items:center; gap:8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(56,189,248,.25);
+      background: rgba(56,189,248,.10);
+      color:#e6f8ff;
+      font-weight: 1000;
+      font-size: 12px;
     }
     h1{
       margin: 12px 0 10px;
-      font-size: clamp(30px, 4.6vw, 54px);
+      font-size: clamp(28px, 5.2vw, 48px);
       line-height: 1.05;
-      letter-spacing: -0.5px;
+      letter-spacing: .2px;
     }
-    .subtitle{
-      font-size: clamp(14px, 1.3vw, 18px);
-      color: var(--muted);
-      line-height: 1.6;
-      margin: 0 0 18px;
-      max-width: 60ch;
+    .sub{
+      margin:0;
+      color: rgba(203,213,225,.92);
+      font-size: 15px;
+      line-height: 1.55;
+      max-width: 62ch;
     }
-    .heroCTAs{
-      display:flex; gap: 10px; flex-wrap:wrap;
-      align-items:center;
-      margin-top: 16px;
-    }
-    .trustRow{
-      display:flex; gap: 10px; flex-wrap:wrap;
-      margin-top: 16px;
-      color: var(--muted2);
-      font-weight: 800;
-      font-size: 12px;
-    }
-    .trustRow .tag{
-      display:inline-flex; align-items:center; gap:8px;
-      padding: 9px 12px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.04);
-    }
-    .tag i{
-      width: 10px; height:10px; border-radius:3px;
-      background: rgba(246,198,0,.85);
-      display:inline-block;
-    }
-
-    /* Video + Gallery card */
-    .mediaTop{
-      display:flex; align-items:center; justify-content:space-between;
-      gap: 12px;
-      padding: 16px 16px;
-      border-bottom: 1px solid rgba(255,255,255,.08);
-      background: rgba(255,255,255,.03);
-    }
-    .mediaTop b{font-size: 13px;}
-    .preview{
-      padding: 16px;
-    }
-    .videoBox{
-      position:relative;
-      border-radius: 18px;
-      border: 1px solid rgba(255,255,255,.14);
-      background:
-        radial-gradient(900px 360px at 25% 15%, rgba(246,198,0,.16), transparent 60%),
-        radial-gradient(900px 360px at 75% 25%, rgba(255,255,255,.10), transparent 60%),
-        rgba(0,0,0,.25);
-      box-shadow: var(--shadow2);
-      overflow:hidden;
-      aspect-ratio: 16 / 9;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-    }
-    .videoOverlay{
-      position:absolute; inset:0;
-      display:flex; align-items:center; justify-content:center;
-      flex-direction:column;
-      gap: 10px;
-      padding: 20px;
-      text-align:center;
-    }
-    .playBtn{
-      width: 82px; height:82px;
-      border-radius: 999px;
-      background: linear-gradient(135deg, var(--gold), var(--gold2));
-      border:none;
-      box-shadow: var(--glowGold);
-      display:flex; align-items:center; justify-content:center;
-      cursor:pointer;
-      transition:.16s ease;
-    }
-    .playBtn:hover{ transform: translateY(-2px) scale(1.02); }
-    .playBtn:active{ transform: translateY(0) scale(.99); }
-    .triangle{
-      width:0;height:0;
-      border-left: 18px solid #14141b;
-      border-top: 12px solid transparent;
-      border-bottom: 12px solid transparent;
-      margin-left: 4px;
-    }
-    .mediaNote{
-      color: var(--muted2);
-      font-size: 12px;
-      line-height: 1.5;
-      margin-top: 12px;
-    }
-
-    .gallery{
+    .heroBullets{
       margin-top: 14px;
-      display:grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
+      display:grid; gap:10px;
     }
-    @media (max-width: 980px){ .gallery{grid-template-columns: repeat(2,1fr);} }
-    .shot{
+    .bullet{
+      display:flex; gap:10px; align-items:flex-start;
+      padding: 12px 12px;
       border-radius: 16px;
-      border: 1px solid rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.10);
       background: rgba(255,255,255,.04);
-      overflow:hidden;
-      position:relative;
-      cursor:pointer;
-      transition:.15s ease;
-      min-height: 92px;
     }
-    .shot:hover{ transform: translateY(-2px); background: rgba(255,255,255,.06); }
-    .shot img{
-      width:100%; height:100%;
-      object-fit:cover;
-      display:block;
-      filter: contrast(1.03) saturate(1.02);
-    }
-    .shot .cap{
-      position:absolute;
-      left:10px; bottom:10px;
-      font-size: 11px;
+    .bullet .ic{
+      width:34px; height:34px; border-radius: 12px;
+      display:flex; align-items:center; justify-content:center;
+      background: rgba(250,204,21,.12);
+      border: 1px solid rgba(250,204,21,.22);
+      color:#fff2b0;
       font-weight: 1000;
-      padding: 7px 9px;
-      border-radius: 999px;
-      background: rgba(0,0,0,.45);
-      border: 1px solid rgba(255,255,255,.14);
-      backdrop-filter: blur(10px);
+      flex: 0 0 auto;
+    }
+    .bullet b{display:block; margin:0 0 3px}
+    .bullet span{color: rgba(203,213,225,.92); font-size: 13px; line-height: 1.45}
+
+    .heroActions{
+      margin-top: 14px;
+      display:flex; gap:10px; flex-wrap:wrap;
     }
 
-    /* SEÇÕES */
-    section{ position:relative; z-index:1; padding: 16px 0; }
+    /* Right hero card (mock) */
+    .mockHeader{
+      display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
+    }
+    .stat{
+      display:flex; flex-direction:column; gap:4px;
+      padding: 12px;
+      border-radius: 16px;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.10);
+      min-width: 160px;
+    }
+    .stat small{color: rgba(148,163,184,.92); font-weight: 900}
+    .stat b{font-size: 18px}
+    .bars{margin-top:12px; display:grid; gap:10px}
+    .barRow{display:flex; gap:10px; align-items:center}
+    .barRow .name{width:90px; font-weight: 950; color: rgba(248,250,252,.92)}
+    .bar{
+      flex:1; height:14px; border-radius:999px;
+      background: rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.08);
+      overflow:hidden;
+    }
+    .bar>i{
+      display:block; height:100%;
+      width: var(--w, 55%);
+      background: linear-gradient(90deg, var(--blue), var(--green));
+    }
+
+    /* Section headings */
+    .section{margin-top: 18px}
     .sectionHead{
-      display:flex; align-items:flex-end; justify-content:space-between;
-      gap: 14px; flex-wrap:wrap;
-      margin: 16px 0 12px;
+      display:flex; align-items:flex-end; justify-content:space-between; gap:12px; flex-wrap:wrap;
+      margin-bottom: 12px;
     }
     .sectionHead h2{
       margin:0;
-      font-size: clamp(18px, 2.3vw, 30px);
-      letter-spacing: -.2px;
+      font-size: clamp(18px, 3.2vw, 26px);
+      letter-spacing:.2px;
     }
     .sectionHead p{
       margin:0;
-      color: var(--muted);
-      max-width: 70ch;
-      line-height: 1.6;
-      font-weight: 650;
+      color: rgba(203,213,225,.90);
+      font-size: 13px;
+      line-height: 1.55;
+      max-width: 62ch;
     }
 
-    .featureGrid{
-      display:grid;
-      grid-template-columns: repeat(12, 1fr);
-      gap: 12px;
-    }
-    .feature{
-      grid-column: span 4;
-      border-radius: var(--radius2);
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.04);
-      box-shadow: var(--glowSoft);
-      padding: 16px;
-      overflow:hidden;
-      position:relative;
-      min-height: 160px;
-    }
-    .feature::before{
+    /* Pricing */
+    .priceGrid{display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px}
+    @media (max-width: 900px){ .priceGrid{grid-template-columns:1fr} }
+    .priceCard{position:relative; overflow:hidden}
+    .priceCard::before{
       content:"";
       position:absolute; inset:-2px;
-      background:
-        radial-gradient(600px 160px at 20% 0%, rgba(246,198,0,.14), transparent 60%),
-        radial-gradient(600px 160px at 80% 10%, rgba(255,255,255,.09), transparent 60%);
+      background: radial-gradient(600px 220px at 30% 0%, rgba(250,204,21,.18), transparent 60%),
+                  radial-gradient(600px 220px at 70% 0%, rgba(251,146,60,.16), transparent 60%);
       opacity:.9;
       pointer-events:none;
     }
-    .feature > *{ position:relative; z-index:1; }
-    .feature b{
-      display:block;
-      font-size: 14px;
-      letter-spacing:.2px;
-      margin-bottom: 8px;
-    }
-    .feature p{
-      margin:0;
-      color: var(--muted);
-      line-height: 1.55;
-      font-weight: 650;
-      font-size: 13px;
-    }
-    .feature .mini{
-      margin-top: 10px;
-      color: var(--muted2);
-      font-size: 12px;
-      line-height: 1.45;
-    }
-    @media (max-width: 980px){
-      .feature{grid-column: span 6;}
-    }
-    @media (max-width: 620px){
-      .feature{grid-column: span 12;}
-    }
-
-    /* “O que você recebe” */
-    .bundle{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-    @media (max-width: 980px){ .bundle{grid-template-columns:1fr;} }
-    .bundle .big{
-      border-radius: var(--radius);
-      border: 1px solid rgba(246,198,0,.22);
-      background:
-        radial-gradient(900px 260px at 30% 20%, rgba(246,198,0,.18), transparent 60%),
-        radial-gradient(900px 260px at 70% 20%, rgba(255,255,255,.10), transparent 60%),
-        rgba(255,255,255,.04);
-      box-shadow: var(--glowGold), var(--shadow2);
-      overflow:hidden;
-    }
-    .list{
-      display:grid;
-      gap: 10px;
-      margin-top: 12px;
-    }
-    .li{
-      display:flex; gap: 10px; align-items:flex-start;
-      padding: 12px 12px;
-      border-radius: 16px;
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(0,0,0,.16);
-    }
-    .check{
-      width: 22px; height:22px; border-radius: 8px;
-      background: rgba(246,198,0,.18);
-      border: 1px solid rgba(246,198,0,.28);
-      box-shadow: 0 14px 32px rgba(0,0,0,.45);
-      flex: 0 0 22px;
-      position:relative;
-      margin-top: 1px;
-    }
-    .check::after{
-      content:"";
-      position:absolute;
-      left:6px; top:4px;
-      width: 7px; height: 11px;
-      border-right: 3px solid var(--gold2);
-      border-bottom: 3px solid var(--gold2);
-      transform: rotate(40deg);
-    }
-    .li b{display:block; font-size: 13px;}
-    .li span{display:block; color: var(--muted); font-size: 12px; line-height: 1.5; margin-top: 2px;}
-
-    /* Planos */
-    .pricing{
-      display:grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 12px;
-    }
-    @media (max-width: 980px){ .pricing{grid-template-columns:1fr;} }
-    .priceCard{
-      border-radius: var(--radius);
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.04);
-      box-shadow: var(--shadow2);
-      overflow:hidden;
-      position:relative;
-    }
-    .priceCard .head{
-      padding: 16px 16px;
-      border-bottom: 1px solid rgba(255,255,255,.08);
-      background: rgba(255,255,255,.03);
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap: 12px;
-    }
-    .badge{
-      font-size: 11px;
-      font-weight: 1000;
+    .priceInner{position:relative}
+    .tag{
+      display:inline-flex; align-items:center; gap:8px;
       padding: 7px 10px;
       border-radius: 999px;
+      font-weight: 1000;
+      font-size: 12px;
       border: 1px solid rgba(255,255,255,.14);
       background: rgba(255,255,255,.06);
-      color: var(--text);
-      white-space:nowrap;
     }
-    .badge.gold{
-      border-color: rgba(246,198,0,.35);
-      background: rgba(246,198,0,.14);
-      color: #fff1aa;
-    }
-    .priceCard .body{ padding: 16px; }
+    .tag.premium{border-color: rgba(56,189,248,.30); background: rgba(56,189,248,.12); color: #e6f8ff}
+    .tag.extra{border-color: rgba(250,204,21,.35); background: rgba(250,204,21,.14); color: #fff2b0}
     .price{
       font-size: 34px;
       font-weight: 1100;
-      letter-spacing: -0.5px;
-      margin: 8px 0 6px;
+      margin: 8px 0 8px;
+      letter-spacing: .2px;
     }
-    .price small{
-      font-size: 12px;
-      color: var(--muted2);
-      font-weight: 900;
-      letter-spacing:.2px;
-    }
-    .benefits{
-      margin-top: 12px;
-      display:grid;
-      gap: 8px;
-    }
-    .benefits .b{
-      display:flex; gap: 10px; align-items:flex-start;
-      color: var(--muted);
-      font-weight: 700;
+    .ul{margin: 10px 0 0; padding:0; list-style:none; display:grid; gap:10px}
+    .ul li{
+      display:flex; gap:10px; align-items:flex-start;
+      color: rgba(203,213,225,.92);
       font-size: 13px;
-      line-height: 1.4;
+      line-height: 1.45;
     }
-    .benefits .b i{
-      width: 10px; height: 10px; border-radius: 4px;
-      background: rgba(246,198,0,.85);
-      margin-top: 5px;
-      flex: 0 0 10px;
-    }
-    .priceCard .cta{
-      padding: 16px;
-      border-top: 1px solid rgba(255,255,255,.08);
-      display:flex;
-      gap: 10px;
-      flex-wrap:wrap;
-      align-items:center;
-      justify-content:space-between;
-      background: rgba(0,0,0,.18);
+    .chk{
+      width:18px;height:18px;border-radius:6px;
+      background: rgba(34,197,94,.14);
+      border: 1px solid rgba(34,197,94,.25);
+      display:flex; align-items:center; justify-content:center;
+      color:#eafff4;
+      flex:0 0 auto;
+      margin-top: 1px;
+      font-weight: 1000;
     }
 
     /* FAQ */
     details{
-      border-radius: 18px;
       border: 1px solid rgba(255,255,255,.12);
       background: rgba(255,255,255,.04);
-      padding: 12px 14px;
+      border-radius: 16px;
+      padding: 12px 12px;
     }
-    details summary{
+    summary{
       cursor:pointer;
       font-weight: 1000;
-      color: var(--text);
       list-style:none;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap: 12px;
     }
-    details summary::-webkit-details-marker{display:none}
-    details summary .q{
-      color: var(--muted);
-      font-weight: 900;
-      font-size: 12px;
-    }
-    details .ans{
-      margin-top: 10px;
-      color: var(--muted);
-      line-height: 1.6;
-      font-weight: 650;
+    summary::-webkit-details-marker{display:none}
+    details p{
+      margin:10px 0 0;
+      color: rgba(203,213,225,.92);
       font-size: 13px;
-    }
-    .faqGrid{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-    @media (max-width: 980px){ .faqGrid{grid-template-columns:1fr;} }
-
-    /* Footer CTA */
-    .finalCTA{
-      margin: 18px 0 34px;
-      border-radius: var(--radius);
-      border: 1px solid rgba(246,198,0,.20);
-      background:
-        radial-gradient(1000px 320px at 20% 20%, rgba(246,198,0,.18), transparent 60%),
-        radial-gradient(1000px 320px at 85% 25%, rgba(255,255,255,.10), transparent 60%),
-        rgba(255,255,255,.04);
-      box-shadow: var(--glowGold), var(--shadow2);
-      overflow:hidden;
-    }
-    .finalCTA .grid{
-      display:grid;
-      grid-template-columns: 1.2fr .8fr;
-      gap: 12px;
-      padding: 18px;
-      align-items:center;
-    }
-    @media (max-width: 980px){ .finalCTA .grid{grid-template-columns:1fr;} }
-
-    .fineprint{
-      color: rgba(248,250,252,.62);
-      font-size: 11px;
-      line-height: 1.5;
-      padding: 14px 0 28px;
-      text-align:center;
+      line-height: 1.6;
     }
 
-    /* Modal (Vídeo / Lightbox) */
-    .modalBack{
-      position:fixed; inset:0;
-      display:none;
-      align-items:center; justify-content:center;
-      padding: 16px;
-      background: rgba(0,0,0,.72);
+    /* Footer note */
+    .note{
+      color: rgba(148,163,184,.88);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    /* Sticky CTA (mobile) */
+    .stickyCta{
+      position:fixed;
+      left:0; right:0; bottom:0;
+      padding: 12px 12px;
+      background: rgba(2,6,23,.72);
+      border-top: 1px solid rgba(255,255,255,.10);
       backdrop-filter: blur(10px);
-      z-index: 999;
+      z-index: 60;
     }
-    .modal{
-      width:100%;
-      max-width: 980px;
-      border-radius: 22px;
-      border: 1px solid rgba(255,255,255,.14);
-      background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.03));
-      box-shadow: 0 50px 150px rgba(0,0,0,.75);
-      overflow:hidden;
+    .stickyInner{
+      max-width: var(--max);
+      margin:0 auto;
+      display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap;
     }
-    .modalTop{
-      display:flex; align-items:center; justify-content:space-between;
-      padding: 12px 14px;
-      border-bottom: 1px solid rgba(255,255,255,.10);
-      background: rgba(0,0,0,.20);
-      gap: 10px;
+    .stickyInner .txt{
+      display:flex; flex-direction:column; gap:2px;
     }
-    .modalTop b{font-size: 13px;}
-    .x{
-      border-radius: 12px;
-      padding: 9px 11px;
-      border: 1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.05);
-      color: var(--text);
-      font-weight: 1000;
-      cursor:pointer;
-    }
-    .modalBody{ padding: 12px 14px 14px; }
-    .frame{
-      width:100%;
-      aspect-ratio: 16/9;
-      border: 1px solid rgba(255,255,255,.12);
-      border-radius: 16px;
-      overflow:hidden;
-      background: rgba(0,0,0,.35);
-    }
-    iframe{width:100%; height:100%; border:0}
-
-    .imgView{
-      width:100%;
-      max-height: 74vh;
-      object-fit:contain;
-      border-radius: 16px;
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(0,0,0,.25);
-    }
-
-    /* Micro animação */
-    .floaty{
-      animation: floaty 6.5s ease-in-out infinite;
-      transform-origin:center;
-    }
-    @keyframes floaty{
-      0%,100%{transform: translateY(0)}
-      50%{transform: translateY(-6px)}
+    .stickyInner .txt b{font-size: 13px}
+    .stickyInner .txt span{font-size: 12px; color: rgba(203,213,225,.90)}
+    @media (min-width: 900px){
+      .stickyCta{display:none;}
     }
   </style>
 </head>
 
 <body>
-  <div class="noise"></div>
-  <div class="gridlines"></div>
+  <!-- CONFIG (links do seu index) -->
+  <script>
+    const BUY_LINK = "https://pay.hotmart.com/O104148865Y?off=c4m0nezi";   // Premium
+    const BUY_LINK_15P = "https://pay.hotmart.com/Y104149008G?off=eehchnv4"; // Extra 15P
+  </script>
 
-  <!-- TOP BAR -->
+  <!-- TOPBAR -->
   <div class="topbar">
-    <div class="wrap">
-      <div class="inner">
-        <div class="brand">
-          <!-- Troque para o nome do seu arquivo -->
-          <img src="logo.png" alt="Lotofácil Prime Analytics" />
-          <div>
+    <div class="topbarInner">
+      <div class="brand">
+        <!-- Troque para o nome do arquivo da sua logo -->
+        <img src="logo.png" alt="Lotofácil Prime Analytics" />
+        <div>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
             <b>Lotofácil Prime Analytics</b>
-            <div style="font-size:12px;color:var(--muted2);font-weight:800; margin-top:2px">
-              N&V-Sistemas • Página Oficial
-            </div>
+            <span class="pill"><i class="dot"></i> Plataforma online</span>
           </div>
+          <div style="color:rgba(148,163,184,.92); font-weight:900; font-size:12px">Análise • Estratégia • Painel Premium</div>
         </div>
+      </div>
 
-        <div class="nav">
-          <a href="#o-que-e">O que é</a>
-          <a href="#como-funciona">Como funciona</a>
-          <a href="#prints">Fotos</a>
-          <a href="#planos">Planos</a>
-          <a href="#faq">FAQ</a>
-          <button class="btn btnGold btnSmall" onclick="scrollToId('planos')">Comprar agora</button>
-        </div>
+      <div class="nav">
+        <a href="#beneficios">Benefícios</a>
+        <a href="#como-funciona">Como funciona</a>
+        <a href="#recursos">Recursos</a>
+        <a href="#planos">Planos</a>
+        <a href="#faq">FAQ</a>
+        <a class="btn btnGold" href="#planos" style="padding:10px 12px">Comprar</a>
       </div>
     </div>
   </div>
 
-  <!-- HERO -->
-  <header class="hero">
-    <div class="wrap">
+  <div class="wrap">
+    <!-- HERO -->
+    <section class="hero" id="topo">
       <div class="heroGrid">
-        <div class="card">
-          <div class="cardInner">
-            <span class="pill"><span class="dot"></span> Visual premium • Explicação completa • Pronto para vender</span>
-            <h1>
-              O sistema que entrega <span style="color:var(--gold2)">Análise PRIME</span>,
-              gera o <span style="color:var(--gold2)">Jogo Principal</span> e cria variações
-              (<span style="color:var(--gold2)">Invertida</span> + <span style="color:var(--gold2)">Técnica</span>)
-              — com uma experiência moderna.
-            </h1>
-            <p class="subtitle">
-              Uma plataforma completa com login, controle de acesso (Free/Premium), painel de análises estatísticas,
-              geração de jogos e recursos extras. Nesta página você explica claramente o que o cliente está comprando,
-              com vídeo e fotos do sistema, em um layout diferenciado para o mercado digital.
-            </p>
+        <div class="card pad">
+          <span class="kicker">🎯 Seu painel para montar estratégias com base em estatística</span>
+          <h1>
+            Mais clareza, menos achismo.<br/>
+            <span style="color:#fff2b0">Análise PRIME</span> para sua Lotofácil.
+          </h1>
+          <p class="sub">
+            O <b>Lotofácil Prime Analytics</b> organiza frequência, recência, coocorrência e padrões de jogos em uma experiência moderna
+            e simples de usar. Você decide a estratégia — o sistema te dá visão e estrutura.
+          </p>
 
-            <div class="heroCTAs">
-              <button class="btn btnGold" onclick="openVideo()">▶ Ver vídeo explicativo</button>
-              <button class="btn btnGhost" onclick="scrollToId('o-que-recebe')">Ver tudo que recebo</button>
-              <a class="btn btnGhost" href="https://pay.hotmart.com/O104148865Y?off=c4m0nezi" target="_blank" rel="noopener">Comprar Premium</a>
+          <div class="heroBullets">
+            <div class="bullet">
+              <div class="ic">📊</div>
+              <div>
+                <b>Resumo PRIME</b>
+                <span>Indicadores (pares/ímpares, blocos, soma, sequências) para montar jogos mais equilibrados.</span>
+              </div>
             </div>
+            <div class="bullet">
+              <div class="ic">⚡</div>
+              <div>
+                <b>Rápido no celular</b>
+                <span>Design responsivo com visual premium e navegação direta para as funções.</span>
+              </div>
+            </div>
+            <div class="bullet">
+              <div class="ic">🔒</div>
+              <div>
+                <b>Área Premium + Extra</b>
+                <span>Libere ferramentas avançadas e o módulo Extra de estratégia com 10 jogos (15P).</span>
+              </div>
+            </div>
+          </div>
 
-            <div class="trustRow">
-              <span class="tag"><i></i> Área Premium + Free 1x</span>
-              <span class="tag"><i></i> Análise + Probabilidades</span>
-              <span class="tag"><i></i> Extra 15P (separado)</span>
-              <span class="tag"><i></i> Visual 4K / Responsivo</span>
-            </div>
+          <div class="heroActions">
+            <button class="btn btnGold" onclick="scrollToId('planos')">🔥 Quero acessar o Premium</button>
+            <button class="btn btnGhost" onclick="scrollToId('como-funciona')">Ver como funciona</button>
+            <button class="btn btnBlue" onclick="openLink(BUY_LINK_15P)">✨ Ver Extra 15P</button>
+          </div>
+
+          <div class="note" style="margin-top:12px">
+            Aviso: análise estatística <b>não garante premiação</b>. Jogue com responsabilidade ✅
           </div>
         </div>
 
-        <div class="card floaty">
-          <div class="mediaTop">
-            <b>🎥 Demonstração + 📸 Fotos do sistema</b>
-            <button class="btn btnGhost btnSmall" onclick="scrollToId('prints')">Ver galeria</button>
+        <div class="card pad">
+          <div class="mockHeader">
+            <div>
+              <div style="font-weight:1000; font-size:16px">📌 Prévia do Painel</div>
+              <div style="color:rgba(148,163,184,.92); font-weight:900; font-size:12px; margin-top:4px">
+                Visual moderno • Cards • Indicadores
+              </div>
+            </div>
+            <span class="tag premium">PREMIUM</span>
           </div>
 
-          <div class="preview">
-            <div class="videoBox" role="button" tabindex="0" onclick="openVideo()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openVideo();}">
-              <div class="videoOverlay">
-                <button class="playBtn" aria-label="Assistir vídeo">
-                  <div class="triangle"></div>
-                </button>
-                <div style="font-weight:1000; font-size:14px">Assista em 60–120s como funciona</div>
-                <div style="color:var(--muted2); font-weight:800; font-size:12px">
-                  (Você troca o link do vídeo no código)
-                </div>
-              </div>
+          <div class="row" style="margin-top:12px">
+            <div class="stat">
+              <small>Janela analisada</small>
+              <b>20 concursos</b>
             </div>
+            <div class="stat">
+              <small>Status</small>
+              <b style="color:#eafff4">Online</b>
+            </div>
+          </div>
 
-            <div class="mediaNote">
-              ✅ Aqui você pode colocar: vídeo do YouTube/Vimeo + prints do painel (login, home, análise, principal, invertida, técnica, jogos salvos, 15P).
+          <div class="bars">
+            <div class="barRow">
+              <div class="name">Top 10</div>
+              <div class="bar" style="--w:78%"><i></i></div>
             </div>
+            <div class="barRow">
+              <div class="name">Atrasadas</div>
+              <div class="bar" style="--w:62%"><i></i></div>
+            </div>
+            <div class="barRow">
+              <div class="name">Padrões</div>
+              <div class="bar" style="--w:70%"><i></i></div>
+            </div>
+            <div class="barRow">
+              <div class="name">Coocorr.</div>
+              <div class="bar" style="--w:55%"><i></i></div>
+            </div>
+          </div>
 
-            <!-- GALERIA (troque os src para suas imagens reais) -->
-            <div class="gallery" id="prints">
-              <div class="shot" onclick="openImage('prints/01-login.jpg','Tela de Login')">
-                <img src="prints/01-login.jpg" alt="Tela de Login" onerror="this.style.display='none';this.parentElement.style.minHeight='110px';this.parentElement.innerHTML='<div style=&quot;padding:14px;color:var(--muted2);font-weight:900;font-size:12px&quot;>Adicione: <b>prints/01-login.jpg</b><div style=&quot;margin-top:6px&quot;>Tela de Login</div></div>';">
-                <span class="cap">Login</span>
-              </div>
-              <div class="shot" onclick="openImage('prints/02-home.jpg','Tela Principal')">
-                <img src="prints/02-home.jpg" alt="Tela Principal" onerror="this.style.display='none';this.parentElement.style.minHeight='110px';this.parentElement.innerHTML='<div style=&quot;padding:14px;color:var(--muted2);font-weight:900;font-size:12px&quot;>Adicione: <b>prints/02-home.jpg</b><div style=&quot;margin-top:6px&quot;>Tela Principal</div></div>';">
-                <span class="cap">Home</span>
-              </div>
-              <div class="shot" onclick="openImage('prints/03-analise.jpg','Análise PRIME')">
-                <img src="prints/03-analise.jpg" alt="Análise PRIME" onerror="this.style.display='none';this.parentElement.style.minHeight='110px';this.parentElement.innerHTML='<div style=&quot;padding:14px;color:var(--muted2);font-weight:900;font-size:12px&quot;>Adicione: <b>prints/03-analise.jpg</b><div style=&quot;margin-top:6px&quot;>Análise PRIME</div></div>';">
-                <span class="cap">Análise</span>
-              </div>
-              <div class="shot" onclick="openImage('prints/04-principal.jpg','Jogo Principal')">
-                <img src="prints/04-principal.jpg" alt="Jogo Principal" onerror="this.style.display='none';this.parentElement.style.minHeight='110px';this.parentElement.innerHTML='<div style=&quot;padding:14px;color:var(--muted2);font-weight:900;font-size:12px&quot;>Adicione: <b>prints/04-principal.jpg</b><div style=&quot;margin-top:6px&quot;>Jogo Principal</div></div>';">
-                <span class="cap">Principal</span>
-              </div>
-              <div class="shot" onclick="openImage('prints/05-invertida.jpg','Invertida')">
-                <img src="prints/05-invertida.jpg" alt="Invertida" onerror="this.style.display='none';this.parentElement.style.minHeight='110px';this.parentElement.innerHTML='<div style=&quot;padding:14px;color:var(--muted2);font-weight:900;font-size:12px&quot;>Adicione: <b>prints/05-invertida.jpg</b><div style=&quot;margin-top:6px&quot;>Invertida</div></div>';">
-                <span class="cap">Invertida</span>
-              </div>
-              <div class="shot" onclick="openImage('prints/06-15p.jpg','Extra 15P')">
-                <img src="prints/06-15p.jpg" alt="Extra 15P" onerror="this.style.display='none';this.parentElement.style.minHeight='110px';this.parentElement.innerHTML='<div style=&quot;padding:14px;color:var(--muted2);font-weight:900;font-size:12px&quot;>Adicione: <b>prints/06-15p.jpg</b><div style=&quot;margin-top:6px&quot;>Extra 15P</div></div>';">
-                <span class="cap">Extra 15P</span>
-              </div>
+          <div class="soft" style="margin-top:14px">
+            <div style="font-weight:1000">✅ O que você recebe</div>
+            <div class="note" style="margin-top:6px">
+              Uma plataforma com interface premium, focada em organizar dados e facilitar decisões.
+              Sem enrolação: abrir, escolher a janela e gerar/analisar.
             </div>
+          </div>
+
+          <div class="row" style="margin-top:14px">
+            <button class="btn btnGreen btnBlock" onclick="openLink(BUY_LINK)">Comprar Premium</button>
+            <button class="btn btnGhost btnBlock" onclick="scrollToId('recursos')">Ver recursos</button>
           </div>
         </div>
       </div>
-    </div>
-  </header>
+    </section>
 
-  <!-- O QUE É -->
-  <section id="o-que-e">
-    <div class="wrap">
+    <!-- BENEFÍCIOS -->
+    <section class="section" id="beneficios">
       <div class="sectionHead">
         <div>
-          <h2>O que é o Lotofácil Prime Analytics</h2>
-          <p>
-            É um sistema completo que combina <b>análise estatística</b>, <b>recência</b>, <b>frequência</b>,
-            <b>coocorrência</b> e padrões (pares/ímpares, somas, blocos A–E) para ajudar na montagem estratégica de jogos.
-          </p>
+          <h2>O que torna a página / produto “premium” na prática</h2>
+          <p>Estrutura de vendas + proposta clara + foco no valor: você mostra o que a pessoa ganha e como usa.</p>
         </div>
-        <button class="btn btnGhost btnSmall" onclick="scrollToId('como-funciona')">Ver como funciona</button>
       </div>
 
-      <div class="featureGrid">
-        <div class="feature">
-          <b>🔐 Login + Controle de acesso (Free/Premium)</b>
-          <p>O usuário entra com email e senha. Modo Free libera uso limitado e Premium libera as ferramentas principais.</p>
-          <div class="mini">Ideal para entregar um produto “fechado”, com sensação de plataforma profissional.</div>
+      <div class="grid grid3">
+        <div class="card pad">
+          <div style="font-weight:1000; font-size:16px">🎯 Objetivo claro</div>
+          <div class="note" style="margin-top:6px">
+            Ajudar o usuário a montar jogos com base em estatística (frequência, recência e padrões) e organização.
+          </div>
         </div>
-
-        <div class="feature">
-          <b>📈 Análise PRIME (painel completo)</b>
-          <p>Mostra padrões e tendências: distribuição pares/ímpares, somas, blocos, top 10 frequentes, top 10 atrasadas e conjuntos que mais saem juntos.</p>
-          <div class="mini">Perfeito para o cliente entender o “porquê” por trás dos resultados.</div>
+        <div class="card pad">
+          <div style="font-weight:1000; font-size:16px">🧠 Menos “achismo”</div>
+          <div class="note" style="margin-top:6px">
+            O painel resume dados e destaca padrões comuns para evitar extremos (ex.: soma e distribuição).
+          </div>
         </div>
-
-        <div class="feature">
-          <b>🎯 Jogo Principal (15 dezenas)</b>
-          <p>Gera um jogo com explicação das escolhas (ex.: repetição do último, top10 frequentes, atrasadas e dupla forte), com opção de montar manualmente.</p>
-          <div class="mini">Entrega “jogo pronto” + transparência (explicação por dezena).</div>
+        <div class="card pad">
+          <div style="font-weight:1000; font-size:16px">⚡ Experiência moderna</div>
+          <div class="note" style="margin-top:6px">
+            Visual chamativo, botões com glow, cards e navegação fluida — pronto para converter no mobile.
+          </div>
         </div>
+      </div>
+    </section>
 
-        <div class="feature">
+    <!-- COMO FUNCIONA -->
+    <section class="section" id="como-funciona">
+      <div class="sectionHead">
+        <div>
+          <h2>Como funciona em 3 passos</h2>
+          <p>Simples, direto e com foco na ação.</p>
+        </div>
+        <button class="btn btnGhost" onclick="scrollToId('planos')">Ir para os planos</button>
+      </div>
+
+      <div class="grid grid3">
+        <div class="card pad">
+          <div class="soft">
+            <b>1) Escolha a janela</b>
+            <div class="note" style="margin-top:6px">Selecione quantos concursos quer analisar (ex.: 10, 20, 30...).</div>
+          </div>
+          <div class="note" style="margin-top:10px">
+            Quanto maior a janela, mais “pesado” fica — mas você ganha visão de tendência.
+          </div>
+        </div>
+        <div class="card pad">
+          <div class="soft">
+            <b>2) Use as ferramentas</b>
+            <div class="note" style="margin-top:6px">Geração/Análise/Invertida/Técnica + jogos salvos.</div>
+          </div>
+          <div class="note" style="margin-top:10px">
+            O Premium libera as ferramentas principais; o Extra abre o módulo 15P (10 jogos).
+          </div>
+        </div>
+        <div class="card pad">
+          <div class="soft">
+            <b>3) Monte sua estratégia</b>
+            <div class="note" style="margin-top:6px">Você decide como jogar — o painel só organiza e mostra indicadores.</div>
+          </div>
+          <div class="note" style="margin-top:10px">
+            Inclui aviso de jogo responsável e sem promessas irreais.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RECURSOS -->
+    <section class="section" id="recursos">
+      <div class="sectionHead">
+        <div>
+          <h2>Recursos que você pode destacar na venda</h2>
+          <p>Textos curtos, objetivos e “escaneáveis”.</p>
+        </div>
+      </div>
+
+      <div class="grid grid4">
+        <div class="card pad">
+          <b>📈 Análise PRIME</b>
+          <div class="note" style="margin-top:6px">Pares/ímpares, soma, padrões por blocos (A–E), recência e tendências.</div>
+        </div>
+        <div class="card pad">
+          <b>🎯 Jogo Principal</b>
+          <div class="note" style="margin-top:6px">Geração de 15 dezenas + explicação simples do porquê das escolhas.</div>
+        </div>
+        <div class="card pad">
           <b>🔄 Invertida</b>
-          <p>Usa o Jogo Principal e cria uma inversão por blocos no cartão 5×5, gerando uma variação estratégica.</p>
-          <div class="mini">Ajuda a explorar padrões sem depender do acaso.</div>
+          <div class="note" style="margin-top:6px">Transformações por blocos no cartão 5×5 usando o principal como base.</div>
         </div>
-
-        <div class="feature">
+        <div class="card pad">
           <b>🏆 Técnica Premiada</b>
-          <p>Gera 2 jogos extras derivados do Principal, reordenando por blocos para ampliar cobertura de combinações.</p>
-          <div class="mini">Mais variações com lógica — sem “chute”.</div>
+          <div class="note" style="margin-top:6px">Dois jogos extras gerados a partir do principal (reordenação por blocos).</div>
         </div>
-
-        <div class="feature">
-          <b>💾 Jogos Salvos + Conferência</b>
-          <p>Salva pacote (Principal + Invertida + Técnica) e permite conferir desempenho nos últimos concursos (5/10/20).</p>
-          <div class="mini">O usuário “vê valor” revisitando os resultados salvos.</div>
+        <div class="card pad">
+          <b>💾 Jogos Salvos</b>
+          <div class="note" style="margin-top:6px">Salve pacotes e confira acertos nos últimos concursos (painel de conferência).</div>
+        </div>
+        <div class="card pad">
+          <b>✍️ Manual</b>
+          <div class="note" style="margin-top:6px">Monte seu jogo e use como “principal” para Invertida e Técnica.</div>
+        </div>
+        <div class="card pad">
+          <b>✨ Extra 15P</b>
+          <div class="note" style="margin-top:6px">Módulo separado com 5 linhas + 10 jogos (combinações de 3 em 5).</div>
+        </div>
+        <div class="card pad">
+          <b>🔐 Login + Acesso</b>
+          <div class="note" style="margin-top:6px">Área com login e controle Premium/Extra (claims). Design consistente.</div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- COMO FUNCIONA -->
-  <section id="como-funciona">
-    <div class="wrap">
+    <!-- PROVA / DEPOIMENTOS (placeholder) -->
+    <section class="section" id="prova">
       <div class="sectionHead">
         <div>
-          <h2>Como funciona por dentro (explicação clara para o comprador)</h2>
-          <p>
-            Aqui você explica o fluxo do produto de forma simples, reduzindo dúvidas e aumentando conversão.
-            (Texto pronto, mas você pode ajustar.)
-          </p>
+          <h2>Prova social (adicione depois)</h2>
+          <p>Deixe espaço para prints, mensagens, feedbacks e resultados (sem prometer garantias).</p>
         </div>
       </div>
 
-      <div class="bundle">
-        <div class="card big">
-          <div class="cardInner">
-            <span class="pill"><span class="dot"></span> Fluxo do usuário (do zero ao jogo)</span>
-            <div class="list">
-              <div class="li">
-                <div class="check"></div>
-                <div>
-                  <b>1) Login e validação de acesso</b>
-                  <span>O cliente entra com email/senha. Se estiver no Premium, as ferramentas premium liberam automaticamente.</span>
-                </div>
-              </div>
-              <div class="li">
-                <div class="check"></div>
-                <div>
-                  <b>2) Escolha da janela de concursos</b>
-                  <span>O usuário seleciona quantos concursos serão analisados (ex.: 20 é o ideal). Isso define a base estatística.</span>
-                </div>
-              </div>
-              <div class="li">
-                <div class="check"></div>
-                <div>
-                  <b>3) Análise PRIME (opcional)</b>
-                  <span>Gera painel completo: pares/ímpares, somas, blocos A–E, top frequentes/atrasadas e conjuntos repetidos.</span>
-                </div>
-              </div>
-              <div class="li">
-                <div class="check"></div>
-                <div>
-                  <b>4) Jogo Principal (15 dezenas)</b>
-                  <span>O sistema monta o jogo com lógica e mostra os motivos por trás das dezenas. Também permite jogo manual.</span>
-                </div>
-              </div>
-              <div class="li">
-                <div class="check"></div>
-                <div>
-                  <b>5) Invertida + Técnica Premiada</b>
-                  <span>Variações baseadas no principal. O cliente pode conferir os jogos gerados com resultados recentes.</span>
-                </div>
-              </div>
-            </div>
-          </div>
+      <div class="grid grid3">
+        <div class="card pad">
+          <b>⭐ “Interface muito top”</b>
+          <div class="note" style="margin-top:6px">“Agora eu entendo melhor o que estou fazendo.”</div>
+          <div class="note" style="margin-top:10px; opacity:.9">— Cliente (coloque nome/cidade se quiser)</div>
         </div>
-
-        <div class="card">
-          <div class="cardInner">
-            <span class="pill"><span class="dot"></span> Transparência e confiança</span>
-            <div class="list">
-              <div class="li">
-                <div class="check"></div>
-                <div>
-                  <b>Motivos por dezena (explicação)</b>
-                  <span>O cliente entende por que cada número entrou: recência, frequência, atraso e padrões reais.</span>
-                </div>
-              </div>
-              <div class="li">
-                <div class="check"></div>
-                <div>
-                  <b>Conferência dos jogos salvos</b>
-                  <span>Ele consegue comparar o desempenho nos últimos concursos e manter histórico local.</span>
-                </div>
-              </div>
-              <div class="li">
-                <div class="check"></div>
-                <div>
-                  <b>Aviso de jogo responsável</b>
-                  <span>Você deixa claro: é estatística e estratégia — não promessa de premiação.</span>
-                </div>
-              </div>
-              <div class="li">
-                <div class="check"></div>
-                <div>
-                  <b>EXTRA 15P separado</b>
-                  <span>Upsell com alto valor percebido: estratégia de 10 jogos baseada em 5 linhas.</span>
-                </div>
-              </div>
-            </div>
-
-            <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap">
-              <button class="btn btnGold" onclick="scrollToId('planos')">Ver planos</button>
-              <button class="btn btnGhost" onclick="openVideo()">Ver vídeo</button>
-            </div>
-
-            <div class="mediaNote" style="margin-top:14px">
-              <b>Importante:</b> Estatística não garante premiação. Use como apoio estratégico.
-            </div>
-          </div>
+        <div class="card pad">
+          <b>⭐ “Bem mais organizado”</b>
+          <div class="note" style="margin-top:6px">“Os indicadores ajudam a evitar jogo muito fora do padrão.”</div>
+          <div class="note" style="margin-top:10px; opacity:.9">— Cliente</div>
+        </div>
+        <div class="card pad">
+          <b>⭐ “Gostei do 15P”</b>
+          <div class="note" style="margin-top:6px">“O módulo extra é bem explicado e fácil de usar.”</div>
+          <div class="note" style="margin-top:10px; opacity:.9">— Cliente</div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- O QUE RECEBE -->
-  <section id="o-que-recebe">
-    <div class="wrap">
-      <div class="sectionHead">
-        <div>
-          <h2>O que você recebe ao comprar</h2>
-          <p>Descrição direta, sem enrolação — o cliente bate o olho e entende o valor do produto.</p>
-        </div>
-      </div>
-
-      <div class="featureGrid">
-        <div class="feature">
-          <b>✅ Acesso ao painel (Web)</b>
-          <p>Interface moderna, responsiva e organizada, com navegação simples e foco total no que importa.</p>
-          <div class="mini">Visual 4K com layout premium (igual a esta página).</div>
-        </div>
-
-        <div class="feature">
-          <b>✅ Ferramentas Premium</b>
-          <p>Análise PRIME completa, Invertida, Técnica Premiada e Jogos Salvos com conferência.</p>
-          <div class="mini">Tudo liberado no plano Premium.</div>
-        </div>
-
-        <div class="feature">
-          <b>✅ Jogo Principal com explicação</b>
-          <p>Geração das 15 dezenas + painel explicando as escolhas e padrões do período analisado.</p>
-          <div class="mini">Opção de “montar manualmente” também.</div>
-        </div>
-
-        <div class="feature">
-          <b>✅ EXTRA 15P (Upsell)</b>
-          <p>Estratégia separada com 5 linhas e geração de 10 jogos (combinações 3 de 5).</p>
-          <div class="mini">Compra separada e desbloqueio por ativação.</div>
-        </div>
-
-        <div class="feature">
-          <b>✅ Ativação por código</b>
-          <p>Fluxo “Já comprei” para o cliente inserir código e liberar Premium/Extra sem complicação.</p>
-          <div class="mini">Excelente para vendas no digital e suporte.</div>
-        </div>
-
-        <div class="feature">
-          <b>✅ Salvamento local e conferência</b>
-          <p>O sistema guarda pacotes e permite conferir quantos pontos faria nos últimos concursos.</p>
-          <div class="mini">Mais retenção + valor percebido.</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- PLANOS -->
-  <section id="planos">
-    <div class="wrap">
+    <!-- PLANOS -->
+    <section class="section" id="planos">
       <div class="sectionHead">
         <div>
           <h2>Escolha seu acesso</h2>
-          <p>Você pode vender Premium e, separadamente, o EXTRA 15P. Os botões abaixo já estão com seus links Hotmart.</p>
+          <p>Dois botões de compra, como no seu app. (Você pode editar textos e colocar preço real.)</p>
         </div>
       </div>
 
-      <div class="pricing">
-        <div class="priceCard">
-          <div class="head">
-            <div>
-              <b>Free (demonstração)</b>
-              <div style="color:var(--muted2); font-size:12px; font-weight:800; margin-top:4px">Para o cliente testar a plataforma</div>
+      <div class="priceGrid">
+        <!-- PREMIUM -->
+        <div class="card pad priceCard">
+          <div class="priceInner">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+              <span class="tag premium">👑 PREMIUM</span>
+              <span class="pill">Acesso às ferramentas principais</span>
             </div>
-            <span class="badge">FREE 1x</span>
-          </div>
-          <div class="body">
-            <div class="price">R$ 0 <small>• uso limitado</small></div>
-            <div class="benefits">
-              <div class="b"><i></i> Acesso ao login e interface</div>
-              <div class="b"><i></i> Jogo Principal com limite de 1 geração</div>
-              <div class="b"><i></i> Incentivo natural para upgrade</div>
+
+            <div class="price">Premium</div>
+            <div class="note">
+              Libera as áreas principais do sistema: análise completa + geração e funções premium.
             </div>
-          </div>
-          <div class="cta">
-            <button class="btn btnGhost" onclick="scrollToId('faq')">Tirar dúvidas</button>
-            <button class="btn btnGold" onclick="window.open('https://pay.hotmart.com/O104148865Y?off=c4m0nezi','_blank','noopener')">Ir para Premium</button>
+
+            <ul class="ul">
+              <li><span class="chk">✓</span> Análise PRIME completa (padrões, top 10, atrasadas, coocorrência)</li>
+              <li><span class="chk">✓</span> Invertida + Técnica premiada</li>
+              <li><span class="chk">✓</span> Jogos salvos + conferência</li>
+              <li><span class="chk">✓</span> UI premium (mobile-first)</li>
+            </ul>
+
+            <div class="row" style="margin-top:14px">
+              <button class="btn btnGreen btnBlock" onclick="openLink(BUY_LINK)">Comprar Premium agora</button>
+              <button class="btn btnGhost btnBlock" onclick="scrollToId('faq')">Tirar dúvidas</button>
+            </div>
+
+            <div class="note" style="margin-top:10px">
+              Dica: coloque aqui “garantia”, “acesso imediato”, “suporte” e “bônus” se tiver.
+            </div>
           </div>
         </div>
 
-        <div class="priceCard" style="border-color: rgba(246,198,0,.22);">
-          <div class="head">
-            <div>
-              <b>Premium</b>
-              <div style="color:var(--muted2); font-size:12px; font-weight:800; margin-top:4px">Libera o pacote completo</div>
+        <!-- EXTRA 15P -->
+        <div class="card pad priceCard" style="border-color:rgba(250,204,21,.30)">
+          <div class="priceInner">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+              <span class="tag extra">✨ EXTRA 15P</span>
+              <span class="pill">Módulo separado (10 jogos)</span>
             </div>
-            <span class="badge gold">MAIS VENDIDO</span>
-          </div>
-          <div class="body">
-            <div class="price">Acesso Total <small>• painel completo</small></div>
-            <div class="benefits">
-              <div class="b"><i></i> Análise PRIME (padrões + tendências)</div>
-              <div class="b"><i></i> Jogo Principal com explicação</div>
-              <div class="b"><i></i> Invertida + Técnica Premiada</div>
-              <div class="b"><i></i> Jogos Salvos + Conferência</div>
-              <div class="b"><i></i> Fluxo “Já comprei” com ativação por código</div>
-            </div>
-          </div>
-          <div class="cta">
-            <button class="btn btnGhost" onclick="openVideo()">Ver demonstração</button>
-            <a class="btn btnGold" href="https://pay.hotmart.com/O104148865Y?off=c4m0nezi" target="_blank" rel="noopener">Comprar Premium</a>
-          </div>
-        </div>
 
-        <div class="priceCard">
-          <div class="head">
-            <div>
-              <b>EXTRA 15P</b>
-              <div style="color:var(--muted2); font-size:12px; font-weight:800; margin-top:4px">Venda separada (upsell)</div>
+            <div class="price">15P</div>
+            <div class="note">
+              Recurso extra comprado separadamente: tela própria com 5 linhas e geração de 10 jogos.
             </div>
-            <span class="badge gold">EXTRA</span>
-          </div>
-          <div class="body">
-            <div class="price">Add-on <small>• 10 jogos</small></div>
-            <div class="benefits">
-              <div class="b"><i></i> Tela exclusiva “15 pontos garantido”</div>
-              <div class="b"><i></i> 5 linhas + 10 jogos (3 de 5)</div>
-              <div class="b"><i></i> Editor manual das linhas</div>
-              <div class="b"><i></i> Salvamento em Jogos Salvos</div>
+
+            <ul class="ul">
+              <li><span class="chk">✓</span> 5 linhas + editor manual</li>
+              <li><span class="chk">✓</span> 10 jogos (combinações de 3 linhas em 5)</li>
+              <li><span class="chk">✓</span> Explicação detalhada (força, lift, coocorrência)</li>
+              <li><span class="chk">✓</span> Salvar / carregar 15P nos jogos salvos</li>
+            </ul>
+
+            <div class="row" style="margin-top:14px">
+              <button class="btn btnGold btnBlock" onclick="openLink(BUY_LINK_15P)">Comprar Extra 15P</button>
+              <button class="btn btnGhost btnBlock" onclick="scrollToId('como-funciona')">Ver como funciona</button>
             </div>
-          </div>
-          <div class="cta">
-            <a class="btn btnGhost" href="https://pay.hotmart.com/O104148865Y?off=c4m0nezi" target="_blank" rel="noopener">Preciso do Premium</a>
-            <a class="btn btnGold" href="https://pay.hotmart.com/Y104149008G?off=eehchnv4" target="_blank" rel="noopener">Comprar EXTRA 15P</a>
+
+            <div class="note" style="margin-top:10px">
+              Importante: evite promessas como “garantido”. Use “estratégia”, “método”, “organização”.
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- FAQ -->
-  <section id="faq">
-    <div class="wrap">
+    <!-- GARANTIA / ALERTA -->
+    <section class="section" id="garantia">
+      <div class="card pad">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap">
+          <div style="min-width:280px">
+            <div style="font-weight:1000; font-size:16px">📌 Transparência e jogo responsável</div>
+            <div class="note" style="margin-top:6px">
+              O sistema trabalha com estatística e organização de padrões. Isso ajuda a montar estratégias,
+              mas <b>não existe garantia de premiação</b>.
+            </div>
+          </div>
+
+          <div class="soft" style="flex:1; min-width:280px">
+            <b>✅ Sugestão (para converter melhor)</b>
+            <div class="note" style="margin-top:6px">
+              Coloque aqui sua política de garantia (ex.: 7 dias) e seu suporte (WhatsApp/Email),
+              pois isso aumenta a confiança.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="section" id="faq">
       <div class="sectionHead">
         <div>
           <h2>Perguntas frequentes</h2>
-          <p>FAQ direto para reduzir objeções e aumentar conversão (você pode editar livremente).</p>
+          <p>FAQ reduz objeções e aumenta conversão.</p>
         </div>
       </div>
 
-      <div class="faqGrid">
+      <div class="grid grid2">
         <details>
-          <summary>
-            <span>Isso garante premiação?</span>
-            <span class="q">Ver resposta</span>
-          </summary>
-          <div class="ans">
-            Não. O sistema trabalha com <b>estatística e padrões</b> para apoiar estratégias, mas <b>não existe garantia</b>.
-            Use como ferramenta de análise e jogo responsável.
-          </div>
+          <summary>O Premium é acesso imediato?</summary>
+          <p>Sim, normalmente o acesso é liberado após a confirmação do pagamento. Se você usa Hotmart + código/claims, inclua aqui o passo a passo do “Já comprei”.</p>
         </details>
-
         <details>
-          <summary>
-            <span>O que o Premium libera exatamente?</span>
-            <span class="q">Ver resposta</span>
-          </summary>
-          <div class="ans">
-            O Premium libera: <b>Análise PRIME</b>, <b>Invertida</b>, <b>Técnica Premiada</b>, <b>Jogos Salvos</b> e conferência.
-            O Free fica limitado ao <b>Jogo Principal 1x</b>.
-          </div>
+          <summary>O Extra 15P é incluso no Premium?</summary>
+          <p>Não. O Extra 15P é um módulo separado, comprado à parte (conforme seu app já faz com os links distintos).</p>
         </details>
-
         <details>
-          <summary>
-            <span>O EXTRA 15P está incluso?</span>
-            <span class="q">Ver resposta</span>
-          </summary>
-          <div class="ans">
-            Não. O <b>EXTRA 15P</b> é vendido separadamente como upsell. Ao comprar, ele libera a tela própria com as linhas
-            e os 10 jogos.
-          </div>
+          <summary>Funciona no celular?</summary>
+          <p>Sim. O layout é mobile-first, com botões grandes, cards e navegação simples.</p>
         </details>
-
         <details>
-          <summary>
-            <span>Posso colocar vídeo e fotos reais do sistema?</span>
-            <span class="q">Ver resposta</span>
-          </summary>
-          <div class="ans">
-            Sim. Esta página já vem com seção de vídeo e galeria.
-            Basta trocar o <b>link do vídeo</b> e adicionar as imagens na pasta <b>prints/</b>.
-          </div>
-        </details>
-
-        <details>
-          <summary>
-            <span>Essa página é responsiva?</span>
-            <span class="q">Ver resposta</span>
-          </summary>
-          <div class="ans">
-            Sim. Ela foi feita para ficar premium no desktop (4K) e perfeita no mobile.
-          </div>
-        </details>
-
-        <details>
-          <summary>
-            <span>Como eu troco as cores?</span>
-            <span class="q">Ver resposta</span>
-          </summary>
-          <div class="ans">
-            As cores estão concentradas em <b>:root</b> no topo do CSS. Mas eu já deixei tudo alinhado com o padrão da sua logo:
-            preto + dourado + branco.
-          </div>
+          <summary>Isso garante prêmio?</summary>
+          <p>Não. A ferramenta é estatística/organização. Ela ajuda a estruturar escolhas, mas não há garantia de acerto. Jogue com responsabilidade.</p>
         </details>
       </div>
-    </div>
-  </section>
 
-  <!-- CTA FINAL -->
-  <section>
-    <div class="wrap">
-      <div class="finalCTA">
-        <div class="grid">
-          <div>
-            <div class="pill"><span class="dot"></span> Pronto para vender com visual premium</div>
-            <h2 style="margin:12px 0 8px; font-size: clamp(20px, 3vw, 34px);">
-              Comece pelo Premium e, se quiser, adicione o EXTRA 15P
-            </h2>
-            <p style="margin:0; color:var(--muted); line-height:1.6; font-weight:650">
-              Uma página diferenciada aumenta confiança e conversão.
-              Aqui o visitante entende: o que é, como funciona e o que ele recebe — sem dúvidas.
-            </p>
-
-            <div class="heroCTAs" style="margin-top:14px">
-              <a class="btn btnGold" href="https://pay.hotmart.com/O104148865Y?off=c4m0nezi" target="_blank" rel="noopener">Comprar Premium</a>
-              <a class="btn btnGhost" href="https://pay.hotmart.com/Y104149008G?off=eehchnv4" target="_blank" rel="noopener">Adicionar EXTRA 15P</a>
-              <button class="btn btnGhost" onclick="openVideo()">Ver vídeo</button>
-            </div>
-          </div>
-
-          <div class="card" style="margin:0; box-shadow:none; background: rgba(0,0,0,.18); border-color: rgba(255,255,255,.12);">
-            <div class="cardInner">
-              <b style="display:block; font-size:14px; margin-bottom:8px">📌 Checklist para publicar</b>
-              <div class="benefits" style="margin-top:10px">
-                <div class="b"><i></i> Coloque sua logo como <b>logo.png</b></div>
-                <div class="b"><i></i> Adicione prints em <b>prints/</b> (6 imagens)</div>
-                <div class="b"><i></i> Troque o link do vídeo no JS (<b>VIDEO_URL</b>)</div>
-                <div class="b"><i></i> Ajuste textos (se quiser) e publique</div>
-              </div>
-
-              <div style="margin-top:14px; color:var(--muted2); font-size:12px; line-height:1.55">
-                Se você quiser, eu também posso adaptar essa página para:
-                <b>capturar lead (WhatsApp/email)</b>, colocar <b>depoimentos</b>, “timer”, prova social, e versão com
-                <b>checkout embutido</b>.
-              </div>
-            </div>
-          </div>
-        </div>
+      <div class="row" style="margin-top:14px">
+        <button class="btn btnGreen" onclick="openLink(BUY_LINK)">Quero Premium</button>
+        <button class="btn btnGold" onclick="openLink(BUY_LINK_15P)">Quero Extra 15P</button>
+        <button class="btn btnGhost" onclick="scrollToId('topo')">Voltar ao topo</button>
       </div>
+    </section>
 
-      <div class="fineprint">
-        © <span id="year"></span> Lotofácil Prime Analytics • N&V-Sistemas • Aviso: análise estatística não garante premiação. Jogo responsável ✅
+    <!-- FOOTER -->
+    <section class="section" style="margin-top:18px">
+      <div class="note" style="text-align:center">
+        © <span id="y"></span> N&V-Sistemas — Lotofácil Prime Analytics • Aviso: análise estatística não garante premiação. Jogo responsável ✅
       </div>
-    </div>
-  </section>
-
-  <!-- MODAL: VIDEO -->
-  <div class="modalBack" id="videoModal" aria-hidden="true">
-    <div class="modal" role="dialog" aria-modal="true" aria-label="Vídeo explicativo">
-      <div class="modalTop">
-        <b>🎥 Vídeo explicativo</b>
-        <button class="x" onclick="closeVideo()">Fechar</button>
-      </div>
-      <div class="modalBody">
-        <div class="frame">
-          <iframe id="videoFrame" src="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-        </div>
-        <div style="margin-top:10px; color:var(--muted2); font-size:12px; line-height:1.5">
-          Dica: use um vídeo curto (1–3 minutos) com: visão geral → telas principais → como o cliente usa no dia a dia.
-        </div>
-      </div>
-    </div>
+    </section>
   </div>
 
-  <!-- MODAL: IMAGE -->
-  <div class="modalBack" id="imgModal" aria-hidden="true">
-    <div class="modal" role="dialog" aria-modal="true" aria-label="Imagem do sistema">
-      <div class="modalTop">
-        <b id="imgTitle">📸 Visualização</b>
-        <button class="x" onclick="closeImage()">Fechar</button>
+  <!-- STICKY CTA (mobile) -->
+  <div class="stickyCta" role="region" aria-label="Barra fixa de compra">
+    <div class="stickyInner">
+      <div class="txt">
+        <b>Lotofácil Prime Analytics</b>
+        <span>Escolha Premium ou Extra 15P</span>
       </div>
-      <div class="modalBody">
-        <img id="imgView" class="imgView" src="" alt="Imagem ampliada" />
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btnGreen" onclick="openLink(BUY_LINK)">Premium</button>
+        <button class="btn btnGold" onclick="openLink(BUY_LINK_15P)">Extra 15P</button>
       </div>
     </div>
   </div>
 
   <script>
-    // ============================================================
-    // CONFIGURAÇÕES FÁCEIS (troque aqui e pronto)
-    // ============================================================
-    // Coloque o link do seu vídeo aqui (YouTube recomendado).
-    // Exemplo YouTube embed:
-    // https://www.youtube.com/embed/SEU_ID?autoplay=1&rel=0
-    const VIDEO_URL = "https://www.youtube.com/embed/VIDEO_ID_AQUI?autoplay=1&rel=0";
+    document.getElementById("y").textContent = new Date().getFullYear();
 
-    // ============================================================
-    // Helpers
-    // ============================================================
-    document.getElementById("year").textContent = new Date().getFullYear();
-
+    function openLink(url){
+      window.open(url, "_blank", "noopener,noreferrer");
+    }
     function scrollToId(id){
       const el = document.getElementById(id);
       if(!el) return;
-      el.scrollIntoView({ behavior: "smooth", block: "start" });
+      el.scrollIntoView({behavior:"smooth", block:"start"});
     }
 
-    // ============================================================
-    // Vídeo modal
-    // ============================================================
-    const videoModal = document.getElementById("videoModal");
-    const videoFrame = document.getElementById("videoFrame");
-
-    function openVideo(){
-      videoFrame.src = VIDEO_URL;
-      videoModal.style.display = "flex";
-      videoModal.setAttribute("aria-hidden","false");
-    }
-    function closeVideo(){
-      videoModal.style.display = "none";
-      videoModal.setAttribute("aria-hidden","true");
-      videoFrame.src = ""; // corta autoplay
-    }
-
-    // ============================================================
-    // Imagem modal (lightbox)
-    // ============================================================
-    const imgModal = document.getElementById("imgModal");
-    const imgView = document.getElementById("imgView");
-    const imgTitle = document.getElementById("imgTitle");
-
-    function openImage(src, title){
-      imgTitle.textContent = "📸 " + (title || "Visualização");
-      imgView.src = src;
-      imgModal.style.display = "flex";
-      imgModal.setAttribute("aria-hidden","false");
-    }
-    function closeImage(){
-      imgModal.style.display = "none";
-      imgModal.setAttribute("aria-hidden","true");
-      imgView.src = "";
-    }
-
-    // Fechar modais clicando fora
-    [videoModal, imgModal].forEach(modal => {
-      modal.addEventListener("click", (e)=>{
-        if(e.target === modal){
-          if(modal === videoModal) closeVideo();
-          if(modal === imgModal) closeImage();
-        }
+    // suaviza âncoras
+    document.querySelectorAll('a[href^="#"]').forEach(a=>{
+      a.addEventListener("click", (e)=>{
+        const id = a.getAttribute("href").slice(1);
+        const el = document.getElementById(id);
+        if(!el) return;
+        e.preventDefault();
+        scrollToId(id);
       });
-    });
-
-    // ESC fecha modal
-    document.addEventListener("keydown", (e)=>{
-      if(e.key === "Escape"){
-        if(videoModal.style.display === "flex") closeVideo();
-        if(imgModal.style.display === "flex") closeImage();
-      }
     });
   </script>
 </body>
