@@ -283,6 +283,21 @@ h1, h2, h3 { color: var(--yellow); }
 
 /* sticky bar totalmente preta */
 .stickyCta{ background: rgba(0,0,0,.85); }
+/* LOGO — tamanho e alinhamento */
+.brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.logo{
+  height:58px;
+  width:auto;
+  object-fit:contain;
+  display:block;
+}
+@media (max-width: 520px){
+  .logo{ height:46px; }
+}
 
   </style>
 </head>
@@ -293,14 +308,14 @@ h1, h2, h3 { color: var(--yellow); }
   ========================================================== -->
   <div class="wrap hero">
     <div class="heroTop">
-      <div class="brand">
-        <img class="logo" src="LOGOMARCA.png" alt="Lotofácil Prime Analytics" />
-        <div class="chips">
-          <span class="kicker"><span class="dot"></span> Página Oficial</span>
-          <span class="kicker">⚡ Mobile Friendly</span>
-          <span class="kicker">🔒 Compra Segura</span>
-        </div>
-      </div>
+     <div class="brand">
+  <img class="logo" src="LOGOMARCA.png" alt="Lotofácil Prime Analytics" />
+  <div class="chips">
+    <span class="kicker"><span class="dot"></span> Página Oficial</span>
+    <span class="kicker">⚡ Mobile Friendly</span>
+    <span class="kicker">🔒 Compra Segura</span>
+  </div>
+</div>
       <a class="kicker" href="#oferta">⬇ Ver oferta</a>
     </div>
 
