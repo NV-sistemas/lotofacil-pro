@@ -12,35 +12,38 @@
        (copiada do :root e do background do app)
     ========================================================== */
     :root{
-      --bg1:#050b1a; --bg2:#0b1636;
-      --card:#07122a; --text:#f8fafc; --muted:#cbd5e1; --muted2:#94a3b8;
+  /* Fundo preto igual a logo */
+  --bg1:#000000;
+  --bg2:#000000;
 
-      --green:#22c55e; --green2:#16a34a;
-      --blue:#38bdf8; --blue2:#0ea5e9;
-      --purple:#a78bfa; --purple2:#7c3aed;
-      --yellow:#facc15; --orange:#fb923c;
-      --red:#fb7185; --red2:#ef4444;
+  /* Cards e linhas (preto com leve contraste) */
+  --card:#0b0b0b;
+  --stroke: rgba(255,255,255,.12);
+  --stroke2: rgba(255,255,255,.18);
+  --shadow: 0 22px 70px rgba(0,0,0,.65);
 
-      --stroke: rgba(255,255,255,.10);
-      --stroke2: rgba(255,255,255,.16);
-      --shadow: 0 22px 70px rgba(0,0,0,.45);
-      --glowBlue: 0 0 0 1px rgba(56,189,248,.18), 0 12px 40px rgba(56,189,248,.10);
-      --glowGreen: 0 0 0 1px rgba(34,197,94,.18), 0 12px 40px rgba(34,197,94,.10);
-      --glowGold: 0 0 0 1px rgba(250,204,21,.22), 0 18px 60px rgba(250,204,21,.18);
-    }
+  /* Texto branco e amarelo igual a logo */
+  --text:#ffffff;
+  --muted: rgba(255,255,255,.82);
+  --muted2: rgba(255,255,255,.70);
+
+  /* Amarelo “logo” + variações */
+  --yellow:#facc15;   /* amarelo principal (logo) */
+  --yellow2:#ffd84d;  /* amarelo mais claro */
+
+  /* Botões/efeitos (sem verde/azul) */
+  --glowGold: 0 0 0 1px rgba(250,204,21,.30), 0 18px 60px rgba(250,204,21,.22);
+}
 
     *{box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
     html,body{height:100%}
     body{
-      margin:0;color:var(--text);
-      background:
-        radial-gradient(900px 650px at 10% 10%, rgba(56,189,248,.16), transparent 55%),
-        radial-gradient(900px 650px at 90% 10%, rgba(34,197,94,.14), transparent 55%),
-        radial-gradient(900px 650px at 50% 90%, rgba(167,139,250,.14), transparent 55%),
-        linear-gradient(135deg,var(--bg1),var(--bg2));
-      min-height:100dvh;
-      overflow-x:hidden;
-    }
+  margin:0;
+  color:var(--text);
+  background:#000000;
+  min-height:100dvh;
+  overflow-x:hidden;
+}
 
     a{color:inherit;text-decoration:none}
     .wrap{max-width:1120px;margin:0 auto;padding:18px}
@@ -74,8 +77,8 @@
     }
     .dot{width:7px;height:7px;border-radius:999px;background:rgba(34,197,94,.85);display:inline-block}
 
-    h1{margin:10px 0 8px;line-height:1.08;letter-spacing:.2px;font-size:clamp(28px, 4.5vw, 44px)}
-    h2{margin:0 0 10px;font-size:clamp(18px, 3.2vw, 24px)}
+    h1{margin:10px 0 8px;line-height:1.08;letter-spacing:.2px;font-size:clamp(24px, 4.5vw, 44px)}
+    h2{margin:0 0 10px;font-size:clamp(24px, 3.2vw, 24px)}
     h3{margin:0 0 8px;font-size:16px}
     .muted{color:var(--muted2)}
     .hr{height:1px;background:rgba(255,255,255,.10);margin:14px 0;border-radius:999px}
@@ -217,6 +220,166 @@
       font-size:12px;
       padding:16px 0 26px;
     }
+    /* ==========================================================
+   ✅ FORÇAR IDENTIDADE (PRETO + AMARELO + BRANCO)
+========================================================== */
+
+/* títulos amarelos */
+h1, h2, h3 { color: var(--yellow); }
+
+/* textos e descrições brancas */
+.mini, .muted, details p, .foot { color: var(--muted); }
+
+/* chips/kicker com borda branca e texto branco */
+.kicker, .tag{
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.16);
+  color: #ffffff;
+}
+
+/* bolinha do "Página Oficial" amarela (não verde) */
+.dot{ background: var(--yellow); }
+
+/* cards mais “pretos” (sem azul) */
+.card{
+  background: rgba(255,255,255,.05);
+  border: 1px solid var(--stroke);
+  box-shadow: var(--shadow);
+}
+
+/* botão principal AMARELO (igual logo) */
+.btnPrimary, .btnGold{
+  background: linear-gradient(135deg, var(--yellow), var(--yellow2));
+  box-shadow: var(--glowGold);
+  color:#0b0b0b;
+}
+
+/* botão secundário preto com borda branca */
+.btnGhost{
+  background: rgba(0,0,0,.55);
+  border: 1px solid rgba(255,255,255,.18);
+  color: #ffffff;
+}
+
+/* remover “azul” do botão .btnBlue -> fica amarelo também */
+.btnBlue{
+  background: linear-gradient(135deg, var(--yellow), var(--yellow2));
+  box-shadow: var(--glowGold);
+  color:#0b0b0b;
+}
+
+/* heroMedia sem gradiente colorido */
+.heroMedia{
+  background: rgba(255,255,255,.04) !important;
+  border:1px solid rgba(255,255,255,.14);
+}
+
+/* mock sem azul */
+.mock{
+  background: rgba(0,0,0,.55);
+  color: rgba(255,255,255,.80);
+  border:1px solid rgba(255,255,255,.12);
+}
+
+/* sticky bar totalmente preta */
+.stickyCta{ background: rgba(0,0,0,.85); }
+/* LOGO — tamanho e alinhamento */
+.brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.logo{
+  height:58px;
+  width:auto;
+  object-fit:contain;
+  display:block;
+}
+@media (max-width: 520px){
+  .logo{ height:46px; }
+}
+/* ==========================================================
+   ✅ CTA FREE (impactante) — botão marketing forte
+========================================================== */
+.btnFree{
+  position:relative;
+  overflow:hidden;
+  border:none;
+  border-radius:18px;
+  padding:14px 16px;
+  font-weight:1100;
+  letter-spacing:.2px;
+  text-transform:uppercase;
+  width:100%;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+
+  color:#0b0b0b;
+  background: linear-gradient(135deg, var(--yellow), var(--yellow2));
+  box-shadow:
+    0 0 0 1px rgba(250,204,21,.35),
+    0 18px 65px rgba(250,204,21,.28),
+    0 22px 70px rgba(0,0,0,.55);
+  transition: transform .15s, filter .15s;
+}
+
+.btnFree:hover{ transform: translateY(-1px); filter: brightness(1.06); }
+.btnFree:active{ transform: translateY(0); filter: brightness(.98); }
+
+.btnFree .badge{
+  font-size:11px;
+  font-weight:1200;
+  padding:6px 10px;
+  border-radius:999px;
+  background: rgba(0,0,0,.78);
+  border: 1px solid rgba(255,255,255,.18);
+  color:#fff;
+  text-transform:none;
+  letter-spacing:.1px;
+}
+
+.btnFree .sub{
+  display:block;
+  font-size:11px;
+  font-weight:900;
+  opacity:.9;
+  text-transform:none;
+  letter-spacing:.1px;
+}
+
+/* brilho “varrendo” */
+.btnFree::before{
+  content:"";
+  position:absolute;
+  top:-40%;
+  left:-60%;
+  width:70%;
+  height:180%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.35), transparent);
+  transform: rotate(18deg);
+  animation: freeShine 2.4s infinite;
+  pointer-events:none;
+}
+
+@keyframes freeShine{
+  0%{ left:-70%; opacity:.0; }
+  15%{ opacity:.25; }
+  45%{ opacity:.40; }
+  65%{ opacity:.25; }
+  100%{ left:130%; opacity:0; }
+}
+
+/* Card destaque (para o bloco FREE) */
+.freeCard{
+  border:1px solid rgba(250,204,21,.28);
+  background:
+    radial-gradient(900px 240px at 30% 20%, rgba(250,204,21,.18), transparent 60%),
+    rgba(255,255,255,.04);
+  box-shadow: var(--glowGold), 0 22px 70px rgba(0,0,0,.40);
+}
+
   </style>
 </head>
 
@@ -226,14 +389,14 @@
   ========================================================== -->
   <div class="wrap hero">
     <div class="heroTop">
-      <div class="brand">
-        <img class="logo" src="LOGOMARCA.png" alt="Lotofácil Prime Analytics" />
-        <div class="chips">
-          <span class="kicker"><span class="dot"></span> Página Oficial</span>
-          <span class="kicker">⚡ Mobile Friendly</span>
-          <span class="kicker">🔒 Compra Segura</span>
-        </div>
-      </div>
+     <div class="brand">
+  <img class="logo" src="LOGOMARCA.png" alt="Lotofácil Prime Analytics" />
+  <div class="chips">
+    <span class="kicker"><span class="dot"></span> Página Oficial</span>
+    <span class="kicker">⚡ Mobile Friendly</span>
+    <span class="kicker">🔒 Compra Segura</span>
+  </div>
+</div>
       <a class="kicker" href="#oferta">⬇ Ver oferta</a>
     </div>
 
@@ -241,7 +404,10 @@
       <div class="grid grid2">
         <div class="card heroCard">
           <h1>
-           </b>Transforme dados em decisões</b> e gere jogos com uma análise PRIME pronta pra usar.
+           <b>TRANSFORME DADOS EM DECISÕES.</b>
+            </h1>
+          </h1>
+           </b> Gere jogos com uma análise PRIME pronta pra usar.</b>
           </h1>
           <div class="mini">
             O <b>Lotofácil Prime Analytics</b> entrega um painel com análise estatística + geração de jogos (Principal, Invertida e Técnica),
@@ -304,13 +470,16 @@
             </div>
 
             <div class="card" style="margin:0">
-              <h3 style="margin-bottom:6px">🚀 Por que isso converte?</h3>
-              <div class="mini">
-                Porque remove distrações e coloca o visitante no caminho direto:
-                <b>dor → solução → prova → oferta → CTA</b>.
-              </div>
-              <div class="hr"></div>
-              <a class="btn btnBlue" href="#provas">Ver provas / prints</a>
+              <h3>🚀 Cansado de escolher dezenas no “achismo”?</h3>
+
+<div class="mini">
+O Prime analisa os concursos, identifica padrões e já entrega os jogos prontos para você.  
+Veja abaixo os <b>prints reais</b> do sistema funcionando.
+</div>
+
+<div class="hr"></div>
+
+<a class="btn btnGold" href="#provas">Quero ver os resultados agora</a>
             </div>
           </div>
         </div>
@@ -388,11 +557,12 @@
   ========================================================== -->
   <div class="wrap section" id="provas">
     <div class="card">
-      <h2>Provas e demonstrações</h2>
-      <div class="mini">
-        Aqui é onde você coloca <b>prints reais</b> (telas do app), depoimentos e/ou resultados.
-        Isso aumenta muito a conversão.
-      </div>
+      <h2>🔥 Veja o Prime funcionando na prática</h2>
+
+<div class="mini">
+Enquanto outros prometem, nós mostramos.  
+Confira as telas reais do sistema, jogos gerados automaticamente e a análise PRIME organizando suas decisões.
+</div>
 
       <div class="hr"></div>
 
@@ -434,7 +604,7 @@
           </details>
           <details>
             <summary>“Isso garante prêmio?”</summary>
-            <p>Não existe garantia de premiação em loterias. A proposta é entregar um painel e estratégias para tomada de decisão baseada em dados.</p>
+            <p>Não existe garantia de premiação em loterias. A proposta é entregar um painel e estratégias para tomada de decisão baseada em dados.EM EXTRA 15P - ACERTANDO 3 LINHAS COMPLETAS, 1 JOGO TERÁ 15 PONTOS.</p>
           </details>
         </div>
       </div>
@@ -453,11 +623,53 @@
       <h2>Escolha sua oferta</h2>
       <div class="mini">
         Duas opções: <b>Premium</b> (ferramentas principais) e <b>Extra 15P</b> (módulo separado).
-        Os botões abaixo já estão configurados com seus links.
       </div>
 
       <div class="hr"></div>
+<!-- ✅ FREE (acesso imediato) -->
+<div class="card freeCard" style="margin:0 0 14px 0">
+  <span class="tag" style="border-color:rgba(250,204,21,.40);background:rgba(250,204,21,.16);color:#fff2b0">
+    🆓 FREE • 1 JOGO PRINCIPAL GRÁTIS
+  </span>
 
+  <h3 style="margin-top:10px">Entre no PRIME — teste real antes de comprar</h3>
+
+  <div class="mini">
+    Crie seu acesso em <b>30 segundos</b> com <b>email + senha</b> (você escolhe).
+    Lá dentro você libera <b>1 geração do Jogo Principal</b> gratuitamente.  
+    Depois disso, para continuar: <b>somente PREMIUM</b>.
+  </div>
+
+  <div class="hr"></div>
+
+  <div class="grid" style="grid-template-columns:1fr 1fr;gap:10px">
+    <div class="mini" style="margin:0">
+      <b>✅ O que você ganha no FREE</b><br>
+      • Cadastro rápido (email + senha)<br>
+      • <b>1 Jogo Principal</b> grátis<br>
+      • Experiência real do sistema
+    </div>
+
+    <div class="mini" style="margin:0">
+      <b>🔒 Regra clara</b><br>
+      • Após 1 geração: bloqueia<br>
+      • Liberação total no Premium<br>
+      • Sem pegadinhas
+    </div>
+  </div>
+
+  <div class="hr"></div>
+
+  <a class="btnFree" href="https://lotofacil-pro.vercel.app/" target="_blank" rel="noopener">
+    <span class="badge">TESTE REAL</span>
+    CRIAR ACESSO E GERAR 1 JOGO GRÁTIS
+    <span class="sub">📩 Email + senha • 1 geração liberada • depois: Premium</span>
+  </a>
+
+  <div class="mini" style="margin-top:10px">
+    Ideal pra quem quer ver o PRIME funcionando na prática antes de investir.
+  </div>
+</div>
       <div class="grid grid2">
         <!-- PREMIUM -->
         <div class="card" style="margin:0">
@@ -495,7 +707,7 @@
         ">
           <span class="tag extra">✨ EXTRA 15P</span>
           <h3 style="margin-top:10px">15 Pontos Garantido (módulo separado)</h3>
-          <div class="mini">Uma tela própria com estratégia e jogos (upsell).</div>
+          <div class="mini">Uma tela própria com estratégia e jogos.</div>
 
           <div class="hr"></div>
 
@@ -528,7 +740,7 @@
       <div class="grid" style="gap:10px">
         <details>
           <summary>Como recebo acesso?</summary>
-          <p>Após a compra, o usuário acessa com o email usado na Hotmart (o sistema já trabalha com login por email/senha).</p>
+          <p>Após a compra, o usuário acessa com o email usado na Hotmart.</p>
         </details>
         <details>
           <summary>Preciso instalar alguma coisa?</summary>
@@ -559,15 +771,20 @@
   </div>
 
   <!-- Sticky CTA mobile -->
-  <div class="stickyCta" aria-hidden="false">
-    <div class="stickyRow">
-      <a class="btn btnPrimary" href="https://pay.hotmart.com/O104148865Y?off=c4m0nezi" target="_blank" rel="noopener">
-        Comprar Premium
-      </a>
-      <a class="btn btnGold" href="https://pay.hotmart.com/Y104149008G?off=eehchnv4" target="_blank" rel="noopener">
-        Comprar 15P
-      </a>
-    </div>
+  <!-- Sticky CTA mobile -->
+<div class="stickyCta" aria-hidden="false">
+  <div class="stickyRow" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+    <a class="btn btnGhost" href="https://lotofacil-pro.vercel.app/" target="_blank" rel="noopener">
+      FREE
+    </a>
+    <a class="btn btnPrimary" href="https://pay.hotmart.com/O104148865Y?off=c4m0nezi" target="_blank" rel="noopener">
+      Premium
+    </a>
+    <a class="btn btnGold" href="https://pay.hotmart.com/Y104149008G?off=eehchnv4" target="_blank" rel="noopener">
+      15P
+    </a>
+  </div>
+</div>
   </div>
 
   <script>
@@ -588,3 +805,4 @@
   </script>
 </body>
 </html>
+
