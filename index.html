@@ -7,26 +7,51 @@
 
 <style>
   :root{
-    --bg1:#050b1a; --bg2:#0b1636;
-    --card:#07122a; --text:#f8fafc; --muted:#cbd5e1; --muted2:#94a3b8;
+  /* Identidade (preto + amarelo + branco) — igual página de vendas */
+  --bg1:#000000;
+  --bg2:#000000;
 
-    --green:#22c55e; --green2:#16a34a;
-    --blue:#38bdf8; --blue2:#0ea5e9;
-    --purple:#a78bfa; --purple2:#7c3aed;
-    --yellow:#facc15; --orange:#fb923c;
-    --red:#fb7185; --red2:#ef4444;
+  --card:#0b0b0b;
+  --stroke: rgba(255,255,255,.12);
+  --stroke2: rgba(255,255,255,.18);
+  --shadow: 0 22px 70px rgba(0,0,0,.65);
 
-    --stroke: rgba(255,255,255,.10);
-    --stroke2: rgba(255,255,255,.16);
-    --shadow: 0 22px 70px rgba(0,0,0,.45);
-    --glowBlue: 0 0 0 1px rgba(56,189,248,.18), 0 12px 40px rgba(56,189,248,.10);
-    --glowGreen: 0 0 0 1px rgba(34,197,94,.18), 0 12px 40px rgba(34,197,94,.10);
-    --glowGold: 0 0 0 1px rgba(250,204,21,.22), 0 18px 60px rgba(250,204,21,.18);
-  }
+  --text:#ffffff;
+  --muted: rgba(255,255,255,.82);
+  --muted2: rgba(255,255,255,.70);
 
-  *{box-sizing:border-box;font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif}
-  html,body{height:100%}
-  body{
+  --yellow:#facc15;
+  --yellow2:#ffd84d;
+  --orange:#fb923c;
+
+  /* Mantém variáveis do app, mas forçando tudo para AMARELO */
+  --green: var(--yellow);
+  --green2: var(--yellow2);
+  --blue: var(--yellow);
+  --blue2: var(--yellow2);
+  --purple: var(--yellow);
+  --purple2: var(--yellow2);
+
+  --red:#fb7185;
+  --red2:#ef4444;
+
+  /* Glows (reaproveita ouro para todos) */
+  --glowGold: 0 0 0 1px rgba(250,204,21,.30), 0 18px 60px rgba(250,204,21,.22);
+  --glowGreen: var(--glowGold);
+  --glowBlue:  var(--glowGold);
+}
+*{box-sizing:border-box;font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif}
+  html,body{
+  margin:0;
+  color:var(--text);
+  background:
+    radial-gradient(900px 650px at 10% 10%, rgba(250,204,21,.10), transparent 55%),
+    radial-gradient(900px 650px at 90% 20%, rgba(255,216,77,.08), transparent 55%),
+    linear-gradient(135deg,var(--bg1),var(--bg2));
+  min-height:100dvh;
+  overflow-x:hidden; /* evita “torto” */
+}
+body{
     margin:0;color:var(--text);
     background:
       radial-gradient(900px 650px at 10% 10%, rgba(56,189,248,.16), transparent 55%),
@@ -345,6 +370,48 @@
   background:rgba(255,255,255,.04);
   font-weight:1000;
 }
+
+/* ==========================================================
+   ✅ FORÇAR IDENTIDADE (PRETO + AMARELO + BRANCO)
+   - Mantém layout do app, mas com visual igual à página de vendas
+========================================================== */
+
+/* títulos em amarelo */
+.title, .actionTitle, .modalHeader b, label{ color: var(--yellow); }
+
+/* textos */
+.mini, .footerNote, .actionDesc, .table th, .muted{ color: var(--muted); }
+
+/* bolinha do chip */
+.chip .dot, .dot{ background: var(--yellow) !important; }
+
+/* cards mais “pretos” (sem azul) */
+.card{
+  background: rgba(255,255,255,.05);
+  border:1px solid var(--stroke);
+  box-shadow:var(--shadow);
+}
+
+/* botões principais (amarelo logo) */
+.btnPrimary, .btnBlue, .btnPurple{
+  background: linear-gradient(135deg, var(--yellow), var(--yellow2));
+  box-shadow: var(--glowGold);
+  color:#0b0b0b;
+}
+
+/* botões secundários */
+.btnGhost{
+  background: rgba(0,0,0,.55);
+  border: 1px solid rgba(255,255,255,.18);
+  color: #ffffff;
+}
+
+/* inputs mais “black” */
+input, select{
+  background: rgba(0,0,0,.55);
+  border:1px solid rgba(255,255,255,.18);
+}
+
 </style>
 </head>
 
