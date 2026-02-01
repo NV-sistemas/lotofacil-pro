@@ -211,7 +211,7 @@
     summary{
       cursor:pointer;
       font-weight:1000;
-      list-:none;
+      list-style:none;
     }
     details p{margin:10px 0 0;color:var(--muted);line-height:1.55;font-size:13px}
     .foot{
@@ -380,39 +380,36 @@ h1, h2, h3 { color: var(--yellow); }
   box-shadow: var(--glowGold), 0 22px 70px rgba(0,0,0,.40);
 }
 /* ==========================================================
-   ✅ OFERTA — corrigir tamanhos no DESKTOP (FREE/PREMIUM/EXTRA)
+   ✅ OFERTAS — padronizar tamanhos no desktop (FREE/PREMIUM/15P)
 ========================================================== */
-#oferta .offersGrid{
+.offersGrid{
   display:grid;
   gap:14px;
   align-items:stretch;
 }
 
-/* Desktop grande: 3 colunas iguais */
-@media (min-width: 1100px){
-  #oferta .offersGrid{ grid-template-columns: repeat(3, 1fr); }
+/* Desktop: 3 colunas iguais */
+@media (min-width: 901px){
+  .offersGrid{ grid-template-columns: repeat(3, 1fr); }
 }
 
-/* Desktop médio: 2 colunas (fica mais bonito e não aperta) */
-@media (min-width: 901px) and (max-width: 1099px){
-  #oferta .offersGrid{ grid-template-columns: repeat(2, 1fr); }
-  /* deixa o FREE ocupando 2 colunas (fica “premium”) */
-  #oferta .freeSpan2{ grid-column: 1 / -1; }
-}
-
-/* Mobile: 1 coluna (como já está certo) */
+/* Mobile: 1 coluna (como já está “certinho”) */
 @media (max-width: 900px){
-  #oferta .offersGrid{ grid-template-columns: 1fr; }
+  .offersGrid{ grid-template-columns: 1fr; }
 }
 
-/* Padronizar altura e alinhar botões */
-#oferta .offerCard{
+/* Card oferta com altura igual */
+.offerCard{
   height:100%;
   display:flex;
   flex-direction:column;
 }
-#oferta .offerBody{ flex:1; }
-#oferta .offerCta{ margin-top:auto; }
+
+/* O conteúdo “cresce” e empurra botão pra baixo (alinha os CTAs) */
+.offerBody{ flex:1; }
+
+/* Botão sempre no rodapé do card */
+.offerCta{ margin-top:auto; }
 
   </style>
 </head>
@@ -653,40 +650,13 @@ Confira as telas reais do sistema, jogos gerados automaticamente e a análise PR
        BUY_LINK e BUY_LINK_15P
   ========================================================== -->
   <div class="wrap section" id="oferta">
-  <div class="card">
-
-    <h2>Escolha sua oferta</h2>
-
-    <div class="mini">
-      Duas opções: <b>Premium</b> (ferramentas principais) e <b>Extra 15P</b> (módulo separado).
-    </div>
-
-    <div class="hr"></div>
-
-    <!-- 🔥 GRID ÚNICO PARA OS 3 -->
-    <div class="offersGrid">
-
-      <!-- ================= FREE ================= -->
-      <div class="card offerCard">
-        <!-- seu conteúdo FREE aqui -->
+    <div class="card">
+      <h2>Escolha sua oferta</h2>
+      <div class="mini">
+        Duas opções: <b>Premium</b> (ferramentas principais) e <b>Extra 15P</b> (módulo separado).
       </div>
 
-
-      <!-- ================= PREMIUM ================= -->
-      <div class="card offerCard">
-        <!-- seu conteúdo Premium aqui -->
-      </div>
-
-
-      <!-- ================= EXTRA ================= -->
-      <div class="card offerCard">
-        <!-- seu conteúdo Extra 15P aqui -->
-      </div>
-
-    </div>
-
-  </div>
-</div>
+      <div class="hr"></div>
 <!-- ✅ FREE (acesso imediato) -->
 <!-- FREE -->
 <div class="card" style="margin:0;border-color:rgba(250,204,21,.28);
@@ -725,8 +695,7 @@ Confira as telas reais do sistema, jogos gerados automaticamente e a análise PR
 
   <div class="hr"></div>
 
-      <div class="offersGrid">
-        </div>
+      <div class="grid grid2">
 <!-- PREMIUM -->
         <div class="card" style="margin:0">
           <span class="tag premium">👑 PREMIUM</span>
