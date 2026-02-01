@@ -298,6 +298,87 @@ h1, h2, h3 { color: var(--yellow); }
 @media (max-width: 520px){
   .logo{ height:46px; }
 }
+/* ==========================================================
+   ✅ CTA FREE (impactante) — botão marketing forte
+========================================================== */
+.btnFree{
+  position:relative;
+  overflow:hidden;
+  border:none;
+  border-radius:18px;
+  padding:14px 16px;
+  font-weight:1100;
+  letter-spacing:.2px;
+  text-transform:uppercase;
+  width:100%;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+
+  color:#0b0b0b;
+  background: linear-gradient(135deg, var(--yellow), var(--yellow2));
+  box-shadow:
+    0 0 0 1px rgba(250,204,21,.35),
+    0 18px 65px rgba(250,204,21,.28),
+    0 22px 70px rgba(0,0,0,.55);
+  transition: transform .15s, filter .15s;
+}
+
+.btnFree:hover{ transform: translateY(-1px); filter: brightness(1.06); }
+.btnFree:active{ transform: translateY(0); filter: brightness(.98); }
+
+.btnFree .badge{
+  font-size:11px;
+  font-weight:1200;
+  padding:6px 10px;
+  border-radius:999px;
+  background: rgba(0,0,0,.78);
+  border: 1px solid rgba(255,255,255,.18);
+  color:#fff;
+  text-transform:none;
+  letter-spacing:.1px;
+}
+
+.btnFree .sub{
+  display:block;
+  font-size:11px;
+  font-weight:900;
+  opacity:.9;
+  text-transform:none;
+  letter-spacing:.1px;
+}
+
+/* brilho “varrendo” */
+.btnFree::before{
+  content:"";
+  position:absolute;
+  top:-40%;
+  left:-60%;
+  width:70%;
+  height:180%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.35), transparent);
+  transform: rotate(18deg);
+  animation: freeShine 2.4s infinite;
+  pointer-events:none;
+}
+
+@keyframes freeShine{
+  0%{ left:-70%; opacity:.0; }
+  15%{ opacity:.25; }
+  45%{ opacity:.40; }
+  65%{ opacity:.25; }
+  100%{ left:130%; opacity:0; }
+}
+
+/* Card destaque (para o bloco FREE) */
+.freeCard{
+  border:1px solid rgba(250,204,21,.28);
+  background:
+    radial-gradient(900px 240px at 30% 20%, rgba(250,204,21,.18), transparent 60%),
+    rgba(255,255,255,.04);
+  box-shadow: var(--glowGold), 0 22px 70px rgba(0,0,0,.40);
+}
 
   </style>
 </head>
@@ -545,7 +626,29 @@ Confira as telas reais do sistema, jogos gerados automaticamente e a análise PR
       </div>
 
       <div class="hr"></div>
+<!-- ✅ FREE (acesso imediato) -->
+<div class="card freeCard" style="margin:0 0 14px 0">
+  <span class="tag" style="border-color:rgba(250,204,21,.35);background:rgba(250,204,21,.16);color:#fff2b0">
+    🆓 FREE (ACESSO IMEDIATO)
+  </span>
 
+  <h3 style="margin-top:10px">Teste agora — sem pagar nada</h3>
+  <div class="mini">
+    Quer ver o sistema rodando antes de comprar? Clique e entre na versão FREE em segundos.
+  </div>
+
+  <div class="hr"></div>
+
+  <a class="btnFree" href="https://lotofacil-pro.vercel.app/" target="_blank" rel="noopener">
+    <span class="badge">GRÁTIS</span>
+    ENTRAR NA VERSÃO FREE AGORA
+    <span class="sub">👉 Abrir no navegador (sem cadastro)</span>
+  </a>
+
+  <div class="mini" style="margin-top:10px">
+    Dica: use a FREE para sentir o “fluxo” — depois, migre para o Premium para liberar tudo.
+  </div>
+</div>
       <div class="grid grid2">
         <!-- PREMIUM -->
         <div class="card" style="margin:0">
@@ -647,15 +750,20 @@ Confira as telas reais do sistema, jogos gerados automaticamente e a análise PR
   </div>
 
   <!-- Sticky CTA mobile -->
-  <div class="stickyCta" aria-hidden="false">
-    <div class="stickyRow">
-      <a class="btn btnPrimary" href="https://pay.hotmart.com/O104148865Y?off=c4m0nezi" target="_blank" rel="noopener">
-        Comprar Premium
-      </a>
-      <a class="btn btnGold" href="https://pay.hotmart.com/Y104149008G?off=eehchnv4" target="_blank" rel="noopener">
-        Comprar 15P
-      </a>
-    </div>
+  <!-- Sticky CTA mobile -->
+<div class="stickyCta" aria-hidden="false">
+  <div class="stickyRow" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+    <a class="btn btnGhost" href="https://lotofacil-pro.vercel.app/" target="_blank" rel="noopener">
+      FREE
+    </a>
+    <a class="btn btnPrimary" href="https://pay.hotmart.com/O104148865Y?off=c4m0nezi" target="_blank" rel="noopener">
+      Premium
+    </a>
+    <a class="btn btnGold" href="https://pay.hotmart.com/Y104149008G?off=eehchnv4" target="_blank" rel="noopener">
+      15P
+    </a>
+  </div>
+</div>
   </div>
 
   <script>
