@@ -362,7 +362,8 @@
 const APP_NAME = "LOTOFÁCIL PRIME ANALYTICS";
 const BUY_LINK = "https://pay.hotmart.com/O104148865Y?off=c4m0nezi";
 const BUY_LINK_15P = "https://pay.hotmart.com/Y104149008G?off=eehchnv4";
-
+const BUY_LINK_ELITE = "https://pay.hotmart.com/S104212403J?off=qbcz91p3";
+  
 /* ✅ Admin sempre com tudo (no front só para UI; o correto é garantir via claims no backend) */
 const ADMIN_EMAIL = "admin@lotofacilprime.com";
 
@@ -454,6 +455,7 @@ const functions = firebase.app().functions("us-central1");
       </div>
       <div style="display:flex;gap:10px;flex-wrap:wrap">
         <button class="btn btnDanger" id="btnComprar" type="button">Comprar Premium</button>
+        <button class="btn btnBlue" id="btnComprarElite" type="button">🔥 Comprar COMBO ELITE</button>
         <button class="btn btnGhost" id="btnJaComprei" type="button">Já comprei</button>
         <button class="btn btnGhost" id="btnSair" type="button">Sair</button>
       </div>
@@ -471,6 +473,7 @@ const functions = firebase.app().functions("us-central1");
       </div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
         <button class="btn btnDanger" id="btnComprar15p" type="button">Comprar 15 pontos</button>
+        <button class="btn btnBlue" id="btnComprarElite2" type="button">🔥 COMBO ELITE (Premium + 15P)</button>
         <button class="btn btnGhost" id="btnAtivar15p" type="button">Já comprei</button>
       </div>
     </div>
@@ -836,7 +839,8 @@ async function refreshClaims(force=false){
 }
 
 function updateChip(){
-  const plan = access.isAdmin ? "🛡️ Admin" : (access.premium ? "👑 Premium" : "👤 Free");
+  const isElite = (!!access.premium && !!access.addon15 && !access.isAdmin);
+  const plan = access.isAdmin ? "🛡️ Admin" : (isElite ? "👑 Elite" : (access.premium ? "👑 Premium" : "👤 Free"));
   const extra = (access.addon15 || access.isAdmin) ? " • ✅ 15P" : "";
   const chipTextEl = document.getElementById("chipText");
   if(chipTextEl) chipTextEl.textContent = `${plan} • ${access.email || "—"}${extra}`;
@@ -952,6 +956,7 @@ function sair(){ auth.signOut(); }
 
 function comprarPremium(){ window.open(BUY_LINK, "_blank"); }
 function comprar15p(){ window.open(BUY_LINK_15P, "_blank"); }
+function comprarElite(){ window.open(BUY_LINK_ELITE, "_blank"); }
 
 /* ===== ATIVAÇÃO POR CÓDIGO (Cloud Function redeemCode) ===== */
 async function ativarComCodigo(){
@@ -2522,9 +2527,9 @@ const motivosHtml = Object.entries(motivosAgrupados)
 
       <div class="numbers">${balls}</div>
 <div class="box" style="margin-top:12px">
-  <b>🧾 Por que essas dezenas foram escolhidas?</b>
+  <b>🧾 Como foram feitas as escolhas das dezenas!</b>
   <div class="mini" style="margin-top:8px">
-    Explicação simples (repetição do último + mix de quentes/mornas/frias + recência).
+    Explicação simples (repetição do último + pares/impares + top10 + atrasadas + conjuntos repetidos).
   </div>
   <div style="margin-top:10px;border:1px solid rgba(255,255,255,.10);border-radius:14px;overflow:hidden">
     ${motivosHtml}
@@ -3467,7 +3472,7 @@ async function gerar15P(){
           <div class="mini">Janela: <b>${payload.inicio}</b> a <b>${payload.ultimo}</b> (${payload.concursos.length} concursos)</div>
           <div class="mini" style="margin-top:8px">
             📌 Regra do método: cobrimos todas as combinações de <b>3 linhas entre 5</b> (10 jogos).
-<b style="text-transform:uppercase">Se você acertar as 3 linhas completas, você fecha 1 dos 10 jogos.</b>
+<b style="text-transform:uppercase">Acertando 3 linhas completas, 15 pontos em um dos 10 jogos</b>
           </div>
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
@@ -3480,7 +3485,7 @@ async function gerar15P(){
       <div class="box" style="margin-top:12px">
         <b>📌 Linhas 1 a 5 (geradas pelo sistema)</b>
         <div class="mini" style="margin-top:6px">
-          O sistema usa: <b>frequência + recência + coocorrência + lift</b>, com controle de paridade e blocos.
+          O sistema usa: <b>frequência + recência + top10 + atrasadas</b>, com controle de paridade e blocos.
         </div>
         <div style="margin-top:12px;overflow:auto">
           <table class="table">
@@ -3617,6 +3622,12 @@ document.getElementById("btnSair").addEventListener("click", sair);
 
 document.getElementById("btnComprar15p").addEventListener("click", comprar15p);
 document.getElementById("btnAtivar15p").addEventListener("click", jaComprei15p);
+
+const bElite1 = document.getElementById("btnComprarElite");
+if(bElite1) bElite1.addEventListener("click", comprarElite);
+
+const bElite2 = document.getElementById("btnComprarElite2");
+if(bElite2) bElite2.addEventListener("click", comprarElite);
 
 ["btnHomePrincipal","btnHomeAnalise","btnHomeInvertida","btnHomeTecnica","btnHome15p","btnHomeSaved"].forEach(id=>{
   const el = document.getElementById(id);
