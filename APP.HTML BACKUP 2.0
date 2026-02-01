@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lotofácil Prime Analytics — Página de Vendas</title>
+  <meta name="description" content="Lotofácil Prime Analytics: análise PRIME + geração de jogos (Principal, Invertida, Técnica) e Extra 15P. Página de vendas oficial." />
+  <meta name="theme-color" content="#050b1a" />
+  <style>
+    /* ==========================================================
+       ✅ PALETA / IDENTIDADE (IGUAL AO SEU INDEX)
+       (copiada do :root e do background do app)
+    ========================================================== */
+    :root{
+      --bg1:#050b1a; --bg2:#0b1636;
+      --card:#07122a; --text:#f8fafc; --muted:#cbd5e1; --muted2:#94a3b8;
+
+      --green:#22c55e; --green2:#16a34a;
+      --blue:#38bdf8; --blue2:#0ea5e9;
+      --purple:#a78bfa; --purple2:#7c3aed;
+      --yellow:#facc15; --orange:#fb923c;
+      --red:#fb7185; --red2:#ef4444;
+
+      --stroke: rgba(255,255,255,.10);
+      --stroke2: rgba(255,255,255,.16);
+      --shadow: 0 22px 70px rgba(0,0,0,.45);
+      --glowBlue: 0 0 0 1px rgba(56,189,248,.18), 0 12px 40px rgba(56,189,248,.10);
+      --glowGreen: 0 0 0 1px rgba(34,197,94,.18), 0 12px 40px rgba(34,197,94,.10);
+      --glowGold: 0 0 0 1px rgba(250,204,21,.22), 0 18px 60px rgba(250,204,21,.18);
+    }
+
+    *{box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+    html,body{height:100%}
+    body{
+      margin:0;color:var(--text);
+      background:
+        radial-gradient(900px 650px at 10% 10%, rgba(56,189,248,.16), transparent 55%),
+        radial-gradient(900px 650px at 90% 10%, rgba(34,197,94,.14), transparent 55%),
+        radial-gradient(900px 650px at 50% 90%, rgba(167,139,250,.14), transparent 55%),
+        linear-gradient(135deg,var(--bg1),var(--bg2));
+      min-height:100dvh;
+      overflow-x:hidden;
+    }
+
+    a{color:inherit;text-decoration:none}
+    .wrap{max-width:1120px;margin:0 auto;padding:18px}
+    .section{padding:22px 0}
+    .grid{display:grid;gap:14px}
+    .grid2{grid-template-columns:1.2fr .8fr}
+    .grid3{grid-template-columns:repeat(3,1fr)}
+    @media (max-width: 900px){ .grid2{grid-template-columns:1fr} }
+    @media (max-width: 860px){ .grid3{grid-template-columns:1fr} }
+
+    /* ==========================================================
+       UI BASE (mesmo “feel” do app)
+    ========================================================== */
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid var(--stroke);
+      border-radius:20px;
+      padding:16px;
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+    .mini{color:var(--muted);font-size:13px;line-height:1.55}
+    .kicker{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:8px 12px;border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.06);
+      font-size:12px;font-weight:900;
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+      white-space:nowrap;
+    }
+    .dot{width:7px;height:7px;border-radius:999px;background:rgba(34,197,94,.85);display:inline-block}
+
+    h1{margin:10px 0 8px;line-height:1.08;letter-spacing:.2px;font-size:clamp(28px, 4.5vw, 44px)}
+    h2{margin:0 0 10px;font-size:clamp(18px, 3.2vw, 24px)}
+    h3{margin:0 0 8px;font-size:16px}
+    .muted{color:var(--muted2)}
+    .hr{height:1px;background:rgba(255,255,255,.10);margin:14px 0;border-radius:999px}
+
+    .btn{
+      display:inline-flex;align-items:center;justify-content:center;gap:10px;
+      padding:12px 14px;border:none;border-radius:14px;
+      font-weight:1000;cursor:pointer;
+      transition:.15s;
+      box-shadow: 0 18px 45px rgba(0,0,0,.35);
+      width:100%;
+    }
+    .btn:hover{filter:brightness(1.05);transform:translateY(-1px)}
+    .btn:active{transform:translateY(0);filter:brightness(.98)}
+    .btnPrimary{background:linear-gradient(135deg,var(--green),var(--green2));box-shadow:var(--glowGreen);color:#07131a}
+    .btnBlue{background:linear-gradient(135deg,var(--blue),var(--blue2));box-shadow:var(--glowBlue);color:#041018}
+    .btnGold{
+      background:linear-gradient(135deg,var(--yellow),var(--orange));
+      box-shadow:var(--glowGold);
+      color:#1c1400
+    }
+    .btnGhost{
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.14);
+      color:var(--text);
+      box-shadow:none;
+    }
+
+    .list{margin:0;padding:0;list-style:none;display:grid;gap:10px}
+    .li{
+      display:flex;gap:10px;align-items:flex-start;
+      padding:10px 12px;border-radius:16px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.045);
+    }
+    .icon{
+      width:34px;height:34px;border-radius:12px;flex:0 0 34px;
+      display:flex;align-items:center;justify-content:center;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.05);
+      font-weight:1000;
+    }
+
+    /* HERO */
+    .hero{
+      padding:18px 0 8px;
+    }
+    .heroTop{
+      display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap
+    }
+    .brand{
+      display:flex;align-items:center;gap:12px
+    }
+    .logo{
+      height:52px; width:auto;
+      object-fit:contain;
+      filter: drop-shadow(0 18px 45px rgba(0,0,0,.55));
+    }
+    .heroCard{
+      padding:18px;
+    }
+    .heroMedia{
+      position:relative;
+      border-radius:20px;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.14);
+      background:
+        radial-gradient(800px 220px at 30% 20%, rgba(250,204,21,.16), transparent 60%),
+        radial-gradient(800px 220px at 70% 20%, rgba(56,189,248,.14), transparent 60%),
+        rgba(255,255,255,.05);
+      min-height: 300px;
+    }
+    .heroMediaInner{
+      padding:16px;
+      display:grid;
+      gap:12px;
+    }
+    .mock{
+      width:100%;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(2,6,23,.55);
+      display:flex;align-items:center;justify-content:center;
+      padding:16px;
+      color:rgba(203,213,225,.8);
+      min-height:190px;
+      text-align:center;
+      font-weight:900;
+    }
+    .chips{display:flex;gap:10px;flex-wrap:wrap}
+
+    /* PRICING */
+    .price{
+      font-size:34px;font-weight:1100;letter-spacing:.3px;margin:6px 0 6px
+    }
+    .tag{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:6px 10px;border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.06);
+      font-size:11px;font-weight:1000;
+    }
+    .tag.premium{border-color:rgba(56,189,248,.30);background:rgba(56,189,248,.14);color:#e6f8ff}
+    .tag.extra{border-color:rgba(250,204,21,.35);background:rgba(250,204,21,.18);color:#fff2b0}
+
+    /* STICKY CTA (mobile) */
+    .stickyCta{
+      position:fixed;left:0;right:0;bottom:0;
+      padding:10px 12px;
+      background:rgba(2,6,23,.72);
+      backdrop-filter: blur(10px);
+      border-top:1px solid rgba(255,255,255,.12);
+      display:none;
+      z-index:999;
+    }
+    .stickyRow{max-width:1120px;margin:0 auto;display:flex;gap:10px}
+    .stickyRow .btn{width:100%}
+    @media (max-width: 900px){
+      .stickyCta{display:block}
+      body{padding-bottom:78px}
+    }
+
+    /* FAQ */
+    details{
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.045);
+      border-radius:16px;
+      padding:12px 12px;
+    }
+    summary{
+      cursor:pointer;
+      font-weight:1000;
+      list-style:none;
+    }
+    details p{margin:10px 0 0;color:var(--muted);line-height:1.55;font-size:13px}
+    .foot{
+      text-align:center;
+      color:rgba(203,213,225,.7);
+      font-size:12px;
+      padding:16px 0 26px;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- ==========================================================
+       HERO (Headline magnética + CTA)
+  ========================================================== -->
+  <div class="wrap hero">
+    <div class="heroTop">
+      <div class="brand">
+        <img class="logo" src="LOGOMARCA.png" alt="Lotofácil Prime Analytics" />
+        <div class="chips">
+          <span class="kicker"><span class="dot"></span> Página Oficial</span>
+          <span class="kicker">⚡ Mobile Friendly</span>
+          <span class="kicker">🔒 Compra Segura</span>
+        </div>
+      </div>
+      <a class="kicker" href="#oferta">⬇ Ver oferta</a>
+    </div>
+
+    <div class="section">
+      <div class="grid grid2">
+        <div class="card heroCard">
+          <h1>
+           </b>Transforme dados em decisões</b> e gere jogos com uma análise PRIME pronta pra usar.
+          </h1>
+          <div class="mini">
+            O <b>Lotofácil Prime Analytics</b> entrega um painel com análise estatística + geração de jogos (Principal, Invertida e Técnica),
+            tudo com a mesma identidade do seu app: rápido, direto e sem distrações.
+          </div>
+
+          <div class="hr"></div>
+
+          <ul class="list">
+            <li class="li">
+              <span class="icon">📈</span>
+              <div>
+                <b>Análise PRIME</b>
+                <div class="mini">Resumo do período selecionado com tendências e probabilidades — em poucos cliques.</div>
+              </div>
+            </li>
+            <li class="li">
+              <span class="icon">🎯</span>
+              <div>
+                <b>Jogo Principal (com lógica PRIME)</b>
+                <div class="mini">Gera 15 dezenas + justificativas e resumo do porquê cada dezena entrou.</div>
+              </div>
+            </li>
+            <li class="li">
+              <span class="icon">🔄</span>
+              <div>
+                <b>Invertida + Técnica Premiada</b>
+                <div class="mini">2 modos extras para variações e estratégias, baseadas no Principal.</div>
+              </div>
+            </li>
+            <li class="li">
+              <span class="icon">💾</span>
+              <div>
+                <b>Jogos Salvos + Conferência</b>
+                <div class="mini">Salve e confira desempenho em janelas de concursos.</div>
+              </div>
+            </li>
+          </ul>
+
+          <div class="hr"></div>
+
+          <div class="grid" style="grid-template-columns:1fr 1fr;gap:10px">
+            <a class="btn btnPrimary" href="#oferta">Quero ver a oferta</a>
+            <a class="btn btnGhost" href="#como-funciona">Como funciona</a>
+          </div>
+
+          <div class="mini" style="margin-top:10px">
+            ✅ Foco único (sem menu) • ✅ Otimizado para celular • ✅ Botões CTA claros
+          </div>
+        </div>
+
+        <div class="heroMedia">
+          <div class="heroMediaInner">
+            <!-- Se você tiver VSL, substitua por um iframe do vídeo -->
+            <div class="mock">
+              ESPAÇO PARA VÍDEO (VSL) OU PRINT DO APP<br/>
+              <span class="muted" style="font-weight:900;font-size:12px">
+                (troque este bloco por um iframe do vídeo ou por imagens reais)
+              </span>
+            </div>
+
+            <div class="card" style="margin:0">
+              <h3 style="margin-bottom:6px">🚀 Por que isso converte?</h3>
+              <div class="mini">
+                Porque remove distrações e coloca o visitante no caminho direto:
+                <b>dor → solução → prova → oferta → CTA</b>.
+              </div>
+              <div class="hr"></div>
+              <a class="btn btnBlue" href="#provas">Ver provas / prints</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================
+       PROPOSTA DE VALOR (claridade + diferenciais)
+  ========================================================== -->
+  <div class="wrap section" id="como-funciona">
+    <div class="card">
+      <h2>O que torna o Prime “diferente” na prática</h2>
+      <div class="grid grid3">
+        <div class="card" style="margin:0">
+          <h3>✅ Clareza</h3>
+          <div class="mini">Em vez de “um monte de números”, você vê um painel que organiza a decisão com lógica e contexto.</div>
+        </div>
+        <div class="card" style="margin:0">
+          <h3>⚡ Velocidade</h3>
+          <div class="mini">Tudo direto: escolher janela, clicar e receber a análise/jogos. Sem excesso de navegação.</div>
+        </div>
+        <div class="card" style="margin:0">
+          <h3>🎯 Foco em ação</h3>
+          <div class="mini">A página e o produto são desenhados para levar o usuário a uma próxima ação (gerar, salvar, conferir).</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================
+       BENEFÍCIOS (não só características)
+  ========================================================== -->
+  <div class="wrap section" id="beneficios">
+    <div class="grid grid2">
+      <div class="card">
+        <h2>Benefícios que o usuário sente</h2>
+        <ul class="list">
+          <li class="li">
+            <span class="icon">⏱️</span>
+            <div><b>Economiza tempo</b><div class="mini">Ao invés de “olhar concurso por concurso”, você usa uma análise consolidada.</div></div>
+          </li>
+          <li class="li">
+            <span class="icon">🧠</span>
+            <div><b>Reduz indecisão</b><div class="mini">O sistema guia a montagem e dá contexto do jogo gerado.</div></div>
+          </li>
+          <li class="li">
+            <span class="icon">📌</span>
+            <div><b>Organiza sua estratégia</b><div class="mini">Salvar e conferir jogos deixa tudo rastreável e comparável.</div></div>
+          </li>
+          <li class="li">
+            <span class="icon">📱</span>
+            <div><b>Funciona no celular</b><div class="mini">Layout pensado para mobile (rapidez e eficiência).</div></div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h2>O que você recebe</h2>
+        <div class="mini">Estrutura do produto (clara, sem enrolação):</div>
+        <div class="hr"></div>
+        <ul class="list">
+          <li class="li"><span class="icon">🎯</span><div><b>Jogo Principal</b><div class="mini">15 dezenas + resumo PRIME.</div></div></li>
+          <li class="li"><span class="icon">📈</span><div><b>Gerar Análise</b><div class="mini">Resumo estatístico do período selecionado.</div></div></li>
+          <li class="li"><span class="icon">🔄</span><div><b>Invertida</b><div class="mini">Variações a partir do principal.</div></div></li>
+          <li class="li"><span class="icon">🏆</span><div><b>Técnica Premiada</b><div class="mini">Jogos extras por reordenação.</div></div></li>
+          <li class="li"><span class="icon">💾</span><div><b>Jogos Salvos</b><div class="mini">Guardar e conferir resultados.</div></div></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================
+       PROVAS SOCIAIS / PRINTS
+  ========================================================== -->
+  <div class="wrap section" id="provas">
+    <div class="card">
+      <h2>Provas e demonstrações</h2>
+      <div class="mini">
+        Aqui é onde você coloca <b>prints reais</b> (telas do app), depoimentos e/ou resultados.
+        Isso aumenta muito a conversão.
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="grid grid3">
+        <div class="card" style="margin:0">
+          <h3>📸 Print 1</h3>
+          <div class="mock">Coloque um print aqui<br/><span class="muted" style="font-size:12px">(assets/print1.png)</span></div>
+          <div class="mini">Sugestão: tela “Jogo Principal” gerado.</div>
+        </div>
+        <div class="card" style="margin:0">
+          <h3>📸 Print 2</h3>
+          <div class="mock">Coloque um print aqui<br/><span class="muted" style="font-size:12px">(assets/print2.png)</span></div>
+          <div class="mini">Sugestão: tela “Jogos Salvos + Conferência”.</div>
+        </div>
+        <div class="card" style="margin:0">
+          <h3>📸 Print 3</h3>
+          <div class="mock">Coloque um print aqui<br/><span class="muted" style="font-size:12px">(assets/print3.png)</span></div>
+          <div class="mini">Sugestão: tela “15 pontos garantido (EXTRA)”.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================
+       QUEBRA DE OBJEÇÕES + GARANTIA
+  ========================================================== -->
+  <div class="wrap section" id="garantia">
+    <div class="grid grid2">
+      <div class="card">
+        <h2>Quebrando objeções (antes do preço)</h2>
+        <div class="grid" style="gap:10px">
+          <details>
+            <summary>“Eu não tenho tempo.”</summary>
+            <p>O fluxo é simples: escolha a janela → clique → receba a análise/jogos. O objetivo é reduzir tempo e indecisão.</p>
+          </details>
+          <details>
+            <summary>“É complicado de usar?”</summary>
+            <p>É pensado pra celular e com botões diretos. Sem menus e sem excesso de telas.</p>
+          </details>
+          <details>
+            <summary>“Isso garante prêmio?”</summary>
+            <p>Não existe garantia de premiação em loterias. A proposta é entregar um painel e estratégias para tomada de decisão baseada em dados.</p>
+          </details>
+        </div>
+      </div>
+      </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================
+       OFERTA (CTA)
+       ✅ Links Hotmart iguais aos do seu index:
+       BUY_LINK e BUY_LINK_15P
+  ========================================================== -->
+  <div class="wrap section" id="oferta">
+    <div class="card">
+      <h2>Escolha sua oferta</h2>
+      <div class="mini">
+        Duas opções: <b>Premium</b> (ferramentas principais) e <b>Extra 15P</b> (módulo separado).
+        Os botões abaixo já estão configurados com seus links.
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="grid grid2">
+        <!-- PREMIUM -->
+        <div class="card" style="margin:0">
+          <span class="tag premium">👑 PREMIUM</span>
+          <h3 style="margin-top:10px">Lotofácil Prime Analytics (Premium)</h3>
+          <div class="mini">Libera as ferramentas principais do painel.</div>
+
+          <div class="hr"></div>
+
+          <ul class="list">
+            <li class="li"><span class="icon">📈</span><div><b>Gerar Análise</b><div class="mini">Resumo PRIME do período.</div></div></li>
+            <li class="li"><span class="icon">🔄</span><div><b>Invertida</b><div class="mini">Variações por blocos.</div></div></li>
+            <li class="li"><span class="icon">🏆</span><div><b>Técnica Premiada</b><div class="mini">Jogos extras a partir do principal.</div></div></li>
+            <li class="li"><span class="icon">💾</span><div><b>Jogos Salvos</b><div class="mini">Salvar e conferir jogos.</div></div></li>
+          </ul>
+
+          <div class="hr"></div>
+
+          <!-- ✅ Link do seu index -->
+          <a class="btn btnPrimary" href="https://pay.hotmart.com/O104148865Y?off=c4m0nezi" target="_blank" rel="noopener">
+            Quero Comprar Premium Agora
+          </a>
+
+          <div class="mini" style="margin-top:10px">
+            Dica: depois da compra, o usuário usa o mesmo email para acesso.
+          </div>
+        </div>
+
+        <!-- EXTRA 15P -->
+        <div class="card" style="margin:0;border-color:rgba(250,204,21,.28);
+          background: radial-gradient(900px 240px at 30% 20%, rgba(250,204,21,.18), transparent 60%),
+                      radial-gradient(900px 240px at 70% 20%, rgba(251,146,60,.18), transparent 60%),
+                      rgba(255,255,255,.04);
+          box-shadow: var(--glowGold), 0 22px 70px rgba(0,0,0,.40);
+        ">
+          <span class="tag extra">✨ EXTRA 15P</span>
+          <h3 style="margin-top:10px">15 Pontos Garantido (módulo separado)</h3>
+          <div class="mini">Uma tela própria com estratégia e jogos (upsell).</div>
+
+          <div class="hr"></div>
+
+          <ul class="list">
+            <li class="li"><span class="icon">✅</span><div><b>Estratégia (10 jogos)</b><div class="mini">Fluxo separado dentro do app.</div></div></li>
+            <li class="li"><span class="icon">🧩</span><div><b>Linhas / montagem</b><div class="mini">Opções para criar e analisar.</div></div></li>
+            <li class="li"><span class="icon">📌</span><div><b>Foco total</b><div class="mini">Uma oferta “extra” para quem quer ir além.</div></div></li>
+          </ul>
+
+          <div class="hr"></div>
+
+          <!-- ✅ Link do seu index -->
+          <a class="btn btnGold" href="https://pay.hotmart.com/Y104149008G?off=eehchnv4" target="_blank" rel="noopener">
+            Quero Comprar o Extra 15P
+          </a>
+
+          <a class="btn btnGhost" href="#beneficios" style="margin-top:10px">Ver benefícios novamente</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================
+       FAQ FINAL (fechamento)
+  ========================================================== -->
+  <div class="wrap section" id="faq">
+    <div class="card">
+      <h2>FAQ </h2>
+
+      <div class="grid" style="gap:10px">
+        <details>
+          <summary>Como recebo acesso?</summary>
+          <p>Após a compra, o usuário acessa com o email usado na Hotmart (o sistema já trabalha com login por email/senha).</p>
+        </details>
+        <details>
+          <summary>Preciso instalar alguma coisa?</summary>
+          <p>Você pode usar via navegador.</p>
+        </details>
+        <details>
+          <summary>O Extra 15P está incluso no Premium?</summary>
+          <p>Não. O Extra 15P é vendido separadamente como módulo adicional.</p>
+        </details>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="grid" style="grid-template-columns:1fr 1fr;gap:10px">
+        <a class="btn btnPrimary" href="#oferta">Quero comprar agora</a>
+        <a class="btn btnGhost" href="#provas">Ver provas</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap foot">
+    <div>
+      © <span id="year"></span> Lotofácil Prime Analytics • N&V Sistemas
+    </div>
+    <div style="margin-top:6px">
+      Aviso: loterias envolvem risco e não há garantia de premiação.
+    </div>
+  </div>
+
+  <!-- Sticky CTA mobile -->
+  <div class="stickyCta" aria-hidden="false">
+    <div class="stickyRow">
+      <a class="btn btnPrimary" href="https://pay.hotmart.com/O104148865Y?off=c4m0nezi" target="_blank" rel="noopener">
+        Comprar Premium
+      </a>
+      <a class="btn btnGold" href="https://pay.hotmart.com/Y104149008G?off=eehchnv4" target="_blank" rel="noopener">
+        Comprar 15P
+      </a>
+    </div>
+  </div>
+
+  <script>
+    // Ano automático
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    // Scroll suave (sem biblioteca)
+    document.querySelectorAll('a[href^="#"]').forEach(a=>{
+      a.addEventListener("click", (e)=>{
+        const id = a.getAttribute("href");
+        if(!id || id === "#") return;
+        const el = document.querySelector(id);
+        if(!el) return;
+        e.preventDefault();
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    });
+  </script>
+</body>
+</html>
