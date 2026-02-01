@@ -2522,9 +2522,9 @@ const motivosHtml = Object.entries(motivosAgrupados)
 
       <div class="numbers">${balls}</div>
 <div class="box" style="margin-top:12px">
-  <b>🧾 Por que essas dezenas foram escolhidas?</b>
+  <b>🧾 Como foram feitas as escolhas das dezenas!</b>
   <div class="mini" style="margin-top:8px">
-    Explicação simples (repetição do último + mix de quentes/mornas/frias + recência).
+    Explicação simples (repetição do último + pares/impares + top10 + atrasadas + conjuntos repetidos).
   </div>
   <div style="margin-top:10px;border:1px solid rgba(255,255,255,.10);border-radius:14px;overflow:hidden">
     ${motivosHtml}
@@ -3467,7 +3467,7 @@ async function gerar15P(){
           <div class="mini">Janela: <b>${payload.inicio}</b> a <b>${payload.ultimo}</b> (${payload.concursos.length} concursos)</div>
           <div class="mini" style="margin-top:8px">
             📌 Regra do método: cobrimos todas as combinações de <b>3 linhas entre 5</b> (10 jogos).
-<b style="text-transform:uppercase">Se você acertar as 3 linhas completas, você fecha 1 dos 10 jogos.</b>
+<b style="text-transform:uppercase">Acertando 3 linhas completas, 15 pontos em um dos 10 jogos</b>
           </div>
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
@@ -3480,7 +3480,7 @@ async function gerar15P(){
       <div class="box" style="margin-top:12px">
         <b>📌 Linhas 1 a 5 (geradas pelo sistema)</b>
         <div class="mini" style="margin-top:6px">
-          O sistema usa: <b>frequência + recência + coocorrência + lift</b>, com controle de paridade e blocos.
+          O sistema usa: <b>frequência + recência + top10 + atrasadas</b>, com controle de paridade e blocos.
         </div>
         <div style="margin-top:12px;overflow:auto">
           <table class="table">
