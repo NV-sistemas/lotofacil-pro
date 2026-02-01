@@ -107,7 +107,7 @@
       box-shadow:none;
     }
 
-    .list{margin:0;padding:0;list-style:none;display:grid;gap:10px}
+    .list{margin:0;padding:0;list-:none;display:grid;gap:10px}
     .li{
       display:flex;gap:10px;align-items:flex-start;
       padding:10px 12px;border-radius:16px;
@@ -379,6 +379,37 @@ h1, h2, h3 { color: var(--yellow); }
     rgba(255,255,255,.04);
   box-shadow: var(--glowGold), 0 22px 70px rgba(0,0,0,.40);
 }
+/* ==========================================================
+   ✅ OFERTAS — padronizar tamanhos no desktop (FREE/PREMIUM/15P)
+========================================================== */
+.offersGrid{
+  display:grid;
+  gap:14px;
+  align-items:stretch;
+}
+
+/* Desktop: 3 colunas iguais */
+@media (min-width: 901px){
+  .offersGrid{ grid-template-columns: repeat(3, 1fr); }
+}
+
+/* Mobile: 1 coluna (como já está “certinho”) */
+@media (max-width: 900px){
+  .offersGrid{ grid-template-columns: 1fr; }
+}
+
+/* Card oferta com altura igual */
+.offerCard{
+  height:100%;
+  display:flex;
+  flex-direction:column;
+}
+
+/* O conteúdo “cresce” e empurra botão pra baixo (alinha os CTAs) */
+.offerBody{ flex:1; }
+
+/* Botão sempre no rodapé do card */
+.offerCta{ margin-top:auto; }
 
   </style>
 </head>
@@ -401,7 +432,7 @@ h1, h2, h3 { color: var(--yellow); }
     </div>
 
     <div class="section">
-      <div class="grid grid2">
+      <div class="offersGrid">
         <div class="card heroCard">
           <h1>
            <b>TRANSFORME DADOS EM DECISÕES.</b>
@@ -627,51 +658,45 @@ Confira as telas reais do sistema, jogos gerados automaticamente e a análise PR
 
       <div class="hr"></div>
 <!-- ✅ FREE (acesso imediato) -->
-<div class="card freeCard" style="margin:0 0 14px 0">
-  <span class="tag" style="border-color:rgba(250,204,21,.40);background:rgba(250,204,21,.16);color:#fff2b0">
-    🆓 FREE • 1 JOGO PRINCIPAL GRÁTIS
-  </span>
+<!-- FREE -->
+<div class="card" style="margin:0;border-color:rgba(250,204,21,.28);
+          background: radial-gradient(900px 240px at 30% 20%, rgba(250,204,21,.18), transparent 60%),
+                      radial-gradient(900px 240px at 70% 20%, rgba(251,146,60,.18), transparent 60%),
+                      rgba(255,255,255,.04);
+          box-shadow: var(--glowGold), 0 22px 70px rgba(0,0,0,.40);
+        ">
+  <span class="tag extra">🆓 FREE</span>
 
-  <h3 style="margin-top:10px">Entre no PRIME — teste real antes de comprar</h3>
-
-  <div class="mini">
-    Crie seu acesso em <b>30 segundos</b> com <b>email + senha</b> (você escolhe).
-    Lá dentro você libera <b>1 geração do Jogo Principal</b> gratuitamente.  
-    Depois disso, para continuar: <b>somente PREMIUM</b>.
-  </div>
-
-  <div class="hr"></div>
-
-  <div class="grid" style="grid-template-columns:1fr 1fr;gap:10px">
-    <div class="mini" style="margin:0">
-      <b>✅ O que você ganha no FREE</b><br>
-      • Cadastro rápido (email + senha)<br>
-      • <b>1 Jogo Principal</b> grátis<br>
-      • Experiência real do sistema
+  <div class="offerBody">
+    <h3 style="margin-top:10px">Teste Real do Sistema</h3>
+    <div class="mini">
+      Crie login com <b>email + senha</b> e gere <b>1 Jogo Principal grátis</b>.
     </div>
 
-    <div class="mini" style="margin:0">
-      <b>🔒 Regra clara</b><br>
-      • Após 1 geração: bloqueia<br>
-      • Liberação total no Premium<br>
-      • Sem pegadinhas
-    </div>
+    <div class="hr"></div>
+
+    <ul class="list">
+      <li class="li"><span class="icon">📩</span><div><b>Cadastro rápido</b><div class="mini">Acesso imediato</div></div></li>
+      <li class="li"><span class="icon">🎯</span><div><b>1 geração grátis</b><div class="mini">Teste completo do PRIME</div></div></li>
+      <li class="li"><span class="icon">🔒</span><div><b>Depois Premium</b><div class="mini">Liberação total</div></div></li>
+    </ul>
   </div>
 
-  <div class="hr"></div>
-
-  <a class="btnFree" href="https://lotofacil-pro.vercel.app/" target="_blank" rel="noopener">
-    <span class="badge">TESTE REAL</span>
-    CRIAR ACESSO E GERAR 1 JOGO GRÁTIS
-    <span class="sub">📩 Email + senha • 1 geração liberada • depois: Premium</span>
-  </a>
-
-  <div class="mini" style="margin-top:10px">
-    Ideal pra quem quer ver o PRIME funcionando na prática antes de investir.
+  <div class="offerCta">
+    <div class="hr"></div>
+    <a class="btn btnGold" href="https://lotofacil-pro.vercel.app/" target="_blank" rel="noopener">
+      Criar acesso grátis agora
+    </a>
+    <div class="mini" style="margin-top:10px">Ideal para conhecer o sistema antes de comprar.</div>
   </div>
 </div>
+    </li>
+  </ul>
+
+  <div class="hr"></div>
+
       <div class="grid grid2">
-        <!-- PREMIUM -->
+<!-- PREMIUM -->
         <div class="card" style="margin:0">
           <span class="tag premium">👑 PREMIUM</span>
           <h3 style="margin-top:10px">Lotofácil Prime Analytics (Premium)</h3>
@@ -729,7 +754,6 @@ Confira as telas reais do sistema, jogos gerados automaticamente e a análise PR
       </div>
     </div>
   </div>
-
   <!-- ==========================================================
        FAQ FINAL (fechamento)
   ========================================================== -->
@@ -805,4 +829,3 @@ Confira as telas reais do sistema, jogos gerados automaticamente e a análise PR
   </script>
 </body>
 </html>
-
