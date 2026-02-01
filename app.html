@@ -107,7 +107,7 @@
       box-shadow:none;
     }
 
-    .list{margin:0;padding:0;list-style:none;display:grid;gap:10px}
+    .list{margin:0;padding:0;list-:none;display:grid;gap:10px}
     .li{
       display:flex;gap:10px;align-items:flex-start;
       padding:10px 12px;border-radius:16px;
@@ -379,6 +379,37 @@ h1, h2, h3 { color: var(--yellow); }
     rgba(255,255,255,.04);
   box-shadow: var(--glowGold), 0 22px 70px rgba(0,0,0,.40);
 }
+/* ==========================================================
+   ✅ OFERTAS — padronizar tamanhos no desktop (FREE/PREMIUM/15P)
+========================================================== */
+.offersGrid{
+  display:grid;
+  gap:14px;
+  align-items:stretch;
+}
+
+/* Desktop: 3 colunas iguais */
+@media (min-width: 901px){
+  .offersGrid{ grid-template-columns: repeat(3, 1fr); }
+}
+
+/* Mobile: 1 coluna (como já está “certinho”) */
+@media (max-width: 900px){
+  .offersGrid{ grid-template-columns: 1fr; }
+}
+
+/* Card oferta com altura igual */
+.offerCard{
+  height:100%;
+  display:flex;
+  flex-direction:column;
+}
+
+/* O conteúdo “cresce” e empurra botão pra baixo (alinha os CTAs) */
+.offerBody{ flex:1; }
+
+/* Botão sempre no rodapé do card */
+.offerCta{ margin-top:auto; }
 
   </style>
 </head>
@@ -401,7 +432,7 @@ h1, h2, h3 { color: var(--yellow); }
     </div>
 
     <div class="section">
-      <div class="grid grid2">
+      <div class="offersGrid">
         <div class="card heroCard">
           <h1>
            <b>TRANSFORME DADOS EM DECISÕES.</b>
@@ -628,46 +659,32 @@ Confira as telas reais do sistema, jogos gerados automaticamente e a análise PR
       <div class="hr"></div>
 <!-- ✅ FREE (acesso imediato) -->
 <!-- FREE -->
-<div class="card" style="margin:0;
-  border-color:rgba(250,204,21,.30);
-  background:
-    radial-gradient(900px 240px at 30% 20%, rgba(250,204,21,.18), transparent 60%),
-    rgba(255,255,255,.04);
-  box-shadow: var(--glowGold), 0 22px 70px rgba(0,0,0,.40);
-">
-
+<div class="card freeCard offerCard" style="margin:0">
   <span class="tag extra">🆓 FREE</span>
 
-  <h3 style="margin-top:10px">Teste Real do Sistema</h3>
-  <div class="mini">
-    Crie login com <b>email + senha</b> e gere <b>1 Jogo Principal grátis</b>.
+  <div class="offerBody">
+    <h3 style="margin-top:10px">Teste Real do Sistema</h3>
+    <div class="mini">
+      Crie login com <b>email + senha</b> e gere <b>1 Jogo Principal grátis</b>.
+    </div>
+
+    <div class="hr"></div>
+
+    <ul class="list">
+      <li class="li"><span class="icon">📩</span><div><b>Cadastro rápido</b><div class="mini">Acesso imediato</div></div></li>
+      <li class="li"><span class="icon">🎯</span><div><b>1 geração grátis</b><div class="mini">Teste completo do PRIME</div></div></li>
+      <li class="li"><span class="icon">🔒</span><div><b>Depois Premium</b><div class="mini">Liberação total</div></div></li>
+    </ul>
   </div>
 
-  <div class="hr"></div>
-
-  <ul class="list">
-    <li class="li">
-      <span class="icon">📩</span>
-      <div>
-        <b>Cadastro rápido</b>
-        <div class="mini">Acesso imediato</div>
-      </div>
-    </li>
-
-    <li class="li">
-      <span class="icon">🎯</span>
-      <div>
-        <b>1 geração grátis</b>
-        <div class="mini">Teste completo do PRIME</div>
-      </div>
-    </li>
-
-    <li class="li">
-      <span class="icon">🔒</span>
-      <div>
-        <b>Depois Premium</b>
-        <div class="mini">Liberação total</div>
-      </div>
+  <div class="offerCta">
+    <div class="hr"></div>
+    <a class="btn btnGold" href="https://lotofacil-pro.vercel.app/" target="_blank" rel="noopener">
+      Criar acesso grátis agora
+    </a>
+    <div class="mini" style="margin-top:10px">Ideal para conhecer o sistema antes de comprar.</div>
+  </div>
+</div>
     </li>
   </ul>
 
@@ -688,61 +705,58 @@ Confira as telas reais do sistema, jogos gerados automaticamente e a análise PR
 
       <div class="grid grid2">
         <!-- PREMIUM -->
-        <div class="card" style="margin:0">
-          <span class="tag premium">👑 PREMIUM</span>
-          <h3 style="margin-top:10px">Lotofácil Prime Analytics (Premium)</h3>
-          <div class="mini">Libera as ferramentas principais do painel.</div>
+        <!-- PREMIUM -->
+<div class="card offerCard" style="margin:0">
+  <span class="tag premium">👑 PREMIUM</span>
 
-          <div class="hr"></div>
+  <div class="offerBody">
+    <h3 style="margin-top:10px">Lotofácil Prime Analytics (Premium)</h3>
+    <div class="mini">Libera as ferramentas principais do painel.</div>
 
-          <ul class="list">
-            <li class="li"><span class="icon">📈</span><div><b>Gerar Análise</b><div class="mini">Resumo PRIME do período.</div></div></li>
-            <li class="li"><span class="icon">🔄</span><div><b>Invertida</b><div class="mini">Variações por blocos.</div></div></li>
-            <li class="li"><span class="icon">🏆</span><div><b>Técnica Premiada</b><div class="mini">Jogos extras a partir do principal.</div></div></li>
-            <li class="li"><span class="icon">💾</span><div><b>Jogos Salvos</b><div class="mini">Salvar e conferir jogos.</div></div></li>
-          </ul>
+    <div class="hr"></div>
 
-          <div class="hr"></div>
+    <!-- seu UL/lista aqui -->
+    ...
+  </div>
 
-          <!-- ✅ Link do seu index -->
-          <a class="btn btnPrimary" href="https://pay.hotmart.com/O104148865Y?off=c4m0nezi" target="_blank" rel="noopener">
-            Quero Comprar Premium Agora
-          </a>
-
-          <div class="mini" style="margin-top:10px">
-            Dica: depois da compra, o usuário usa o mesmo email para acesso.
-          </div>
-        </div>
+  <div class="offerCta">
+    <div class="hr"></div>
+    <a class="btn btnPrimary" href="https://pay.hotmart.com/O104148865Y?off=c4m0nezi" target="_blank" rel="noopener">
+      Quero Comprar Premium Agora
+    </a>
+    <div class="mini" style="margin-top:10px">Dica: depois da compra, o usuário usa o mesmo email para acesso.</div>
+  </div>
+</div>
 
         <!-- EXTRA 15P -->
-        <div class="card" style="margin:0;border-color:rgba(250,204,21,.28);
-          background: radial-gradient(900px 240px at 30% 20%, rgba(250,204,21,.18), transparent 60%),
-                      radial-gradient(900px 240px at 70% 20%, rgba(251,146,60,.18), transparent 60%),
-                      rgba(255,255,255,.04);
-          box-shadow: var(--glowGold), 0 22px 70px rgba(0,0,0,.40);
-        ">
-          <span class="tag extra">✨ EXTRA 15P</span>
-          <h3 style="margin-top:10px">15 Pontos Garantido (módulo separado)</h3>
-          <div class="mini">Uma tela própria com estratégia e jogos.</div>
+        <!-- EXTRA 15P -->
+<div class="card offerCard" style="margin:0; border-color:rgba(250,204,21,.28);
+  background: radial-gradient(900px 240px at 30% 20%, rgba(250,204,21,.18), transparent 60%),
+              radial-gradient(900px 240px at 70% 20%, rgba(251,146,60,.18), transparent 60%),
+              rgba(255,255,255,.04);
+  box-shadow: var(--glowGold), 0 22px 70px rgba(0,0,0,.40);
+">
+  <span class="tag extra">✨ EXTRA 15P</span>
 
-          <div class="hr"></div>
+  <div class="offerBody">
+    <h3 style="margin-top:10px">15 Pontos Garantido (módulo separado)</h3>
+    <div class="mini">Uma tela própria com estratégia e jogos.</div>
 
-          <ul class="list">
-            <li class="li"><span class="icon">✅</span><div><b>Estratégia (10 jogos)</b><div class="mini">Fluxo separado dentro do app.</div></div></li>
-            <li class="li"><span class="icon">🧩</span><div><b>Linhas / montagem</b><div class="mini">Opções para criar e analisar.</div></div></li>
-            <li class="li"><span class="icon">📌</span><div><b>Foco total</b><div class="mini">Uma oferta “extra” para quem quer ir além.</div></div></li>
-          </ul>
+    <div class="hr"></div>
 
-          <div class="hr"></div>
+    <!-- seu UL/lista aqui -->
+    ...
+  </div>
 
-          <!-- ✅ Link do seu index -->
-          <a class="btn btnGold" href="https://pay.hotmart.com/Y104149008G?off=eehchnv4" target="_blank" rel="noopener">
-            Quero Comprar o Extra 15P
-          </a>
+  <div class="offerCta">
+    <div class="hr"></div>
+    <a class="btn btnGold" href="https://pay.hotmart.com/Y104149008G?off=eehchnv4" target="_blank" rel="noopener">
+      Quero Comprar o Extra 15P
+    </a>
 
-          <a class="btn btnGhost" href="#beneficios" style="margin-top:10px">Ver benefícios novamente</a>
-        </div>
-      </div>
+    <a class="btn btnGhost" href="#beneficios" style="margin-top:10px">Ver benefícios novamente</a>
+  </div>
+</div>
     </div>
   </div>
 
