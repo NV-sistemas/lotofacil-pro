@@ -1074,25 +1074,6 @@
   padding:26px 0 44px;
 }
 
-/* ==========================================================
-   ✅ NOVO: CARD DO HERO (FUNDO CINZA IGUAL AO PREMIUM)
-   - envolve TODO o bloco do print 1
-   - não altera nada além do visual do container
-========================================================== */
-.heroPremiumCard{
-  background: rgba(255,255,255,.035); /* igual offerCard */
-  border:1px solid rgba(255,255,255,.14);
-  border-radius:22px;
-  padding:18px;
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-}
-@media (max-width: 620px){
-  .heroPremiumCard{ padding:16px; }
-}
-
-
 .heroEliteGrid{
   display:grid;
   grid-template-columns: 1.1fr .9fr;
@@ -1353,6 +1334,19 @@
   box-shadow:0 18px 45px rgba(0,0,0,.35) !important;
 }
 
+
+/* ==========================================================
+   HERO CARD CINZA CLARO (igual cards Clareza/Velocidade/Foco)
+   alteração solicitada – somente visual
+========================================================== */
+.heroGreyCard{
+  background: rgba(255,255,255,.045);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 22px;
+  padding: 22px;
+  box-shadow: var(--shadow);
+}
+
 </style>
 </head>
 
@@ -1376,9 +1370,7 @@
   <!-- =======================================================
   🚀 HERO ELITE NOVO (VERSÃO VENDAS 7 DÍGITOS)
   ======================================================= -->
-  <section class="heroElite">
-
-    <div class="heroPremiumCard">
+  <section class="heroElite heroGreyCard">
 
     <div class="heroEliteGrid">
 
@@ -1439,8 +1431,6 @@
           ou prints grandes do sistema
         </div>
       </div>
-
-    </div>
 
     </div>
 
