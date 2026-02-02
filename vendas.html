@@ -852,7 +852,114 @@
 @media (prefers-reduced-motion: reduce){
   .btnComboSticky{ animation:none !important; }
 }
+/* =========================
+   HERO ELITE (impacto real)
+========================= */
+.kicker{
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  padding:8px 12px;
+  border-radius:999px;
+  border:1px solid rgba(250,204,21,.22);
+  background: rgba(250,204,21,.10);
+  color:#fff2b0;
+  font-size:12.5px;
+  font-weight:1200;
+  letter-spacing:.25px;
+  box-shadow: 0 12px 35px rgba(0,0,0,.35);
+}
+.kicker b{ color: var(--yellow); }
 
+.heroTitle{
+  margin:12px 0 10px;
+  line-height:1.02;
+  letter-spacing:.2px;
+  font-weight:1300;
+  font-size: clamp(26px, 3.4vw, 44px);
+  text-wrap:balance;
+}
+.heroTitle .gold{
+  color:var(--yellow);
+  text-shadow:
+    0 14px 45px rgba(250,204,21,.22),
+    0 0 18px rgba(250,204,21,.10);
+}
+.heroSub{
+  font-size:14px;
+  line-height:1.65;
+  color: rgba(255,255,255,.84);
+}
+.heroProofRow{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:12px;
+}
+.proofChip{
+  flex:0 0 auto;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 10px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.14);
+  background: rgba(255,255,255,.06);
+  color:#fff;
+  font-size:12px;
+  font-weight:1100;
+}
+
+.ctaStack{
+  display:grid;
+  grid-template-columns:1.1fr .9fr;
+  gap:10px;
+  margin-top:14px;
+}
+@media (max-width: 620px){
+  .ctaStack{ grid-template-columns:1fr; }
+}
+
+.btnBig{
+  padding:14px 14px;
+  border-radius:16px;
+  font-size:15px;
+  font-weight:1300;
+}
+.btnGreen{
+  background: linear-gradient(135deg, var(--green), var(--green2));
+  color:#04160b;
+  border:1px solid rgba(34,197,94,.28);
+  box-shadow: var(--glowGreenStrong);
+}
+.btnGreen:hover{ filter:brightness(1.06); transform:translateY(-1px); }
+.btnGreen:active{ transform:translateY(0); filter:brightness(.98); }
+
+.heroLine{
+  height:1px;
+  background: rgba(255,255,255,.10);
+  margin:14px 0;
+  border-radius:999px;
+}
+
+.heroSideBox{
+  border:1px solid rgba(255,255,255,.14);
+  background: rgba(255,255,255,.045);
+  border-radius:18px;
+  padding:14px;
+}
+.heroSideTitle{
+  margin:0 0 6px;
+  font-size:14px;
+  font-weight:1300;
+  color:var(--yellow);
+}
+.heroSideText{
+  margin:0;
+  font-size:13px;
+  line-height:1.55;
+  color: rgba(255,255,255,.82);
+}
   </style>
 </head>
 
@@ -876,35 +983,75 @@
 
       <div class="heroInner">
         <div class="grid grid2">
-          <div class="card heroCard">
-            <h1><b><span class="headlineWhite">TRANSFORME DADOS EM</span> <span class="headlineGold">DECISÕES</span>.</b></h1>
+            <div class="kicker">🏆 Método <b>PRIME</b> • Painel + Geração • Sem achismo</div>
 
-            <div class="mini">
-              Gere jogos com uma análise PRIME pronta pra usar.
-              O <b>Lotofácil Prime Analytics</b> entrega um painel com análise estatística + geração de jogos (Principal, Invertida e Técnica),
-              tudo rápido, direto e sem distrações.
-            </div>
+  <div class="heroTitle">
+    Gere seus jogos com <span class="gold">lógica</span> e <span class="gold">dados</span> — em minutos.
+  </div>
 
-            <div class="hr"></div>
+  <div class="heroSub">
+    O <b>Lotofácil Prime Analytics</b> analisa concursos, identifica padrões e entrega o
+    <b>Jogo Principal</b> com justificativas + variações (Invertida/Técnica) e recursos de
+    <b>salvar e conferir</b> — tudo direto, rápido e fácil no celular.
+  </div>
 
-            <ul class="list">
-              <li class="li"><span class="icon">📈</span><div><b>Análise PRIME</b><div class="mini">Resumo do período selecionado com tendências e probabilidades — em poucos cliques.</div></div></li>
-              <li class="li"><span class="icon">🎯</span><div><b>Jogo Principal (com lógica PRIME)</b><div class="mini">Gera 15 dezenas + justificativas e resumo do porquê cada dezena entrou.</div></div></li>
-              <li class="li"><span class="icon">🔄</span><div><b>Invertida + Técnica Premiada</b><div class="mini">2 modos extras para variações e estratégias, baseadas no Principal.</div></div></li>
-              <li class="li"><span class="icon">💾</span><div><b>Jogos Salvos + Conferência</b><div class="mini">Salve e confira desempenho em janelas de concursos.</div></div></li>
-            </ul>
+  <div class="heroProofRow">
+    <div class="proofChip">✅ Prints reais do sistema</div>
+    <div class="proofChip">⚡ Fluxo 100% direto</div>
+    <div class="proofChip">🔒 Checkout Hotmart</div>
+    <div class="proofChip">📱 Otimizado mobile</div>
+  </div>
 
-            <div class="hr"></div>
+  <div class="heroLine"></div>
 
-            <div class="grid" style="grid-template-columns:1fr 1fr;gap:10px">
-              <a class="btn btnPrimary" href="#oferta">Quero ver a oferta</a>
-              <a class="btn btnGhost" href="#como-funciona">Como funciona</a>
-            </div>
+  <ul class="list">
+    <li class="li">
+      <span class="icon">📈</span>
+      <div>
+        <b>Análise PRIME</b>
+        <div class="mini">Resumo do período com tendências, padrões e leitura rápida — sem complicação.</div>
+      </div>
+    </li>
 
-            <div class="mini" style="margin-top:10px">
-              ✅ Foco único (sem menu) • ✅ Otimizado para celular • ✅ Botões CTA claros
-            </div>
-          </div>
+    <li class="li">
+      <span class="icon">🎯</span>
+      <div>
+        <b>Jogo Principal (lógica PRIME)</b>
+        <div class="mini">15 dezenas + justificativas e o “porquê” de cada escolha — pronto para usar.</div>
+      </div>
+    </li>
+
+    <li class="li">
+      <span class="icon">🔄</span>
+      <div>
+        <b>Invertida + Técnica Premiada</b>
+        <div class="mini">Variações inteligentes baseadas no seu Principal — para ampliar estratégias.</div>
+      </div>
+    </li>
+
+    <li class="li">
+      <span class="icon">💾</span>
+      <div>
+        <b>Jogos Salvos + Conferência</b>
+        <div class="mini">Organize seus jogos e compare desempenho por janelas de concursos.</div>
+      </div>
+    </li>
+  </ul>
+
+  <div class="heroLine"></div>
+
+  <div class="ctaStack">
+    <a class="btn btnBig btnGreen" href="https://lotofacil-pro.vercel.app/" target="_blank" rel="noopener">
+      ✅ Testar FREE agora (1 jogo)
+    </a>
+    <a class="btn btnBig btnPrimary" href="#oferta">
+      Ver ofertas (Premium / 15P / Combo)
+    </a>
+  </div>
+
+  <div class="mini" style="margin-top:10px">
+    🔥 Comece pelo FREE e sinta o fluxo por dentro. Depois escolha Premium ou Combo para liberar tudo.
+  </div>
 
           <div class="heroMedia">
             <div class="heroMediaInner">
@@ -1301,14 +1448,6 @@
   </div>
 
   <div class="stickyCta" aria-hidden="false">
-    <div class="stickyRow">
-      <a class="btnFreeSticky" href="https://lotofacil-pro.vercel.app/" target="_blank" rel="noopener">FREE</a>
-      <a class="btn btnPrimary" href="https://pay.hotmart.com/O104148865Y?off=c4m0nezi" target="_blank" rel="noopener">Premium</a>
-      <a class="btn btnGold" href="https://pay.hotmart.com/Y104149008G?off=eehchnv4" target="_blank" rel="noopener">15P</a>
-      <a class="btnComboSticky" href="https://pay.hotmart.com/S104212403J?off=qbcz91p3" target="_blank" rel="noopener">Combo</a>
-    </div>
-  </div>
-<div class="stickyCta" aria-hidden="false">
   <div class="stickyRow">
     <a class="btnFreeSticky" href="https://lotofacil-pro.vercel.app/" target="_blank" rel="noopener">FREE</a>
     <a href="https://pay.hotmart.com/O104148865Y?off=c4m0nezi" target="_blank" rel="noopener">PREMIUM</a>
