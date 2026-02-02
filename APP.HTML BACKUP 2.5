@@ -1,4 +1,3 @@
-
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
@@ -83,6 +82,9 @@
       align-items:center;
       gap:12px;
       padding:2px 2px 10px;
+      background:transparent;
+      border:none;
+      box-shadow:none;
     }
     .brandLeft{display:flex;align-items:center;justify-content:flex-start}
     .rightSpacer{display:block}
@@ -102,7 +104,7 @@
       padding:0 8px;
     }
     .titleCenter span{
-      font-size:clamp(18px, 2.6vw, 26px);
+      font-size:clamp(18px, 2.4vw, 24px);
       font-weight:1200;
       letter-spacing:.6px;
       color:var(--yellow);
@@ -131,25 +133,21 @@
       }
     }
 
-    /* HEADLINE */
+    /* ✅ PADRONIZAÇÃO DE TAMANHOS (HERO x RESTO) */
     h1{
       margin:10px 0 8px;
-      line-height:1.02;
+      line-height:1.04;
       letter-spacing:.2px;
       color:var(--yellow);
       font-weight:1200;
-      font-size: clamp(24px, 3.25vw, 40px);
-      white-space: nowrap;
+      font-size: clamp(22px, 2.9vw, 34px);
+      white-space:normal;
+      text-wrap:balance;
     }
-    .decisoesWhite{ color:#ffffff; }
-    @media (max-width: 420px){
-      h1{ font-size: 26px; letter-spacing:.1px; }
-    }
-    @media (max-width: 360px){
-      h1{ font-size: 24px; }
-    }
+    .headlineWhite{ color:#ffffff; }
+.headlineGold{ color: var(--yellow); }
 
-    h2{margin:0 0 10px;font-size:clamp(20px, 3.2vw, 24px);color:var(--yellow)}
+    h2{margin:0 0 10px;font-size:clamp(18px, 2.2vw, 22px);color:var(--yellow);line-height:1.15}
     h3{margin:0 0 8px;font-size:16px;color:var(--yellow)}
 
     .btn{
@@ -190,9 +188,9 @@
     }
 
     /* HERO */
-    .hero{padding:18px 0 8px;}
+    .hero{padding:14px 0 8px;}
     .heroInner{padding-top:6px;}
-    .heroCard{padding:18px;}
+    .heroCard{padding:16px;}
     .heroMedia{
       border-radius:var(--radius);
       overflow:hidden;
@@ -208,9 +206,12 @@
       display:flex;align-items:center;justify-content:center;
       padding:18px;
       color:rgba(255,255,255,.80);
-      min-height:200px;
+      min-height:190px;
       text-align:center;
       font-weight:1100;
+    }
+    @media (max-width: 900px){
+      .mock{min-height:170px}
     }
 
     /* TAGS */
@@ -402,24 +403,28 @@
     summary{cursor:pointer;font-weight:1100;list-style:none;}
     details p{margin:10px 0 0;color:var(--muted);line-height:1.55;font-size:13px}
 
+    /* ✅ BLOCO “QUEBRANDO OBJEÇÕES” MAIS VENDÁVEL */
+    .objectionHead{
+      display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+    }
+    .pill{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:8px 12px;border-radius:999px;
+      border:1px solid rgba(250,204,21,.22);
+      background:rgba(250,204,21,.10);
+      color:#fff2b0;
+      font-size:12px;
+      font-weight:1100;
+      white-space:nowrap;
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+    }
+
     .foot{
       text-align:center;
       color:rgba(203,213,225,.7);
       font-size:12px;
       padding:16px 0 26px;
     }
-
-    .trustRow{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;align-items:center;}
-    .kicker{
-      display:inline-flex;align-items:center;gap:8px;
-      padding:8px 12px;border-radius:999px;
-      border:1px solid rgba(255,255,255,.16);
-      background:rgba(255,255,255,.06);
-      font-size:12px;font-weight:1000;
-      box-shadow: 0 10px 30px rgba(0,0,0,.25);
-      white-space:nowrap;
-    }
-    .dot{width:7px;height:7px;border-radius:999px;background:var(--yellow);display:inline-block}
 
     /* LIGHTBOX */
     .lightbox{position:fixed;inset:0;background:rgba(0,0,0,.86);display:none;align-items:center;justify-content:center;padding:18px;z-index:2000;}
@@ -435,7 +440,7 @@
   <div class="wrap hero">
     <div class="heroFrame">
 
-      <!-- ✅ SEM CARD: só LOGO + NOME -->
+      <!-- ✅ SEM CARD: só LOGO + NOME (mantido) -->
       <div class="headerRow">
         <div class="brandLeft">
           <img class="logo" src="LOGOMARCA.png" alt="Lotofácil Prime Analytics" />
@@ -451,7 +456,7 @@
       <div class="heroInner">
         <div class="grid grid2">
           <div class="card heroCard">
-            <h1><b>TRANSFORME DADOS EM <span class="decisoesWhite">DECISÕES</span>.</b></h1>
+            <h1><b><span class="headlineWhite">TRANSFORME DADOS EM</span> <span class="headlineGold">DECISÕES</span>.</b></h1>
 
             <div class="mini">
               Gere jogos com uma análise PRIME pronta pra usar.
@@ -576,23 +581,72 @@
     </div>
   </div>
 
+  <!-- ✅ MELHORADO + REMOVIDO “Pronto pra testar?” -->
   <div class="wrap section" id="garantia">
-    <div class="grid grid2">
-      <div class="card">
-        <h2>Quebrando objeções (antes do preço)</h2>
-        <div class="grid" style="gap:10px">
-          <details><summary>“Eu não tenho tempo.”</summary><p>O fluxo é simples: escolha a janela → clique → receba a análise/jogos. O objetivo é reduzir tempo e indecisão.</p></details>
-          <details><summary>“É complicado de usar?”</summary><p>É pensado pra celular e com botões diretos. Sem menus e sem excesso de telas.</p></details>
-          <details><summary>“Isso garante prêmio?”</summary><p>Não existe garantia de premiação em loterias. A proposta é entregar um painel e estratégias para tomada de decisão baseada em dados. No EXTRA 15P — acertando 3 linhas completas, 1 jogo terá 15 pontos (estratégia do módulo).</p></details>
-        </div>
+  <div class="card">
+
+    <div class="objectionHead">
+      <h2 style="margin:0">Ainda com dúvida? Vamos eliminar isso agora 👇</h2>
+      <span class="pill">🎯 Decisão simples • Rápido • Sem risco</span>
+    </div>
+
+    <div class="mini" style="margin-top:8px">
+      A maioria das pessoas trava nessas perguntas antes de comprar.  
+      Então respondemos de forma direta e honesta:
+    </div>
+
+    <div class="hr"></div>
+
+    <div class="grid" style="gap:10px">
+
+      <details open>
+        <summary>⏱️ “Eu não tenho tempo para analisar concursos...”</summary>
+        <p>
+          Justamente por isso o Prime existe.  
+          Você escolhe o período → clica → recebe análise + jogos prontos.  
+          <b>Menos de 30 segundos por geração.</b>
+        </p>
+      </details>
+
+      <details>
+        <summary>📱 “Sou iniciante, vou conseguir usar?”</summary>
+        <p>
+          Sim. O sistema é feito para celular, com botões grandes e fluxo direto.  
+          Nada técnico, nada confuso. É abrir e usar.
+        </p>
+      </details>
+      <details>
+        <summary>📱 "Tem como acertar 15 pontos com este sistema?"</summary>
+        <p>
+          Sim. EM EXTRA 15P VOCÊ ACERTANDO 3 LINHAS COMPLETAS, VOCÊ GARANTE 1 CARTÃO COM 15 PONTOS.</p>
+      </details>
+      <details>
+        <summary>🎯 “Se não garante prêmio, por que usar o Prime?”</summary>
+        <p>
+          Loterias não têm garantia.  
+          O que o Prime entrega é <b>decisão baseada em dados</b> em vez de achismo.  
+          Você para de escolher números aleatórios e passa a jogar com estratégia.</p>
+      </details>
+
+      <details>
+        <summary>🔒 “A compra é segura?”</summary>
+        <p>
+          Sim. O pagamento é feito pela Hotmart (checkout seguro).  
+          Você recebe confirmação automática e acesso pelo seu email.
+        </p>
+      </details>
+
       </div>
 
-      <div class="card">
-        <h2>Pronto pra testar?</h2>
-        <div class="mini">Entre no FREE, gere 1 jogo e veja a lógica rodando ao vivo.</div>
-        <div class="hr"></div>
-        <a class="btn btnGold" href="https://lotofacil-pro.vercel.app/" target="_blank" rel="noopener">🆓 Testar grátis agora (1 jogo)</a>
-        <div class="mini" style="margin-top:10px">Depois disso, o acesso completo é liberado somente no Premium/Combo.</div>
+    <div class="hr"></div>
+
+   </div>
+</div>
+
+      <div class="hr"></div>
+      <div class="grid" style="grid-template-columns:1fr 1fr;gap:10px">
+        <a class="btn btnPrimary" href="#oferta">Ver as ofertas</a>
+        <a class="btn btnGhost" href="#faq">Ver perguntas frequentes</a>
       </div>
     </div>
   </div>
@@ -688,20 +742,67 @@
     </div>
   </div>
 
-  <div class="wrap section" id="selos">
+  <!-- ✅ REMOVIDO: “Segurança e experiência” / ✅ ADICIONADO: FAQ -->
+  <div class="wrap section" id="faq">
     <div class="card">
-      <h2>✅ Segurança e experiência</h2>
-      <div class="mini">Compra protegida e experiência otimizada para você acessar do celular ou computador.</div>
+      <h2>❓ Perguntas Frequentes (FAQ)</h2>
+      <div class="mini">Aqui estão as dúvidas que mais travam a compra — respondidas de forma clara.</div>
       <div class="hr"></div>
 
-      <div class="trustRow">
-        <span class="kicker"><span class="dot"></span> Página Oficial</span>
-        <span class="kicker">⚡ Mobile Friendly</span>
-        <span class="kicker">🔒 Compra Segura</span>
+      <div class="grid" style="gap:10px">
+        <details>
+          <summary>Como eu acesso depois da compra?</summary>
+          <p>Após a compra, você acessa com o <b>mesmo email</b> usado no checkout/cadastro. Se precisar de ajuste, fale com o suporte.</p>
+        </details>
+
+        <details>
+          <summary>Precisa instalar? Funciona no celular?</summary>
+          <p>Não precisa instalar. Você acessa direto pelo navegador (celular ou PC). A interface é otimizada para mobile.</p>
+        </details>
+
+        <details>
+          <summary>Como funciona o FREE (1 jogo)?</summary>
+          <p>Você cria login com <b>email + senha</b> e consegue gerar <b>1 Jogo Principal</b>. Depois disso, para continuar gerando e usar o painel completo, é necessário Premium ou Combo.</p>
+        </details>
+
+        <details>
+          <summary>O Premium libera o quê exatamente?</summary>
+          <p>Libera as ferramentas do painel: análises, Principal/Invertida/Técnica, jogos salvos e conferência (conforme descrito na oferta).</p>
+        </details>
+
+        <details>
+          <summary>O Extra 15P é separado?</summary>
+          <p>Sim. Ele é um módulo separado. Se você quer <b>tudo liberado</b>, o melhor custo-benefício é o <b>Combo Elite</b>.</p>
+        </details>
+
+        <details>
+          <summary>Existe garantia de prêmio?</summary>
+          <p>Não. Loterias envolvem risco e não há garantia de premiação. O Prime entrega <b>análise e estratégia</b> para decisões baseadas em dados.MAS EM EXTRA 15P, ACERTANDO 3 LINHAS COMPLETAS VOCÊ GARANTE 1 CARTÃO COM 15 PONTOS.</p>
+        </details>
+
+        <details>
+          <summary>A compra é segura?</summary>
+          <p>O pagamento é feito via checkout (Hotmart). Você recebe confirmação, e o acesso segue conforme o email informado.</p>
+        </details>
+
+        <details>
+          <summary>Posso usar em mais de um dispositivo?</summary>
+          <p>Sim. Você pode acessar no celular e no computador usando o mesmo login.</p>
+        </details>
+
+        <details>
+          <summary>Esqueci meu email/senha, e agora?</summary>
+          <p>Use o recurso de recuperação (quando disponível) ou acione o suporte com o email de compra para ajudarmos na verificação.</p>
+        </details>
+
+        <details>
+          <summary>Tem suporte?</summary>
+          <p>Sim. Se tiver qualquer problema de acesso ou dúvida do fluxo, entre em contato pelo canal de suporte do seu produto.</p>
+        </details>
       </div>
 
       <div class="hr"></div>
-      <a class="btn btnGold" href="#oferta">⬇ Ver oferta</a>
+      <a class="btn btnGold" href="#oferta">⬇ Ver oferta novamente</a>
     </div>
   </div>
 
