@@ -2210,6 +2210,7 @@ let manualPrincipalSet = new Set();
 let linesSystem15 = null;
 let linesUser15 = null;
 let activeLine15 = 4; // começa na linha 5 (em branco)
+let lineMetaSystem15 = null; // meta das linhas (FORTE/DIVERSA + métricas)
 /* =========================
    SALVAMENTO LOCAL (1 slot por tipo)
 ========================= */
@@ -2571,7 +2572,7 @@ const motivosHtml = Object.entries(motivosAgrupados)
 <div class="box" style="margin-top:12px">
   <b>🧾 Por que essas dezenas foram escolhidas?</b>
   <div class="mini" style="margin-top:8px">
-    Explicação simples (repetição do último + mix de quentes/mornas/frias + recência).
+    Explicação PRIME (núcleo 8/9/10 do último concurso na proporção 20%/50%/30% + Top 10 frequentes + dupla forte + Top 10 atrasadas + paridade dominante do período).
   </div>
   <div style="margin-top:10px;border:1px solid rgba(255,255,255,.10);border-radius:14px;overflow:hidden">
     ${motivosHtml}
@@ -2951,6 +2952,7 @@ function salvar15P(){
     payload: {
       linesSystem15,
       linesUser15,
+      lineMetaSystem15,
       jogosSystem,
       jogosUser
     }
@@ -3500,6 +3502,9 @@ async function gerar15P(){
       line: l
     }));
 
+    // ✅ guarda meta das linhas do SISTEMA para salvar junto e exibir em JOGOS SALVOS
+    lineMetaSystem15 = lineMeta;
+
     const jogosHtml = jogos.map((j, idx)=>{
       return `
         <div class="box">
@@ -3679,6 +3684,62 @@ document.getElementById("btnHomeSaved").onclick = ()=>{
   goView("viewSavedGames");
 };
 
+
+function renderLinhas15PSistemaBox(payload){
+  const meta = Array.isArray(payload?.lineMetaSystem15) ? payload.lineMetaSystem15 : null;
+  const lines = Array.isArray(payload?.linesSystem15) ? payload.linesSystem15 : null;
+  if(!meta && !lines) return "";
+
+  // Fallback: se não tiver meta completa, monta uma tabela simples com as linhas
+  const rowsSimple = (lines || []).map((l,idx)=>`
+    <tr>
+      <td><b>${idx+1}</b></td>
+      <td>${idx<3 ? "FORTE" : "DIVERSA"}</td>
+      <td class="mono">${(l||[]).map(format2).join(" - ")}</td>
+    </tr>
+  `).join("");
+
+  const hasMeta = !!meta;
+
+  return `
+    <div class="box" style="margin-top:10px">
+      <b>📌 Linhas 1 a 5 (geradas pelo sistema)</b>
+      <div class="mini" style="margin-top:6px">
+        O sistema usa: <b>frequência + recência + coocorrência + lift</b>, com controle de paridade e blocos.
+      </div>
+      <div style="margin-top:12px;overflow:auto">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Linha</th>
+              <th>Tipo</th>
+              <th>Dezenas</th>
+              ${hasMeta ? '<th>Força</th><th>Co médio</th><th>Lift médio</th><th>Soma freq</th>' : ''}
+            </tr>
+          </thead>
+          <tbody>
+            ${
+              hasMeta
+              ? meta.map(m=>`
+                  <tr>
+                    <td><b>${m.idx}</b></td>
+                    <td>${m.kind==="forte" ? "FORTE" : "DIVERSA"}</td>
+                    <td class="mono">${(m.line||[]).map(format2).join(" - ")}</td>
+                    <td><b>${Number(m.strength||0).toFixed(1)}</b></td>
+                    <td>${Number(m.coAvg||0).toFixed(2)}</td>
+                    <td>${Number(m.liftAvg||0).toFixed(2)}</td>
+                    <td>${Number(m.freqSum||0)}</td>
+                  </tr>
+                `).join("")
+              : rowsSimple
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
 function checkSavedGames(){
   const qtd = Number(document.getElementById("savedCheckQtd").value);
 
@@ -3767,6 +3828,9 @@ function checkSavedGames(){
           alert("Esse 15P salvo não tem os 10 jogos do sistema.");
           return;
         }
+
+        // ✅ mostra as Linhas 1 a 5 (do SISTEMA) UMA VEZ antes dos jogos
+        html += renderLinhas15PSistemaBox(item.payload);
 
         jogos.forEach((jogoNums, idx)=>{
           const jogo = jogoNums.slice().map(Number).sort((a,b)=>a-b);
