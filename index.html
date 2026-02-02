@@ -7,32 +7,44 @@
 
 <style>
   :root{
-    --bg1:#050b1a; --bg2:#0b1636;
-    --card:#07122a; --text:#f8fafc; --muted:#cbd5e1; --muted2:#94a3b8;
+    /* ✅ PADRÃO PRETO + AMARELO (igual ao sistema de vendas) */
+    --bg1:#000000; --bg2:#000000;
 
-    --green:#22c55e; --green2:#16a34a;
-    --blue:#38bdf8; --blue2:#0ea5e9;
-    --purple:#a78bfa; --purple2:#7c3aed;
+    /* Cards / superfícies (sempre preto) */
+    --card:#000000; 
+    --text:#ffffff;
+    --muted: rgba(255,255,255,.82);
+    --muted2: rgba(255,255,255,.70);
+
+    /* Cor destaque (amarelo) */
+    --accent:#facc15;
+    --accent2:#ffd84d;
+
+    /* Mantém variáveis antigas por compatibilidade, mas SEM VERDE */
+    --green:#facc15; --green2:#ffd84d;
+    --blue:#facc15; --blue2:#ffd84d;
+    --purple:#facc15; --purple2:#ffd84d;
     --yellow:#facc15; --orange:#fb923c;
     --red:#fb7185; --red2:#ef4444;
 
-    --stroke: rgba(255,255,255,.10);
-    --stroke2: rgba(255,255,255,.16);
-    --shadow: 0 22px 70px rgba(0,0,0,.45);
-    --glowBlue: 0 0 0 1px rgba(56,189,248,.18), 0 12px 40px rgba(56,189,248,.10);
-    --glowGreen: 0 0 0 1px rgba(34,197,94,.18), 0 12px 40px rgba(34,197,94,.10);
+    --stroke: rgba(255,255,255,.12);
+    --stroke2: rgba(255,255,255,.18);
+    --shadow: 0 22px 70px rgba(0,0,0,.65);
+
+    /* Glows (sem verde) */
+    --glowBlue: 0 0 0 1px rgba(250,204,21,.22), 0 12px 40px rgba(250,204,21,.12);
+    --glowGreen: 0 0 0 1px rgba(250,204,21,.22), 0 12px 40px rgba(250,204,21,.12);
     --glowGold: 0 0 0 1px rgba(250,204,21,.22), 0 18px 60px rgba(250,204,21,.18);
   }
 
-  *{box-sizing:border-box;font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif}
+*{box-sizing:border-box;font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif}
   html,body{height:100%}
   body{
     margin:0;color:var(--text);
     background:
-      radial-gradient(900px 650px at 10% 10%, rgba(56,189,248,.16), transparent 55%),
-      radial-gradient(900px 650px at 90% 10%, rgba(34,197,94,.14), transparent 55%),
-      radial-gradient(900px 650px at 50% 90%, rgba(167,139,250,.14), transparent 55%),
-      linear-gradient(135deg,var(--bg1),var(--bg2));
+      radial-gradient(900px 650px at 15% 10%, rgba(250,204,21,.10), transparent 58%),
+      radial-gradient(900px 650px at 85% 15%, rgba(251,146,60,.06), transparent 60%),
+      linear-gradient(180deg,var(--bg1),var(--bg2));
     min-height:100dvh;
     overflow-x:hidden; /* ✅ evita "torto" no mobile */
   }
@@ -49,22 +61,23 @@
     font-size: clamp(20px, 5.6vw, 28px);
     font-weight:1000;margin:0;letter-spacing:.2px;text-align:center;
     line-height:1.15;
+    color: var(--accent);
   }
 
   /* Chip (status) */
   .chip{
     display:inline-flex;align-items:center;gap:8px;padding:10px 12px;border-radius:999px;
-    background:rgba(255,255,255,.06);
+    background: rgba(0,0,0,.72);
     border:1px solid var(--stroke);
     color:var(--text);
     font-size:12px;font-weight:900;
     box-shadow: 0 10px 30px rgba(0,0,0,.25);
     white-space:nowrap;
   }
-  .chip .dot{width:7px;height:7px;border-radius:999px;background:rgba(34,197,94,.85);display:inline-block}
+  .chip .dot{width:7px;height:7px;border-radius:999px;background:rgba(250,204,21,.95);display:inline-block}
 
   .card{
-    background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+    background: rgba(0,0,0,.88);
     border:1px solid var(--stroke);
     border-radius:20px;padding:16px;
     box-shadow:var(--shadow);
@@ -80,7 +93,7 @@
 
   .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:12px}
   .box{
-    background:rgba(255,255,255,.045);
+    background: rgba(0,0,0,.72);
     border:1px solid rgba(255,255,255,.10);
     border-radius:16px;padding:12px;
   }
@@ -91,11 +104,11 @@
   .row{display:flex;gap:12px;flex-wrap:wrap;align-items:stretch}
   .col{flex:1 1 240px;min-width:0} /* ✅ evita “torto” */
 
-  label{display:block;font-size:12px;color:var(--muted);font-weight:950;margin-bottom:6px;text-align:left}
+  label{display:block;font-size:12px;color:var(--accent);font-weight:950;margin-bottom:6px;text-align:left}
   input, select{
     width:100%;max-width:100%;
     padding:13px 12px;border-radius:14px;border:1px solid var(--stroke2);
-    background:rgba(2,6,23,.65);
+    background: rgba(0,0,0,.78);
     color:var(--text);outline:none;
   }
   input::placeholder{color:rgba(203,213,225,.65)}
@@ -112,11 +125,11 @@
   .btn:active{transform:translateY(0px);filter:brightness(.98)}
   .btn:disabled{opacity:.55;cursor:not-allowed;transform:none;box-shadow:none}
   .btnPrimary{background:linear-gradient(135deg,var(--green),var(--green2));box-shadow: var(--glowGreen)}
-  .btnBlue{background:linear-gradient(135deg,var(--blue),var(--blue2));box-shadow: var(--glowBlue);color:#041018}
-  .btnPurple{background:linear-gradient(135deg,var(--purple),var(--purple2));color:#0b0720;box-shadow: 0 0 0 1px rgba(167,139,250,.18), 0 12px 40px rgba(167,139,250,.12)}
+  .btnBlue{background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow: var(--glowGold);color:#111111}
+  .btnPurple{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#111111;box-shadow: var(--glowGold)}
   .btnDanger{background:linear-gradient(135deg,var(--red),var(--red2));color:#2b0b0b;box-shadow: 0 0 0 1px rgba(251,113,133,.18), 0 12px 40px rgba(251,113,133,.12)}
   .btnGhost{
-    background:rgba(255,255,255,.05);
+    background: rgba(0,0,0,.70);
     border:1px solid rgba(255,255,255,.14);
     color:var(--text);
     box-shadow:none;
@@ -126,7 +139,7 @@
   .status{display:none;margin-top:10px;padding:12px;border-radius:14px;background:rgba(56,189,248,.10);
           border:1px solid rgba(56,189,248,.22);color:#e6f8ff;font-size:13px;font-weight:950;}
   .bar{height:10px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.08);margin-top:10px}
-  .bar>div{height:100%;width:0%;background:linear-gradient(90deg,var(--blue),var(--green));transition:width .2s ease}
+  .bar>div{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--orange));transition:width .2s ease}
 
   /* Views */
   .view{display:none}
@@ -142,16 +155,17 @@
   .actionGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-top:12px}
   .actionCard{
     text-align:left;border:1px solid rgba(255,255,255,.14);
-    background:rgba(255,255,255,.055);
+    background: rgba(0,0,0,.78);
     border-radius:20px;padding:18px 18px;
     cursor:pointer;transition:.15s;
     position:relative;min-height:126px;
     box-shadow: 0 18px 55px rgba(0,0,0,.38);
   }
-  .actionCard:hover{transform:translateY(-2px);background:rgba(255,255,255,.07)}
+  .actionCard:hover{transform:translateY(-2px);background: rgba(0,0,0,.82)}
   .actionCard:active{transform:translateY(0px)}
   .actionCard.disabled{opacity:.55;cursor:not-allowed;transform:none;box-shadow:none}
-  .actionTitle{font-weight:1000;font-size:16px;margin:0 0 8px}
+  .actionTitle{font-weight:1000;font-size:16px;margin:0 0 8pxcolor: var(--accent);
+  }
   .actionDesc{margin:0;color:var(--muted);font-size:13px;line-height:1.55}
 
   .badge{
@@ -159,19 +173,19 @@
     font-size:11px;font-weight:1000;
     padding:6px 10px;border-radius:999px;
     border:1px solid rgba(255,255,255,.14);
-    background:rgba(255,255,255,.06);
+    background: rgba(0,0,0,.72);
     color:var(--text);
   }
   .badge.premium{border-color:rgba(56,189,248,.30);background:rgba(56,189,248,.14);color:#e6f8ff}
-  .badge.free{border-color:rgba(34,197,94,.30);background:rgba(34,197,94,.14);color:#eafff4}
+  .badge.free{border-color:rgba(250,204,21,.35);background:rgba(250,204,21,.14);color:#fff2b0}
 
   /* EXTRA mega chamativo */
   .extraCard{
-    border:1px solid rgba(250,204,21,.30);
-    background: radial-gradient(900px 240px at 30% 20%, rgba(250,204,21,.18), transparent 60%),
-                radial-gradient(900px 240px at 70% 20%, rgba(251,146,60,.18), transparent 60%),
-                rgba(255,255,255,.055);
-    box-shadow: var(--glowGold), 0 22px 70px rgba(0,0,0,.40);
+    border:1px solid rgba(250,204,21,.35);
+    background: radial-gradient(900px 240px at 30% 20%, rgba(250,204,21,.14), transparent 60%),
+                radial-gradient(900px 240px at 70% 20%, rgba(251,146,60,.10), transparent 60%),
+                rgba(0,0,0,.82);
+    box-shadow: var(--glowGold), 0 22px 70px rgba(0,0,0,.45);
     transform: translateZ(0);
   }
   .extraBadge{
@@ -211,19 +225,19 @@
     width:44px;height:44px;border-radius:12px;
     display:flex;align-items:center;justify-content:center;
     border:1px solid rgba(255,255,255,.14);
-    background:rgba(255,255,255,.05);
+    background: rgba(0,0,0,.70);
     color:var(--text);font-weight:1000;
   }
-  .cel.on{background:rgba(34,197,94,.14);border:1px solid rgba(34,197,94,.30);color:#eafff4;box-shadow:0 12px 30px rgba(0,0,0,.25)}
-  .cel.inv{background:rgba(56,189,248,.14);border:1px solid rgba(56,189,248,.30);color:#e6f8ff;box-shadow:0 12px 30px rgba(0,0,0,.25)}
+  .cel.on{background:rgba(0,0,0,.72);border:1px solid rgba(250,204,21,.38);color:var(--accent);box-shadow:0 12px 30px rgba(0,0,0,.25)}
+  .cel.inv{background:rgba(0,0,0,.72);border:1px solid rgba(250,204,21,.28);color:var(--accent2);box-shadow:0 12px 30px rgba(0,0,0,.25)}
   .cel.tech{background:rgba(250,204,21,.14);border:1px solid rgba(250,204,21,.30);color:#fff2b0;box-shadow:0 12px 30px rgba(0,0,0,.25)}
 
   .numbers{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0 6px}
   .ball{
     width:44px;height:44px;border-radius:999px;display:flex;align-items:center;justify-content:center;
-    background:rgba(34,197,94,.14);
-    border:1px solid rgba(34,197,94,.28);
-    color:#eafff4;font-weight:1000;letter-spacing:.4px;
+    background:rgba(0,0,0,.72);
+    border:1px solid rgba(250,204,21,.28);
+    color:var(--accent);font-weight:1000;letter-spacing:.4px;
     box-shadow:0 14px 34px rgba(0,0,0,.35);
   }
   .hr{height:1px;background:rgba(255,255,255,.10);margin:12px 0;border-radius:999px}
@@ -246,7 +260,7 @@
          overflow:hidden}
   .modalHeader{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.10)}
   .modalHeader b{font-size:14px}
-  .closeBtn{padding:9px 11px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14);
+  .closeBtn{padding:9px 11px;border-radius:12px;background: rgba(0,0,0,.70);border:1px solid rgba(255,255,255,.14);
             color:var(--text);cursor:pointer;font-weight:900}
   .modalBody{padding:14px 16px}
 
@@ -314,10 +328,10 @@
   height:44px;border-radius:12px;
   display:flex;align-items:center;justify-content:center;
   border:1px solid rgba(255,255,255,.14);
-  background:rgba(255,255,255,.05);
+  background: rgba(0,0,0,.70);
   font-weight:1000;cursor:pointer;user-select:none;
 }
-.pickCell.sel{background:rgba(34,197,94,.16);border-color:rgba(34,197,94,.35);color:#eafff4;box-shadow:0 12px 30px rgba(0,0,0,.25)}
+.pickCell.sel{background:rgba(0,0,0,.72);border-color:rgba(250,204,21,.40);color:var(--accent);box-shadow:0 12px 30px rgba(0,0,0,.25)}
 .pickCell.lock{opacity:.35;cursor:not-allowed}
 /* =========================
    ✅ Destaque de acertos (Jogos Salvos)
@@ -327,13 +341,13 @@
 .hit-12{ color:#a78bfa; font-weight:900; }  /* roxo */
 .hit-13{ color:#facc15; font-weight:1000; } /* amarelo */
 .hit-14{ color:#fb923c; font-weight:1000; } /* laranja */
-.hit-15{ color:#22c55e; font-weight:1000; } /* verde */
+.hit-15{ color:#facc15; font-weight:1000; } /* amarelo */
 
 .lineTabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .lineBtn{
   padding:8px 10px;border-radius:12px;
   border:1px solid rgba(255,255,255,.14);
-  background:rgba(255,255,255,.05);
+  background: rgba(0,0,0,.70);
   color:var(--text);font-weight:1000;cursor:pointer
 }
 .lineBtn.on{border-color:rgba(56,189,248,.35);background:rgba(56,189,248,.12);color:#e6f8ff}
@@ -342,7 +356,7 @@
   min-width:52px;
   padding:8px 10px;border-radius:12px;
   border:1px dashed rgba(255,255,255,.18);
-  background:rgba(255,255,255,.04);
+  background: rgba(0,0,0,.66);
   font-weight:1000;
 }
 </style>
@@ -425,7 +439,7 @@ const functions = firebase.app().functions("us-central1");
 
     <button id="btnEntrar" class="btn btnPrimary" type="button">Entrar / Criar conta</button>
 
-    <button id="btnForgot" class="btn" type="button" style="margin-top:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);color:var(--text);box-shadow:none">
+    <button id="btnForgot" class="btn" type="button" style="margin-top:10px;background: rgba(0,0,0,.72);border:1px solid rgba(255,255,255,.14);color:var(--text);box-shadow:none">
       Esqueci minha senha
     </button>
 
@@ -1603,7 +1617,7 @@ function renderTop10(freq, totalConcursos){
       <div style="display:flex;align-items:center;gap:10px;margin:10px 0">
         <div style="width:90px;color:var(--text);font-weight:950">Dezena ${format2(x.dez)}</div>
         <div style="flex:1;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.12);border-radius:999px;overflow:hidden;height:16px">
-          <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--blue),var(--green))"></div>
+          <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--accent),var(--orange))"></div>
         </div>
         <div style="width:56px;text-align:right;color:var(--text);font-weight:950">${x.f}x</div>
       </div>
@@ -1643,7 +1657,7 @@ function renderTop10Atrasadas(modern, totalConcursos){
       <div style="display:flex;align-items:center;gap:10px;margin:10px 0">
         <div style="width:90px;color:var(--text);font-weight:950">Dezena ${format2(x.dez)}</div>
         <div style="flex:1;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.12);border-radius:999px;overflow:hidden;height:16px">
-          <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--blue),var(--green))"></div>
+          <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--accent),var(--orange))"></div>
         </div>
         <div style="width:90px;text-align:right;color:var(--text);font-weight:950">${x.gap} atrasos</div>
       </div>
@@ -1699,7 +1713,7 @@ function abrirGraficoBlocos(blocos){
       <div style="display:flex;align-items:center;gap:10px;margin:10px 0">
         <div style="width:90px;color:var(--text);font-weight:950">${label}</div>
         <div style="flex:1;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.12);border-radius:999px;overflow:hidden;height:16px">
-          <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--blue),var(--green))"></div>
+          <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--accent),var(--orange))"></div>
         </div>
         <div style="width:56px;text-align:right;color:var(--text);font-weight:950">${val}</div>
       </div>`;
@@ -1812,7 +1826,7 @@ function renderEvenOddDist(patterns, total){
 
         <div style="flex:1;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.12);
                     border-radius:999px;overflow:hidden;height:16px">
-          <div style="height:100%;width:${pctBar}%;background:linear-gradient(90deg,var(--blue),var(--green))"></div>
+          <div style="height:100%;width:${pctBar}%;background:linear-gradient(90deg,var(--accent),var(--orange))"></div>
         </div>
 
         <div style="width:60px;text-align:right;color:var(--text);font-weight:950">${p.count}x</div>
@@ -1850,7 +1864,7 @@ function renderSumsTop(sums, total){
       <div style="display:flex;align-items:center;gap:10px;margin:10px 0">
         <div style="width:90px;color:var(--text);font-weight:950">Soma ${x.soma}</div>
         <div style="flex:1;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.12);border-radius:999px;overflow:hidden;height:16px">
-          <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--blue),var(--green))"></div>
+          <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--accent),var(--orange))"></div>
         </div>
         <div style="width:82px;text-align:right;color:var(--text);font-weight:950">${x.count}x</div>
         <div class="mini" style="margin:0;width:46px;text-align:right">${pct2}%</div>
@@ -1886,7 +1900,7 @@ function renderBlocksPrime(totals, patterns, total){
 
         <div style="flex:1;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.12);
                     border-radius:999px;overflow:hidden;height:16px">
-          <div style="height:100%;width:${pctBar}%;background:linear-gradient(90deg,var(--blue),var(--green))"></div>
+          <div style="height:100%;width:${pctBar}%;background:linear-gradient(90deg,var(--accent),var(--orange))"></div>
         </div>
 
         <div style="width:110px;text-align:right" class="mini">
