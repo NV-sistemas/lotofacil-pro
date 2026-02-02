@@ -1,3 +1,4 @@
+
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
@@ -1116,6 +1117,95 @@
 }
 
 
+
+/* ==========================================================
+   ✅ BOTÕES HERO PISCANDO (mais chamativos)
+   - Pisca borda/brilho nos 2 botões principais do HERO
+========================================================== */
+.heroEliteBtns .btnGreen,
+.heroEliteBtns .btnPrimary{
+  position: relative;
+  isolation: isolate;
+}
+
+/* brilho/borda por cima (sem mudar layout) */
+.heroEliteBtns .btnGreen::after,
+.heroEliteBtns .btnPrimary::after{
+  content:"";
+  position:absolute;
+  inset:-2px;
+  border-radius: inherit;
+  pointer-events:none;
+  opacity:.0;
+  transition: opacity .2s ease;
+}
+
+/* FREE (verde) */
+.heroEliteBtns .btnGreen{
+  animation: heroFreePulse 0.85s infinite;
+}
+.heroEliteBtns .btnGreen::after{
+  box-shadow:
+    0 0 0 2px rgba(34,197,94,.35),
+    0 0 0 6px rgba(34,197,94,.10),
+    0 22px 70px rgba(34,197,94,.25);
+  animation: heroGlowOverlay 0.85s infinite;
+}
+
+/* PREMIUM (amarelo) */
+.heroEliteBtns .btnPrimary{
+  animation: heroGoldPulse 0.95s infinite;
+}
+.heroEliteBtns .btnPrimary::after{
+  box-shadow:
+    0 0 0 2px rgba(250,204,21,.35),
+    0 0 0 6px rgba(250,204,21,.10),
+    0 22px 70px rgba(250,204,21,.22);
+  animation: heroGlowOverlay 0.95s infinite;
+}
+
+@keyframes heroFreePulse{
+  0%{ filter:brightness(1.00); transform:translateY(0); }
+  50%{ filter:brightness(1.18); transform:translateY(-1px); }
+  100%{ filter:brightness(1.00); transform:translateY(0); }
+}
+@keyframes heroGoldPulse{
+  0%{ filter:brightness(1.00); transform:translateY(0); }
+  50%{ filter:brightness(1.14); transform:translateY(-1px); }
+  100%{ filter:brightness(1.00); transform:translateY(0); }
+}
+@keyframes heroGlowOverlay{
+  0%{ opacity:.15; }
+  50%{ opacity:.85; }
+  100%{ opacity:.15; }
+}
+
+/* ==========================================================
+   ✅ STICKY CTA MOBILE SEMPRE VISÍVEL (durante toda a visita)
+   - Mantém fixo e visível no mobile
+========================================================== */
+.stickyCta.is-on{
+  display:block !important;
+}
+@media (max-width: 900px){
+  .stickyCta{
+    display:block !important;
+  }
+}
+
+/* Respeita “reduzir movimento” do navegador */
+@media (prefers-reduced-motion: reduce){
+  .heroEliteBtns .btnGreen,
+  .heroEliteBtns .btnPrimary{
+    animation:none !important;
+  }
+  .heroEliteBtns .btnGreen::after,
+  .heroEliteBtns .btnPrimary::after{
+    animation:none !important;
+    opacity:.35 !important;
+  }
+}
+
 </style>
 </head>
 
@@ -1592,7 +1682,22 @@
   <script>
     document.getElementById("year").textContent = new Date().getFullYear();
 
-    // Scroll suave
+    
+
+    // ✅ Sticky CTA sempre visível no mobile (desde o início)
+    (function(){
+      const sticky = document.querySelector(".stickyCta");
+      if(!sticky) return;
+      const mq = window.matchMedia("(max-width: 900px)");
+      function apply(){
+        if(mq.matches) sticky.classList.add("is-on");
+        else sticky.classList.remove("is-on");
+      }
+      apply();
+      if(mq.addEventListener) mq.addEventListener("change", apply);
+      else if(mq.addListener) mq.addListener(apply);
+    })();
+// Scroll suave
     document.querySelectorAll('a[href^="#"]').forEach(a=>{
       a.addEventListener("click", (e)=>{
         const id = a.getAttribute("href");
