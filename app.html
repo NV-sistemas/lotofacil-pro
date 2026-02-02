@@ -1,4 +1,6 @@
-<!DOCTYPE html>
+from pathlib import Path
+
+html = r"""<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
@@ -76,28 +78,16 @@
       box-shadow: var(--glowGold), 0 22px 70px rgba(0,0,0,.50);
     }
 
-    /* TOPO */
-    .topbar{
-      display:flex;
+    /* ✅ TOPO SEM CARD: apenas logo + nome (sem fundo/borda) */
+    .headerRow{
+      display:grid;
+      grid-template-columns: 120px 1fr 120px; /* mantém título perfeitamente centralizado */
       align-items:center;
-      justify-content:space-between;
       gap:12px;
-      padding:12px 14px;
-      border-radius:20px;
-      border:1px solid rgba(255,255,255,.12);
-      background: rgba(0,0,0,.35);
-      position:relative;
-      overflow:hidden;
+      padding:2px 2px 10px;
     }
-    .topbar::after{
-      content:"";
-      position:absolute;
-      inset:-2px;
-      background: radial-gradient(1200px 200px at 30% 0%, rgba(250,204,21,.12), transparent 55%);
-      pointer-events:none;
-      opacity:.9;
-    }
-    .brandLeft{display:flex;align-items:center;gap:10px;min-width:120px;position:relative;z-index:1}
+    .brandLeft{display:flex;align-items:center;justify-content:flex-start}
+    .rightSpacer{display:block}
     .logo{
       height:54px;
       width:auto;
@@ -105,23 +95,16 @@
       display:block;
       filter: drop-shadow(0 18px 45px rgba(0,0,0,.55));
     }
-
-    /* Desktop: central absoluto */
     .titleCenter{
-      position:absolute;
-      left:50%;
-      transform:translateX(-50%);
       display:flex;
       align-items:center;
       justify-content:center;
       gap:10px;
       text-align:center;
-      padding:0 12px;
-      max-width: 78%;
-      z-index:1;
+      padding:0 8px;
     }
     .titleCenter span{
-      font-size:clamp(18px, 2.6vw, 24px);
+      font-size:clamp(18px, 2.6vw, 26px);
       font-weight:1200;
       letter-spacing:.6px;
       color:var(--yellow);
@@ -130,39 +113,24 @@
         0 0 18px rgba(250,204,21,.10);
       white-space:nowrap;
     }
-    .rightSpacer{min-width:120px;display:flex;justify-content:flex-end;position:relative;z-index:1}
 
-    /* ✅ CORREÇÃO POCO X PRO / MOBILE:
-       remove central absoluto e usa grid (logo esquerda + título central) */
+    /* Mobile: mantém centralização e evita "desquadro" */
     @media (max-width: 620px){
       .wrap{padding:12px;}
       .heroFrame{padding:10px;border-radius:22px;}
 
-      .topbar{
-        display:grid;
-        grid-template-columns:56px 1fr;
+      .headerRow{
+        grid-template-columns: 56px 1fr;
+        padding:2px 2px 12px;
         gap:10px;
-        justify-content:unset;
-        padding:10px 12px;
-        border-radius:18px;
       }
-      .brandLeft{min-width:unset;}
+      .rightSpacer{display:none;}
       .logo{height:44px;}
-
-      .titleCenter{
-        position:static;
-        left:auto;
-        transform:none;
-        max-width:none;
-        padding:0;
-        justify-content:center;
-      }
       .titleCenter span{
         font-size:19px;
         white-space:normal;
         line-height:1.05;
       }
-      .rightSpacer{display:none;}
     }
 
     /* HEADLINE */
@@ -225,7 +193,7 @@
 
     /* HERO */
     .hero{padding:18px 0 8px;}
-    .heroInner{padding-top:14px;}
+    .heroInner{padding-top:6px;}
     .heroCard{padding:18px;}
     .heroMedia{
       border-radius:var(--radius);
@@ -469,7 +437,8 @@
   <div class="wrap hero">
     <div class="heroFrame">
 
-      <div class="topbar">
+      <!-- ✅ SEM CARD: só LOGO + NOME -->
+      <div class="headerRow">
         <div class="brandLeft">
           <img class="logo" src="LOGOMARCA.png" alt="Lotofácil Prime Analytics" />
         </div>
@@ -803,3 +772,11 @@
   </script>
 </body>
 </html>
+"""
+
+out_txt = Path("/mnt/data/paginadevendas.html.txt")
+out_html = Path("/mnt/data/paginadevendas.html")
+out_txt.write_text(html, encoding="utf-8")
+out_html.write_text(html, encoding="utf-8")
+
+str(out_txt), str(out_html), len(html.splitlines())
