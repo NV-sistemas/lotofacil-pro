@@ -1302,6 +1302,17 @@ body.isMobile .stickyCta{
 
   <script>
     document.getElementById("year").textContent = new Date().getFullYear();
+    // ✅ força sticky sempre no MOBILE (independente de media query)
+(function(){
+  const isMobile =
+    window.matchMedia("(max-width: 900px)").matches ||
+    /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+    ("ontouchstart" in window);
+
+  if(isMobile){
+    document.body.classList.add("isMobile");
+  }
+})();
 
     // Scroll suave
     document.querySelectorAll('a[href^="#"]').forEach(a=>{
