@@ -1074,6 +1074,25 @@
   padding:26px 0 44px;
 }
 
+/* ==========================================================
+   ✅ NOVO: CARD DO HERO (FUNDO CINZA IGUAL AO PREMIUM)
+   - envolve TODO o bloco do print 1
+   - não altera nada além do visual do container
+========================================================== */
+.heroPremiumCard{
+  background: rgba(255,255,255,.035); /* igual offerCard */
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:22px;
+  padding:18px;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+@media (max-width: 620px){
+  .heroPremiumCard{ padding:16px; }
+}
+
+
 .heroEliteGrid{
   display:grid;
   grid-template-columns: 1.1fr .9fr;
@@ -1359,6 +1378,8 @@
   ======================================================= -->
   <section class="heroElite">
 
+    <div class="heroPremiumCard">
+
     <div class="heroEliteGrid">
 
       <!-- LADO ESQUERDO (COPY FORTE) -->
@@ -1418,6 +1439,8 @@
           ou prints grandes do sistema
         </div>
       </div>
+
+    </div>
 
     </div>
 
