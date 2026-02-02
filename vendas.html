@@ -126,34 +126,54 @@
 
     @media (max-width: 620px){
 
-  /* mantém mesma margem do desktop */
+  /* mantém a mesma “moldura” alinhada */
   .wrap{ padding:16px; }
 
-  /* remove dupla margem */
+  /* moldura do HERO mais enxuta */
   .heroFrame{
     padding:12px 12px 10px;
     border-radius:22px;
   }
 
-  /* reduz padding interno do card no mobile */
-  .heroCard{
-    padding:14px;
+  /* topo (logo + nome) alinhado no mobile */
+  .headerRow{
+    grid-template-columns: 56px 1fr;
+    padding:2px 2px 12px;
+    gap:10px;
+  }
+  .rightSpacer{display:none;}
+  .logo{height:44px;}
+
+  .titleCenter span{
+    font-size:19px;
+    white-space:normal;
+    line-height:1.05;
+  }
+
+  /* kicker (Método PRIME...) alinhado e bonito */
+  .kicker{
+    width:100%;
+    justify-content:center;
+    text-align:center;
+    flex-wrap:wrap;
+    line-height:1.35;
+  }
+.dot{ opacity:.85; }
+.kicker b{ white-space:nowrap; } /* PRIME não quebra sozinho */
+
+  /* chips em 2 colunas (bem alinhados) */
+  .heroProofRow{
+    display:grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap:10px;
+  }
+  .proofChip{
+    width:100%;
+    justify-content:center;
+    text-align:center;
+    white-space:normal;
   }
 }
-
-      .headerRow{
-        grid-template-columns: 56px 1fr;
-        padding:2px 2px 12px;
-        gap:10px;
-      }
-      .rightSpacer{display:none;}
-      .logo{height:44px;}
-      .titleCenter span{
-        font-size:19px;
-        white-space:normal;
-        line-height:1.05;
-      }
-    }
 
     /* ✅ PADRONIZAÇÃO DE TAMANHOS (HERO x RESTO) */
     h1{
@@ -899,14 +919,12 @@
 }
 .kicker b{ color: var(--yellow); }
 
-.heroTitle{
-  text-align:left;              /* ✅ força alinhamento */
-  margin:12px 0 10px;
-  line-height:1.02;
-  letter-spacing:.2px;
-  font-weight:1300;
-  font-size: clamp(26px, 3.4vw, 44px);
-  text-wrap:balance;
+/* ✅ ouro funciona em qualquer lugar (não só dentro do heroTitle) */
+.gold{
+  color:var(--yellow);
+  text-shadow:
+    0 14px 45px rgba(250,204,21,.22),
+    0 0 18px rgba(250,204,21,.10);
 }
 .heroSub{
   text-align:left;              /* ✅ força alinhamento */
@@ -1017,7 +1035,14 @@
     <!-- ✅ CARD PRINCIPAL DO HERO (padrão mobile) -->
     <div class="card heroCard">
 
-      <div class="kicker">🏆 Método <b>PRIME</b> • Painel + Geração • Sem achismo</div>
+      <div class="kicker">
+  <span>🏆 Método</span>
+  <b>PRIME</b>
+  <span class="dot">•</span>
+  <span>Painel + Geração</span>
+  <span class="dot">•</span>
+  <span>Sem achismo</span>
+</div>
 
       <div class="heroTitle">
         Gere seus jogos com <span class="gold">lógica</span> e <span class="gold">dados</span> — em segundos.
