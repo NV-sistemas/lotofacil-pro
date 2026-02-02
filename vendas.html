@@ -59,11 +59,6 @@
 @media (max-width: 900px){
   .grid2{ grid-template-columns: 1fr; }
 }
-/* ✅ HERO sempre em 1 coluna (desktop igual mobile) */
-.heroInner .grid2{
-  grid-template-columns: 1fr !important;
-}
-
     @media (max-width: 860px){ .grid3{grid-template-columns:1fr} }
 
     .card{
@@ -884,9 +879,14 @@
    HERO ELITE (impacto real)
 ========================= */
 .kicker{
-  display:inline-flex;
+  display:flex;                 /* era inline-flex */
   align-items:center;
+  justify-content:flex-start;
+  flex-wrap:wrap;               /* ✅ quebra bonito */
   gap:10px;
+  width:100%;                   /* ✅ alinha com o card */
+  text-align:left;
+
   padding:8px 12px;
   border-radius:999px;
   border:1px solid rgba(250,204,21,.22);
@@ -900,6 +900,7 @@
 .kicker b{ color: var(--yellow); }
 
 .heroTitle{
+  text-align:left;              /* ✅ força alinhamento */
   margin:12px 0 10px;
   line-height:1.02;
   letter-spacing:.2px;
@@ -907,22 +908,11 @@
   font-size: clamp(26px, 3.4vw, 44px);
   text-wrap:balance;
 }
-.heroTitle .gold{
-  color:var(--yellow);
-  text-shadow:
-    0 14px 45px rgba(250,204,21,.22),
-    0 0 18px rgba(250,204,21,.10);
-}
 .heroSub{
+  text-align:left;              /* ✅ força alinhamento */
   font-size:14px;
   line-height:1.65;
   color: rgba(255,255,255,.84);
-}
-.heroProofRow{
-  display:grid;
-  grid-template-columns: repeat(2,1fr);
-  gap:10px;
-  margin-top:12px;
 }
 .proofChip{
   flex:0 0 auto;
@@ -990,6 +980,16 @@
   line-height:1.55;
   color: rgba(255,255,255,.82);
 }
+@media (max-width: 620px){
+  .titleCenter{
+    justify-content:flex-start;   /* em vez de centralizado */
+    text-align:left;
+  }
+  .titleCenter span{
+    white-space:normal;
+  }
+}
+
   </style>
 </head>
 
