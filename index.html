@@ -465,6 +465,17 @@
     box-shadow: 0 18px 55px rgba(0,0,0,.38);
   }
 
+  /* ✅ Linha de jogos lado a lado (Técnica) */
+  .swapGamesRow{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:12px;
+    margin-top:12px;
+  }
+  @media (max-width: 860px){
+    .swapGamesRow{ grid-template-columns: 1fr; }
+  }
+
 </style>
 </head>
 
@@ -2986,13 +2997,6 @@ function gerarInvertida(){
         </div>
       </div>
 
-      <div class="swapMap">
-        <div class="swapCell">C1<span>vira C5</span></div>
-        <div class="swapCell">C2<span>vira C4</span></div>
-        <div class="swapCell">C3<span>permanece</span></div>
-        <div class="swapCell">C4<span>vira C2</span></div>
-        <div class="swapCell">C5<span>vira C1</span></div>
-      </div>
     </div>
 
 
@@ -3056,23 +3060,23 @@ function gerarTecnicaPremiada(){
           <div class="mini" style="margin-top:6px"><b>C1→C3</b> • <b>C2→C1</b> • <b>C3→C5</b> • <b>C4→C2</b> • <b>C5→C4</b></div>
         </div>
       </div>
+    </div>
 
-      <div class="swapMap">
-        <div class="swapCell">C1<span>muda de lugar</span></div>
-        <div class="swapCell">C2<span>muda de lugar</span></div>
-        <div class="swapCell">C3<span>muda de lugar</span></div>
-        <div class="swapCell">C4<span>muda de lugar</span></div>
-        <div class="swapCell">C5<span>muda de lugar</span></div>
+      <div class="swapGamesRow">
+        <div class="box">
+          <b>🏆 Jogo 1</b>
+          <div class="numbers" style="justify-content:flex-start;margin-top:10px">${g1.map(n=>`<div class="ball">${format2(n)}</div>`).join("")}</div>
+          ${renderCartao(g1, "tech1")}
+        </div>
+
+        <div class="box">
+          <b>🏆 Jogo 2</b>
+          <div class="numbers" style="justify-content:flex-start;margin-top:10px">${g2.map(n=>`<div class="ball">${format2(n)}</div>`).join("")}</div>
+          ${renderCartao(g2, "tech2")}
+        </div>
       </div>
     </div>
 
-
-      <div class="box">
-        <b>🏆 Jogo 2</b>
-        <div class="numbers" style="justify-content:flex-start;margin-top:10px">${g2.map(n=>`<div class="ball">${format2(n)}</div>`).join("")}</div>
-        ${renderCartao(g2, "tech")}
-      </div>
-    </div>
   `;
   updateCheckButtons();
 }
