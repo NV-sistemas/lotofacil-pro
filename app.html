@@ -1185,31 +1185,24 @@
     </div>
   </div>
 
-  <div class="wrap foot">
+   <div class="wrap foot">
     <div>© <span id="year"></span> Lotofácil Prime Analytics • N&V Sistemas</div>
     <div style="margin-top:6px">Aviso: loterias envolvem risco e não há garantia de premiação.</div>
   </div>
 
-   <div class="lightbox" id="lightbox">
+  <div class="lightbox" id="lightbox">
     <div class="lightboxInner" role="dialog" aria-modal="true" aria-label="Imagem ampliada">
       <button class="lightboxClose" id="lightboxClose">✕ Fechar</button>
       <img class="lightboxImg" id="lightboxImg" alt="Imagem ampliada" />
     </div>
   </div>
 
-  <script>
-    document.getElementById("year").textContent = new Date().getFullYear();
-    // ✅ força sticky sempre no MOBILE (independente de media query)
-(function(){
-  const isMobile =
-    window.matchMedia("(max-width: 900px)").matches ||
-    /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
-    ("ontouchstart" in window);
+  <!-- ✅ STICKY HOST (TEM QUE FICAR AQUI, ANTES DOS SCRIPTS) -->
+  <div id="stickyCta"></div>
 
-  if(isMobile){
-    document.body.classList.add("isMobile");
-  }
-})();
+  <script>
+    // Ano
+    document.getElementById("year").textContent = new Date().getFullYear();
 
     // Scroll suave
     document.querySelectorAll('a[href^="#"]').forEach(a=>{
@@ -1249,97 +1242,110 @@
     lbClose.addEventListener("click", closeLightbox);
     lb.addEventListener("click", (e)=>{ if(e.target === lb) closeLightbox(); });
     document.addEventListener("keydown", (e)=>{ if(e.key === "Escape") closeLightbox(); });
+
+    // ✅ STICKY: FORÇA FIXED (zera transform que quebra fixed)
+    (function(){
+      const isMobile =
+        window.matchMedia("(max-width: 900px)").matches ||
+        /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+        ("ontouchstart" in window);
+
+      if(!isMobile) return;
+
+      // 🔥 ISSO É O QUE RESOLVE (transform no html/body quebra fixed)
+      const docEl = document.documentElement;
+      docEl.style.transform = "none";
+      docEl.style.filter = "none";
+      docEl.style.perspective = "none";
+
+      document.body.style.transform = "none";
+      document.body.style.filter = "none";
+      document.body.style.perspective = "none";
+
+      const host = document.getElementById("stickyCta");
+      if(!host) return;
+
+      host.innerHTML = `
+        <div id="stickyBar">
+          <a id="bFree"  href="https://lotofacil-pro.vercel.app/" target="_blank" rel="noopener">FREE</a>
+          <a id="bPrem"  href="https://pay.hotmart.com/O104148865Y?off=c4m0nezi" target="_blank" rel="noopener">PREMIUM</a>
+          <a id="bExtra" href="https://pay.hotmart.com/Y104149008G?off=eehchnv4" target="_blank" rel="noopener">EXTRA15P</a>
+          <a id="bCombo" href="https://pay.hotmart.com/S104212403J?off=qbcz91p3" target="_blank" rel="noopener">COMBO</a>
+        </div>
+      `;
+
+      // ✅ FIXED REAL
+      host.style.cssText = `
+        position:fixed !important;
+        left:0 !important;
+        right:0 !important;
+        bottom:0 !important;
+        z-index:2147483647 !important;
+        padding:10px 12px calc(10px + env(safe-area-inset-bottom)) !important;
+        background:rgba(0,0,0,.88) !important;
+        backdrop-filter:blur(10px) !important;
+        -webkit-backdrop-filter:blur(10px) !important;
+        border-top:1px solid rgba(255,255,255,.12) !important;
+        display:block !important;
+      `;
+
+      const bar = document.getElementById("stickyBar");
+      bar.style.cssText = `
+        max-width:1120px;
+        margin:0 auto;
+        display:grid;
+        grid-template-columns:repeat(4,1fr);
+        gap:10px;
+        align-items:stretch;
+      `;
+
+      function styleBtn(el, bg, color, extra=""){
+        el.style.cssText = `
+          height:46px;
+          border-radius:14px;
+          font-size:15px;
+          font-weight:1200;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          white-space:nowrap;
+          text-decoration:none;
+          border:1px solid rgba(255,255,255,.12);
+          background:${bg};
+          color:${color};
+          box-shadow:0 18px 45px rgba(0,0,0,.35);
+          ${extra}
+        `;
+      }
+
+      styleBtn(document.getElementById("bFree"),
+        "linear-gradient(135deg,#22c55e,#16a34a)","#04160b",
+        "box-shadow:0 0 0 1px rgba(34,197,94,.55), 0 22px 80px rgba(34,197,94,.42);"
+      );
+      styleBtn(document.getElementById("bPrem"),
+        "linear-gradient(135deg,#facc15,#ffd84d)","#0b0b0b"
+      );
+      styleBtn(document.getElementById("bExtra"),
+        "linear-gradient(135deg,#facc15,#ffd84d)","#0b0b0b"
+      );
+      styleBtn(document.getElementById("bCombo"),
+        "linear-gradient(135deg,#facc15,#ffd84d)","#0b0b0b",
+        "font-size:16px; animation:comboBlink 1.1s infinite;"
+      );
+
+      document.body.style.paddingBottom = "120px";
+
+      const st = document.createElement("style");
+      st.textContent = `
+        @keyframes comboBlink{0%,100%{opacity:1}50%{opacity:.78}}
+        @media (max-width:420px){
+          #stickyBar{gap:8px}
+          #stickyBar a{border-radius:12px;font-size:14.5px}
+          #bCombo{font-size:15.5px}
+        }
+      `;
+      document.head.appendChild(st);
+    })();
   </script>
-  <div id="stickyCta"></div>
-  <script>
-(function(){
-  const isMobile =
-    window.matchMedia("(max-width: 900px)").matches ||
-    /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
-    ("ontouchstart" in window);
-
-  if(!isMobile) return;
-
-  const host = document.getElementById("stickyCta");
-  if(!host) return;
-
-  // Cria sticky com estilos INLINE (não depende do CSS)
-  host.innerHTML = `
-    <div id="stickyBar">
-      <a id="bFree"   href="https://lotofacil-pro.vercel.app/" target="_blank" rel="noopener">FREE</a>
-      <a id="bPrem"   href="https://pay.hotmart.com/O104148865Y?off=c4m0nezi" target="_blank" rel="noopener">PREMIUM</a>
-      <a id="bExtra"  href="https://pay.hotmart.com/Y104149008G?off=eehchnv4" target="_blank" rel="noopener">EXTRA15P</a>
-      <a id="bCombo"  href="https://pay.hotmart.com/S104212403J?off=qbcz91p3" target="_blank" rel="noopener">COMBO</a>
-    </div>
-  `;
-
-  // estilos INLINE (força FIXED mesmo em WebView chato)
-  host.style.cssText = `
-    position:fixed !important;
-    left:0 !important;
-    right:0 !important;
-    bottom:0 !important;
-    z-index:999999 !important;
-    padding:10px 12px ${10 + (window.visualViewport ? 0 : 0)}px !important;
-    background:rgba(0,0,0,.88) !important;
-    backdrop-filter:blur(10px) !important;
-    border-top:1px solid rgba(255,255,255,.12) !important;
-    display:block !important;
-  `;
-
-  const bar = document.getElementById("stickyBar");
-  bar.style.cssText = `
-    max-width:1120px;
-    margin:0 auto;
-    display:grid;
-    grid-template-columns:repeat(4,1fr);
-    gap:10px;
-    align-items:stretch;
-  `;
-
-  function styleBtn(el, bg, color, extra=""){
-    el.style.cssText = `
-      height:46px;
-      border-radius:14px;
-      font-size:15px;
-      font-weight:1200;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      white-space:nowrap;
-      text-decoration:none;
-      border:1px solid rgba(255,255,255,.12);
-      background:${bg};
-      color:${color};
-      box-shadow:0 18px 45px rgba(0,0,0,.35);
-      ${extra}
-    `;
-  }
-
-  styleBtn(document.getElementById("bFree"),
-    "linear-gradient(135deg,#22c55e,#16a34a)","#04160b",
-    "box-shadow:0 0 0 1px rgba(34,197,94,.55), 0 22px 80px rgba(34,197,94,.42);"
-  );
-  styleBtn(document.getElementById("bPrem"),
-    "linear-gradient(135deg,#facc15,#ffd84d)","#0b0b0b"
-  );
-  styleBtn(document.getElementById("bExtra"),
-    "linear-gradient(135deg,#facc15,#ffd84d)","#0b0b0b"
-  );
-  styleBtn(document.getElementById("bCombo"),
-    "linear-gradient(135deg,#facc15,#ffd84d)","#0b0b0b",
-    "font-size:16px; animation:comboBlink 1.1s infinite;"
-  );
-
-  // espaço no body pra não cobrir conteúdo
-  document.body.style.paddingBottom = "120px";
-
-  // animação blink (inline via style tag)
-  const st = document.createElement("style");
-  st.textContent = `@keyframes comboBlink{0%,100%{opacity:1}50%{opacity:.78}}`;
-  document.head.appendChild(st);
-})();
-</script>
-
 </body>
 </html>
