@@ -770,11 +770,3 @@
   </script>
 </body>
 </html>
-"""
-
-out_txt = Path("/mnt/data/paginadevendas.html.txt")
-out_html = Path("/mnt/data/paginadevendas.html")
-out_txt.write_text(html, encoding="utf-8")
-out_html.write_text(html, encoding="utf-8")
-
-str(out_txt), str(out_html), len(html.splitlines())
