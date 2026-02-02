@@ -27,11 +27,8 @@
     --yellow:#facc15; --orange:#fb923c;
     --red:#fb7185; --red2:#ef4444;
 
-    --stroke: rgba(255,255,255,.12);
-
-    /* Bordas brancas (padrão do print) */
-    --cardBorder: rgba(255,255,255,.22);
-    --stroke2: rgba(255,255,255,.18);
+    --stroke: rgba(255,255,255,.22);
+    --stroke2: rgba(255,255,255,.30);
     --shadow: 0 22px 70px rgba(0,0,0,.65);
 
     /* Glows (sem verde) */
@@ -79,9 +76,8 @@
   }
   .chip .dot{width:7px;height:7px;border-radius:999px;background:rgba(250,204,21,.95);display:inline-block}
 
-  .card{
-    background: rgba(0,0,0,.88);
-    border:1px solid var(--cardBorder);
+  .card{    background: rgba(0,0,0,.86);
+    border:1px solid var(--stroke2);
     border-radius:20px;padding:16px;
     box-shadow:var(--shadow);
     margin-bottom:14px;
@@ -96,8 +92,8 @@
 
   .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:12px}
   .box{
-    background: rgba(0,0,0,.72);
-    border:1px solid var(--cardBorder);
+    background: rgba(0,0,0,.74);
+    border:1px solid var(--stroke2);
     border-radius:16px;padding:12px;
   }
   .box p{margin:0;color:var(--text);font-size:13px;line-height:1.5}
@@ -110,36 +106,28 @@
   label{display:block;font-size:12px;color:var(--accent);font-weight:950;margin-bottom:6px;text-align:left}
   input, select{
     width:100%;max-width:100%;
-    padding:13px 12px;border-radius:14px;border:1px solid var(--cardBorder);
-    background: rgba(0,0,0,.78);
+    padding:13px 12px;border-radius:14px;border:1px solid var(--stroke2);
+    background: rgba(0,0,0,.70);
     color:var(--text);outline:none;
   }
   input::placeholder{color:rgba(203,213,225,.65)}
   select{cursor:pointer}
 
   .btn{
-    padding:12px 14px;
-    border-radius:14px;
-    border:1px solid var(--cardBorder);
-    background: rgba(0,0,0,.72); /* ✅ preto fosco (padrão do print) */
-    color:var(--text);
-    font-weight:1000;
-    cursor:pointer;
+    padding:12px 14px;border:1px solid var(--stroke2);border-radius:14px;
+    color: var(--text);font-weight:1000;cursor:pointer;
     transition:.15s;
     box-shadow: 0 18px 45px rgba(0,0,0,.35);
     width:100%;
+    background: rgba(0,0,0,.72);
   }
-  .btn:hover{filter:brightness(1.05);transform:translateY(-1px);border-color: rgba(255,255,255,.35)}
+  .btn:hover{filter:brightness(1.05);transform:translateY(-1px)}
   .btn:active{transform:translateY(0px);filter:brightness(.98)}
   .btn:disabled{opacity:.55;cursor:not-allowed;transform:none;box-shadow:none}
-  .btnPrimary{background:linear-gradient(135deg,var(--green),var(--green2));box-shadow: var(--glowGreen);color:#111111
-    border:1px solid var(--cardBorder);}
-  .btnBlue{background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow: var(--glowGold);color:#111111
-    border:1px solid var(--cardBorder);}
-  .btnPurple{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#111111;box-shadow: var(--glowGold)
-    border:1px solid var(--cardBorder);}
-  .btnDanger{background:linear-gradient(135deg,var(--red),var(--red2));color:#2b0b0b;box-shadow: 0 0 0 1px rgba(251,113,133,.18), 0 12px 40px rgba(251,113,133,.12)
-    border:1px solid var(--cardBorder);}
+  .btnPrimary{background: rgba(0,0,0,.72); border:1px solid var(--stroke2); color: var(--accent); box-shadow: var(--glowGold);}
+  .btnBlue{background: rgba(0,0,0,.72); border:1px solid var(--stroke2); color: var(--accent); box-shadow: var(--glowGold);}
+  .btnPurple{background: rgba(0,0,0,.72); border:1px solid var(--stroke2); color: var(--accent); box-shadow: var(--glowGold);}
+  .btnDanger{background:linear-gradient(135deg,var(--red),var(--red2));color:#2b0b0b;box-shadow: 0 0 0 1px rgba(251,113,133,.18), 0 12px 40px rgba(251,113,133,.12)}
   .btnGhost{
     background: rgba(0,0,0,.70);
     border:1px solid rgba(255,255,255,.14);
@@ -166,7 +154,7 @@
   /* Opções */
   .actionGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-top:12px}
   .actionCard{
-    text-align:left;border:1px solid var(--cardBorder);
+    text-align:left;border:1px solid var(--stroke2);
     background: rgba(0,0,0,.78);
     border-radius:20px;padding:18px 18px;
     cursor:pointer;transition:.15s;
@@ -184,7 +172,7 @@
     position:absolute;top:14px;right:14px;
     font-size:11px;font-weight:1000;
     padding:6px 10px;border-radius:999px;
-    border:1px solid var(--cardBorder);
+    border:1px solid rgba(255,255,255,.14);
     background: rgba(0,0,0,.72);
     color:var(--text);
   }
@@ -257,8 +245,8 @@
   /* Painel “verificar jogos gerados” */
   .panelCheck{
     margin-top:12px;
-    border:1px dashed var(--cardBorder);
-    background: rgba(255,255,255,.03);
+    border:1px dashed rgba(56,189,248,.30);
+    background: rgba(56,189,248,.08);
     border-radius:18px;
     padding:14px;
   }
@@ -268,7 +256,7 @@
   .modalBack{display:none;position:fixed;inset:0;background:rgba(0,0,0,.62);backdrop-filter: blur(7px);
              align-items:center;justify-content:center;padding:16px;z-index:999}
   .modal{width:100%;max-width:980px;background:linear-gradient(180deg,var(--card),rgba(255,255,255,.03));
-         border:1px solid var(--cardBorder);border-radius:20px;box-shadow:0 40px 120px rgba(0,0,0,.70);
+         border:1px solid rgba(255,255,255,.12);border-radius:20px;box-shadow:0 40px 120px rgba(0,0,0,.70);
          overflow:hidden}
   .modalHeader{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.10)}
   .modalHeader b{font-size:14px}
@@ -358,7 +346,7 @@
 .lineTabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .lineBtn{
   padding:8px 10px;border-radius:12px;
-  border:1px solid var(--cardBorder);
+  border:1px solid rgba(255,255,255,.14);
   background: rgba(0,0,0,.70);
   color:var(--text);font-weight:1000;cursor:pointer
 }
@@ -367,10 +355,19 @@
 .slot{
   min-width:52px;
   padding:8px 10px;border-radius:12px;
-  border:1px dashed var(--cardBorder);
+  border:1px dashed rgba(255,255,255,.18);
   background: rgba(0,0,0,.66);
   font-weight:1000;
 }
+
+  /* ==========================================================
+     ✅ FORÇA BORDA BRANCA (PADRÃO DO PRINT) EM TODO CARD/BOX
+     (somente visual — não altera funções)
+  ========================================================== */
+  .card, .box, .actionCard, .modal, .panel, .section, .sectionCard, .glass, .surface{
+    border-color: var(--stroke2) !important;
+  }
+
 </style>
 </head>
 
