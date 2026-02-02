@@ -41,6 +41,8 @@
       background:var(--bg);
       min-height:100dvh;
       overflow-x:hidden;
+    
+      padding-bottom:92px;
     }
     a{color:inherit;text-decoration:none}
     .wrap{
@@ -142,7 +144,7 @@
     padding:2px 2px 12px;
     gap:10px;
   }
-  .rightSpacer{display:none;}
+  .rightSpacer{display:block;}
   .logo{height:44px;}
 
   .titleCenter span{
@@ -731,6 +733,55 @@
     }
 
     /* STICKY CTA */
+
+    /* ===========================
+       BLINK CTA (BOTÃO + BORDA)
+       =========================== */
+    .blinkGreen{
+      position:relative;
+      border:2px solid rgba(34,197,94,.65) !important;
+      animation: ctaBlinkGreen .85s infinite;
+    }
+    .blinkGold{
+      position:relative;
+      border:2px solid rgba(250,204,21,.65) !important;
+      animation: ctaBlinkGold .85s infinite;
+    }
+    @keyframes ctaBlinkGreen{
+      0%,100%{
+        filter:brightness(1.00);
+        box-shadow:
+          0 0 0 2px rgba(34,197,94,.20),
+          0 16px 55px rgba(34,197,94,.20);
+        transform:translateY(0);
+      }
+      50%{
+        filter:brightness(1.30);
+        box-shadow:
+          0 0 0 2px rgba(34,197,94,.60),
+          0 0 24px rgba(34,197,94,.55),
+          0 22px 80px rgba(34,197,94,.45);
+        transform:translateY(-1px);
+      }
+    }
+    @keyframes ctaBlinkGold{
+      0%,100%{
+        filter:brightness(1.00);
+        box-shadow:
+          0 0 0 2px rgba(250,204,21,.20),
+          0 16px 55px rgba(250,204,21,.18);
+        transform:translateY(0);
+      }
+      50%{
+        filter:brightness(1.35);
+        box-shadow:
+          0 0 0 2px rgba(250,204,21,.65),
+          0 0 26px rgba(250,204,21,.55),
+          0 24px 90px rgba(250,204,21,.45);
+        transform:translateY(-1px);
+      }
+    }
+
     .stickyCta{
       position:fixed;left:0;right:0;bottom:0;
       padding:10px 12px;
@@ -780,7 +831,6 @@
     }
 
     @media (max-width: 900px){
-      .stickyCta{display:block}
       body{padding-bottom:92px}
     }
     @media (max-width: 420px){
@@ -885,7 +935,6 @@
 }
 
 @media (max-width: 900px){
-  .stickyCta{display:block}
   body{padding-bottom:92px}
 }
 @media (max-width: 420px){
@@ -1094,60 +1143,6 @@
   .heroEliteBtns{ grid-template-columns:1fr; }
 }
 
-
-
-/* ==========================================================
-   ✅ CTA ELITE (PRINT 2): BOTÕES DO TOPO PISCANDO + BORDA PISCANDO
-   (🚀 Testar FREE agora / Ver planos Premium)
-========================================================== */
-.heroEliteBtns .btnBig{
-  position:relative;
-  border:2px solid rgba(255,255,255,.22) !important;
-  will-change: transform, filter, box-shadow;
-}
-
-/* FREE (verde) piscando */
-.heroEliteBtns .btnGreen.btnBig{
-  border-color: rgba(34,197,94,.65) !important;
-  animation: ctaBlinkGreen .95s infinite;
-}
-
-/* PREMIUM (dourado) piscando */
-.heroEliteBtns .btnPrimary.btnBig{
-  border-color: rgba(250,204,21,.75) !important;
-  animation: ctaBlinkGold .95s infinite;
-}
-
-@keyframes ctaBlinkGreen{
-  0%,100%{
-    transform: translateY(0) scale(1);
-    filter: brightness(1);
-    box-shadow: 0 0 0 1px rgba(34,197,94,.28), 0 18px 60px rgba(34,197,94,.18), 0 18px 45px rgba(0,0,0,.35);
-  }
-  50%{
-    transform: translateY(-1px) scale(1.035);
-    filter: brightness(1.22);
-    box-shadow: 0 0 0 2px rgba(34,197,94,.55), 0 0 26px rgba(34,197,94,.22), 0 22px 85px rgba(34,197,94,.42);
-  }
-}
-
-@keyframes ctaBlinkGold{
-  0%,100%{
-    transform: translateY(0) scale(1);
-    filter: brightness(1);
-    box-shadow: 0 0 0 1px rgba(250,204,21,.30), 0 18px 60px rgba(250,204,21,.18), 0 18px 45px rgba(0,0,0,.35);
-  }
-  50%{
-    transform: translateY(-1px) scale(1.035);
-    filter: brightness(1.22);
-    box-shadow: 0 0 0 2px rgba(250,204,21,.60), 0 0 26px rgba(250,204,21,.22), 0 22px 85px rgba(250,204,21,.44);
-  }
-}
-
-@media (prefers-reduced-motion: reduce){
-  .heroEliteBtns .btnBig{ animation:none !important; }
-}
-
 /* VÍDEO */
 .heroEliteVideo{ width:100%; }
 
@@ -1264,22 +1259,79 @@
 }
 
 
+
 /* ==========================================================
-   ✅ FIX (PRINT 1): BOTÕES FIXOS EMBAIXO (FREE/PREMIUM/EXTRA15P/COMBO)
-   Sempre visível no DESKTOP + MOBILE
+   ✅ FIX FINAL (02-02-26) — CERTEIRO
+   1) HERO: 2 botões com borda + piscar (botão inteiro)
+   2) MOBILE: Barra fixa (FREE/PREMIUM/EXTRA15P/COMBO) sempre visível
+   3) MOBILE: Piscando somente FREE + COMBO (não PREMIUM)
 ========================================================== */
-.stickyCta{
-  display:block !important;
-  opacity:1 !important;
-  visibility:visible !important;
-  transform:none !important;
-  pointer-events:auto !important;
+
+/* (Re)declara keyframes caso algum bloco anterior conflite */
+@keyframes ctaBlinkGreen{
+  0%,100%{
+    filter:brightness(1.00);
+    box-shadow:
+      0 0 0 2px rgba(34,197,94,.20),
+      0 16px 55px rgba(34,197,94,.20);
+    transform:translateY(0);
+  }
+  50%{
+    filter:brightness(1.30);
+    box-shadow:
+      0 0 0 2px rgba(34,197,94,.70),
+      0 0 26px rgba(34,197,94,.65),
+      0 24px 95px rgba(34,197,94,.50);
+    transform:translateY(-1px);
+  }
 }
-body{
-  padding-bottom:110px; /* evita cobrir conteúdo */
+@keyframes ctaBlinkGold{
+  0%,100%{
+    filter:brightness(1.00);
+    box-shadow:
+      0 0 0 2px rgba(250,204,21,.18),
+      0 16px 55px rgba(250,204,21,.16);
+    transform:translateY(0);
+  }
+  50%{
+    filter:brightness(1.35);
+    box-shadow:
+      0 0 0 2px rgba(250,204,21,.75),
+      0 0 30px rgba(250,204,21,.60),
+      0 26px 105px rgba(250,204,21,.48);
+    transform:translateY(-1px);
+  }
 }
-@media (max-width: 420px){
-  body{ padding-bottom:120px; }
+
+/* Classe única para aplicar o efeito (botão inteiro + borda) */
+.btnBlinkGreen{
+  border: 2px solid rgba(34,197,94,.80) !important;
+  animation: ctaBlinkGreen .85s infinite !important;
+  will-change: filter, box-shadow, transform;
+}
+.btnBlinkGold{
+  border: 2px solid rgba(250,204,21,.80) !important;
+  animation: ctaBlinkGold .85s infinite !important;
+  will-change: filter, box-shadow, transform;
+}
+
+/* ✅ Barra fixa: sempre visível no MOBILE durante TODA a página */
+.stickyCta{ display:none !important; }
+@media (max-width: 900px){
+  .stickyCta{
+    display:block !important;
+    position:fixed !important;
+    left:0 !important; right:0 !important; bottom:0 !important;
+    z-index:99999 !important;
+  }
+  body{ padding-bottom:110px !important; }
+}
+
+/* ✅ MOBILE: garantir que PREMIUM não pisque (mesmo se alguém adicionar classe sem querer) */
+.btnPremiumSticky{
+  animation:none !important;
+  border:1px solid rgba(255,255,255,.12) !important;
+  box-shadow:0 18px 45px rgba(0,0,0,.35) !important;
 }
 
 </style>
@@ -1340,14 +1392,14 @@ body{
 
         <!-- BOTÕES -->
         <div class="heroEliteBtns">
-          <a class="btn btnBig btnGreen"
+          <a class="btn btnBig btnGreen btnBlinkGreen"
              href="https://nv-sistemas.github.io/lotofacil-pro/"
              target="_blank"
              rel="noopener">
              🚀 Testar FREE agora
           </a>
 
-          <a class="btn btnBig btnPrimary" href="#oferta">
+          <a class="btn btnBig btnPrimary btnBlinkGold" href="#oferta">
              Ver planos Premium
           </a>
         </div>
@@ -1741,10 +1793,10 @@ body{
 
   <div class="stickyCta" aria-hidden="false">
   <div class="stickyRow">
-    <a class="btnFreeSticky" href="https://nv-sistemas.github.io/lotofacil-pro/" target="_blank" rel="noopener">FREE</a>
-    <a href="https://pay.hotmart.com/O104148865Y?off=c4m0nezi" target="_blank" rel="noopener">PREMIUM</a>
+    <a class="btnFreeSticky btnBlinkGreen" href="https://nv-sistemas.github.io/lotofacil-pro/" target="_blank" rel="noopener">FREE</a>
+    <a class="btnPremiumSticky" href="https://pay.hotmart.com/O104148865Y?off=c4m0nezi" target="_blank" rel="noopener">PREMIUM</a>
     <a href="https://pay.hotmart.com/Y104149008G?off=eehchnv4" target="_blank" rel="noopener">EXTRA15P</a>
-    <a class="btnComboSticky" href="https://pay.hotmart.com/S104212403J?off=qbcz91p3" target="_blank" rel="noopener">COMBO</a>
+    <a class="btnComboSticky btnBlinkGold" href="https://pay.hotmart.com/S104212403J?off=qbcz91p3" target="_blank" rel="noopener">COMBO</a>
   </div>
 </div>
 
