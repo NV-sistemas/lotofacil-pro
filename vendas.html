@@ -46,13 +46,19 @@
     .section{padding:22px 0}
 
     .grid{display:grid;gap:14px}
-    .grid2{
-  grid-template-columns: 1fr 1fr;
+   /* ✅ HERO sempre em 1 coluna (desktop = mobile) */
+.grid2{
+  grid-template-columns: 1.2fr .8fr;
   align-items:start;
 }
+@media (max-width: 900px){
+  .grid2{ grid-template-columns: 1fr; }
+}
+/* ✅ HERO sempre em 1 coluna (desktop igual mobile) */
+.heroInner .grid2{
+  grid-template-columns: 1fr !important;
+}
 
-    .grid3{grid-template-columns:repeat(3,1fr)}
-    @media (max-width: 900px){ .grid2{grid-template-columns:1fr} }
     @media (max-width: 860px){ .grid3{grid-template-columns:1fr} }
 
     .card{
@@ -986,97 +992,111 @@
       </div>
 
       <div class="heroInner">
-        <div class="grid grid2">
-            <div class="kicker">🏆 Método <b>PRIME</b> • Painel + Geração • Sem achismo</div>
+  <div class="grid grid2">
 
-  <div class="heroTitle">
-    Gere seus jogos com <span class="gold">lógica</span> e <span class="gold">dados</span> — em minutos.
-  </div>
+    <!-- ✅ CARD PRINCIPAL DO HERO (padrão mobile) -->
+    <div class="card heroCard">
 
-  <div class="heroSub">
-    O <b>Lotofácil Prime Analytics</b> analisa concursos, identifica padrões e entrega o
-    <b>Jogo Principal</b> com justificativas + variações (Invertida/Técnica) e recursos de
-    <b>salvar e conferir</b> — tudo direto, rápido e fácil no celular.
-  </div>
+      <div class="kicker">🏆 Método <b>PRIME</b> • Painel + Geração • Sem achismo</div>
 
-  <div class="heroProofRow">
-    <div class="proofChip">✅ Prints reais do sistema</div>
-    <div class="proofChip">⚡ Fluxo 100% direto</div>
-    <div class="proofChip">🔒 Checkout Hotmart</div>
-    <div class="proofChip">📱 Otimizado mobile</div>
-  </div>
-
-  <div class="heroLine"></div>
-
-  <ul class="list">
-    <li class="li">
-      <span class="icon">📈</span>
-      <div>
-        <b>Análise PRIME</b>
-        <div class="mini">Resumo do período com tendências, padrões e leitura rápida — sem complicação.</div>
+      <div class="heroTitle">
+        Gere seus jogos com <span class="gold">lógica</span> e <span class="gold">dados</span> — em minutos.
       </div>
-    </li>
 
-    <li class="li">
-      <span class="icon">🎯</span>
-      <div>
-        <b>Jogo Principal (lógica PRIME)</b>
-        <div class="mini">15 dezenas + justificativas e o “porquê” de cada escolha — pronto para usar.</div>
+      <div class="heroSub">
+        O <b>Lotofácil Prime Analytics</b> analisa concursos, identifica padrões e entrega o
+        <b>Jogo Principal</b> com justificativas + variações (Invertida/Técnica) e recursos de
+        <b>salvar e conferir</b> — tudo direto, rápido e fácil no celular.
       </div>
-    </li>
 
-    <li class="li">
-      <span class="icon">🔄</span>
-      <div>
-        <b>Invertida + Técnica Premiada</b>
-        <div class="mini">Variações inteligentes baseadas no seu Principal — para ampliar estratégias.</div>
+      <div class="heroProofRow">
+        <div class="proofChip">✅ Prints reais do sistema</div>
+        <div class="proofChip">⚡ Fluxo 100% direto</div>
+        <div class="proofChip">🔒 Checkout Hotmart</div>
+        <div class="proofChip">📱 Otimizado mobile</div>
       </div>
-    </li>
 
-    <li class="li">
-      <span class="icon">💾</span>
-      <div>
-        <b>Jogos Salvos + Conferência</b>
-        <div class="mini">Organize seus jogos e compare desempenho por janelas de concursos.</div>
-      </div>
-    </li>
-  </ul>
+      <div class="heroLine"></div>
 
-  <div class="heroLine"></div>
-
-  <div class="ctaStack">
-    <a class="btn btnBig btnGreen" href=https://nv-sistemas.github.io/lotofacil-pro/ target="_blank" rel="noopener">
-      ✅ Testar FREE agora (1 jogo)
-    </a>
-    <a class="btn btnBig btnPrimary" href="#oferta">
-      Ver ofertas (Premium / 15P / Combo)
-    </a>
-  </div>
-
-  <div class="mini" style="margin-top:10px">
-    🔥 Comece pelo FREE e sinta o fluxo por dentro. Depois escolha Premium ou Combo para liberar tudo.
-  </div>
-
-          <div class="heroMedia">
-            <div class="heroMediaInner">
-              <div class="mock">
-                ESPAÇO PARA VÍDEO (VSL) OU PRINT DO APP<br/>
-                <span class="muted" style="font-weight:900;font-size:12px">
-                  (troque este bloco por um iframe do vídeo ou por imagem real)
-                </span>
-              </div>
-
-              <div class="card" style="margin:0">
-                <h3>🚀 Cansado de escolher dezenas no “achismo”?</h3>
-                <div class="mini">
-                  O Prime analisa os concursos, identifica padrões e já entrega os jogos prontos para você.
-                  Veja abaixo os <b>prints reais</b> do sistema funcionando.
-                </div>
-                <div class="hr"></div>
-                <a class="btn btnGold" href="#provas">Quero ver os resultados agora</a>
-              </div>
-            </div>
+      <ul class="list">
+        <li class="li">
+          <span class="icon">📈</span>
+          <div>
+            <b>Análise PRIME</b>
+            <div class="mini">Resumo do período com tendências, padrões e leitura rápida — sem complicação.</div>
           </div>
+        </li>
+
+        <li class="li">
+          <span class="icon">🎯</span>
+          <div>
+            <b>Jogo Principal (lógica PRIME)</b>
+            <div class="mini">15 dezenas + justificativas e o “porquê” de cada escolha — pronto para usar.</div>
+          </div>
+        </li>
+
+        <li class="li">
+          <span class="icon">🔄</span>
+          <div>
+            <b>Invertida + Técnica Premiada</b>
+            <div class="mini">Variações inteligentes baseadas no seu Principal — para ampliar estratégias.</div>
+          </div>
+        </li>
+
+        <li class="li">
+          <span class="icon">💾</span>
+          <div>
+            <b>Jogos Salvos + Conferência</b>
+            <div class="mini">Organize seus jogos e compare desempenho por janelas de concursos.</div>
+          </div>
+        </li>
+      </ul>
+
+      <div class="heroLine"></div>
+
+      <div class="ctaStack">
+        <a class="btn btnBig btnGreen"
+           href="https://nv-sistemas.github.io/lotofacil-pro/"
+           target="_blank"
+           rel="noopener">
+          ✅ Testar FREE agora (1 jogo)
+        </a>
+
+        <a class="btn btnBig btnPrimary" href="#oferta">
+          Ver ofertas (Premium / 15P / Combo)
+        </a>
+      </div>
+
+      <div class="mini" style="margin-top:10px">
+        🔥 Comece pelo FREE e sinta o fluxo por dentro. Depois escolha Premium ou Combo para liberar tudo.
+      </div>
+
+    </div>
+
+    <!-- ✅ Bloco de VÍDEO/PRINT (fica embaixo, igual mobile) -->
+    <div class="heroMedia">
+      <div class="heroMediaInner">
+        <div class="mock">
+          ESPAÇO PARA VÍDEO (VSL) OU PRINT DO APP<br/>
+          <span class="muted" style="font-weight:900;font-size:12px">
+            (troque este bloco por um iframe do vídeo ou por imagem real)
+          </span>
+        </div>
+
+        <div class="card" style="margin:0">
+          <h3>🚀 Cansado de escolher dezenas no “achismo”?</h3>
+          <div class="mini">
+            O Prime analisa os concursos, identifica padrões e já entrega os jogos prontos para você.
+            Veja abaixo os <b>prints reais</b> do sistema funcionando.
+          </div>
+          <div class="hr"></div>
+          <a class="btn btnGold" href="#provas">Quero ver os resultados agora</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
 
         </div>
       </div>
