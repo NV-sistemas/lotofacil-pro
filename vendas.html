@@ -1119,91 +1119,94 @@
 
 
 /* ==========================================================
-   ✅ BOTÕES HERO PISCANDO (mais chamativos)
-   - Pisca borda/brilho nos 2 botões principais do HERO
+   ✅ STICKY CTA MOBILE — SEMPRE VISÍVEL (100% do tempo)
+   força exibição contínua no mobile, independente de scroll
 ========================================================== */
-.heroEliteBtns .btnGreen,
-.heroEliteBtns .btnPrimary{
-  position: relative;
-  isolation: isolate;
-}
-
-/* brilho/borda por cima (sem mudar layout) */
-.heroEliteBtns .btnGreen::after,
-.heroEliteBtns .btnPrimary::after{
-  content:"";
-  position:absolute;
-  inset:-2px;
-  border-radius: inherit;
-  pointer-events:none;
-  opacity:.0;
-  transition: opacity .2s ease;
-}
-
-/* FREE (verde) */
-.heroEliteBtns .btnGreen{
-  animation: heroFreePulse 0.85s infinite;
-}
-.heroEliteBtns .btnGreen::after{
-  box-shadow:
-    0 0 0 2px rgba(34,197,94,.35),
-    0 0 0 6px rgba(34,197,94,.10),
-    0 22px 70px rgba(34,197,94,.25);
-  animation: heroGlowOverlay 0.85s infinite;
-}
-
-/* PREMIUM (amarelo) */
-.heroEliteBtns .btnPrimary{
-  animation: heroGoldPulse 0.95s infinite;
-}
-.heroEliteBtns .btnPrimary::after{
-  box-shadow:
-    0 0 0 2px rgba(250,204,21,.35),
-    0 0 0 6px rgba(250,204,21,.10),
-    0 22px 70px rgba(250,204,21,.22);
-  animation: heroGlowOverlay 0.95s infinite;
-}
-
-@keyframes heroFreePulse{
-  0%{ filter:brightness(1.00); transform:translateY(0); }
-  50%{ filter:brightness(1.18); transform:translateY(-1px); }
-  100%{ filter:brightness(1.00); transform:translateY(0); }
-}
-@keyframes heroGoldPulse{
-  0%{ filter:brightness(1.00); transform:translateY(0); }
-  50%{ filter:brightness(1.14); transform:translateY(-1px); }
-  100%{ filter:brightness(1.00); transform:translateY(0); }
-}
-@keyframes heroGlowOverlay{
-  0%{ opacity:.15; }
-  50%{ opacity:.85; }
-  100%{ opacity:.15; }
-}
-
-/* ==========================================================
-   ✅ STICKY CTA MOBILE SEMPRE VISÍVEL (durante toda a visita)
-   - Mantém fixo e visível no mobile
-========================================================== */
-.stickyCta.is-on{
-  display:block !important;
-}
 @media (max-width: 900px){
   .stickyCta{
-    display:block !important;
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: none !important;
+    z-index: 99999 !important;
+  }
+  body{
+    padding-bottom: 110px !important;
   }
 }
 
-/* Respeita “reduzir movimento” do navegador */
+
+/* ==========================================================
+   ✅ FIX DEFINITIVO: STICKY CTA SEMPRE VISÍVEL NO MOBILE
+   (FREE / PREMIUM / EXTRA15P / COMBO)
+========================================================== */
+.stickyCta{
+  position:fixed !important;
+  left:0 !important;
+  right:0 !important;
+  bottom:0 !important;
+  padding:10px 12px !important;
+  background:rgba(0,0,0,.88) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-top:1px solid rgba(255,255,255,.12) !important;
+  z-index:99999 !important;
+  display:none !important; /* padrão: desktop escondido */
+}
+.stickyRow{
+  max-width:1120px;
+  margin:0 auto;
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+  align-items:stretch;
+}
+.stickyRow a{
+  height:46px;
+  padding:0 10px;
+  border-radius:14px;
+  font-size:15px;
+  font-weight:1200;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  white-space:nowrap;
+  border:1px solid rgba(255,255,255,.12);
+  background:linear-gradient(135deg,var(--yellow),var(--yellow2));
+  color:#0b0b0b;
+  box-shadow:0 18px 45px rgba(0,0,0,.35);
+}
+
+/* FREE destaque */
+.btnFreeSticky{
+  background: linear-gradient(135deg, var(--green), var(--green2)) !important;
+  color:#04160b !important;
+  border:1px solid rgba(34,197,94,.28) !important;
+  box-shadow: var(--glowGreenStrong) !important;
+}
+
+/* COMBO destaque (pulsando) */
+.btnComboSticky{
+  border:1px solid rgba(250,204,21,.25) !important;
+  box-shadow: var(--glowGoldStrong) !important;
+  animation: comboBtnPulse .85s infinite;
+}
+
+@media (max-width: 900px){
+  .stickyCta{display:block !important;}
+  body{padding-bottom:96px;} /* espaço para não cobrir conteúdo */
+}
+@media (max-width: 420px){
+  body{padding-bottom:108px;}
+  .stickyRow{gap:8px;}
+  .stickyRow a{height:46px;border-radius:12px;font-size:14.5px;}
+}
 @media (prefers-reduced-motion: reduce){
-  .heroEliteBtns .btnGreen,
-  .heroEliteBtns .btnPrimary{
-    animation:none !important;
-  }
-  .heroEliteBtns .btnGreen::after,
-  .heroEliteBtns .btnPrimary::after{
-    animation:none !important;
-    opacity:.35 !important;
-  }
+  .btnComboSticky{ animation:none !important; }
 }
 
 </style>
@@ -1682,22 +1685,7 @@
   <script>
     document.getElementById("year").textContent = new Date().getFullYear();
 
-    
-
-    // ✅ Sticky CTA sempre visível no mobile (desde o início)
-    (function(){
-      const sticky = document.querySelector(".stickyCta");
-      if(!sticky) return;
-      const mq = window.matchMedia("(max-width: 900px)");
-      function apply(){
-        if(mq.matches) sticky.classList.add("is-on");
-        else sticky.classList.remove("is-on");
-      }
-      apply();
-      if(mq.addEventListener) mq.addEventListener("change", apply);
-      else if(mq.addListener) mq.addListener(apply);
-    })();
-// Scroll suave
+    // Scroll suave
     document.querySelectorAll('a[href^="#"]').forEach(a=>{
       a.addEventListener("click", (e)=>{
         const id = a.getAttribute("href");
