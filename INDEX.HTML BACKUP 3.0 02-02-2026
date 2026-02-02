@@ -2717,9 +2717,11 @@ function carregarPacotePrincipal(){
 /* =========================
    INVERTIDA + TÉCNICA
 ========================= */
-function blocoIndex(n){ return Math.floor((n-1)/5)+1; }
-function offsetNoBloco(n){ return ((n-1)%5)+1; }
-function mapParaBloco(destBloco, offset){ return (destBloco-1)*5 + offset; }
+// ✅ MAPEAMENTO POR COLUNA (cartão DEITADO / vertical)
+// blocoIndex = COLUNA (1..5), offsetNoBloco = LINHA (1..5)
+function blocoIndex(n){ return ((n-1)%5)+1; }
+function offsetNoBloco(n){ return Math.floor((n-1)/5)+1; }
+function mapParaBloco(destBloco, offset){ return (offset-1)*5 + destBloco; }
 
 function remapPorPermutacao(n, perm){
   const b = blocoIndex(n);
