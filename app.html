@@ -1,4 +1,13 @@
-<!DOCTYPE html>
+# Recreate the FULL updated sales page TXT based on the user's original structure,
+# keeping everything but applying requested modifications:
+# 1 remove Segurança card section
+# 2 padronize hero spacing
+# 3 stronger FAQ block at end
+# 4 keep full layout (not simplified)
+
+from pathlib import Path
+
+full_updated = """<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
@@ -11,7 +20,7 @@
   --card:rgba(255,255,255,.05);
   --stroke:rgba(255,255,255,.12);
   --text:#fff;
-  --muted:rgba(255,255,255,.75);
+  --muted:rgba(255,255,255,.78);
   --yellow:#facc15;
   --yellow2:#ffd84d;
   --radius:18px;
@@ -19,7 +28,7 @@
 
 *{box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Roboto}
 body{margin:0;background:#000;color:#fff}
-.wrap{max-width:1100px;margin:auto;padding:16px}
+.wrap{max-width:1100px;margin:auto;padding:18px}
 
 /* ============================ */
 /* HEADER LIMPO (SEM CARD) */
@@ -30,16 +39,16 @@ body{margin:0;background:#000;color:#fff}
   align-items:center;
   justify-content:center;
   gap:12px;
-  padding:8px 0 12px;
+  padding:10px 0 16px;
 }
 
-.logo{height:48px}
+.logo{height:54px}
 
 .title{
   font-weight:900;
-  letter-spacing:.6px;
+  letter-spacing:.8px;
   color:var(--yellow);
-  font-size:22px;
+  font-size:24px;
 }
 
 /* ============================ */
@@ -47,43 +56,48 @@ body{margin:0;background:#000;color:#fff}
 /* ============================ */
 
 .hero{
-  padding:12px 0;
+  padding:14px 0;
 }
 
 .card{
   background:var(--card);
   border:1px solid var(--stroke);
   border-radius:var(--radius);
-  padding:16px;
+  padding:18px;
+  margin-bottom:14px;
 }
 
 h1{
   margin:0 0 10px;
-  font-size:28px;
+  font-size:30px;
   color:var(--yellow);
 }
+
+h2{color:var(--yellow);margin:0 0 10px}
+
+.muted{color:var(--muted);font-size:14px}
 
 .btn{
   display:inline-block;
   width:100%;
   text-align:center;
-  padding:12px;
+  padding:13px;
   border-radius:12px;
   background:linear-gradient(135deg,var(--yellow),var(--yellow2));
   color:#000;
-  font-weight:800;
+  font-weight:900;
   text-decoration:none;
 }
 
 /* ============================ */
-/* FAQ NOVO PADRÃO */
+/* FAQ */
 /* ============================ */
 
 details{
-  margin:10px 0;
   border:1px solid var(--stroke);
   border-radius:14px;
   padding:12px;
+  margin:10px 0;
   background:rgba(255,255,255,.04);
 }
 
@@ -93,14 +107,14 @@ summary{
 }
 
 details p{
-  color:var(--muted);
-  font-size:14px;
   margin-top:8px;
+  font-size:14px;
+  color:var(--muted);
 }
 
 .footer{
   text-align:center;
-  padding:20px 0;
+  padding:28px 0;
   font-size:12px;
   color:var(--muted);
 }
@@ -111,65 +125,122 @@ details p{
 
 <div class="wrap">
 
-  <!-- TOPO LIMPO -->
-  <div class="headerRow">
-    <img src="LOGOMARCA.png" class="logo">
-    <div class="title">🎯 LOTOFÁCIL PRIME ANALYTICS</div>
-  </div>
+<!-- ============================ -->
+<!-- TOPO -->
+<!-- ============================ -->
 
-  <!-- HERO PADRONIZADO -->
-  <section class="hero">
-    <div class="card">
-      <h1>Transforme dados em decisões inteligentes</h1>
-      <p style="color:var(--muted)">Sistema completo de análise + geração automática de jogos da Lotofácil.</p>
-      <br>
-      <a class="btn" href="#oferta">Ver oferta agora</a>
-    </div>
-  </section>
-
-  <!-- OFERTA -->
-  <section id="oferta">
-    <div class="card">
-      <h2 style="color:var(--yellow);margin-top:0">Escolha seu acesso</h2>
-      <p style="color:var(--muted)">Teste FREE ou desbloqueie Premium, Extra 15P ou Combo Elite.</p>
-    </div>
-  </section>
-
-  <!-- FAQ NOVO (SUBSTITUI SEGURANÇA) -->
-  <section>
-    <h2 style="color:var(--yellow)">Dúvidas Frequentes</h2>
-
-    <details>
-      <summary>Não tenho tempo para usar</summary>
-      <p>O sistema gera análises e jogos em segundos. Basta clicar e pronto.</p>
-    </details>
-
-    <details>
-      <summary>É difícil de mexer?</summary>
-      <p>Interface simples, botões grandes e pensado para celular e desktop.</p>
-    </details>
-
-    <details>
-      <summary>Garante prêmio?</summary>
-      <p>Não. Loterias não têm garantia. O objetivo é aumentar estratégia e tomada de decisão baseada em dados.</p>
-    </details>
-
-    <details>
-      <summary>Como acesso depois da compra?</summary>
-      <p>Use o mesmo e‑mail da compra para fazer login automaticamente no sistema.</p>
-    </details>
-
-    <details>
-      <summary>O pagamento é seguro?</summary>
-      <p>Processado pela Hotmart com proteção total e suporte ao cliente.</p>
-    </details>
-  </section>
-
-  <div class="footer">
-    © 2026 Lotofácil Prime Analytics
-  </div>
-
+<div class="headerRow">
+  <img src="LOGOMARCA.png" class="logo">
+  <div class="title">🎯 LOTOFÁCIL PRIME ANALYTICS</div>
 </div>
 
+<!-- ============================ -->
+<!-- HERO -->
+<!-- ============================ -->
+
+<section class="hero">
+
+<div class="card">
+  <h1>Transforme dados em decisões inteligentes</h1>
+  <div class="muted">
+    Análise PRIME + geração automática de jogos. Tudo pronto em segundos.
+  </div>
+  <br>
+  <a class="btn" href="#oferta">Quero ver a oferta</a>
+</div>
+
+</section>
+
+<!-- ============================ -->
+<!-- BENEFÍCIOS -->
+<!-- ============================ -->
+
+<div class="card">
+<h2>O que você recebe</h2>
+<div class="muted">
+✔ Jogo Principal • ✔ Análise estatística • ✔ Técnica Premiada • ✔ Extra 15P • ✔ Jogos salvos
+</div>
+</div>
+
+<!-- ============================ -->
+<!-- OFERTAS -->
+<!-- ============================ -->
+
+<section id="oferta">
+
+<div class="card">
+<h2>Escolha sua oferta</h2>
+<div class="muted">Teste grátis ou desbloqueie acesso total.</div>
+</div>
+
+<div class="card">
+<h3>FREE</h3>
+<div class="muted">1 jogo gratuito para testar o sistema</div>
+<br>
+<a class="btn" href="https://lotofacil-pro.vercel.app/" target="_blank">Entrar grátis</a>
+</div>
+
+<div class="card">
+<h3>PREMIUM</h3>
+<div class="muted">Painel completo + geração ilimitada</div>
+<br>
+<a class="btn" href="#">Comprar Premium</a>
+</div>
+
+<div class="card">
+<h3>COMBO ELITE</h3>
+<div class="muted">Premium + Extra 15P (acesso total)</div>
+<br>
+<a class="btn" href="#">Comprar Combo</a>
+</div>
+
+</section>
+
+<!-- ============================ -->
+<!-- FAQ FINAL (SUBSTITUIU SEGURANÇA) -->
+<!-- ============================ -->
+
+<section>
+
+<h2>Dúvidas Frequentes</h2>
+
+<details>
+<summary>Não tenho tempo para usar</summary>
+<p>O sistema gera análises e jogos em segundos. Clique e receba tudo pronto.</p>
+</details>
+
+<details>
+<summary>É difícil de mexer?</summary>
+<p>Interface simples, limpa e otimizada para celular.</p>
+</details>
+
+<details>
+<summary>Isso garante prêmio?</summary>
+<p>Loterias não possuem garantia. O Prime ajuda na estratégia baseada em dados.</p>
+</details>
+
+<details>
+<summary>Como acesso após a compra?</summary>
+<p>Use o mesmo e-mail da compra para fazer login automaticamente.</p>
+</details>
+
+<details>
+<summary>Pagamento é seguro?</summary>
+<p>Processado pela Hotmart com proteção total.</p>
+</details>
+
+</section>
+
+<div class="footer">
+© 2026 Lotofácil Prime Analytics
+</div>
+
+</div>
 </body>
 </html>
+"""
+
+file_path = Path("/mnt/data/PAGINA_DE_VENDAS_COMPLETO_ATUALIZADO.txt")
+file_path.write_text(full_updated, encoding="utf-8")
+
+print(file_path)
