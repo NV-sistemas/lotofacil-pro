@@ -2571,7 +2571,7 @@ const motivosHtml = Object.entries(motivosAgrupados)
 <div class="box" style="margin-top:12px">
   <b>🧾 Por que essas dezenas foram escolhidas?</b>
   <div class="mini" style="margin-top:8px">
-    Explicação simples (núcleo 8/9/10 do último concurso + Top10 frequentes + dupla forte + Top10 atrasadas, mantendo o padrão dominante de pares/ímpares).
+    Explicação simples (repetição do último + mix de quentes/mornas/frias + recência).
   </div>
   <div style="margin-top:10px;border:1px solid rgba(255,255,255,.10);border-radius:14px;overflow:hidden">
     ${motivosHtml}
@@ -2717,18 +2717,36 @@ function carregarPacotePrincipal(){
 /* =========================
    INVERTIDA + TÉCNICA
 ========================= */
-function blocoIndex(n){ return Math.floor((n-1)/5)+1; }
-function offsetNoBloco(n){ return ((n-1)%5)+1; }
-function mapParaBloco(destBloco, offset){ return (destBloco-1)*5 + offset; }
+/* ===== NOVA LÓGICA VERTICAL (POR COLUNAS) ===== */
+function colunaIndex(n){ return ((n-1)%5)+1; }          // 1..5 (vertical)
+function linhaOffset(n){ return Math.floor((n-1)/5)+1; } // 1..5 (horizontal)
+
+function mapParaColuna(destColuna, offset){
+  return (offset-1)*5 + destColuna;
+}
 
 function remapPorPermutacao(n, perm){
-  const b = blocoIndex(n);
-  const off = offsetNoBloco(n);
-  const destB = perm[b-1];
-  return mapParaBloco(destB, off);
+  const c = colunaIndex(n);
+  const off = linhaOffset(n);
+  const destC = perm[c-1];
+  return mapParaColuna(destC, off);
 }
+
 function inverterJogoPorPerm(jogo, perm){
   return jogo.map(n=>remapPorPermutacao(Number(n), perm)).sort((a,b)=>a-b);
+}
+
+/* ✅ NOVO: permutação por COLUNAS (vertical)
+   - Mantém a linha (bloco 1..5) e troca apenas a coluna (offset 1..5)
+*/
+function remapPorPermutacaoColuna(n, permCol){
+  const b = blocoIndex(n);          // linha (1..5)
+  const off = offsetNoBloco(n);     // coluna (1..5)
+  const destOff = permCol[off-1];   // nova coluna
+  return mapParaBloco(b, destOff);
+}
+function inverterJogoPorPermCol(jogo, permCol){
+  return jogo.map(n=>remapPorPermutacaoColuna(Number(n), permCol)).sort((a,b)=>a-b);
 }
 function renderCartao(jogo, clsName){
   const set = new Set(jogo.map(Number));
@@ -2746,7 +2764,7 @@ function gerarInvertida(){
   if(!lastPrincipalGame){ alert("Gere primeiro um Jogo Principal."); return; }
 
   const permInvertida = [5,4,3,2,1];
-  const inv = inverterJogoPorPerm(lastPrincipalGame, permInvertida);
+  const inv = inverterJogoPorPermCol(lastPrincipalGame, permInvertida);
   lastInvertidaGame = inv.slice();
 
   document.getElementById("invertidaArea").innerHTML = `
@@ -2774,8 +2792,8 @@ function gerarTecnicaPremiada(){
   const permTec1 = [4,2,5,1,3];
   const permTec2 = [3,1,5,2,4];
 
-  const g1 = inverterJogoPorPerm(lastPrincipalGame, permTec1);
-  const g2 = inverterJogoPorPerm(lastPrincipalGame, permTec2);
+  const g1 = inverterJogoPorPermCol(lastPrincipalGame, permTec1);
+  const g2 = inverterJogoPorPermCol(lastPrincipalGame, permTec2);
   lastTecnicaGames = { g1, g2 };
 
   document.getElementById("tecnicaArea").innerHTML = `
