@@ -249,13 +249,252 @@
       font-size:12px;
     }
 
-    /* OFERTAS */
-    .offersGrid{display:grid;gap:14px;align-items:stretch;}
-    @media (min-width: 901px){ .offersGrid{ grid-template-columns: repeat(4, 1fr); } }
-    @media (max-width: 900px){ .offersGrid{ grid-template-columns: 1fr; } }
-    .offerCard{height:100%;display:flex;flex-direction:column}
-    .offerBody{flex:1}
-    .offerCta{margin-top:auto}
+   /* ==========================================================
+   ✅ OFERTAS (PADRÃO DO PRINT) — SEM INLINE / SEM EMENDAS
+========================================================== */
+.offersGrid{
+  display:grid;
+  gap:14px;
+  align-items:stretch;
+}
+@media (min-width: 901px){
+  .offersGrid{ grid-template-columns: repeat(4, 1fr); }
+}
+@media (max-width: 900px){
+  .offersGrid{ grid-template-columns: 1fr; }
+}
+
+/* Card base */
+.offerCard{
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  padding:16px;
+  border-radius:22px;
+  border:1px solid rgba(255,255,255,.14);
+  background: rgba(255,255,255,.035);
+  box-shadow: var(--shadow);
+  position:relative;
+  overflow:hidden;
+}
+
+/* “barra/pílula” do topo */
+.offerTop{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:12px;
+}
+.offerPill{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:7px 12px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.16);
+  background: rgba(255,255,255,.07);
+  font-size:12px;
+  font-weight:1100;
+  letter-spacing:.2px;
+  color:#fff;
+  white-space:nowrap;
+}
+
+/* Título e subtítulo */
+.offerTitle{
+  margin:0;
+  font-size:18px;
+  font-weight:1200;
+  color: var(--yellow);
+  letter-spacing:.2px;
+}
+.offerSubtitle{
+  margin:6px 0 0;
+  color: rgba(255,255,255,.78);
+  font-size:13px;
+  line-height:1.4;
+}
+
+/* “Caixa” de preço central */
+.priceWrap{
+  margin:14px 0 10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.priceBox{
+  width:100%;
+  max-width:260px;
+  border-radius:16px;
+  padding:12px 14px;
+  border:1px solid rgba(255,255,255,.16);
+  background: rgba(0,0,0,.45);
+  display:flex;
+  align-items:baseline;
+  justify-content:center;
+  gap:10px;
+}
+.priceCurrency{
+  font-size:16px;
+  font-weight:1100;
+  color: rgba(255,255,255,.85);
+}
+.priceValue{
+  font-size:40px;
+  font-weight:1300;
+  letter-spacing:.3px;
+  color: var(--yellow);
+}
+.priceNote{
+  margin-top:8px;
+  text-align:center;
+  font-size:12px;
+  color: rgba(255,255,255,.72);
+}
+
+/* Lista de benefícios em “pílulas” (igual ao print) */
+.offerList{
+  margin:12px 0 0;
+  padding:0;
+  list-style:none;
+  display:grid;
+  gap:10px;
+}
+.offerItem{
+  border-radius:16px;
+  padding:10px 12px;
+  border:1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.045);
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
+  color:#fff;
+  font-size:13px;
+}
+.offerItem .i{
+  width:30px;height:30px;
+  border-radius:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex:0 0 30px;
+  border:1px solid rgba(255,255,255,.14);
+  background: rgba(255,255,255,.06);
+  font-weight:1100;
+}
+
+/* Rodapé/CTA do card */
+.offerCta{
+  margin-top:auto;
+  padding-top:14px;
+}
+.offerBtns{
+  display:grid;
+  gap:10px;
+}
+.offerBtns.two{
+  grid-template-columns:1fr 1fr;
+}
+@media (max-width: 900px){
+  .offerBtns.two{ grid-template-columns:1fr; }
+}
+
+/* ====== VARIAÇÕES (FREE / PREMIUM / EXTRA / COMBO) ====== */
+
+/* FREE */
+.offerFree{
+  border:1px solid rgba(34,197,94,.55);
+  background:
+    radial-gradient(900px 260px at 28% 18%, rgba(34,197,94,.28), transparent 60%),
+    radial-gradient(1000px 360px at 80% 0%, rgba(34,197,94,.14), transparent 55%),
+    rgba(255,255,255,.03);
+  box-shadow: var(--glowGreenStrong), 0 22px 70px rgba(0,0,0,.40);
+}
+.offerFree .offerPill{
+  border-color: rgba(34,197,94,.40);
+  background: rgba(34,197,94,.14);
+}
+
+/* PREMIUM */
+.offerPremium .offerPill{
+  border-color: rgba(255,255,255,.20);
+  background: rgba(255,255,255,.09);
+}
+
+/* EXTRA */
+.offerExtra{
+  border-color: rgba(250,204,21,.28);
+  background:
+    radial-gradient(900px 260px at 30% 18%, rgba(250,204,21,.16), transparent 62%),
+    rgba(255,255,255,.03);
+}
+.offerExtra .offerPill{
+  border-color: rgba(250,204,21,.35);
+  background: rgba(250,204,21,.14);
+  color:#fff2b0;
+}
+
+/* COMBO */
+.offerCombo{
+  border:1px solid rgba(250,204,21,.55);
+  background:
+    radial-gradient(900px 260px at 30% 18%, rgba(250,204,21,.28), transparent 62%),
+    radial-gradient(900px 260px at 70% 18%, rgba(255,216,77,.20), transparent 62%),
+    rgba(255,255,255,.03);
+  box-shadow: var(--glowGoldStrong), 0 22px 70px rgba(0,0,0,.55);
+}
+.offerCombo .offerPill{
+  border-color: rgba(250,204,21,.45);
+  background: rgba(250,204,21,.20);
+  color:#fff2b0;
+}
+
+/* “faixa” Mais vendido (opcional no topo do combo) */
+.ribbon{
+  position:absolute;
+  top:14px;
+  right:-46px;
+  transform: rotate(12deg);
+  background: linear-gradient(135deg, var(--yellow), var(--yellow2));
+  color:#0b0b0b;
+  font-weight:1300;
+  font-size:12px;
+  padding:8px 54px;
+  border-radius:999px;
+  box-shadow: 0 18px 55px rgba(250,204,21,.20);
+  border:1px solid rgba(0,0,0,.25);
+}
+
+/* preço do combo com “caixa dourada” */
+.offerCombo .priceBox{
+  background: linear-gradient(135deg, var(--yellow), var(--yellow2));
+  border-color: rgba(250,204,21,.35);
+}
+.offerCombo .priceCurrency,
+.offerCombo .priceValue{
+  color:#0b0b0b;
+}
+
+/* “economize” */
+.savePill{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:6px 10px;
+  border-radius:999px;
+  border:1px solid rgba(250,204,21,.35);
+  background: rgba(0,0,0,.25);
+  color:#fff2b0;
+  font-size:12px;
+  font-weight:1100;
+  justify-content:center;
+}
+.strike{
+  opacity:.65;
+  text-decoration: line-through;
+  font-size:12px;
+}
 
     /* FREE PULSE */
     .freeCard{
@@ -659,131 +898,159 @@
 
       <div class="offersGrid">
 
-        <!-- FREE -->
-        <div class="card offerCard freeCard">
-          <span class="tag">✅ FREE</span>
+  <!-- FREE -->
+  <div class="offerCard offerFree">
+    <div class="offerTop">
+      <span class="offerPill">✅ FREE</span>
+    </div>
 
-          <div class="offerBody">
-            <h3>Primeiro acesso (teste real)</h3>
+    <h3 class="offerTitle">Primeiro acesso (teste real)</h3>
+    <p class="offerSubtitle">
+      Crie login com email + senha e gere <b>1 jogo grátis</b>.
+    </p>
 
-            <div style="font-size:13px;color:#a7f3d0;margin:6px 0 12px">
-              1 jogo grátis para testar
-            </div>
-
-            <ul class="list">
-              <li class="li"><span class="icon">📩</span><div>Cadastro rápido</div></li>
-              <li class="li"><span class="icon">🎯</span><div>1 geração grátis</div></li>
-              <li class="li"><span class="icon">🔒</span><div>Depois Premium/Combo</div></li>
-            </ul>
-          </div>
-
-          <div class="offerCta">
-            <div class="hr"></div>
-            <a class="btn btnGold" href="https://lotofacil-pro.vercel.app/" target="_blank" rel="noopener">Entrar no FREE</a>
-          </div>
+    <div class="priceWrap">
+      <div style="width:100%;max-width:260px;">
+        <div class="priceBox" style="background:rgba(0,0,0,.42)">
+          <span class="priceCurrency">R$</span>
+          <span class="priceValue" style="color:var(--yellow)">0,00</span>
         </div>
+        <div class="priceNote">Acesso imediato • 1 geração grátis</div>
+      </div>
+    </div>
 
-        <!-- PREMIUM -->
-        <div class="card offerCard">
-          <span class="tag premium">👑 PREMIUM</span>
+    <ul class="offerList">
+      <li class="offerItem"><span class="i">📩</span><span>Cadastro rápido (sem burocracia)</span></li>
+      <li class="offerItem"><span class="i">🎯</span><span>1 geração grátis do Jogo Principal</span></li>
+      <li class="offerItem"><span class="i">🔒</span><span>Depois: Premium ou Combo</span></li>
+    </ul>
 
-          <div class="offerBody">
-            <h3>Lotofácil Prime Analytics</h3>
-
-            <div style="text-align:center;margin:14px 0 18px">
-              <div style="font-size:13px;color:#94a3b8">Acesso completo ao painel</div>
-              <div style="font-size:34px;font-weight:1200;color:var(--yellow)">
-                <span style="font-size:16px">R$</span> 69,90
-              </div>
-            </div>
-
-            <ul class="list">
-              <li class="li">Gerar Análise</li>
-              <li class="li">Invertida</li>
-              <li class="li">Técnica Premiada</li>
-              <li class="li">Jogos Salvos</li>
-            </ul>
-          </div>
-
-          <div class="offerCta">
-            <div class="hr"></div>
-            <a class="btn btnPrimary" href="https://pay.hotmart.com/O104148865Y?off=c4m0nezi" target="_blank" rel="noopener">
-              Comprar Premium agora
-            </a>
-          </div>
-        </div>
-
-        <!-- EXTRA -->
-        <div class="card offerCard">
-          <span class="tag extra">✨ EXTRA 15P</span>
-
-          <div class="offerBody">
-            <h3>Módulo 15 Pontos</h3>
-
-            <div style="text-align:center;margin:14px 0 18px">
-              <div style="font-size:13px;color:#94a3b8">Módulo adicional</div>
-              <div style="font-size:34px;font-weight:1200;color:var(--yellow)">
-                <span style="font-size:16px">R$</span> 49,90
-              </div>
-            </div>
-
-            <ul class="list">
-              <li class="li">Estratégia 10 jogos</li>
-              <li class="li">Linhas / montagem</li>
-              <li class="li">Fluxo exclusivo</li>
-            </ul>
-          </div>
-
-          <div class="offerCta">
-            <div class="hr"></div>
-            <a class="btn btnGold" href="https://pay.hotmart.com/Y104149008G?off=eehchnv4" target="_blank" rel="noopener">
-              Comprar Extra 15P
-            </a>
-          </div>
-        </div>
-
-        <!-- COMBO -->
-        <div class="card offerCard comboCard">
-          <span class="tag combo">🔥 MAIS VENDIDO</span>
-
-          <div class="offerBody">
-            <h3>Combo Elite (Tudo liberado)</h3>
-
-            <div style="text-align:center;margin:14px 0 18px">
-              <div style="font-size:13px;color:#fff2b0">Melhor custo-benefício</div>
-
-              <div style="
-                font-size:40px;
-                font-weight:1300;
-                color:#000;
-                background:linear-gradient(135deg,var(--yellow),var(--yellow2));
-                padding:10px 18px;
-                border-radius:12px;
-                display:inline-block;
-                box-shadow:0 12px 40px rgba(250,204,21,.35);
-              ">
-                <span style="font-size:18px">R$</span> 99,90
-              </div>
-            </div>
-
-            <ul class="list">
-              <li class="li">Premium completo</li>
-              <li class="li">Extra 15P completo</li>
-              <li class="li">Preço menor que separado</li>
-            </ul>
-          </div>
-
-          <div class="offerCta">
-            <div class="hr"></div>
-            <a class="btn btnGold" href="https://pay.hotmart.com/S104212403J?off=qbcz91p3" target="_blank" rel="noopener">
-              🚀 Quero o Combo Elite
-            </a>
-          </div>
-        </div>
-
+    <div class="offerCta">
+      <div class="offerBtns">
+        <a class="btn btnGold" href="https://lotofacil-pro.vercel.app/" target="_blank" rel="noopener">
+          Entrar no FREE
+        </a>
+        <a class="btn btnGhost" href="#oferta">
+          Ver planos
+        </a>
       </div>
     </div>
   </div>
+
+  <!-- PREMIUM -->
+  <div class="offerCard offerPremium">
+    <div class="offerTop">
+      <span class="offerPill">👑 PREMIUM</span>
+    </div>
+
+    <h3 class="offerTitle">Painel Premium</h3>
+    <p class="offerSubtitle">Libera as ferramentas principais do Prime.</p>
+
+    <div class="priceWrap">
+      <div style="width:100%;max-width:260px;">
+        <div class="priceBox">
+          <span class="priceCurrency">R$</span>
+          <span class="priceValue">69,90</span>
+        </div>
+        <div class="priceNote">Acesso completo ao painel</div>
+      </div>
+    </div>
+
+    <ul class="offerList">
+      <li class="offerItem"><span class="i">📈</span><span>Gerar Análise</span></li>
+      <li class="offerItem"><span class="i">🔄</span><span>Invertida</span></li>
+      <li class="offerItem"><span class="i">🏆</span><span>Técnica Premiada</span></li>
+      <li class="offerItem"><span class="i">💾</span><span>Jogos Salvos</span></li>
+    </ul>
+
+    <div class="offerCta">
+      <div class="offerBtns">
+        <a class="btn btnPrimary" href="https://pay.hotmart.com/O104148865Y?off=c4m0nezi" target="_blank" rel="noopener">
+          Comprar Premium
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXTRA 15P -->
+  <div class="offerCard offerExtra">
+    <div class="offerTop">
+      <span class="offerPill">✨ EXTRA 15P</span>
+    </div>
+
+    <h3 class="offerTitle">Módulo Extra 15P</h3>
+    <p class="offerSubtitle">Estratégia + geração (módulo separado).</p>
+
+    <div class="priceWrap">
+      <div style="width:100%;max-width:260px;">
+        <div class="priceBox">
+          <span class="priceCurrency">R$</span>
+          <span class="priceValue">49,90</span>
+        </div>
+        <div class="priceNote">Módulo adicional</div>
+      </div>
+    </div>
+
+    <ul class="offerList">
+      <li class="offerItem"><span class="i">🧩</span><span>Estratégia (10 jogos)</span></li>
+      <li class="offerItem"><span class="i">📏</span><span>Linhas / montagem</span></li>
+      <li class="offerItem"><span class="i">⚡</span><span>Fluxo exclusivo</span></li>
+    </ul>
+
+    <div class="offerCta">
+      <div class="offerBtns">
+        <a class="btn btnGold" href="https://pay.hotmart.com/Y104149008G?off=eehchnv4" target="_blank" rel="noopener">
+          Comprar Extra 15P
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMBO ELITE -->
+  <div class="offerCard offerCombo">
+    <span class="ribbon">🔥 MAIS VENDIDO • COMBO ELITE</span>
+
+    <div class="offerTop">
+      <span class="offerPill">🔥 MAIS VENDIDO • COMBO ELITE</span>
+    </div>
+
+    <h3 class="offerTitle">Acesso Total (Premium + Extra 15P)</h3>
+    <p class="offerSubtitle">Melhor custo-benefício: libera tudo.</p>
+
+    <div class="priceWrap" style="flex-direction:column;gap:10px">
+      <div class="savePill">
+        <span class="strike">de R$ 119,90</span>
+        <span>economize R$ 20,00</span>
+      </div>
+
+      <div style="width:100%;max-width:260px;">
+        <div class="priceBox">
+          <span class="priceCurrency">R$</span>
+          <span class="priceValue">99,90</span>
+        </div>
+        <div class="priceNote">Premium + Extra 15P completos</div>
+      </div>
+    </div>
+
+    <ul class="offerList">
+      <li class="offerItem"><span class="i">👑</span><span>Premium completo (análises + modos)</span></li>
+      <li class="offerItem"><span class="i">✨</span><span>Extra 15P completo (estratégia + fluxo)</span></li>
+      <li class="offerItem"><span class="i">💰</span><span>Mais barato que comprar separado</span></li>
+    </ul>
+
+    <div class="offerCta">
+      <div class="offerBtns">
+        <a class="btn btnGold" href="https://pay.hotmart.com/S104212403J?off=qbcz91p3" target="_blank" rel="noopener">
+          🚀 Quero o Combo Elite
+        </a>
+      </div>
+      <div class="mini" style="margin-top:10px;color:rgba(255,255,255,.78);text-align:center">
+        Recomendado para quem quer o sistema completo.
+      </div>
+    </div>
+  </div>
+
+</div>
 
   <!-- FAQ -->
   <div class="wrap section" id="faq">
