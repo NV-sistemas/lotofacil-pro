@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Modelo — Ofertas com Preço (Elite)</title>
+
+  <style>
+    :root{
+      --bg:#000;
+      --card: rgba(255,255,255,.05);
+      --stroke: rgba(255,255,255,.12);
+      --shadow: 0 22px 70px rgba(0,0,0,.65);
+
+      --text:#fff;
+      --muted: rgba(255,255,255,.78);
+      --muted2: rgba(255,255,255,.62);
+
+      --yellow:#facc15;
+      --yellow2:#ffd84d;
+
+      --green:#22c55e;
+      --green2:#16a34a;
+
+      --radius: 20px;
+
+      --glowGoldStrong: 0 0 0 1px rgba(250,204,21,.45), 0 22px 75px rgba(250,204,21,.34);
+      --glowGreenStrong: 0 0 0 1px rgba(34,197,94,.55), 0 22px 80px rgba(34,197,94,.42);
+    }
+
+    *{box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+    body{margin:0;background:var(--bg);color:var(--text);overflow-x:hidden}
+    .wrap{max-width:1120px;margin:0 auto;padding:18px}
+    .section{padding:26px 0}
+    .card{
+      background:var(--card);
+      border:1px solid var(--stroke);
+      border-radius:var(--radius);
+      padding:18px;
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+    .hr{height:1px;background:rgba(255,255,255,.10);margin:14px 0;border-radius:999px}
+    h1{margin:0 0 8px;font-size:clamp(26px,3vw,38px);line-height:1.05;color:var(--yellow);font-weight:1200}
+    h2{margin:0 0 8px;font-size:clamp(20px,2.2vw,24px);color:var(--yellow)}
+    h3{margin:10px 0 8px;font-size:16px;color:var(--yellow)}
+    .mini{color:var(--muted);font-size:13px;line-height:1.55}
+    .muted2{color:var(--muted2)}
+
+    /* GRID */
+    .offersGrid{display:grid;gap:14px;align-items:stretch;}
+    @media (min-width: 901px){ .offersGrid{ grid-template-columns: repeat(4, 1fr); } }
+    @media (max-width: 900px){ .offersGrid{ grid-template-columns: 1fr; } }
+
+    .offerCard{height:100%;display:flex;flex-direction:column}
+    .offerBody{flex:1}
+    .offerCta{margin-top:auto}
+
+    /* TAGS */
+    .tag{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:7px 12px;border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.06);
+      font-size:12px;font-weight:1100;color:#fff;
+      white-space:nowrap;
+    }
+    .tag.premium{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,.08)}
+    .tag.extra{border-color:rgba(250,204,21,.35);background:rgba(250,204,21,.16);color:#fff2b0}
+    .tag.combo{border-color:rgba(250,204,21,.45);background:rgba(250,204,21,.22);color:#fff2b0}
+
+    /* LISTA */
+    .list{margin:0;padding:0;list-style:none;display:grid;gap:10px}
+    .li{
+      padding:10px 12px;border-radius:16px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.045);
+      color:rgba(255,255,255,.90);
+      font-size:13px;
+    }
+
+    /* BOTÕES */
+    .btn{
+      display:flex;align-items:center;justify-content:center;gap:10px;
+      padding:12px 14px;border:none;border-radius:14px;
+      font-weight:1200;cursor:pointer;
+      transition:.15s;
+      width:100%;
+      text-decoration:none;
+    }
+    .btnGold{
+      background:linear-gradient(135deg,var(--yellow),var(--yellow2));
+      color:#0b0b0b;
+      box-shadow:0 0 0 1px rgba(250,204,21,.30), 0 18px 60px rgba(250,204,21,.22);
+    }
+    .btnGhost{
+      background: rgba(0,0,0,.55);
+      border: 1px solid rgba(255,255,255,.18);
+      color: #ffffff;
+    }
+    .btn:hover{filter:brightness(1.06);transform:translateY(-1px)}
+    .btn:active{transform:translateY(0);filter:brightness(.98)}
+
+    /* DESTAQUES */
+    .freeCard{
+      border:1px solid rgba(34,197,94,.55);
+      background:
+        radial-gradient(900px 260px at 28% 18%, rgba(34,197,94,.26), transparent 60%),
+        rgba(255,255,255,.04);
+      box-shadow: var(--glowGreenStrong), 0 22px 70px rgba(0,0,0,.40);
+    }
+    .comboCard{
+      border:1px solid rgba(250,204,21,.55);
+      background:
+        radial-gradient(900px 260px at 30% 18%, rgba(250,204,21,.26), transparent 62%),
+        rgba(255,255,255,.04);
+      box-shadow: var(--glowGoldStrong), 0 22px 70px rgba(0,0,0,.50);
+    }
+
+    /* PREÇO (padrão elite) */
+    .priceWrap{margin:14px 0 10px;text-align:center}
+    .anchor{
+      display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap;
+      font-size:12px;color:rgba(255,255,255,.72)
+    }
+    .oldPrice{
+      text-decoration:line-through;
+      opacity:.85;
+      padding:4px 8px;border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(0,0,0,.35);
+    }
+    .saveBadge{
+      padding:4px 10px;border-radius:999px;
+      border:1px solid rgba(34,197,94,.35);
+      background:rgba(34,197,94,.16);
+      color:#d7ffe6;
+      font-weight:1100;
+    }
+
+    .price{
+      margin-top:10px;
+      display:inline-block;
+      padding:10px 16px;
+      border-radius:14px;
+      background:rgba(0,0,0,.45);
+      border:1px solid rgba(255,255,255,.14);
+    }
+    .price strong{
+      font-size:40px;
+      line-height:1;
+      letter-spacing:.3px;
+      color:var(--yellow);
+    }
+    .price small{
+      font-size:16px;
+      color:rgba(255,255,255,.82);
+      margin-right:6px;
+      font-weight:1100;
+    }
+    .installments{
+      margin-top:10px;
+      font-size:12px;
+      color:rgba(255,255,255,.75);
+    }
+
+    /* PREÇO COMBO: ainda mais forte */
+    .comboPrice{
+      margin-top:10px;
+      display:inline-block;
+      padding:12px 18px;
+      border-radius:14px;
+      background:linear-gradient(135deg,var(--yellow),var(--yellow2));
+      color:#0b0b0b;
+      box-shadow:0 12px 40px rgba(250,204,21,.35);
+      border:1px solid rgba(250,204,21,.35);
+    }
+    .comboPrice strong{font-size:44px;font-weight:1300;line-height:1}
+    .comboPrice small{font-size:18px;font-weight:1200;margin-right:6px}
+
+    /* TOP BAR COM TIMER */
+    .topBar{
+      display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;
+      padding:12px 14px;border-radius:16px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.035);
+    }
+    .timer{
+      display:flex;align-items:center;gap:10px;
+      padding:8px 12px;border-radius:999px;
+      border:1px solid rgba(250,204,21,.22);
+      background:rgba(250,204,21,.10);
+      color:#fff2b0;
+      font-size:12px;font-weight:1100;
+      white-space:nowrap;
+    }
+    .timer b{color:#fff;font-size:13px}
+  </style>
+</head>
+
+<body>
+  <div class="wrap section">
+    <div class="card">
+      <h1>LOTOfácil Prime Analytics</h1>
+      <div class="mini">Modelo de seção de ofertas com <b>preço destacado</b>, âncora, parcelamento e timer configurável.</div>
+      <div class="hr"></div>
+
+      <div class="topBar">
+        <div class="mini">
+          ✅ Checkout Hotmart • ✅ Acesso pelo mesmo email • ✅ Mobile Friendly
+        </div>
+
+        <div class="timer" title="Configure a data/hora real no JS (sem timer fake)">
+          ⏳ Oferta especial até: <b id="deadlineLabel">--/-- 00:00</b> • <span id="countdown">--:--:--</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap section" id="oferta">
+    <div class="card">
+      <h2>Escolha seu plano</h2>
+      <div class="mini">Preços em destaque (padrão elite) • Combo com maior foco para aumentar conversão</div>
+
+      <div class="hr"></div>
+
+      <div class="offersGrid">
+
+        <!-- FREE -->
+        <div class="card offerCard freeCard">
+          <span class="tag">✅ FREE</span>
+
+          <div class="offerBody">
+            <h3>Primeiro acesso (teste real)</h3>
+            <div class="mini">Crie login com email + senha e gere <b>1 jogo grátis</b>.</div>
+
+            <div class="priceWrap">
+              <div class="price">
+                <small>R$</small><strong>0,00</strong>
+              </div>
+              <div class="installments">Acesso imediato • 1 geração grátis</div>
+            </div>
+
+            <ul class="list">
+              <li class="li">Cadastro rápido (sem burocracia)</li>
+              <li class="li">1 geração grátis do Jogo Principal</li>
+              <li class="li">Depois: Premium ou Combo</li>
+            </ul>
+          </div>
+
+          <div class="offerCta">
+            <div class="hr"></div>
+            <a class="btn btnGold" href="https://lotofacil-pro.vercel.app/" target="_blank" rel="noopener">Entrar no FREE</a>
+            <a class="btn btnGhost" href="#oferta" style="margin-top:10px">Ver planos</a>
+          </div>
+        </div>
+
+        <!-- PREMIUM -->
+        <div class="card offerCard">
+          <span class="tag premium">👑 PREMIUM</span>
+
+          <div class="offerBody">
+            <h3>Painel Premium</h3>
+            <div class="mini">Libera as ferramentas principais do Prime.</div>
+
+            <div class="priceWrap">
+              <div class="price">
+                <small>R$</small><strong>69,90</strong>
+              </div>
+              <div class="installments" id="inst-premium">12x de R$ --,--</div>
+            </div>
+
+            <ul class="list">
+              <li class="li">Gerar Análise</li>
+              <li class="li">Invertida</li>
+              <li class="li">Técnica Premiada</li>
+              <li class="li">Jogos Salvos</li>
+            </ul>
+          </div>
+
+          <div class="offerCta">
+            <div class="hr"></div>
+            <a class="btn btnGold" href="https://pay.hotmart.com/O104148865Y?off=c4m0nezi" target="_blank" rel="noopener">Comprar Premium</a>
+          </div>
+        </div>
+
+        <!-- EXTRA 15P -->
+        <div class="card offerCard">
+          <span class="tag extra">✨ EXTRA 15P</span>
+
+          <div class="offerBody">
+            <h3>Módulo Extra 15P</h3>
+            <div class="mini">Estratégia + geração (módulo separado).</div>
+
+            <div class="priceWrap">
+              <div class="price">
+                <small>R$</small><strong>49,90</strong>
+              </div>
+              <div class="installments" id="inst-extra">12x de R$ --,--</div>
+            </div>
+
+            <ul class="list">
+              <li class="li">Estratégia (10 jogos)</li>
+              <li class="li">Linhas / montagem</li>
+              <li class="li">Fluxo exclusivo</li>
+            </ul>
+          </div>
+
+          <div class="offerCta">
+            <div class="hr"></div>
+            <a class="btn btnGold" href="https://pay.hotmart.com/Y104149008G?off=eehchnv4" target="_blank" rel="noopener">Comprar Extra 15P</a>
+          </div>
+        </div>
+
+        <!-- COMBO ELITE -->
+        <div class="card offerCard comboCard">
+          <span class="tag combo">🔥 MAIS VENDIDO • COMBO ELITE</span>
+
+          <div class="offerBody">
+            <h3>Acesso Total (Premium + Extra 15P)</h3>
+            <div class="mini">Melhor custo-benefício: libera tudo.</div>
+
+            <!-- ÂNCORA + ECONOMIA -->
+            <div class="priceWrap">
+              <div class="anchor">
+                <span class="oldPrice">de R$ 119,90</span>
+                <span class="saveBadge">economize R$ 20,00</span>
+              </div>
+
+              <div class="comboPrice" aria-label="Preço Combo">
+                <small>R$</small><strong>99,90</strong>
+              </div>
+
+              <div class="installments" id="inst-combo">12x de R$ --,--</div>
+            </div>
+
+            <ul class="list">
+              <li class="li">Premium completo (análises + modos)</li>
+              <li class="li">Extra 15P completo (estratégia + fluxo)</li>
+              <li class="li">Mais barato do que comprar separado</li>
+            </ul>
+          </div>
+
+          <div class="offerCta">
+            <div class="hr"></div>
+            <a class="btn btnGold" href="https://pay.hotmart.com/S104212403J?off=qbcz91p3" target="_blank" rel="noopener">
+              🚀 Quero o Combo Elite
+            </a>
+            <div class="mini" style="margin-top:10px">Recomendado para quem quer o sistema completo.</div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="hr"></div>
+      <div class="mini muted2">
+        * Parcelamento é informativo (o checkout pode exibir condições específicas).  
+        * O timer deve ser configurado para uma data/hora real (sem urgência falsa).
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ======= PARCELAMENTO (12x) =======
+    function brl(n){
+      return n.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+    function setInstallments(elId, price, parts=12){
+      const per = price / parts;
+      const el = document.getElementById(elId);
+      if(el) el.textContent = `${parts}x de R$ ${brl(per)}`;
+    }
+    setInstallments("inst-premium", 69.90, 12);
+    setInstallments("inst-extra", 49.90, 12);
+    setInstallments("inst-combo", 99.90, 12);
+
+    // ======= TIMER (configure data/hora real) =======
+    // ✅ Ajuste aqui para uma data/hora real:
+    // Exemplo: 2026-02-10T23:59:59 (horário local do navegador)
+    const deadlineISO = new Date().toISOString().slice(0,10) + "T23:59:59";
+    const deadline = new Date(deadlineISO);
+
+    const label = document.getElementById("deadlineLabel");
+    if(label){
+      const dd = String(deadline.getDate()).padStart(2,"0");
+      const mm = String(deadline.getMonth()+1).padStart(2,"0");
+      const hh = String(deadline.getHours()).padStart(2,"0");
+      const mi = String(deadline.getMinutes()).padStart(2,"0");
+      label.textContent = `${dd}/${mm} ${hh}:${mi}`;
+    }
+
+    const out = document.getElementById("countdown");
+    function tick(){
+      const now = new Date();
+      let diff = deadline - now;
+
+      if(diff <= 0){
+        if(out) out.textContent = "ENCERRADO";
+        return;
+      }
+
+      const h = Math.floor(diff / (1000*60*60));
+      diff -= h*(1000*60*60);
+      const m = Math.floor(diff / (1000*60));
+      diff -= m*(1000*60);
+      const s = Math.floor(diff / 1000);
+
+      if(out) out.textContent = `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+    }
+    tick();
+    setInterval(tick, 1000);
+  </script>
+</body>
+</html>
