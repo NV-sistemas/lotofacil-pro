@@ -1123,6 +1123,45 @@ function format2(n){ return String(n).padStart(2,"0"); }
 function toNum(d){ return Number(String(d).replace(/^0+/,"")) || Number(d); }
 function sortNum(arr){ return arr.slice().sort((a,b)=>a-b); }
 
+/* =========================
+   ✅ LINHAS 1 a 5 (15P) - TABELA PARA JOGOS SALVOS
+   - Mostra a base (linhas do sistema) 1 única vez no topo ao conferir um 15P salvo
+   - NÃO altera a lógica de geração, apenas UI
+========================= */
+function buildLines15TableHTML(lines){
+  if(!Array.isArray(lines) || lines.length !== 5) return "";
+  const tipos = ["FORTE","FORTE","FORTE","DIVERSA","DIVERSA"];
+
+  return `
+    <div class="box" style="margin-top:10px">
+      <b>📌 Linhas 1 a 5 (geradas pelo sistema)</b>
+      <div class="mini" style="margin-top:6px">
+        O sistema usa: <b>frequência + recência + coocorrência + lift</b>, com controle de paridade e blocos.
+      </div>
+      <div style="margin-top:12px;overflow:auto">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Linha</th>
+              <th>Tipo</th>
+              <th>Dezenas</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${lines.map((ln,i)=>`
+              <tr>
+                <td>${i+1}</td>
+                <td>${tipos[i]}</td>
+                <td class="mono">${(ln||[]).map(n=>format2(toNum(n))).join(" - ")}</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
 
 /* =========================
    ✅ SVG "IMAGEM" DO CARTÃO 5×5 (para ilustrações ANTES/DEPOIS)
@@ -4007,6 +4046,9 @@ function checkSavedGames(){
           alert("Esse 15P salvo não tem os 10 jogos do sistema.");
           return;
         }
+
+        // ✅ Mostra as LINHAS 1 a 5 (base do 15P) 1 única vez no topo
+        html += buildLines15TableHTML(item.payload.linesSystem15);
 
         jogos.forEach((jogoNums, idx)=>{
           const jogo = jogoNums.slice().map(Number).sort((a,b)=>a-b);
