@@ -1008,148 +1008,205 @@
   }
 }
 
-  </style>
+  
+/* ======================================================
+🚀 HERO ELITE NOVO
+====================================================== */
+
+.gold{
+  color:var(--yellow);
+  text-shadow:
+    0 14px 45px rgba(250,204,21,.22),
+    0 0 18px rgba(250,204,21,.10);
+}
+
+.heroElite{
+  padding:26px 0 44px;
+}
+
+.heroEliteGrid{
+  display:grid;
+  grid-template-columns: 1.1fr .9fr;
+  gap:40px;
+  align-items:center;
+}
+
+@media(max-width:900px){
+  .heroEliteGrid{ grid-template-columns:1fr; }
+}
+
+/* COPY */
+.heroBadge{
+  display:inline-block;
+  padding:8px 16px;
+  border-radius:999px;
+  border:1px solid rgba(250,204,21,.35);
+  background:rgba(250,204,21,.12);
+  color:#fff2b0;
+  font-size:13px;
+  font-weight:1100;
+  margin:6px 0 18px;
+}
+
+.heroEliteTitle{
+  font-size: clamp(32px, 5vw, 54px);
+  font-weight:1300;
+  line-height:1.05;
+  margin:0 0 18px;
+  letter-spacing:.2px;
+}
+
+.heroEliteSub{
+  font-size:16px;
+  line-height:1.65;
+  color:rgba(255,255,255,.85);
+  max-width:640px;
+  margin:0;
+}
+
+/* PROVAS */
+.heroEliteProofs{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin:22px 0 16px;
+}
+
+.heroEliteProofs span{
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.14);
+  padding:8px 12px;
+  border-radius:999px;
+  font-size:13px;
+  font-weight:1100;
+}
+
+/* BOTÕES */
+.heroEliteBtns{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  margin-top:8px;
+}
+
+@media(max-width:620px){
+  .heroEliteBtns{ grid-template-columns:1fr; }
+}
+
+/* VÍDEO */
+.heroEliteVideo{ width:100%; }
+
+.videoMock{
+  width:100%;
+  min-height:360px;
+  border-radius:20px;
+  border:1px solid rgba(255,255,255,.16);
+  background:rgba(0,0,0,.55);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  font-weight:1100;
+  color:rgba(255,255,255,.75);
+  padding:18px;
+}
+
+@media(max-width:900px){
+  .videoMock{ min-height:260px; }
+}
+
+
+</style>
 </head>
 
 <body>
 
-  <div class="wrap hero">
-    <div class="heroFrame">
+  <div class="wrap" style="padding-top:32px">
 
-      <!-- ✅ SEM CARD: só LOGO + NOME -->
-      <div class="headerRow">
-        <div class="brandLeft">
-          <img class="logo" src="LOGOMARCA.png" alt="Lotofácil Prime Analytics" />
-        </div>
-
-        <div class="titleCenter">
-          <span>🎯 LOTOFÁCIL PRIME ANALYTICS</span>
-        </div>
-
-        <div class="rightSpacer"></div>
-      </div>
-
-      <div class="heroInner">
-  <div class="grid grid2">
-
-    <!-- ✅ CARD PRINCIPAL DO HERO (padrão mobile) -->
-    <div class="card heroCard">
-
-      <div class="kicker">
-  <span>🏆 Método</span>
-  <b>PRIME</b>
-  <span class="dot">•</span>
-  <span>Painel + Geração</span>
-  <span class="dot">•</span>
-  <span>Sem achismo</span>
-</div>
-
-      <div class="heroTitle">
-        Gere seus jogos com <span class="gold">lógica</span> e <span class="gold">dados</span> — em segundos.
-      </div>
-
-      <div class="heroSub">
-        O <b>Lotofácil Prime Analytics</b> analisa concursos, identifica padrões e entrega o
-        <b>Jogo Principal</b> com justificativas + variações (Invertida/Técnica) e recursos de
-        <b>salvar e conferir</b> — tudo direto, rápido e fácil no celular.
-      </div>
-
-      <div class="heroProofRow">
-        <div class="proofChip">✅ Prints reais do sistema</div>
-        <div class="proofChip">⚡ Fluxo 100% direto</div>
-        <div class="proofChip">🔒 Checkout Hotmart</div>
-        <div class="proofChip">📱 Otimizado mobile</div>
-      </div>
-
-      <div class="heroLine"></div>
-
-      <ul class="list">
-        <li class="li">
-          <span class="icon">📈</span>
-          <div>
-            <b>Análise PRIME</b>
-            <div class="mini">Resumo do período com tendências, padrões e leitura rápida — sem complicação.</div>
-          </div>
-        </li>
-
-        <li class="li">
-          <span class="icon">🎯</span>
-          <div>
-            <b>Jogo Principal (lógica PRIME)</b>
-            <div class="mini">15 dezenas + justificativas e o “porquê” de cada escolha — pronto para usar.</div>
-          </div>
-        </li>
-
-        <li class="li">
-          <span class="icon">🔄</span>
-          <div>
-            <b>Invertida + Técnica Premiada</b>
-            <div class="mini">Variações inteligentes baseadas no seu Principal — para ampliar estratégias.</div>
-          </div>
-        </li>
-
-        <li class="li">
-          <span class="icon">💾</span>
-          <div>
-            <b>Jogos Salvos + Conferência</b>
-            <div class="mini">Organize seus jogos e compare desempenho por janelas de concursos.</div>
-          </div>
-        </li>
-      </ul>
-
-      <div class="heroLine"></div>
-
-      <div class="ctaStack">
-        <a class="btn btnBig btnGreen"
-           href="https://nv-sistemas.github.io/lotofacil-pro/"
-           target="_blank"
-           rel="noopener">
-          ✅ Testar FREE agora (1 jogo)
-        </a>
-
-        <a class="btn btnBig btnPrimary" href="#oferta">
-          Ver ofertas (Premium / 15P / Combo)
-        </a>
-      </div>
-
-      <div class="mini" style="margin-top:10px">
-        🔥 Comece pelo FREE e sinta o fluxo por dentro. Depois escolha Premium ou Combo para liberar tudo.
-      </div>
-
+  <!-- ✅ TOPO: LOGO + NOME (mantido) -->
+  <div class="headerRow">
+    <div class="brandLeft">
+      <img class="logo" src="LOGOMARCA.png" alt="Lotofácil Prime Analytics" />
     </div>
 
-    <!-- ✅ Bloco de VÍDEO/PRINT (fica embaixo, igual mobile) -->
-    <div class="heroMedia">
-      <div class="heroMediaInner">
-        <div class="mock">
-          ESPAÇO PARA VÍDEO (VSL) OU PRINT DO APP<br/>
-          <span class="muted" style="font-weight:900;font-size:12px">
-            (troque este bloco por um iframe do vídeo ou por imagem real)
-          </span>
-        </div>
-
-        <div class="card" style="margin:0">
-          <h3>🚀 Cansado de escolher dezenas no “achismo”?</h3>
-          <div class="mini">
-            O Prime analisa os concursos, identifica padrões e já entrega os jogos prontos para você.
-            Veja abaixo os <b>prints reais</b> do sistema funcionando.
-          </div>
-          <div class="hr"></div>
-          <a class="btn btnGold" href="#provas">Quero ver os resultados agora</a>
-        </div>
-      </div>
+    <div class="titleCenter">
+      <span>🎯 LOTOFÁCIL PRIME ANALYTICS</span>
     </div>
 
-  </div>
-</div>
-
-        </div>
-      </div>
-
-    </div>
+    <div class="rightSpacer"></div>
   </div>
 
-  <div class="wrap section" id="como-funciona">
+  <!-- =======================================================
+  🚀 HERO ELITE NOVO (VERSÃO VENDAS 7 DÍGITOS)
+  ======================================================= -->
+  <section class="heroElite">
+
+    <div class="heroEliteGrid">
+
+      <!-- LADO ESQUERDO (COPY FORTE) -->
+      <div class="heroEliteContent">
+
+        <div class="heroBadge">
+          🏆 MÉTODO <b>PRIME</b> • Painel + Geração • Sem achismo
+        </div>
+
+        <h1 class="heroEliteTitle">
+          Gere seus jogos com
+          <span class="gold">lógica e dados</span>
+          <br>
+          não com sorte.
+        </h1>
+
+        <p class="heroEliteSub">
+          O <b>Lotofácil Prime Analytics</b> analisa concursos automaticamente,
+          identifica padrões estatísticos e entrega jogos prontos em segundos.
+          <br><br>
+          Sem planilhas. Sem achismo. Sem perda de tempo.
+        </p>
+
+        <!-- PROVAS -->
+        <div class="heroEliteProofs">
+          <span>✅ Prints reais do sistema</span>
+          <span>⚡ Geração automática</span>
+          <span>📱 100% mobile</span>
+          <span>🔒 Checkout seguro</span>
+        </div>
+
+        <!-- BOTÕES -->
+        <div class="heroEliteBtns">
+          <a class="btn btnBig btnGreen"
+             href="https://nv-sistemas.github.io/lotofacil-pro/"
+             target="_blank"
+             rel="noopener">
+             🚀 Testar FREE agora
+          </a>
+
+          <a class="btn btnBig btnPrimary" href="#oferta">
+             Ver planos Premium
+          </a>
+        </div>
+
+        <div class="mini" style="margin-top:12px">
+          🔥 Comece pelo FREE e sinta o fluxo por dentro. Depois escolha Premium ou Combo para liberar tudo.
+        </div>
+
+      </div>
+
+      <!-- LADO DIREITO (VÍDEO GRANDE) -->
+      <div class="heroEliteVideo">
+        <div class="videoMock">
+          ESPAÇO PARA VÍDEO (VSL)
+          <br>
+          ou prints grandes do sistema
+        </div>
+      </div>
+
+    </div>
+
+  </section>
+</div>
+
+<div class="wrap section" id="como-funciona">
     <div class="card">
       <h2>O que torna o Prime “diferente” na prática</h2>
       <div class="grid grid3">
