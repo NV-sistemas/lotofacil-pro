@@ -392,6 +392,54 @@
     .ball{ width:38px; height:38px; font-size:13px; }
     .numbers{ gap:6px; }
   }
+
+  /* ✅ Ilustração de troca de colunas (Invertida/Técnica) */
+  .swapCard{ margin-top: 10px; }
+  .swapRow{ display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
+  .swapMini{
+    flex: 1 1 260px;
+    border:1px solid rgba(255,255,255,.14);
+    background: rgba(0,0,0,.66);
+    border-radius:16px;
+    padding:12px;
+  }
+  .swapMini b{ color: var(--yellow); }
+  .swapCols{
+    display:grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap:8px;
+    margin-top:8px;
+  }
+  .swapCols span{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:8px 6px;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,.14);
+    background: rgba(0,0,0,.70);
+    font-weight:1000;
+    color: rgba(255,255,255,.92);
+  }
+
+  .swapMap{ display:grid; grid-template-columns:repeat(5,1fr); gap:8px; margin-top:10px; }
+  .swapCell{
+    text-align:center;
+    padding:10px 6px;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,.14);
+    background: rgba(0,0,0,.70);
+    font-weight:1000;
+    color: rgba(255,255,255,.92);
+  }
+  .swapCell span{
+    display:block;
+    font-size:11px;
+    color: rgba(255,255,255,.68);
+    font-weight:900;
+    margin-top:4px;
+  }
+
 </style>
 </head>
 
@@ -1308,6 +1356,10 @@ function calcModernMetrics(concursos){
 ========================= */
 function gerarJogoPrincipalPrime(freq, modern, concursos, dezenasUltimo){
   const last = (dezenasUltimo||[]).map(toNum).filter(n=>n>=1 && n<=25).sort((a,b)=>a-b);
+  const lastSet = new Set(last);
+  const complementPool = [];
+  for(let n=1;n<=25;n++){ if(!lastSet.has(n)) complementPool.push(n); }
+
 
   // 1) define k (8/9/10) pela sequência exata 20/50/30
   const k = getNextPrincipalBaseSize();
@@ -1323,16 +1375,16 @@ function gerarJogoPrincipalPrime(freq, modern, concursos, dezenasUltimo){
 
   // 4) Top10 frequentes
   const top10freq = getTop10FreqList(freq); // desc
-  const freqMost = top10freq.slice();               // do mais pro menos
-  const freqLeast = top10freq.slice().reverse();    // do menos pro mais
+  const freqMost = top10freq.filter(n=>!lastSet.has(n));               // do mais pro menos (somente fora do último)
+  const freqLeast = top10freq.slice().reverse().filter(n=>!lastSet.has(n));    // do menos pro mais (somente fora do último)
 
   // 5) dupla forte (2 dezenas)
   const pair = getStrongPair(concursos); // [a,b]
 
   // 6) Top10 atrasadas
   const top10atr = getTop10AtrasadasList(modern);   // do mais atrasado pro menos
-  const atrMost = top10atr.slice();
-  const atrLeast = top10atr.slice().reverse();
+  const atrMost = top10atr.filter(n=>!lastSet.has(n));
+  const atrLeast = top10atr.slice().reverse().filter(n=>!lastSet.has(n));
 
   // ---- Montagem por regra exata (sem aleatório) ----
   const picks = {
@@ -1355,7 +1407,9 @@ function gerarJogoPrincipalPrime(freq, modern, concursos, dezenasUltimo){
     for(const p of allPairs){
       const a=p.a, b=p.b;
       if(a===b) continue;
-      if(set.has(a) && set.has(b)) continue;
+      // ✅ complemento NÃO pode usar dezenas do último concurso (fora do núcleo)
+      if(lastSet.has(a) || lastSet.has(b)) continue;
+      if(set.has(a) || set.has(b)) continue;
       chosenPair = [a,b];
       break;
     }
@@ -1379,7 +1433,9 @@ function gerarJogoPrincipalPrime(freq, modern, concursos, dezenasUltimo){
     for(const p of allPairs){
       const a=p.a, b=p.b;
       if(a===b) continue;
-      if(set.has(a) && set.has(b)) continue;
+      // ✅ complemento NÃO pode usar dezenas do último concurso (fora do núcleo)
+      if(lastSet.has(a) || lastSet.has(b)) continue;
+      if(set.has(a) || set.has(b)) continue;
       chosenPair = [a,b];
       break;
     }
@@ -1403,7 +1459,9 @@ function gerarJogoPrincipalPrime(freq, modern, concursos, dezenasUltimo){
     for(const p of allPairs){
       const a=p.a, b=p.b;
       if(a===b) continue;
-      if(set.has(a) && set.has(b)) continue;
+      // ✅ complemento NÃO pode usar dezenas do último concurso (fora do núcleo)
+      if(lastSet.has(a) || lastSet.has(b)) continue;
+      if(set.has(a) || set.has(b)) continue;
       chosenPair = [a,b];
       break;
     }
@@ -1415,6 +1473,18 @@ function gerarJogoPrincipalPrime(freq, modern, concursos, dezenasUltimo){
     picks.atrasadas.push(...pickFromListDeterministic(atrMost, 1, set, targetPares));
   }
 
+  // ✅ Segurança: garante que o jogo final tenha EXATAMENTE k dezenas do último concurso (núcleo)
+  const lastCount = [...set].filter(n=>lastSet.has(n)).length;
+  if(lastCount > k){
+    // remove determinístico: tira as dezenas do último que NÃO fazem parte do núcleo escolhido
+    const baseSet = new Set(base);
+    const extras = [...set].filter(n=>lastSet.has(n) && !baseSet.has(n)).sort((a,b)=>a-b);
+    for(const ex of extras){
+      if([...set].filter(n=>lastSet.has(n)).length <= k) break;
+      set.delete(ex);
+    }
+  }
+
   // 7) garantia final: deve fechar exatamente 15
   const jogo = [...set].sort((a,b)=>a-b);
 
@@ -1424,9 +1494,8 @@ function gerarJogoPrincipalPrime(freq, modern, concursos, dezenasUltimo){
     pickFromListDeterministic(freqMost, 15 - set.size, set, targetPares);
     if(set.size < 15) pickFromListDeterministic(atrMost, 15 - set.size, set, targetPares);
     if(set.size < 15){
-      const all = [];
-      for(let n=1;n<=25;n++) all.push(n);
-      pickFromListDeterministic(all, 15 - set.size, set, targetPares);
+      // ✅ último fallback: completa determinístico SOMENTE com as 10 dezenas que NÃO saíram no último
+      pickFromListDeterministic(complementPool, 15 - set.size, set, targetPares);
     }
   }
 
@@ -2210,7 +2279,6 @@ let manualPrincipalSet = new Set();
 let linesSystem15 = null;
 let linesUser15 = null;
 let activeLine15 = 4; // começa na linha 5 (em branco)
-let lineMetaSystem15 = null; // meta das linhas (FORTE/DIVERSA + métricas)
 /* =========================
    SALVAMENTO LOCAL (1 slot por tipo)
 ========================= */
@@ -2572,7 +2640,7 @@ const motivosHtml = Object.entries(motivosAgrupados)
 <div class="box" style="margin-top:12px">
   <b>🧾 Por que essas dezenas foram escolhidas?</b>
   <div class="mini" style="margin-top:8px">
-    Explicação PRIME (núcleo 8/9/10 do último concurso + Top 10 frequentes + dupla forte + Top 10 atrasadas + paridade dominante do período).
+    Explicação simples (repetição do último + mix de quentes/mornas/frias + recência).
   </div>
   <div style="margin-top:10px;border:1px solid rgba(255,255,255,.10);border-radius:14px;overflow:hidden">
     ${motivosHtml}
@@ -2718,11 +2786,9 @@ function carregarPacotePrincipal(){
 /* =========================
    INVERTIDA + TÉCNICA
 ========================= */
-// ✅ MAPEAMENTO POR COLUNA (cartão DEITADO / vertical)
-// blocoIndex = COLUNA (1..5), offsetNoBloco = LINHA (1..5)
-function blocoIndex(n){ return ((n-1)%5)+1; }
-function offsetNoBloco(n){ return Math.floor((n-1)/5)+1; }
-function mapParaBloco(destBloco, offset){ return (offset-1)*5 + destBloco; }
+function blocoIndex(n){ return Math.floor((n-1)/5)+1; }
+function offsetNoBloco(n){ return ((n-1)%5)+1; }
+function mapParaBloco(destBloco, offset){ return (destBloco-1)*5 + offset; }
 
 function remapPorPermutacao(n, perm){
   const b = blocoIndex(n);
@@ -2753,12 +2819,34 @@ function gerarInvertida(){
   lastInvertidaGame = inv.slice();
 
   document.getElementById("invertidaArea").innerHTML = `
-    <div class="cartaoWrap">
-      <div class="box">
-        <b>🎯 Principal (atual)</b>
-        <div class="numbers" style="justify-content:flex-start">${lastPrincipalGame.map(n=>`<div class="ball">${format2(n)}</div>`).join("")}</div>
-        ${renderCartao(lastPrincipalGame, "on")}
+
+    <div class="box swapCard">
+      <b>🔄 Troca ilustrativa (Invertida por COLUNAS — cartão 5×5)</b>
+      <div class="mini">
+        Aqui <b>não existe cálculo novo</b>: é o mesmo jogo, apenas <b>espelhado na vertical</b> no cartão.<br>
+        Regra: <b>C1→C5</b> • <b>C2→C4</b> • <b>C3→C3</b> • <b>C4→C2</b> • <b>C5→C1</b>.
       </div>
+
+      <div class="swapRow">
+        <div class="swapMini">
+          <b>ANTES (Principal)</b>
+          <div class="swapCols"><span>C1</span><span>C2</span><span>C3</span><span>C4</span><span>C5</span></div>
+        </div>
+        <div class="swapMini">
+          <b>DEPOIS (Invertida)</b>
+          <div class="swapCols"><span>C5</span><span>C4</span><span>C3</span><span>C2</span><span>C1</span></div>
+        </div>
+      </div>
+
+      <div class="swapMap">
+        <div class="swapCell">C1<span>vira C5</span></div>
+        <div class="swapCell">C2<span>vira C4</span></div>
+        <div class="swapCell">C3<span>permanece</span></div>
+        <div class="swapCell">C4<span>vira C2</span></div>
+        <div class="swapCell">C5<span>vira C1</span></div>
+      </div>
+    </div>
+
 
       <div class="box">
         <b>🔄 Invertida</b>
@@ -2782,12 +2870,39 @@ function gerarTecnicaPremiada(){
   lastTecnicaGames = { g1, g2 };
 
   document.getElementById("tecnicaArea").innerHTML = `
-    <div class="grid">
-      <div class="box">
-        <b>🏆 Jogo 1</b>
-        <div class="numbers" style="justify-content:flex-start;margin-top:10px">${g1.map(n=>`<div class="ball">${format2(n)}</div>`).join("")}</div>
-        ${renderCartao(g1, "tech")}
+
+    <div class="box swapCard">
+      <b>🏆 Troca ilustrativa (Técnica Premiada por COLUNAS — cartão 5×5)</b>
+      <div class="mini">
+        A Técnica Premiada <b>reorganiza as colunas do Principal</b> (sempre na vertical).<br>
+        <b>Nenhuma dezena é criada</b> — apenas muda a posição no cartão.
       </div>
+
+      <div class="swapRow">
+        <div class="swapMini">
+          <b>JOGO 1</b>
+          <div class="mini" style="margin-top:6px">C1→C4 • C2→C2 • C3→C5 • C4→C1 • C5→C3</div>
+          <div class="swapCols" style="margin-top:10px"><span>C1</span><span>C2</span><span>C3</span><span>C4</span><span>C5</span></div>
+          <div class="swapCols"><span>C4</span><span>C2</span><span>C5</span><span>C1</span><span>C3</span></div>
+        </div>
+
+        <div class="swapMini">
+          <b>JOGO 2</b>
+          <div class="mini" style="margin-top:6px">C1→C3 • C2→C1 • C3→C5 • C4→C2 • C5→C4</div>
+          <div class="swapCols" style="margin-top:10px"><span>C1</span><span>C2</span><span>C3</span><span>C4</span><span>C5</span></div>
+          <div class="swapCols"><span>C3</span><span>C1</span><span>C5</span><span>C2</span><span>C4</span></div>
+        </div>
+      </div>
+
+      <div class="swapMap">
+        <div class="swapCell">C1<span>muda de lugar</span></div>
+        <div class="swapCell">C2<span>muda de lugar</span></div>
+        <div class="swapCell">C3<span>muda de lugar</span></div>
+        <div class="swapCell">C4<span>muda de lugar</span></div>
+        <div class="swapCell">C5<span>muda de lugar</span></div>
+      </div>
+    </div>
+
 
       <div class="box">
         <b>🏆 Jogo 2</b>
@@ -2952,7 +3067,6 @@ function salvar15P(){
     payload: {
       linesSystem15,
       linesUser15,
-      lineMetaSystem15,
       jogosSystem,
       jogosUser
     }
@@ -3502,9 +3616,6 @@ async function gerar15P(){
       line: l
     }));
 
-    // ✅ guarda meta das linhas do SISTEMA para salvar junto e exibir em JOGOS SALVOS
-    lineMetaSystem15 = lineMeta;
-
     const jogosHtml = jogos.map((j, idx)=>{
       return `
         <div class="box">
@@ -3684,62 +3795,6 @@ document.getElementById("btnHomeSaved").onclick = ()=>{
   goView("viewSavedGames");
 };
 
-
-function renderLinhas15PSistemaBox(payload){
-  const meta = Array.isArray(payload?.lineMetaSystem15) ? payload.lineMetaSystem15 : null;
-  const lines = Array.isArray(payload?.linesSystem15) ? payload.linesSystem15 : null;
-  if(!meta && !lines) return "";
-
-  // Fallback: se não tiver meta completa, monta uma tabela simples com as linhas
-  const rowsSimple = (lines || []).map((l,idx)=>`
-    <tr>
-      <td><b>${idx+1}</b></td>
-      <td>${idx<3 ? "FORTE" : "DIVERSA"}</td>
-      <td class="mono">${(l||[]).map(format2).join(" - ")}</td>
-    </tr>
-  `).join("");
-
-  const hasMeta = !!meta;
-
-  return `
-    <div class="box" style="margin-top:10px">
-      <b>📌 Linhas 1 a 5 (geradas pelo sistema)</b>
-      <div class="mini" style="margin-top:6px">
-        O sistema usa: <b>frequência + recência + coocorrência + lift</b>, com controle de paridade e blocos.
-      </div>
-      <div style="margin-top:12px;overflow:auto">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Linha</th>
-              <th>Tipo</th>
-              <th>Dezenas</th>
-              ${hasMeta ? '<th>Força</th><th>Co médio</th><th>Lift médio</th><th>Soma freq</th>' : ''}
-            </tr>
-          </thead>
-          <tbody>
-            ${
-              hasMeta
-              ? meta.map(m=>`
-                  <tr>
-                    <td><b>${m.idx}</b></td>
-                    <td>${m.kind==="forte" ? "FORTE" : "DIVERSA"}</td>
-                    <td class="mono">${(m.line||[]).map(format2).join(" - ")}</td>
-                    <td><b>${Number(m.strength||0).toFixed(1)}</b></td>
-                    <td>${Number(m.coAvg||0).toFixed(2)}</td>
-                    <td>${Number(m.liftAvg||0).toFixed(2)}</td>
-                    <td>${Number(m.freqSum||0)}</td>
-                  </tr>
-                `).join("")
-              : rowsSimple
-            }
-          </tbody>
-        </table>
-      </div>
-    </div>
-  `;
-}
-
 function checkSavedGames(){
   const qtd = Number(document.getElementById("savedCheckQtd").value);
 
@@ -3828,9 +3883,6 @@ function checkSavedGames(){
           alert("Esse 15P salvo não tem os 10 jogos do sistema.");
           return;
         }
-
-        // ✅ mostra as Linhas 1 a 5 (do SISTEMA) UMA VEZ antes dos jogos
-        html += renderLinhas15PSistemaBox(item.payload);
 
         jogos.forEach((jogoNums, idx)=>{
           const jogo = jogoNums.slice().map(Number).sort((a,b)=>a-b);
