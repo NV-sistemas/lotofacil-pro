@@ -440,6 +440,31 @@
     margin-top:4px;
   }
 
+
+  /* ✅ Imagens ANTES/DEPOIS no card ilustrativo */
+  .swapImgs{
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap:12px;
+    margin-top:12px;
+  }
+  .swapImgWrap{
+    border:1px solid rgba(255,255,255,.14);
+    background: rgba(0,0,0,.66);
+    border-radius:16px;
+    padding:12px;
+    text-align:center;
+  }
+  .swapImgWrap b{ color: var(--yellow); display:block; margin-bottom:8px; }
+  .swapImg{
+    width:100%;
+    height:auto;
+    border-radius:14px;
+    border:1px solid rgba(250,204,21,.22);
+    background: rgba(0,0,0,.70);
+    box-shadow: 0 18px 55px rgba(0,0,0,.38);
+  }
+
 </style>
 </head>
 
@@ -1097,6 +1122,110 @@ auth.onAuthStateChanged(async (user)=>{
 function format2(n){ return String(n).padStart(2,"0"); }
 function toNum(d){ return Number(String(d).replace(/^0+/,"")) || Number(d); }
 function sortNum(arr){ return arr.slice().sort((a,b)=>a-b); }
+
+/* =========================
+   ✅ LINHAS 1 a 5 (15P) - TABELA PARA JOGOS SALVOS
+   - Mostra a base (linhas do sistema) 1 única vez no topo ao conferir um 15P salvo
+   - NÃO altera a lógica de geração, apenas UI
+========================= */
+function buildLines15TableHTML(lines){
+  if(!Array.isArray(lines) || lines.length !== 5) return "";
+  const tipos = ["FORTE","FORTE","FORTE","DIVERSA","DIVERSA"];
+
+  return `
+    <div class="box" style="margin-top:10px">
+      <b>📌 Linhas 1 a 5 (geradas pelo sistema)</b>
+      <div class="mini" style="margin-top:6px">
+        O sistema usa: <b>frequência + recência + coocorrência + lift</b>, com controle de paridade e blocos.
+      </div>
+      <div style="margin-top:12px;overflow:auto">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Linha</th>
+              <th>Tipo</th>
+              <th>Dezenas</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${lines.map((ln,i)=>`
+              <tr>
+                <td>${i+1}</td>
+                <td>${tipos[i]}</td>
+                <td class="mono">${(ln||[]).map(n=>format2(toNum(n))).join(" - ")}</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+
+/* =========================
+   ✅ SVG "IMAGEM" DO CARTÃO 5×5 (para ilustrações ANTES/DEPOIS)
+   - usado em Invertida e Técnica
+   - não altera lógica, apenas visual
+========================= */
+function svgToDataUri(svg){
+  return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg).replace(/%0A/g,"");
+}
+
+function buildCardSVG(selectedNums, title){
+  const set = new Set((selectedNums||[]).map(toNum));
+  const W = 320, H = 320;
+  const pad = 18;
+  const gap = 10;
+  const cell = Math.floor((W - pad*2 - gap*4)/5); // 5 cols, 4 gaps
+  const gridW = cell*5 + gap*4;
+  const startX = Math.floor((W - gridW)/2);
+  const startY = 64;
+
+  const bg = "#0b0b0b";
+  const stroke = "rgba(255,255,255,0.14)";
+  const onStroke = "rgba(250,204,21,0.55)";
+  const onFill = "rgba(250,204,21,0.10)";
+  const offFill = "rgba(0,0,0,0.70)";
+  const onText = "#facc15";
+  const offText = "rgba(248,250,252,0.92)";
+
+  let cells = "";
+  for(let n=1;n<=25;n++){
+    const r = Math.floor((n-1)/5);
+    const c = (n-1)%5;
+    const x = startX + c*(cell+gap);
+    const y = startY + r*(cell+gap);
+    const isOn = set.has(n);
+
+    const rectFill = isOn ? onFill : offFill;
+    const rectStroke = isOn ? onStroke : stroke;
+    const tColor = isOn ? onText : offText;
+
+    cells += `
+      <rect x="${x}" y="${y}" width="${cell}" height="${cell}" rx="14" ry="14"
+            fill="${rectFill}" stroke="${rectStroke}" stroke-width="2"/>
+      <text x="${x + cell/2}" y="${y + cell/2 + 7}" text-anchor="middle"
+            font-size="18" font-weight="800" fill="${tColor}">${String(n).padStart(2,"0")}</text>
+    `;
+  }
+
+  const safeTitle = (title||"").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+
+  return `
+  <svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    <defs>
+      <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="rgba(250,204,21,0.10)"/>
+        <stop offset="100%" stop-color="rgba(0,0,0,0)"/>
+      </linearGradient>
+    </defs>
+    <rect x="0" y="0" width="${W}" height="${H}" rx="20" ry="20" fill="${bg}"/>
+    <rect x="10" y="10" width="${W-20}" height="${H-20}" rx="18" ry="18" fill="url(#g)" stroke="rgba(255,255,255,0.10)"/>
+    <text x="${W/2}" y="42" text-anchor="middle" font-size="14" font-weight="900" fill="rgba(248,250,252,0.92)">${safeTitle}</text>
+    ${cells}
+  </svg>`;
+}
 
 function calcularFrequencias(concursos){
   const freq={}; for(let i=1;i<=25;i++) freq[i]=0;
@@ -2799,6 +2928,22 @@ function remapPorPermutacao(n, perm){
 function inverterJogoPorPerm(jogo, perm){
   return jogo.map(n=>remapPorPermutacao(Number(n), perm)).sort((a,b)=>a-b);
 }
+
+/* =========================
+   ✅ Permutação POR COLUNAS (cartão 5×5)
+   - Mantém a linha e troca apenas a coluna
+   - permCols é 1-based: [destC1, destC2, destC3, destC4, destC5]
+========================= */
+function remapPorColunaPerm(n, permCols){
+  n = Number(n);
+  const row = Math.floor((n-1)/5);      // 0..4
+  const col = (n-1) % 5;                // 0..4
+  const destCol = Number(permCols[col]) - 1; // 0..4
+  return row*5 + destCol + 1;
+}
+function inverterJogoPorColPerm(jogo, permCols){
+  return jogo.map(n=>remapPorColunaPerm(Number(n), permCols)).sort((a,b)=>a-b);
+}
 function renderCartao(jogo, clsName){
   const set = new Set(jogo.map(Number));
   let html = `<div class="cartao">`;
@@ -2815,8 +2960,11 @@ function gerarInvertida(){
   if(!lastPrincipalGame){ alert("Gere primeiro um Jogo Principal."); return; }
 
   const permInvertida = [5,4,3,2,1];
-  const inv = inverterJogoPorPerm(lastPrincipalGame, permInvertida);
+  const inv = inverterJogoPorColPerm(lastPrincipalGame, permInvertida);
   lastInvertidaGame = inv.slice();
+
+  const imgBefore = svgToDataUri(buildCardSVG(lastPrincipalGame, 'ANTES (Principal)'));
+  const imgAfter  = svgToDataUri(buildCardSVG(inv, 'DEPOIS (Invertida)'));
 
   document.getElementById("invertidaArea").innerHTML = `
 
@@ -2827,14 +2975,14 @@ function gerarInvertida(){
         Regra: <b>C1→C5</b> • <b>C2→C4</b> • <b>C3→C3</b> • <b>C4→C2</b> • <b>C5→C1</b>.
       </div>
 
-      <div class="swapRow">
-        <div class="swapMini">
+      <div class="swapImgs">
+        <div class="swapImgWrap">
           <b>ANTES (Principal)</b>
-          <div class="swapCols"><span>C1</span><span>C2</span><span>C3</span><span>C4</span><span>C5</span></div>
+          <img class="swapImg" src="${imgBefore}" alt="Principal no cartão 5x5">
         </div>
-        <div class="swapMini">
+        <div class="swapImgWrap">
           <b>DEPOIS (Invertida)</b>
-          <div class="swapCols"><span>C5</span><span>C4</span><span>C3</span><span>C2</span><span>C1</span></div>
+          <img class="swapImg" src="${imgAfter}" alt="Invertida no cartão 5x5">
         </div>
       </div>
 
@@ -2865,9 +3013,13 @@ function gerarTecnicaPremiada(){
   const permTec1 = [4,2,5,1,3];
   const permTec2 = [3,1,5,2,4];
 
-  const g1 = inverterJogoPorPerm(lastPrincipalGame, permTec1);
-  const g2 = inverterJogoPorPerm(lastPrincipalGame, permTec2);
+  const g1 = inverterJogoPorColPerm(lastPrincipalGame, permTec1);
+  const g2 = inverterJogoPorColPerm(lastPrincipalGame, permTec2);
   lastTecnicaGames = { g1, g2 };
+
+  const imgPrincipal = svgToDataUri(buildCardSVG(lastPrincipalGame, 'BASE (Principal)'));
+  const imgG1 = svgToDataUri(buildCardSVG(g1, 'RESULTADO • JOGO 1'));
+  const imgG2 = svgToDataUri(buildCardSVG(g2, 'RESULTADO • JOGO 2'));
 
   document.getElementById("tecnicaArea").innerHTML = `
 
@@ -2878,19 +3030,30 @@ function gerarTecnicaPremiada(){
         <b>Nenhuma dezena é criada</b> — apenas muda a posição no cartão.
       </div>
 
+      <div class="swapImgs">
+        <div class="swapImgWrap">
+          <b>BASE (Principal)</b>
+          <img class="swapImg" src="${imgPrincipal}" alt="Principal base no cartão 5x5">
+        </div>
+        <div class="swapImgWrap">
+          <b>RESULTADO • Jogo 1</b>
+          <img class="swapImg" src="${imgG1}" alt="Técnica Jogo 1 no cartão 5x5">
+        </div>
+        <div class="swapImgWrap">
+          <b>RESULTADO • Jogo 2</b>
+          <img class="swapImg" src="${imgG2}" alt="Técnica Jogo 2 no cartão 5x5">
+        </div>
+      </div>
+
       <div class="swapRow">
         <div class="swapMini">
-          <b>JOGO 1</b>
-          <div class="mini" style="margin-top:6px">C1→C4 • C2→C2 • C3→C5 • C4→C1 • C5→C3</div>
-          <div class="swapCols" style="margin-top:10px"><span>C1</span><span>C2</span><span>C3</span><span>C4</span><span>C5</span></div>
-          <div class="swapCols"><span>C4</span><span>C2</span><span>C5</span><span>C1</span><span>C3</span></div>
+          <b>JOGO 1 — regra de colunas</b>
+          <div class="mini" style="margin-top:6px"><b>C1→C4</b> • <b>C2→C2</b> • <b>C3→C5</b> • <b>C4→C1</b> • <b>C5→C3</b></div>
         </div>
 
         <div class="swapMini">
-          <b>JOGO 2</b>
-          <div class="mini" style="margin-top:6px">C1→C3 • C2→C1 • C3→C5 • C4→C2 • C5→C4</div>
-          <div class="swapCols" style="margin-top:10px"><span>C1</span><span>C2</span><span>C3</span><span>C4</span><span>C5</span></div>
-          <div class="swapCols"><span>C3</span><span>C1</span><span>C5</span><span>C2</span><span>C4</span></div>
+          <b>JOGO 2 — regra de colunas</b>
+          <div class="mini" style="margin-top:6px"><b>C1→C3</b> • <b>C2→C1</b> • <b>C3→C5</b> • <b>C4→C2</b> • <b>C5→C4</b></div>
         </div>
       </div>
 
@@ -3883,6 +4046,9 @@ function checkSavedGames(){
           alert("Esse 15P salvo não tem os 10 jogos do sistema.");
           return;
         }
+
+        // ✅ Mostra as LINHAS 1 a 5 (base do 15P) 1 única vez no topo
+        html += buildLines15TableHTML(item.payload.linesSystem15);
 
         jogos.forEach((jogoNums, idx)=>{
           const jogo = jogoNums.slice().map(Number).sort((a,b)=>a-b);
