@@ -78,7 +78,7 @@
     /* ✅ TOPO SEM CARD: apenas logo + nome (sem fundo/borda) */
     .headerRow{
       display:grid;
-      grid-template-columns: 120px 1fr 120px; /* mantém título perfeitamente centralizado */
+      grid-template-columns: 120px 1fr 120px;
       align-items:center;
       gap:12px;
       padding:2px 2px 10px;
@@ -114,7 +114,6 @@
       white-space:nowrap;
     }
 
-    /* Mobile: mantém centralização e evita "desquadro" */
     @media (max-width: 620px){
       .wrap{padding:12px;}
       .heroFrame{padding:10px;border-radius:22px;}
@@ -138,14 +137,13 @@
       margin:10px 0 8px;
       line-height:1.04;
       letter-spacing:.2px;
-      color:var(--yellow);
       font-weight:1200;
       font-size: clamp(22px, 2.9vw, 34px);
       white-space:normal;
       text-wrap:balance;
     }
     .headlineWhite{ color:#ffffff; }
-.headlineGold{ color: var(--yellow); }
+    .headlineGold{ color: var(--yellow); }
 
     h2{margin:0 0 10px;font-size:clamp(18px, 2.2vw, 22px);color:var(--yellow);line-height:1.15}
     h3{margin:0 0 8px;font-size:16px;color:var(--yellow)}
@@ -440,7 +438,7 @@
   <div class="wrap hero">
     <div class="heroFrame">
 
-      <!-- ✅ SEM CARD: só LOGO + NOME (mantido) -->
+      <!-- ✅ SEM CARD: só LOGO + NOME -->
       <div class="headerRow">
         <div class="brandLeft">
           <img class="logo" src="LOGOMARCA.png" alt="Lotofácil Prime Analytics" />
@@ -581,228 +579,213 @@
     </div>
   </div>
 
-  <!-- ✅ MELHORADO + REMOVIDO “Pronto pra testar?” -->
+  <!-- ✅ OBJEÇÕES (ELITE) / SEM “Pronto pra testar?” -->
   <div class="wrap section" id="garantia">
-  <div class="card">
+    <div class="card">
 
-    <div class="objectionHead">
-      <h2 style="margin:0">Ainda com dúvida? Vamos eliminar isso agora 👇</h2>
-      <span class="pill">🎯 Decisão simples • Rápido • Sem risco</span>
-    </div>
-
-    <div class="mini" style="margin-top:8px">
-      A maioria das pessoas trava nessas perguntas antes de comprar.  
-      Então respondemos de forma direta e honesta:
-    </div>
-
-    <div class="hr"></div>
-
-    <div class="grid" style="gap:10px">
-
-      <details open>
-        <summary>⏱️ “Eu não tenho tempo para analisar concursos...”</summary>
-        <p>
-          Justamente por isso o Prime existe.  
-          Você escolhe o período → clica → recebe análise + jogos prontos.  
-          <b>Menos de 30 segundos por geração.</b>
-        </p>
-      </details>
-
-      <details>
-        <summary>📱 “Sou iniciante, vou conseguir usar?”</summary>
-        <p>
-          Sim. O sistema é feito para celular, com botões grandes e fluxo direto.  
-          Nada técnico, nada confuso. É abrir e usar.
-        </p>
-      </details>
-      <details>
-        <summary>📱 "Tem como acertar 15 pontos com este sistema?"</summary>
-        <p>
-          Sim. EM EXTRA 15P VOCÊ ACERTANDO 3 LINHAS COMPLETAS, VOCÊ GARANTE 1 CARTÃO COM 15 PONTOS.</p>
-      </details>
-      <details>
-        <summary>🎯 “Se não garante prêmio, por que usar o Prime?”</summary>
-        <p>
-          Loterias não têm garantia.  
-          O que o Prime entrega é <b>decisão baseada em dados</b> em vez de achismo.  
-          Você para de escolher números aleatórios e passa a jogar com estratégia.</p>
-      </details>
-
-      <details>
-        <summary>🔒 “A compra é segura?”</summary>
-        <p>
-          Sim. O pagamento é feito pela Hotmart (checkout seguro).  
-          Você recebe confirmação automática e acesso pelo seu email.
-        </p>
-      </details>
-
+      <div class="objectionHead">
+        <h2 style="margin:0">Ainda com dúvida? Vamos eliminar isso agora 👇</h2>
+        <span class="pill">🎯 Direto ao ponto • Sem enrolação</span>
       </div>
 
-    <div class="hr"></div>
-
-   </div>
-</div>
+      <div class="mini" style="margin-top:8px">
+        As dúvidas abaixo travam a compra de muita gente. Aqui vai a resposta objetiva:
+      </div>
 
       <div class="hr"></div>
+
+      <div class="grid" style="gap:10px">
+        <details open>
+          <summary>⏱️ “Eu não tenho tempo para analisar concursos...”</summary>
+          <p>
+            Justamente por isso o Prime existe.
+            Você escolhe o período → clica → recebe análise + jogos prontos.
+            <b>Fluxo rápido e direto.</b>
+          </p>
+        </details>
+
+        <details>
+          <summary>📱 “Sou iniciante, vou conseguir usar?”</summary>
+          <p>
+            Sim. O sistema é feito para celular, com botões grandes e fluxo simples.
+            Nada técnico, nada confuso — é abrir e usar.
+          </p>
+        </details>
+
+        <details>
+          <summary>🎯 “Tem como buscar 15 pontos com estratégia?”</summary>
+          <p>
+            O módulo <b>Extra 15P</b> traz uma estratégia de montagem por linhas e geração de jogos.
+            <b>Não é promessa de premiação</b> (loterias envolvem risco), mas é uma forma estruturada de jogar com método.
+          </p>
+        </details>
+
+        <details>
+          <summary>🎯 “Se não garante prêmio, por que usar o Prime?”</summary>
+          <p>
+            Loterias não têm garantia.
+            O Prime ajuda você a sair do achismo e tomar decisões com <b>dados + estratégia</b>.
+            Você ganha clareza, organização e consistência no processo.
+          </p>
+        </details>
+
+        <details>
+          <summary>🔒 “A compra é segura?”</summary>
+          <p>
+            Sim. O pagamento é feito pela Hotmart (checkout seguro).
+            Você recebe confirmação automática e acessa usando o seu email.
+          </p>
+        </details>
+      </div>
+
+      <div class="hr"></div>
+
       <div class="grid" style="grid-template-columns:1fr 1fr;gap:10px">
         <a class="btn btnPrimary" href="#oferta">Ver as ofertas</a>
         <a class="btn btnGhost" href="#faq">Ver perguntas frequentes</a>
       </div>
+
     </div>
   </div>
 
+  <!-- OFERTAS COM PREÇOS (SEM 12x) -->
   <div class="wrap section" id="oferta">
-  <div class="card">
+    <div class="card">
 
-    <h2>Escolha seu plano</h2>
-    <div class="mini">Acesso imediato após pagamento • Use o mesmo email para login</div>
+      <h2>Escolha seu plano</h2>
+      <div class="mini">Acesso imediato após pagamento • Use o mesmo email para login</div>
 
-    <div class="hr"></div>
+      <div class="hr"></div>
 
-    <div class="offersGrid">
+      <div class="offersGrid">
 
-      <!-- FREE -->
-      <div class="card offerCard freeCard">
-        <span class="tag">✅ FREE</span>
+        <!-- FREE -->
+        <div class="card offerCard freeCard">
+          <span class="tag">✅ FREE</span>
 
-        <div class="offerBody">
-          <h3>Primeiro acesso (teste real)</h3>
+          <div class="offerBody">
+            <h3>Primeiro acesso (teste real)</h3>
 
-          <div style="font-size:13px;color:#a7f3d0;margin:6px 0 12px">
-            1 jogo grátis para testar
-          </div>
-
-          <ul class="list">
-            <li class="li"><span class="icon">📩</span><div>Cadastro rápido</div></li>
-            <li class="li"><span class="icon">🎯</span><div>1 geração grátis</div></li>
-            <li class="li"><span class="icon">🔒</span><div>Depois Premium/Combo</div></li>
-          </ul>
-        </div>
-
-        <div class="offerCta">
-          <div class="hr"></div>
-          <a class="btn btnGold" href="https://lotofacil-pro.vercel.app/" target="_blank">Entrar no FREE</a>
-        </div>
-      </div>
-
-
-
-      <!-- PREMIUM -->
-      <div class="card offerCard">
-
-        <span class="tag premium">👑 PREMIUM</span>
-
-        <div class="offerBody">
-
-          <h3>Lotofácil Prime Analytics</h3>
-
-          <!-- PREÇO -->
-          <div style="text-align:center;margin:14px 0 18px">
-            <div style="font-size:13px;color:#94a3b8">Acesso completo ao painel</div>
-            <div style="font-size:34px;font-weight:1200;color:var(--yellow)">
-              <span style="font-size:16px">R$</span> 69,90
+            <div style="font-size:13px;color:#a7f3d0;margin:6px 0 12px">
+              1 jogo grátis para testar
             </div>
+
+            <ul class="list">
+              <li class="li"><span class="icon">📩</span><div>Cadastro rápido</div></li>
+              <li class="li"><span class="icon">🎯</span><div>1 geração grátis</div></li>
+              <li class="li"><span class="icon">🔒</span><div>Depois Premium/Combo</div></li>
+            </ul>
           </div>
 
-          <ul class="list">
-            <li class="li">Gerar Análise</li>
-            <li class="li">Invertida</li>
-            <li class="li">Técnica Premiada</li>
-            <li class="li">Jogos Salvos</li>
-          </ul>
+          <div class="offerCta">
+            <div class="hr"></div>
+            <a class="btn btnGold" href="https://lotofacil-pro.vercel.app/" target="_blank" rel="noopener">Entrar no FREE</a>
+          </div>
         </div>
 
-        <div class="offerCta">
-          <div class="hr"></div>
-          <a class="btn btnPrimary" href="https://pay.hotmart.com/O104148865Y?off=c4m0nezi" target="_blank">
-            Comprar Premium agora
-          </a>
-        </div>
-      </div>
+        <!-- PREMIUM -->
+        <div class="card offerCard">
+          <span class="tag premium">👑 PREMIUM</span>
 
+          <div class="offerBody">
+            <h3>Lotofácil Prime Analytics</h3>
 
-
-      <!-- EXTRA -->
-      <div class="card offerCard">
-
-        <span class="tag extra">✨ EXTRA 15P</span>
-
-        <div class="offerBody">
-
-          <h3>Módulo 15 Pontos</h3>
-
-          <!-- PREÇO -->
-          <div style="text-align:center;margin:14px 0 18px">
-            <div style="font-size:13px;color:#94a3b8">Módulo adicional</div>
-            <div style="font-size:34px;font-weight:1200;color:var(--yellow)">
-              <span style="font-size:16px">R$</span> 49,90
+            <div style="text-align:center;margin:14px 0 18px">
+              <div style="font-size:13px;color:#94a3b8">Acesso completo ao painel</div>
+              <div style="font-size:34px;font-weight:1200;color:var(--yellow)">
+                <span style="font-size:16px">R$</span> 69,90
+              </div>
             </div>
+
+            <ul class="list">
+              <li class="li">Gerar Análise</li>
+              <li class="li">Invertida</li>
+              <li class="li">Técnica Premiada</li>
+              <li class="li">Jogos Salvos</li>
+            </ul>
           </div>
 
-          <ul class="list">
-            <li class="li">Estratégia 10 jogos</li>
-            <li class="li">Linhas / montagem</li>
-            <li class="li">Fluxo exclusivo</li>
-          </ul>
+          <div class="offerCta">
+            <div class="hr"></div>
+            <a class="btn btnPrimary" href="https://pay.hotmart.com/O104148865Y?off=c4m0nezi" target="_blank" rel="noopener">
+              Comprar Premium agora
+            </a>
+          </div>
         </div>
 
-        <div class="offerCta">
-          <div class="hr"></div>
-          <a class="btn btnGold" href="https://pay.hotmart.com/Y104149008G?off=eehchnv4" target="_blank">
-            Comprar Extra 15P
-          </a>
-        </div>
-      </div>
+        <!-- EXTRA -->
+        <div class="card offerCard">
+          <span class="tag extra">✨ EXTRA 15P</span>
 
+          <div class="offerBody">
+            <h3>Módulo 15 Pontos</h3>
 
-
-      <!-- COMBO -->
-      <div class="card offerCard comboCard">
-
-        <span class="tag combo">🔥 MAIS VENDIDO</span>
-
-        <div class="offerBody">
-
-          <h3>Combo Elite (Tudo liberado)</h3>
-
-          <!-- PREÇO GRANDE -->
-          <div style="text-align:center;margin:14px 0 18px">
-            <div style="font-size:13px;color:#fff2b0">Melhor custo-benefício</div>
-
-            <div style="
-              font-size:40px;
-              font-weight:1300;
-              color:#000;
-              background:linear-gradient(135deg,var(--yellow),var(--yellow2));
-              padding:10px 18px;
-              border-radius:12px;
-              display:inline-block;
-              box-shadow:0 12px 40px rgba(250,204,21,.35);
-            ">
-              <span style="font-size:18px">R$</span> 99,90
+            <div style="text-align:center;margin:14px 0 18px">
+              <div style="font-size:13px;color:#94a3b8">Módulo adicional</div>
+              <div style="font-size:34px;font-weight:1200;color:var(--yellow)">
+                <span style="font-size:16px">R$</span> 49,90
+              </div>
             </div>
+
+            <ul class="list">
+              <li class="li">Estratégia 10 jogos</li>
+              <li class="li">Linhas / montagem</li>
+              <li class="li">Fluxo exclusivo</li>
+            </ul>
           </div>
 
-          <ul class="list">
-            <li class="li">Premium completo</li>
-            <li class="li">Extra 15P completo</li>
-            <li class="li">Preço menor que separado</li>
-          </ul>
+          <div class="offerCta">
+            <div class="hr"></div>
+            <a class="btn btnGold" href="https://pay.hotmart.com/Y104149008G?off=eehchnv4" target="_blank" rel="noopener">
+              Comprar Extra 15P
+            </a>
+          </div>
         </div>
 
-        <div class="offerCta">
-          <div class="hr"></div>
-          <a class="btn btnGold" href="https://pay.hotmart.com/S104212403J?off=qbcz91p3" target="_blank">
-            🚀 Quero o Combo Elite
-          </a>
+        <!-- COMBO -->
+        <div class="card offerCard comboCard">
+          <span class="tag combo">🔥 MAIS VENDIDO</span>
+
+          <div class="offerBody">
+            <h3>Combo Elite (Tudo liberado)</h3>
+
+            <div style="text-align:center;margin:14px 0 18px">
+              <div style="font-size:13px;color:#fff2b0">Melhor custo-benefício</div>
+
+              <div style="
+                font-size:40px;
+                font-weight:1300;
+                color:#000;
+                background:linear-gradient(135deg,var(--yellow),var(--yellow2));
+                padding:10px 18px;
+                border-radius:12px;
+                display:inline-block;
+                box-shadow:0 12px 40px rgba(250,204,21,.35);
+              ">
+                <span style="font-size:18px">R$</span> 99,90
+              </div>
+            </div>
+
+            <ul class="list">
+              <li class="li">Premium completo</li>
+              <li class="li">Extra 15P completo</li>
+              <li class="li">Preço menor que separado</li>
+            </ul>
+          </div>
+
+          <div class="offerCta">
+            <div class="hr"></div>
+            <a class="btn btnGold" href="https://pay.hotmart.com/S104212403J?off=qbcz91p3" target="_blank" rel="noopener">
+              🚀 Quero o Combo Elite
+            </a>
+          </div>
         </div>
+
       </div>
-
     </div>
   </div>
-</div>
 
-  <!-- ✅ REMOVIDO: “Segurança e experiência” / ✅ ADICIONADO: FAQ -->
+  <!-- FAQ -->
   <div class="wrap section" id="faq">
     <div class="card">
       <h2>❓ Perguntas Frequentes (FAQ)</h2>
@@ -812,7 +795,7 @@
       <div class="grid" style="gap:10px">
         <details>
           <summary>Como eu acesso depois da compra?</summary>
-          <p>Após a compra, você acessa com o <b>mesmo email</b> usado no checkout/cadastro. Se precisar de ajuste, fale com o suporte.</p>
+          <p>Após a compra, você acessa com o <b>mesmo email</b> usado no checkout/cadastro.</p>
         </details>
 
         <details>
@@ -837,7 +820,7 @@
 
         <details>
           <summary>Existe garantia de prêmio?</summary>
-          <p>Não. Loterias envolvem risco e não há garantia de premiação. O Prime entrega <b>análise e estratégia</b> para decisões baseadas em dados.MAS EM EXTRA 15P, ACERTANDO 3 LINHAS COMPLETAS VOCÊ GARANTE 1 CARTÃO COM 15 PONTOS.</p>
+          <p>Não. Loterias envolvem risco e não há garantia de premiação. O Prime entrega <b>análise e estratégia</b> para decisões baseadas em dados.</p>
         </details>
 
         <details>
@@ -848,11 +831,6 @@
         <details>
           <summary>Posso usar em mais de um dispositivo?</summary>
           <p>Sim. Você pode acessar no celular e no computador usando o mesmo login.</p>
-        </details>
-
-        <details>
-          <summary>Esqueci meu email/senha, e agora?</summary>
-          <p>Use o recurso de recuperação (quando disponível) ou acione o suporte com o email de compra para ajudarmos na verificação.</p>
         </details>
 
         <details>
