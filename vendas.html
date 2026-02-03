@@ -1343,6 +1343,44 @@
   box-shadow:0 25px 80px rgba(250,204,21,.35);
 }
 
+
+/* ==========================================================
+   ✅ AJUSTES DO HERO (02-02-26) — BADGE/CHIPS PRETOS + PISCA PREMIUM
+   (somente visual, sem mexer em funções)
+========================================================== */
+
+/* Badge do método: fundo preto, texto branco e negrito */
+.heroBadgeBlack{
+  background:#000 !important;
+  color:#fff !important;
+  font-weight:1300 !important;
+  border:1px solid rgba(255,255,255,.20) !important;
+}
+
+/* Chips 1-4: fundo preto, texto branco, negrito e tamanho padronizado */
+.proofBlack{
+  background:#000 !important;
+  color:#fff !important;
+  font-weight:1300 !important;
+  border:1px solid rgba(255,255,255,.18) !important;
+  height:34px;
+  padding:0 12px !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  gap:8px;
+  border-radius:999px !important;
+  white-space:nowrap;
+}
+
+/* Premium preto com piscar dourado (mantém o fundo preto) */
+.btnBlinkGoldBlack{
+  background:#000 !important;
+  color:#fff !important;
+  border:2px solid rgba(250,204,21,.80) !important;
+  animation: ctaBlinkGold .85s infinite !important;
+  will-change: filter, box-shadow, transform;
+}
+
 </style>
 </head>
 
@@ -1373,7 +1411,7 @@
       <!-- LADO ESQUERDO (COPY FORTE) -->
       <div class="heroEliteContent heroYellowCard">
 
-        <div class="heroBadge" style="color:#000;border-color:#000;background:rgba(0,0,0,.08)">
+        <div class="heroBadge heroBadgeBlack">
           🏆 MÉTODO <b>PRIME</b> • Painel + Geração • Sem achismo
         </div>
 
@@ -1392,10 +1430,10 @@
         </p>
 
         <div class="heroEliteProofs" style="color:#000">
-          <span>✅ Prints reais do sistema</span>
-          <span>⚡ Geração automática</span>
-          <span>📱 100% mobile</span>
-          <span>🔒 Checkout seguro</span>
+          <span class="proofBlack">✅ Prints reais do sistema</span>
+          <span class="proofBlack">⚡ Geração automática</span>
+          <span class="proofBlack">📱 100% mobile</span>
+          <span class="proofBlack">🔒 Checkout seguro</span>
         </div>
 
         <div class="heroEliteBtns">
@@ -1405,7 +1443,7 @@
              🚀 Testar FREE agora
           </a>
 
-          <a class="btn btnBig" style="background:#000;color:#fff;border:1px solid #000" href="#oferta">
+          <a class="btn btnBig" btnBlinkGoldBlack style="background:#000;color:#fff;border:1px solid #000" href="#oferta">
              Ver planos Premium
           </a>
         </div>
