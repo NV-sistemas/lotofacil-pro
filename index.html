@@ -1368,25 +1368,32 @@ function getDominantEvenOdd(concursos){
 /* Seleciona X itens de uma lista, sem repetir e com preferência por paridade
    - sem aleatório
 */
-function pickFromListDeterministic(list, needed, set, targetPares){
+function pickFromListDeterministic(list, needed, set, targetPares, lastSet){
   const out = [];
+  const last = lastSet || new Set();
+
   while(out.length < needed){
     const cur = [...set];
     const curPares = cur.filter(n=>n%2===0).length;
     const needMoreEven = (curPares < targetPares);
 
-    // 1) tenta pegar número com paridade “necessária”
     let picked = null;
+
+    // 1) tenta pegar número com paridade “necessária” + não repetida do último
     for(const n of list){
       if(set.has(n)) continue;
+      if(last.has(n)) continue;
+
       if(needMoreEven && (n%2===0)) { picked = n; break; }
       if(!needMoreEven && (n%2===1)) { picked = n; break; }
     }
 
-    // 2) se não achou por paridade, pega o primeiro disponível
+    // 2) se não achou por paridade, pega o primeiro disponível (não repetida do último)
     if(picked === null){
       for(const n of list){
-        if(!set.has(n)){ picked = n; break; }
+        if(set.has(n)) continue;
+        if(last.has(n)) continue;
+        picked = n; break;
       }
     }
 
@@ -1396,8 +1403,10 @@ function pickFromListDeterministic(list, needed, set, targetPares){
     set.add(picked);
     out.push(picked);
   }
+
   return out;
 }
+
 
 /* ===== MÉTRICAS MODERNAS (tendência/recência/atraso) ===== */
 function calcModernMetrics(concursos){
@@ -1453,7 +1462,10 @@ function calcModernMetrics(concursos){
 function gerarJogoPrincipalPrime(freq, modern, concursos, dezenasUltimo){
   const last = (dezenasUltimo||[]).map(toNum).filter(n=>n>=1 && n<=25).sort((a,b)=>a-b);
 
-  // 1) define k (8/9/10) pela sequência exata 20/50/30
+  
+
+  const lastSet = new Set(last); // 🔒 bloqueio de repetidas
+// 1) define k (8/9/10) pela sequência exata 20/50/30
   const k = getNextPrincipalBaseSize();
 
   // 2) padrão dominante pares/ímpares
@@ -1489,8 +1501,8 @@ function gerarJogoPrincipalPrime(freq, modern, concursos, dezenasUltimo){
 
   if(k === 8){
     // +3 freq = 2 mais + 1 menos
-    picks.freq.push(...pickFromListDeterministic(freqMost, 2, set, targetPares));
-    picks.freq.push(...pickFromListDeterministic(freqLeast, 1, set, targetPares));
+    picks.freq.push(...pickFromListDeterministic(freqMost, 2, set, targetPares, lastSet));
+    picks.freq.push(...pickFromListDeterministic(freqLeast, 1, set, targetPares, lastSet));
 
     // +2 dupla forte (se já estiverem, busca próxima dupla no ranking)
     // (determinístico: varre a lista de pares)
@@ -1505,17 +1517,17 @@ function gerarJogoPrincipalPrime(freq, modern, concursos, dezenasUltimo){
     }
     chosenPair = chosenPair || pair;
 
-    picks.pair.push(...pickFromListDeterministic([chosenPair[0], chosenPair[1]], 2, set, targetPares));
+    picks.pair.push(...pickFromListDeterministic([chosenPair[0], chosenPair[1]], 2, set, targetPares, lastSet));
 
     // +2 atrasadas = mais atrasada + menos atrasada (dentro do top10)
-    picks.atrasadas.push(...pickFromListDeterministic(atrMost, 1, set, targetPares));
-    picks.atrasadas.push(...pickFromListDeterministic(atrLeast, 1, set, targetPares));
+    picks.atrasadas.push(...pickFromListDeterministic(atrMost, 1, set, targetPares, lastSet));
+    picks.atrasadas.push(...pickFromListDeterministic(atrLeast, 1, set, targetPares, lastSet));
   }
 
   if(k === 9){
     // +2 freq = 1 mais + 1 menos
-    picks.freq.push(...pickFromListDeterministic(freqMost, 1, set, targetPares));
-    picks.freq.push(...pickFromListDeterministic(freqLeast, 1, set, targetPares));
+    picks.freq.push(...pickFromListDeterministic(freqMost, 1, set, targetPares, lastSet));
+    picks.freq.push(...pickFromListDeterministic(freqLeast, 1, set, targetPares, lastSet));
 
     // +2 dupla forte
     const allPairs = calcTopPairsCooc(concursos, 80);
@@ -1529,17 +1541,17 @@ function gerarJogoPrincipalPrime(freq, modern, concursos, dezenasUltimo){
     }
     chosenPair = chosenPair || pair;
 
-    picks.pair.push(...pickFromListDeterministic([chosenPair[0], chosenPair[1]], 2, set, targetPares));
+    picks.pair.push(...pickFromListDeterministic([chosenPair[0], chosenPair[1]], 2, set, targetPares, lastSet));
 
     // +2 atrasadas = mais atrasada + menos atrasada (dentro do top10)
-    picks.atrasadas.push(...pickFromListDeterministic(atrMost, 1, set, targetPares));
-    picks.atrasadas.push(...pickFromListDeterministic(atrLeast, 1, set, targetPares));
+    picks.atrasadas.push(...pickFromListDeterministic(atrMost, 1, set, targetPares, lastSet));
+    picks.atrasadas.push(...pickFromListDeterministic(atrLeast, 1, set, targetPares, lastSet));
   }
 
   if(k === 10){
     // +2 freq = 1 mais + 1 menos
-    picks.freq.push(...pickFromListDeterministic(freqMost, 1, set, targetPares));
-    picks.freq.push(...pickFromListDeterministic(freqLeast, 1, set, targetPares));
+    picks.freq.push(...pickFromListDeterministic(freqMost, 1, set, targetPares, lastSet));
+    picks.freq.push(...pickFromListDeterministic(freqLeast, 1, set, targetPares, lastSet));
 
     // +2 dupla forte
     const allPairs = calcTopPairsCooc(concursos, 80);
@@ -1553,10 +1565,10 @@ function gerarJogoPrincipalPrime(freq, modern, concursos, dezenasUltimo){
     }
     chosenPair = chosenPair || pair;
 
-    picks.pair.push(...pickFromListDeterministic([chosenPair[0], chosenPair[1]], 2, set, targetPares));
+    picks.pair.push(...pickFromListDeterministic([chosenPair[0], chosenPair[1]], 2, set, targetPares, lastSet));
 
     // +1 atrasada = mais atrasada
-    picks.atrasadas.push(...pickFromListDeterministic(atrMost, 1, set, targetPares));
+    picks.atrasadas.push(...pickFromListDeterministic(atrMost, 1, set, targetPares, lastSet));
   }
 
   // 7) garantia final: deve fechar exatamente 15
@@ -1565,12 +1577,12 @@ function gerarJogoPrincipalPrime(freq, modern, concursos, dezenasUltimo){
   // Se por algum motivo raro tiver <15 (por repetição grande), completa determinístico
   if(jogo.length < 15){
     // completa usando top10freq (do mais pro menos), depois atrasadas, depois 1..25
-    pickFromListDeterministic(freqMost, 15 - set.size, set, targetPares);
-    if(set.size < 15) pickFromListDeterministic(atrMost, 15 - set.size, set, targetPares);
+    pickFromListDeterministic(freqMost, 15 - set.size, set, targetPares, lastSet);
+    if(set.size < 15) pickFromListDeterministic(atrMost, 15 - set.size, set, targetPares, lastSet);
     if(set.size < 15){
       const all = [];
       for(let n=1;n<=25;n++) all.push(n);
-      pickFromListDeterministic(all, 15 - set.size, set, targetPares);
+      pickFromListDeterministic(all, 15 - set.size, set, targetPares, lastSet);
     }
   }
 
