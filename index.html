@@ -3979,7 +3979,45 @@ function checkSavedGames(){
           return;
         }
 
-        jogos.forEach((jogoNums, idx)=>{
+        
+        // ✅ Mostrar Linhas 1 a 5 do Extra 15P no topo (uma única vez)
+        const lines = Array.isArray(item?.payload?.linesSystem15) ? item.payload.linesSystem15
+                    : (Array.isArray(item?.payload?.linesUser15) ? item.payload.linesUser15 : null);
+
+        if(Array.isArray(lines) && lines.length === 5){
+          const lineRows = lines.map((l,idx)=>{
+            const kind = (idx < 3) ? "FORTE" : "DIVERSA";
+            const dezenas = (l||[]).slice().map(Number).sort((a,b)=>a-b).map(format2).join(" - ");
+            return `
+              <tr>
+                <td><b>${idx+1}</b></td>
+                <td>${kind}</td>
+                <td class="mono">${dezenas}</td>
+              </tr>
+            `;
+          }).join("");
+
+          html += `
+            <div class="box" style="margin-top:10px">
+              <b>📌 Linhas 1 a 5 (do Extra 15P)</b>
+              <div style="margin-top:10px;overflow:auto">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Linha</th>
+                      <th>Tipo</th>
+                      <th>Dezenas</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${lineRows}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          `;
+        }
+jogos.forEach((jogoNums, idx)=>{
           const jogo = jogoNums.slice().map(Number).sort((a,b)=>a-b);
 
           let linhasResultados = "";
