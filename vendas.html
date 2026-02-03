@@ -1504,6 +1504,39 @@
   align-items:center !important;
 }
 
+
+/* =========================
+   MOBILE LOGO FIX DEFINITIVO
+   remove fundo + enquadra
+   ========================= */
+
+.logo{
+  background:transparent !important;
+  box-shadow:none !important;
+  border:none !important;
+}
+
+/* mobile */
+@media (max-width: 900px){
+
+  .headerRow{
+    grid-template-columns: 56px 1fr !important;
+    gap:10px !important;
+    align-items:center !important;
+  }
+
+  .logo{
+    height:46px !important;   /* menor no mobile */
+    width:auto !important;
+    object-fit:contain !important;
+  }
+
+  .titleCenter span{
+    font-size:20px !important; /* proporcional */
+    line-height:1.1 !important;
+  }
+}
+
 </style>
 </head>
 
@@ -1540,7 +1573,7 @@
 
         <h1 class="heroEliteTitle" style="color:#000">
           Gere seus jogos com
-          <span style="color:#fff">LÓGICA e DADOS</span>
+          <span style="color:#fff">lógica e dados</span>
           <br>
           não com sorte.
         </h1>
@@ -1549,7 +1582,7 @@
           O <span class="primeBlack">Lotofácil Prime Analytics</span> analisa concursos automaticamente,
           identifica padrões estatísticos e entrega jogos prontos em segundos.
           <br><br>
-          <b><span class="whiteBold">SEM PLANILHAS. SEM ACHISMO. SEM PERDA DE TEMPO.</span></b>
+          <b><span class="whiteBold">Sem planilhas. Sem achismo. Sem perda de tempo.</span></b>
         </p>
 
         <div class="heroEliteProofs" style="color:#000">
