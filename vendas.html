@@ -1610,20 +1610,32 @@
 
       <!-- LADO DIREITO (VÍDEO GRANDE) -->
       <div class="heroEliteVideo">
-        <video
-  src="video/vendas.mp4"
-  controls
-  autoplay
-  muted
-  loop
-  playsinline
-  style="
-    width:100%;
-    border-radius:20px;
-    border:1px solid rgba(255,255,255,.16);
-    box-shadow:0 25px 80px rgba(0,0,0,.55);
-  ">
-</video>
+        <div style="display:grid; gap:10px;">
+  <video
+    id="videoApresentacao"
+    controls
+    muted
+    playsinline
+    preload="metadata"
+    style="
+      width:100%;
+      border-radius:20px;
+      border:1px solid rgba(255,255,255,.16);
+      box-shadow:0 25px 80px rgba(0,0,0,.55);
+      background:#000;
+    ">
+    <!-- ✅ Tenta mais de um caminho para evitar 0:00 / não carregar no GitHub Pages -->
+    <source src="video/vendas.mp4" type="video/mp4">
+    <source src="vendas.mp4" type="video/mp4">
+    <source src="./vendas.mp4" type="video/mp4">
+    Seu navegador não suporta vídeo HTML5.
+  </video>
+
+  <div id="videoErroBox" style="display:none; text-align:center; font-size:12px; color:rgba(255,255,255,.78);">
+    ⚠️ Vídeo não carregou. Verifique se o arquivo <b>vendas.mp4</b> está publicado no GitHub Pages (pasta <b>/video</b> ou raiz).
+  </div>
+</div>
+
       </div>
 
     </div>
@@ -2073,6 +2085,16 @@
     lbClose.addEventListener("click", closeLightbox);
     lb.addEventListener("click", (e)=>{ if(e.target === lb) closeLightbox(); });
     document.addEventListener("keydown", (e)=>{ if(e.key === "Escape") closeLightbox(); });
+  
+    // ✅ Video fallback: mostra aviso se não carregar
+    (function(){
+      const v = document.getElementById("videoApresentacao");
+      const box = document.getElementById("videoErroBox");
+      if(!v || !box) return;
+      v.addEventListener("error", ()=>{ box.style.display = "block"; });
+      v.addEventListener("loadeddata", ()=>{ box.style.display = "none"; });
+    })();
+
   </script>
 
 </body>
