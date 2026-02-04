@@ -3,15 +3,6 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=AW-17928819691"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'AW-17928819691');
-</script>
   <title>Lotofácil Prime Analytics — Página de Vendas</title>
   <meta name="description" content="Lotofácil Prime Analytics: análise PRIME + geração de jogos (Principal, Invertida, Técnica) e Extra 15P. Página de vendas oficial." />
   <meta name="theme-color" content="#000000" />
@@ -1620,7 +1611,7 @@
       <!-- LADO DIREITO (VÍDEO GRANDE) -->
       <div class="heroEliteVideo">
         <video
-  src="vendas.mp4"
+  src="video/vendas.mp4"
   controls
   autoplay
   muted
@@ -2002,7 +1993,40 @@
     </div>
   </div>
 
-  <div class="wrap foot">
+  
+
+<!-- =========================
+     CONTATO DIRETO (EMAIL + WHATSAPP)
+========================= -->
+<div class="wrap section">
+  <div class="card" style="border:1px solid rgba(250,204,21,.35);box-shadow:0 0 0 1px rgba(250,204,21,.25),0 25px 80px rgba(250,204,21,.20)">
+
+    <h2 style="text-align:center;margin-bottom:14px">📞 Fale direto conosco</h2>
+
+    <div class="contactGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+
+      <a href="mailto:marketingia2026.digital@gmail.com"
+         style="display:flex;align-items:center;justify-content:center;gap:10px;padding:14px;border-radius:16px;font-weight:1200;background:linear-gradient(135deg,#facc15,#ffd84d);color:#000;box-shadow:0 18px 55px rgba(250,204,21,.30);">
+         ✉️ marketingia2026.digital@gmail.com
+      </a>
+
+      <a href="https://wa.me/552798336359?text=Olá!%20Quero%20informações%20sobre%20o%20Lotofácil%20Prime%20Analytics."
+         target="_blank"
+         style="display:flex;align-items:center;justify-content:center;gap:10px;padding:14px;border-radius:16px;font-weight:1200;background:linear-gradient(135deg,#22c55e,#16a34a);color:#04160b;box-shadow:0 18px 55px rgba(34,197,94,.35);">
+         💬 WhatsApp (27) 98336-359
+      </a>
+
+    </div>
+  </div>
+</div>
+
+<style>
+@media(max-width:700px){
+  .contactGrid{grid-template-columns:1fr !important;}
+}
+</style>
+
+<div class="wrap foot">
     <div>© <span id="year"></span> Lotofácil Prime Analytics • N&V Sistemas</div>
     <div style="margin-top:6px">Aviso: loterias envolvem risco e não há garantia de premiação.</div>
   </div>
@@ -2065,6 +2089,60 @@
     lb.addEventListener("click", (e)=>{ if(e.target === lb) closeLightbox(); });
     document.addEventListener("keydown", (e)=>{ if(e.key === "Escape") closeLightbox(); });
   </script>
+
+
+
+<!-- =========================
+SUPORTE FIXO (EMAIL + WHATSAPP)
+========================= -->
+<div class="supportBar">
+  <a href="mailto:marketingia2026.digital@gmail.com" class="supportEmail">
+    ✉️ marketingia2026.digital@gmail.com
+  </a>
+
+  <a href="https://wa.me/5527988336359?text=Olá!%20Preciso%20de%20suporte%20no%20Lotofácil%20Prime%20Analytics"
+     target="_blank" rel="noopener"
+     class="supportWhats">
+    💬 WhatsApp (27) 98833-6359
+  </a>
+</div>
+
+<style>
+.supportBar{
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  z-index:99999;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  padding:10px 12px;
+  background:#000;
+  border-top:1px solid rgba(255,255,255,.12);
+}
+.supportBar a{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:12px;
+  border-radius:14px;
+  font-weight:1200;
+  text-decoration:none;
+}
+.supportEmail{
+  background:linear-gradient(135deg,#facc15,#ffd84d);
+  color:#000;
+}
+.supportWhats{
+  background:linear-gradient(135deg,#22c55e,#16a34a);
+  color:#04160b;
+}
+@media(max-width:700px){
+  .supportBar{grid-template-columns:1fr;}
+}
+</style>
+
 
 </body>
 </html>
