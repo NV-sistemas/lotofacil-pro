@@ -5,205 +5,91 @@
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>Lotofácil Prime Analytics</title>
 <meta name="description" content="Lotofácil Prime Analytics — Gere jogos com base em estatísticas reais. Painel + análises + geração automática."/>
-
 <style>
 :root{
-  --bg:#050505;
-  --card:rgba(255,255,255,.06);
-  --stroke:rgba(255,255,255,.14);
-  --text:#fff;
-  --muted:rgba(255,255,255,.75);
-  --yellow:#facc15;
-  --yellow2:#ffd84d;
-  --green:#22c55e;
-  --green2:#16a34a;
+  --bg:#050505; --card:rgba(255,255,255,.06); --stroke:rgba(255,255,255,.14);
+  --text:#fff; --muted:rgba(255,255,255,.75);
+  --yellow:#facc15; --yellow2:#ffd84d; --green:#22c55e; --green2:#16a34a;
 }
-
 *{box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Roboto}
 body{margin:0;background:var(--bg);color:var(--text)}
-
-.wrap{
-  max-width:820px;
-  margin:auto;
-  padding:22px 16px 140px;
-}
-
-/* CABEÇALHO */
-.brand{
-  text-align:center;
-  font-weight:900;
-  letter-spacing:3px;
-  font-size:22px;
-  margin-bottom:18px;
-}
-
-/* HEADLINE */
-h1{
-  text-align:center;
-  font-size:30px;
-  line-height:1.25;
-  margin:10px 0;
-}
-
-.sub{
-  text-align:center;
-  color:var(--muted);
-  font-size:15px;
-  margin-bottom:16px;
-}
-
-/* VIDEO */
-.video{
-  border-radius:16px;
-  overflow:hidden;
-  border:1px solid var(--stroke);
-  margin-top:14px;
-}
+.wrap{max-width:820px;margin:auto;padding:22px 16px 150px}
+.brand{text-align:center;font-weight:900;letter-spacing:3px;font-size:22px;margin-bottom:16px}
+h1{text-align:center;font-size:28px;margin:10px 0}
+.sub{text-align:center;color:var(--muted);font-size:15px;margin-bottom:14px}
+.video{border-radius:16px;overflow:hidden;border:1px solid var(--stroke);margin-top:14px}
 video{width:100%}
-
-/* BENEFÍCIOS */
-.bullets{
-  display:grid;
-  gap:10px;
-  margin:18px 0;
-}
-.b{
-  background:var(--card);
-  padding:12px;
-  border-radius:12px;
-  font-size:14px;
-}
-
-/* BOTÕES */
-.btn{
-  display:block;
-  text-align:center;
-  padding:15px;
-  border-radius:14px;
-  font-weight:900;
-  margin-top:8px;
-  text-decoration:none;
-}
-
+.gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.gallery img{width:100%;border-radius:12px;border:1px solid var(--stroke);background:#000}
+.bullets{display:grid;gap:10px;margin:18px 0}
+.b{background:var(--card);padding:12px;border-radius:12px;font-size:14px}
+.btn{display:block;text-align:center;padding:15px;border-radius:14px;font-weight:900;margin-top:8px;text-decoration:none}
 .free{background:linear-gradient(135deg,var(--green),var(--green2));color:#000}
 .premium{background:linear-gradient(135deg,var(--yellow),var(--yellow2));color:#000}
 .extra{background:#1f2937}
 .combo{background:#fff;color:#000}
-
-/* COMENTÁRIOS */
-.comments{
-  margin-top:24px;
-  display:grid;
-  gap:10px;
-}
-.comment{
-  background:var(--card);
-  padding:12px;
-  border-radius:12px;
-  font-size:13px;
-}
-
-/* FAQ */
-details{
-  background:var(--card);
-  border-radius:12px;
-  padding:12px;
-  margin-top:8px;
-}
-summary{font-weight:800;cursor:pointer}
-
-/* STICKY MOBILE */
-.sticky{
-  position:fixed;
-  bottom:0;
-  left:0;
-  right:0;
-  background:#000;
-  padding:10px;
-  border-top:1px solid var(--stroke);
-}
-.sticky-grid{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:6px;
-}
-.sticky a{
-  font-size:12px;
-  padding:10px;
-  border-radius:10px;
-  text-align:center;
-  font-weight:900;
-  text-decoration:none;
-}
+.comments{display:grid;gap:10px;margin-top:22px}
+.comment{background:var(--card);padding:12px;border-radius:12px;font-size:13px}
+details{background:var(--card);padding:12px;border-radius:12px;margin-top:8px}
+summary{font-weight:800}
+.sticky{position:fixed;bottom:0;left:0;right:0;background:#000;padding:10px;border-top:1px solid var(--stroke)}
+.sticky-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.sticky a{font-size:12px;padding:10px;border-radius:10px;text-align:center;font-weight:900;text-decoration:none}
+@media(max-width:700px){.gallery{grid-template-columns:1fr}}
 </style>
 </head>
-
 <body>
-
 <div class="wrap">
-
   <div class="brand">🎯 LOTOFÁCIL PRIME ANALYTICS</div>
-
-  <h1>Você não precisa adivinhar.<br>
-  <span style="color:var(--yellow)">Você precisa de método.</span></h1>
-
-  <p class="sub">
-  O sistema analisa concursos automaticamente e gera jogos prontos em segundos.
-  </p>
+  <h1>Jogos gerados com base em estatísticas reais</h1>
+  <p class="sub">Assista o vídeo e teste grátis agora mesmo.</p>
 
   <div class="video">
     <video src="https://nv-sistemas.github.io/lotofacil-pro/video/vendas.mp4" controls playsinline></video>
   </div>
 
+  <!-- FOTOS (JÁ INCLUSAS NO ARQUIVO) -->
+  <div class="gallery" aria-label="prints do sistema">
+    <img src="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%221200%22%20height%3D%22700%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20x2%3D%221%22%20y1%3D%220%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%22%20stop-color%3D%22%230b0b0b%22/%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%221%22%20stop-color%3D%22%231f2937%22/%3E%0A%20%20%20%20%3C/linearGradient%3E%0A%20%20%3C/defs%3E%0A%20%20%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22url%28%23g%29%22/%3E%0A%20%20%3Crect%20x%3D%2240%22%20y%3D%2240%22%20width%3D%221120%22%20height%3D%22620%22%20rx%3D%2228%22%20fill%3D%22rgba%28255%2C255%2C255%2C0.06%29%22%20stroke%3D%22rgba%28255%2C255%2C255%2C0.14%29%22%20stroke-width%3D%223%22/%3E%0A%20%20%3Ctext%20x%3D%2280%22%20y%3D%22140%22%20font-family%3D%22system-ui%2CSegoe%20UI%2CRoboto%2CArial%22%20font-size%3D%2256%22%20font-weight%3D%22900%22%20fill%3D%22%23facc15%22%3ELotof%C3%A1cil%20Prime%20Analytics%3C/text%3E%0A%20%20%3Ctext%20x%3D%2280%22%20y%3D%22220%22%20font-family%3D%22system-ui%2CSegoe%20UI%2CRoboto%2CArial%22%20font-size%3D%2234%22%20font-weight%3D%22700%22%20fill%3D%22rgba%28255%2C255%2C255%2C0.85%29%22%3EPRINT%201%20%E2%80%94%20Gera%C3%A7%C3%A3o%20de%20jogos%3C/text%3E%0A%20%20%3Ctext%20x%3D%2280%22%20y%3D%22290%22%20font-family%3D%22system-ui%2CSegoe%20UI%2CRoboto%2CArial%22%20font-size%3D%2226%22%20font-weight%3D%22600%22%20fill%3D%22rgba%28255%2C255%2C255%2C0.65%29%22%3ESubstitua%20este%20print%20pelo%20seu%20%28tela%20real%20do%20sistema%29.%3C/text%3E%0A%20%20%3Cg%20opacity%3D%220.9%22%3E%0A%20%20%20%20%3Crect%20x%3D%2280%22%20y%3D%22340%22%20width%3D%221000%22%20height%3D%2270%22%20rx%3D%2218%22%20fill%3D%22rgba%280%2C0%2C0%2C0.35%29%22%20stroke%3D%22rgba%28255%2C255%2C255%2C0.12%29%22/%3E%0A%20%20%20%20%3Crect%20x%3D%2280%22%20y%3D%22430%22%20width%3D%22720%22%20height%3D%2270%22%20rx%3D%2218%22%20fill%3D%22rgba%280%2C0%2C0%2C0.35%29%22%20stroke%3D%22rgba%28255%2C255%2C255%2C0.12%29%22/%3E%0A%20%20%20%20%3Crect%20x%3D%2280%22%20y%3D%22520%22%20width%3D%22860%22%20height%3D%2270%22%20rx%3D%2218%22%20fill%3D%22rgba%280%2C0%2C0%2C0.35%29%22%20stroke%3D%22rgba%28255%2C255%2C255%2C0.12%29%22/%3E%0A%20%20%3C/g%3E%0A%3C/svg%3E" alt="Print 1 — Geração de jogos"/>
+    <img src="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%221200%22%20height%3D%22700%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20x2%3D%221%22%20y1%3D%220%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%22%20stop-color%3D%22%230b0b0b%22/%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%221%22%20stop-color%3D%22%231f2937%22/%3E%0A%20%20%20%20%3C/linearGradient%3E%0A%20%20%3C/defs%3E%0A%20%20%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22url%28%23g%29%22/%3E%0A%20%20%3Crect%20x%3D%2240%22%20y%3D%2240%22%20width%3D%221120%22%20height%3D%22620%22%20rx%3D%2228%22%20fill%3D%22rgba%28255%2C255%2C255%2C0.06%29%22%20stroke%3D%22rgba%28255%2C255%2C255%2C0.14%29%22%20stroke-width%3D%223%22/%3E%0A%20%20%3Ctext%20x%3D%2280%22%20y%3D%22140%22%20font-family%3D%22system-ui%2CSegoe%20UI%2CRoboto%2CArial%22%20font-size%3D%2256%22%20font-weight%3D%22900%22%20fill%3D%22%23facc15%22%3ELotof%C3%A1cil%20Prime%20Analytics%3C/text%3E%0A%20%20%3Ctext%20x%3D%2280%22%20y%3D%22220%22%20font-family%3D%22system-ui%2CSegoe%20UI%2CRoboto%2CArial%22%20font-size%3D%2234%22%20font-weight%3D%22700%22%20fill%3D%22rgba%28255%2C255%2C255%2C0.85%29%22%3EPRINT%202%20%E2%80%94%20An%C3%A1lises%20/%20Padr%C3%B5es%3C/text%3E%0A%20%20%3Ctext%20x%3D%2280%22%20y%3D%22290%22%20font-family%3D%22system-ui%2CSegoe%20UI%2CRoboto%2CArial%22%20font-size%3D%2226%22%20font-weight%3D%22600%22%20fill%3D%22rgba%28255%2C255%2C255%2C0.65%29%22%3ESubstitua%20este%20print%20pelo%20seu%20%28tela%20real%20do%20sistema%29.%3C/text%3E%0A%20%20%3Cg%20opacity%3D%220.9%22%3E%0A%20%20%20%20%3Crect%20x%3D%2280%22%20y%3D%22340%22%20width%3D%221000%22%20height%3D%2270%22%20rx%3D%2218%22%20fill%3D%22rgba%280%2C0%2C0%2C0.35%29%22%20stroke%3D%22rgba%28255%2C255%2C255%2C0.12%29%22/%3E%0A%20%20%20%20%3Crect%20x%3D%2280%22%20y%3D%22430%22%20width%3D%22720%22%20height%3D%2270%22%20rx%3D%2218%22%20fill%3D%22rgba%280%2C0%2C0%2C0.35%29%22%20stroke%3D%22rgba%28255%2C255%2C255%2C0.12%29%22/%3E%0A%20%20%20%20%3Crect%20x%3D%2280%22%20y%3D%22520%22%20width%3D%22860%22%20height%3D%2270%22%20rx%3D%2218%22%20fill%3D%22rgba%280%2C0%2C0%2C0.35%29%22%20stroke%3D%22rgba%28255%2C255%2C255%2C0.12%29%22/%3E%0A%20%20%3C/g%3E%0A%3C/svg%3E" alt="Print 2 — Análises e padrões"/>
+    <img src="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%221200%22%20height%3D%22700%22%3E%0A%20%20%3Cdefs%3E%0A%20%20%20%20%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20x2%3D%221%22%20y1%3D%220%22%20y2%3D%221%22%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%220%22%20stop-color%3D%22%230b0b0b%22/%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%221%22%20stop-color%3D%22%231f2937%22/%3E%0A%20%20%20%20%3C/linearGradient%3E%0A%20%20%3C/defs%3E%0A%20%20%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22url%28%23g%29%22/%3E%0A%20%20%3Crect%20x%3D%2240%22%20y%3D%2240%22%20width%3D%221120%22%20height%3D%22620%22%20rx%3D%2228%22%20fill%3D%22rgba%28255%2C255%2C255%2C0.06%29%22%20stroke%3D%22rgba%28255%2C255%2C255%2C0.14%29%22%20stroke-width%3D%223%22/%3E%0A%20%20%3Ctext%20x%3D%2280%22%20y%3D%22140%22%20font-family%3D%22system-ui%2CSegoe%20UI%2CRoboto%2CArial%22%20font-size%3D%2256%22%20font-weight%3D%22900%22%20fill%3D%22%23facc15%22%3ELotof%C3%A1cil%20Prime%20Analytics%3C/text%3E%0A%20%20%3Ctext%20x%3D%2280%22%20y%3D%22220%22%20font-family%3D%22system-ui%2CSegoe%20UI%2CRoboto%2CArial%22%20font-size%3D%2234%22%20font-weight%3D%22700%22%20fill%3D%22rgba%28255%2C255%2C255%2C0.85%29%22%3EPRINT%203%20%E2%80%94%20Jogos%20salvos%20/%20Resultado%3C/text%3E%0A%20%20%3Ctext%20x%3D%2280%22%20y%3D%22290%22%20font-family%3D%22system-ui%2CSegoe%20UI%2CRoboto%2CArial%22%20font-size%3D%2226%22%20font-weight%3D%22600%22%20fill%3D%22rgba%28255%2C255%2C255%2C0.65%29%22%3ESubstitua%20este%20print%20pelo%20seu%20%28tela%20real%20do%20sistema%29.%3C/text%3E%0A%20%20%3Cg%20opacity%3D%220.9%22%3E%0A%20%20%20%20%3Crect%20x%3D%2280%22%20y%3D%22340%22%20width%3D%221000%22%20height%3D%2270%22%20rx%3D%2218%22%20fill%3D%22rgba%280%2C0%2C0%2C0.35%29%22%20stroke%3D%22rgba%28255%2C255%2C255%2C0.12%29%22/%3E%0A%20%20%20%20%3Crect%20x%3D%2280%22%20y%3D%22430%22%20width%3D%22720%22%20height%3D%2270%22%20rx%3D%2218%22%20fill%3D%22rgba%280%2C0%2C0%2C0.35%29%22%20stroke%3D%22rgba%28255%2C255%2C255%2C0.12%29%22/%3E%0A%20%20%20%20%3Crect%20x%3D%2280%22%20y%3D%22520%22%20width%3D%22860%22%20height%3D%2270%22%20rx%3D%2218%22%20fill%3D%22rgba%280%2C0%2C0%2C0.35%29%22%20stroke%3D%22rgba%28255%2C255%2C255%2C0.12%29%22/%3E%0A%20%20%3C/g%3E%0A%3C/svg%3E" alt="Print 3 — Jogos salvos"/>
+  </div>
+
   <div class="bullets">
     <div class="b">⚡ Geração automática de jogos</div>
-    <div class="b">📊 Estatísticas, padrões e análises completas</div>
-    <div class="b">📱 Funciona perfeitamente no celular</div>
+    <div class="b">📊 Estatísticas completas e padrões inteligentes</div>
+    <div class="b">📱 Funciona 100% no celular</div>
   </div>
 
-  <a class="btn free" href="https://nv-sistemas.github.io/lotofacil-pro/">🚀 TESTAR FREE</a>
-  <a class="btn premium" href="#checkoutPremium">🔥 PREMIUM</a>
-  <a class="btn extra" href="#checkoutExtra">⭐ EXTRA 15P</a>
-  <a class="btn combo" href="#checkoutCombo">💎 COMBO COMPLETO</a>
+  <a class="btn free" href="https://nv-sistemas.github.io/lotofacil-pro/" target="_blank">🚀 TESTAR FREE</a>
+  <a class="btn premium" href="COLE_AQUI_LINK_CHECKOUT_PREMIUM" target="_blank">🔥 PREMIUM</a>
+  <a class="btn extra" href="COLE_AQUI_LINK_CHECKOUT_EXTRA15P" target="_blank">⭐ EXTRA 15P</a>
+  <a class="btn combo" href="COLE_AQUI_LINK_CHECKOUT_COMBO" target="_blank">💎 COMBO COMPLETO</a>
 
-  <h2 style="margin-top:26px;font-size:18px">Feedback de usuários</h2>
+  <h2 style="margin-top:24px">Feedback de usuários</h2>
   <div class="comments">
-    <div class="comment">⭐⭐⭐⭐⭐ “Cheguei a 13 pontos usando os jogos gerados. Muito mais organizado.” — João</div>
-    <div class="comment">⭐⭐⭐⭐⭐ “Economiza horas de análise manual. Simples e direto.” — Carla</div>
-    <div class="comment">⭐⭐⭐⭐⭐ “Uso só pelo celular e funciona perfeito.” — Rafael</div>
+    <div class="comment">⭐⭐⭐⭐⭐ “Muito mais rápido gerar jogos, economiza horas.”</div>
+    <div class="comment">⭐⭐⭐⭐⭐ “As análises ajudaram a melhorar minhas escolhas.”</div>
+    <div class="comment">⭐⭐⭐⭐⭐ “Uso só no celular, super prático.”</div>
   </div>
 
-  <h2 style="margin-top:26px;font-size:18px">Perguntas rápidas</h2>
+  <h2 style="margin-top:24px">Perguntas rápidas</h2>
+  <details><summary>Funciona no celular?</summary><p>Sim, é 100% mobile.</p></details>
+  <details><summary>Preciso instalar algo?</summary><p>Não, roda direto no navegador.</p></details>
+  <details><summary>Como recebo acesso após pagamento?</summary><p>Liberação automática após o checkout.</p></details>
 
-  <details>
-    <summary>Isso garante prêmio?</summary>
-    <p>Não. O sistema é uma ferramenta estatística para organizar seus jogos. Resultados dependem de sorte.</p>
-  </details>
-
-  <details>
-    <summary>Funciona no celular?</summary>
-    <p>Sim. A página e o painel são totalmente mobile.</p>
-  </details>
-
-  <details>
-    <summary>Como recebo o acesso Premium ou Extra 15P?</summary>
-    <p>Após o pagamento, o acesso é liberado automaticamente ou por código.</p>
-  </details>
-
-  <p style="margin-top:20px;font-size:12px;text-align:center;color:#aaa">
-  Suporte: marketingia2026.digital@gmail.com • WhatsApp (27) 98833-6359
+  <p style="margin-top:18px;font-size:12px;text-align:center;color:#aaa">
+    Suporte: marketingia2026.digital@gmail.com • WhatsApp (27) 98833-6359
   </p>
-
 </div>
 
 <div class="sticky">
   <div class="sticky-grid">
-    <a class="free" href="#">FREE</a>
-    <a class="premium" href="#">PREMIUM</a>
-    <a class="extra" href="#">15P</a>
-    <a class="combo" href="#">COMBO</a>
+    <a class="free" href="https://nv-sistemas.github.io/lotofacil-pro/">FREE</a>
+    <a class="premium" href="COLE_AQUI_LINK_CHECKOUT_PREMIUM">PREMIUM</a>
+    <a class="extra" href="COLE_AQUI_LINK_CHECKOUT_EXTRA15P">15P</a>
+    <a class="combo" href="COLE_AQUI_LINK_CHECKOUT_COMBO">COMBO</a>
   </div>
 </div>
-
 </body>
 </html>
