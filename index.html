@@ -1466,7 +1466,8 @@ function gerarJogoPrincipalPrime(freq, modern, concursos, dezenasUltimo){
 
   const lastSet = new Set(last); // 🔒 bloqueio de repetidas
 // 1) define k (8/9/10) pela sequência exata 20/50/30
-  const k = getNextPrincipalBaseSize();
+  const kRaw = getNextPrincipalBaseSize();
+  const k = Math.min(10, Math.max(8, kRaw)); // ✅ regra fixa: repetidas do último entre 8 e 10
 
   // 2) padrão dominante pares/ímpares
   const dom = getDominantEvenOdd(concursos);
