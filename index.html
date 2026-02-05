@@ -2649,25 +2649,17 @@ async function acaoPrincipal(){
     setStatus(true,"Gerando jogo principal (15 dezenas)…");
     setProgress(80);
 
-    // ✅ JOGO PRINCIPAL MANUAL (não usa automático)
+    let result = null;
+    let jogo = null;
 
-
-    if(!(manualPrincipalSet && manualPrincipalSet.size === 15)){
-
-
-      alert("Marque exatamente 15 dezenas no modo manual para gerar o Jogo Principal.");
-
-
-      return;
-
-
+    // ✅ Se o usuário marcou 15 dezenas no modo manual, usa elas como base do Jogo Principal
+    if(manualPrincipalSet && manualPrincipalSet.size === 15){
+      jogo = [...manualPrincipalSet].sort((a,b)=>a-b);
+      result = { jogo, motivos: [] }; // mantém compatibilidade com o restante do fluxo
+    }else{
+      result = gerarJogoPrincipalPrime(freq, modern, payload.concursos, payload.latest.dezenas);
+      jogo = result.jogo;
     }
-
-
-    const result = { jogo: [...manualPrincipalSet].sort((a,b)=>a-b), motivos: [] };
-
-
-    const jogo = result.jogo;
 lastPrincipalGame = jogo.slice();
     lastInvertidaGame = null;
     lastTecnicaGames = null;
@@ -3650,6 +3642,9 @@ function gerar15PComMinhasLinhas(){
   if(!allLinesComplete(linesUser15)){
     return alert("Complete as 5 linhas com 5 dezenas cada.");
   }
+
+  // ✅ Baseia a geração nas suas linhas e mantém como referência atual do sistema
+  linesSystem15 = linesUser15.map(l=>l.slice());
 
   const jogos = gerarJogos15P(linesUser15);
 
