@@ -1466,8 +1466,7 @@ function gerarJogoPrincipalPrime(freq, modern, concursos, dezenasUltimo){
 
   const lastSet = new Set(last); // 🔒 bloqueio de repetidas
 // 1) define k (8/9/10) pela sequência exata 20/50/30
-  const kRaw = getNextPrincipalBaseSize();
-  const k = Math.min(10, Math.max(8, kRaw)); // ✅ regra fixa: repetidas do último entre 8 e 10
+  const k = getNextPrincipalBaseSize();
 
   // 2) padrão dominante pares/ímpares
   const dom = getDominantEvenOdd(concursos);
@@ -3308,23 +3307,107 @@ function worstPairsInGroup(group, stats, topN=3){
   return arr.slice(0, topN);
 }
 
-/* ✅ NOVO: construção inicial por score (freq + recência + atraso controlado) */
+/* ✅ NOVO (METODOLOGIA EXTRA 15P): linhas por coocorrência / sinergia / último concurso */
 function buildInitialLines(stats){
-  const order = [];
-  for(let i=1;i<=25;i++){
-    // score: frequência + recência, com bônus leve para atraso (sem exagero)
-    const s = (stats.freq[i]*1.0) + (stats.decay[i]*3.0) + Math.min(6, stats.gap[i]*0.35);
-    order.push({i, s});
-  }
-  order.sort((a,b)=>b.s-a.s);
+  const allNums = Array.from({length:25}, (_,i)=>i+1);
+  const used = new Set();
 
-  const lines = [[],[],[],[],[]];
-  // distribuição round-robin para já evitar concentração
-  for(let k=0;k<order.length;k++){
-    lines[k%5].push(order[k].i);
+  const last = new Set(((lastPayload && lastPayload.latest && lastPayload.latest.dezenas) ? lastPayload.latest.dezenas : [])
+    .map(toNum).filter(n=>n>=1 && n<=25));
+
+  function groupScoreCo(group){
+    return groupCoSum(group, stats).sum;
   }
-  lines.forEach(l=>l.sort((a,b)=>a-b));
-  return lines;
+  function groupScoreStrength(group){
+    return groupStrength(group, stats).sum;
+  }
+
+  // busca melhor grupo de 5 dentro de uma lista base, com possibilidade de objetivo max/min
+  function bestGroup5From(pool, objectiveFn, mode="max"){
+    const nums = pool.slice().sort((a,b)=>a-b);
+    let best=null;
+    let bestScore = (mode==="min") ? Infinity : -Infinity;
+
+    // C(25,5)=53130 — ok em JS
+    const n = nums.length;
+    for(let a=0;a<n-4;a++){
+      for(let b=a+1;b<n-3;b++){
+        for(let c=b+1;c<n-2;c++){
+          for(let d=c+1;d<n-1;d++){
+            for(let e=d+1;e<n;e++){
+              const g=[nums[a],nums[b],nums[c],nums[d],nums[e]];
+              const s = objectiveFn(g);
+              if(mode==="min"){
+                if(s < bestScore){
+                  bestScore = s; best = g;
+                }
+              }else{
+                if(s > bestScore){
+                  bestScore = s; best = g;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    return best;
+  }
+
+  function bestGroup4From(pool, objectiveFn){
+    const nums = pool.slice().sort((a,b)=>a-b);
+    let best=null, bestScore=-Infinity;
+    const n=nums.length;
+    for(let a=0;a<n-3;a++){
+      for(let b=a+1;b<n-2;b++){
+        for(let c=b+1;c<n-1;c++){
+          for(let d=c+1;d<n;d++){
+            const g=[nums[a],nums[b],nums[c],nums[d]];
+            const s = objectiveFn(g);
+            if(s>bestScore){ bestScore=s; best=g; }
+          }
+        }
+      }
+    }
+    return best;
+  }
+
+  function take(group){
+    (group||[]).forEach(n=>used.add(n));
+    return (group||[]).slice().sort((a,b)=>a-b);
+  }
+  function remaining(){
+    return allNums.filter(n=>!used.has(n));
+  }
+
+  // ===== Linha 3 primeiro (garante 4 vindas do último) =====
+  const lastAvailFor4 = Array.from(last).filter(n=>!used.has(n));
+  const line3base4 = bestGroup4From(lastAvailFor4, groupScoreCo) || lastAvailFor4.slice(0,4);
+
+  // + 1 que NÃO saiu no último concurso (e não usado)
+  const notLastAvail = allNums.filter(n=>!last.has(n) && !used.has(n));
+  let bestAdd = null, bestAddScore = -Infinity;
+  (notLastAvail||[]).forEach(n=>{
+    const g = (line3base4||[]).concat([n]).slice().sort((a,b)=>a-b);
+    const s = groupScoreStrength(g); // "performance" do grupo de 5 junto
+    if(s>bestAddScore){ bestAddScore=s; bestAdd=n; }
+  });
+  const line3 = take((line3base4||[]).concat(bestAdd!=null?[bestAdd]:[]));
+
+  // ===== Linha 1: 5 números que mais saíram juntos =====
+  const line1 = take(bestGroup5From(remaining(), groupScoreCo, "max") || remaining().slice(0,5));
+
+  // ===== Linha 2: 5 números que menos saíram juntos =====
+  const line2 = take(bestGroup5From(remaining(), groupScoreCo, "min") || remaining().slice(0,5));
+
+  // ===== Linha 4: 5 números que NÃO saíram no último e mais se combinam (sinergia) =====
+  const pool4 = remaining().filter(n=>!last.has(n));
+  const line4 = take(bestGroup5From(pool4, groupScoreStrength, "max") || pool4.slice(0,5));
+
+  // ===== Linha 5: sobras =====
+  const line5 = take(remaining().slice(0,5));
+
+  return [line1, line2, line3, line4, line5];
 }
 
 /* ✅ NOVO: penalidades por paridade + bloco + mix de frequências */
@@ -3502,9 +3585,19 @@ function explainLine(lineIdx, line, stats, kind){
   </span>`;
 }).join(" ");
 
-  const resumo = (kind==="forte")
-  ? `Linha montada com base em <b>frequência + recência</b> e combinações de dezenas que costumam aparecer juntas.`
-  : `Linha montada para ser <b>mais diferente</b>, evitando ficar “presa” nas mesmas combinações e mantendo um mix mais equilibrado.`;
+    // ✅ Resumo alinhado com a metodologia do EXTRA 15P (Linhas 1–5)
+  let resumo = "";
+  if(lineIdx===1){
+    resumo = `Linha 1 escolhida como o <b>grupo de 5 dezenas que mais saiu junto</b> na janela (maior coocorrência).`;
+  }else if(lineIdx===2){
+    resumo = `Linha 2 escolhida como o <b>grupo de 5 dezenas que menos saiu junto</b> na janela (menor coocorrência), para diversificar.`;
+  }else if(lineIdx===3){
+    resumo = `Linha 3: <b>4 dezenas do último concurso</b> que melhor se combinam entre si + <b>1 dezena que não saiu no último</b> para completar o grupo com melhor “performance” (força do conjunto).`;
+  }else if(lineIdx===4){
+    resumo = `Linha 4: <b>5 dezenas que não saíram no último concurso</b> e que apresentam a <b>maior sinergia</b> entre si (força/lift), mantendo o grupo “colado”.`;
+  }else{
+    resumo = `Linha 5: <b>dezenas que sobraram</b> das escolhas acima para fechar a cobertura das 25 sem repetir.`;
+  }
 
   return `
     <div class="box">
@@ -3692,7 +3785,7 @@ async function gerar15P(){
     stats.concursosRef = payload.concursos; // ✅ usado para calcular 5/4/3/2 juntas
 
     let lines = buildInitialLines(stats);
-    lines = optimizeLines(lines, stats);
+    // ✅ Mantém a metodologia das Linhas 1–5 (sem otimização que reordena/troca dezenas)
 
     const jogos = gerarJogos15P(lines);
     const sourceInfo = { source: payload.source, mode: payload.mode };
@@ -3704,7 +3797,7 @@ async function gerar15P(){
 
     const lineMeta = lines.map((l,idx)=>({
       idx: idx+1,
-      kind: (idx<3) ? "forte" : "diversa",
+      kind: (idx===0 || idx===2) ? "forte" : "diversa",
       strength: groupStrength(l,stats).sum,
       coAvg: groupCoSum(l,stats).avg,
       liftAvg: groupLiftAvg(l,stats).avg,
@@ -3797,7 +3890,7 @@ async function gerar15P(){
         <b>🔍 Explicação detalhada das linhas</b>
         <div class="grid" style="margin-top:12px">
           ${explainLine(1, lines[0], stats, "forte")}
-          ${explainLine(2, lines[1], stats, "forte")}
+          ${explainLine(2, lines[1], stats, "diversa")}
           ${explainLine(3, lines[2], stats, "forte")}
           ${explainLine(4, lines[3], stats, "diversa")}
           ${explainLine(5, lines[4], stats, "diversa")}
