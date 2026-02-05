@@ -2649,13 +2649,22 @@ async function acaoPrincipal(){
     setStatus(true,"Gerando jogo principal (15 dezenas)…");
     setProgress(80);
 
-    const result = (manualPrincipalSet && manualPrincipalSet.size === 15)
+    // ✅ JOGO PRINCIPAL MANUAL (não usa automático)
 
 
-      ? { jogo: [...manualPrincipalSet].sort((a,b)=>a-b), motivos: [] }
+    if(!(manualPrincipalSet && manualPrincipalSet.size === 15)){
 
 
-      : gerarJogoPrincipalPrime(freq, modern, payload.concursos, payload.latest.dezenas);
+      alert("Marque exatamente 15 dezenas no modo manual para gerar o Jogo Principal.");
+
+
+      return;
+
+
+    }
+
+
+    const result = { jogo: [...manualPrincipalSet].sort((a,b)=>a-b), motivos: [] };
 
 
     const jogo = result.jogo;
