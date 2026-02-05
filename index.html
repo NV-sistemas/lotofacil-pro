@@ -2649,8 +2649,15 @@ async function acaoPrincipal(){
     setStatus(true,"Gerando jogo principal (15 dezenas)…");
     setProgress(80);
 
-    const result = gerarJogoPrincipalPrime(freq, modern, payload.concursos, payload.latest.dezenas);
-const jogo = result.jogo;
+    let jogo;
+
+    /* ✅ PRIORIDADE TOTAL PARA MANUAL */
+    if(manualPrincipalSet && manualPrincipalSet.size === 15){
+      jogo = [...manualPrincipalSet].sort((a,b)=>a-b);
+    }else{
+      const result = gerarJogoPrincipalPrime(freq, modern, payload.concursos, payload.latest.dezenas);
+      jogo = result.jogo;
+    }
 
     lastPrincipalGame = jogo.slice();
     lastInvertidaGame = null;
@@ -2665,156 +2672,28 @@ const jogo = result.jogo;
 
     lastPrincipalMeta = { cls, pi, soma, seq, blocos, reps };
 
-    setStatus(false,""); setProgress(0);
+    setStatus(false,"");
+    setProgress(0);
 
     if(!access.premium) markFreeUsed();
     aplicarAcessos();
 
     const balls = jogo.map(n=>`<div class="ball">${format2(n)}</div>`).join("");
-// ✅ AGRUPA motivos iguais para ocupar menos espaço
-const motivosAgrupados = {};
-(result?.motivos || []).forEach(m=>{
-  const key = (m.texto || "").trim();
-  if(!motivosAgrupados[key]) motivosAgrupados[key] = [];
-  motivosAgrupados[key].push(m.dezena);
-});
 
-const motivosHtml = Object.entries(motivosAgrupados)
-  .sort((a,b)=>a[1][0]-b[1][0])
-  .map(([texto, dezenas])=>{
-    const lista = dezenas.sort((x,y)=>x-y).map(n=>format2(n)).join(", ");
-    return `
-      <div style="padding:10px;border-bottom:1px solid rgba(255,255,255,.08)">
-        <b class="mono">${lista}</b>
-        <div class="mini" style="margin-top:6px">${texto}</div>
-      </div>
-    `;
-  }).join("") || `<div class="mini">—</div>`;
-
-    const resumoPares = (pi.pares===7||pi.pares===8)
-      ? `Distribuição ideal (${pi.pares} pares / ${pi.impares} ímpares).`
-      : `Distribuição fora do ideal (melhor: 7/8).`;
-    const resumoSoma = (soma>=170 && soma<=230)
-      ? `Soma ${soma} dentro da faixa estatística mais comum (evita extremos).`
-      : `Soma ${soma} fora da faixa mais comum — combinação mais “arriscada”.`;
-    const resumoSeq = seq.temSequencia
-      ? `Possui sequência, máximo de ${seq.maxLen} números seguidos.`
-      : `Sem sequência (padrão mais “quebrado”).`;
-    const maxBlock = Math.max(blocos.A,blocos.B,blocos.C,blocos.D,blocos.E);
-    const resumoBlocos = (maxBlock<=5)
-      ? `Blocos equilibrados (máx ${maxBlock} em um bloco).`
-      : `Concentração alta em blocos (máx ${maxBlock}).`;
-    const resumoRep = reps.length
-      ? `${reps.length} repetidas do último concurso (${payload.latest.concurso}).`
-      : `Sem repetidas do último concurso (${payload.latest.concurso}).`;
-
-    document.getElementById("principalArea").innerHTML = `
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
-        <div>
-          <div style="font-weight:1000;font-size:16px">🎯 Jogo Principal gerado (15 dezenas)</div>
-          <div class="mini">Janela: <b>${payload.inicio}</b> a <b>${payload.ultimo}</b> (${payload.concursos.length} concursos)</div>
-        </div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap">
-  <button class="btn btnGhost" type="button" onclick="verConcursos()">📅 Ver concursos</button>
-  <button class="btn btnGhost" type="button" onclick="abrirGraficoBlocos(lastPrincipalMeta.blocos)">📊 Blocos A–E</button>
-
-  <button class="btn btnBlue" type="button" onclick="salvarPacotePrincipal()">💾 Salvar pacote</button>
-  <button class="btn btnGhost" type="button" onclick="carregarPacotePrincipal()">📂 Carregar salvo</button>
-</div>
-      </div>
-
-      <div class="numbers">${balls}</div>
-<div class="box" style="margin-top:12px">
-  <b>🧾 Por que essas dezenas foram escolhidas?</b>
-  <div class="mini" style="margin-top:8px">
-    Explicação simples (repetição do último + mix de quentes/mornas/frias + recência).
-  </div>
-  <div style="margin-top:10px;border:1px solid rgba(255,255,255,.10);border-radius:14px;overflow:hidden">
-    ${motivosHtml}
-  </div>
-</div>
-
-      <div class="box" style="margin-top:12px">
-        <b>🧾 Resumo PRIME (detalhado)</b>
-        <div class="grid" style="margin-top:12px">
-          
-          <div class="box">
-            <b>🔁 Repetidas do último</b>
-            <div class="mini" style="margin-top:8px"><b>${reps.length ? reps.map(format2).join(", ") : "Nenhuma"}</b></div>
-            <div class="mini">${resumoRep}</div>
-          </div>
-
-          <div class="box">
-            <b>⚖️ Pares x Ímpares</b>
-            <div class="mini" style="margin-top:8px"><b>${pi.pares}</b> pares • <b>${pi.impares}</b> ímpares</div>
-            <div class="mini">${resumoPares}</div>
-          </div>
-
-          <div class="box">
-            <b>➕ Soma</b>
-            <div class="mini" style="margin-top:8px"><b>${soma}</b></div>
-            <div class="mini">${resumoSoma}</div>
-          </div>
-
-          <div class="box">
-            <b>🧩 Blocos A–E</b>
-            <div class="mini" style="margin-top:8px">A: <b>${blocos.A}</b> • B: <b>${blocos.B}</b> • C: <b>${blocos.C}</b> • D: <b>${blocos.D}</b> • E: <b>${blocos.E}</b></div>
-            <div class="mini">${resumoBlocos}</div>
-          </div>
-
-          <div class="box">
-            <b>🔗 Sequências</b>
-            <div class="mini" style="margin-top:8px"><b>${seq.temSequencia ? "Sim" : "Não"}</b> • Máx: <b>${seq.maxLen}</b></div>
-            <div class="mini">${resumoSeq}</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="grid" style="margin-top:12px">
-        <div class="box">
-          <b>🤖 Jogo do Sistema (atual)</b>
-          <div class="numbers" style="justify-content:flex-start;margin-top:10px">${jogo.map(n=>`<div class="ball">${format2(n)}</div>`).join("")}</div>
-          <div class="mini">Você pode usar este ou montar o seu jogo manual e substituir o principal.</div>
-        </div>
-        <div class="box">
-          <div id="manualPrincipalArea"></div>
-        </div>
-      </div>
-
-      <div class="panelCheck" id="panelGerados">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
-          <b>✅ Verificar jogos gerados (base: Jogo Principal)</b>
-          <button class="btn btnGhost" type="button" id="btnVerificarGeradosInline" style="display:none" onclick="goView('viewCheck')">Abrir verificação</button>
-        </div>
-        <div class="mini" style="margin-top:8px">
-          Gere também a <b>Invertida</b> e a <b>Técnica</b> para liberar a verificação automática de acertos.
-        </div>
-      </div>
-
-      <div class="box" style="margin-top:12px">
-        <b>📌 Aviso</b>
-        <div class="mini" style="margin-top:8px">
-          Estatística ajuda a montar estratégia, mas <b>não garante premiação</b>.
-        </div>
-      </div>
-    `;
-
-    goView("viewPrincipal");
-
-    // reset seleção manual para o usuário começar “do zero”
-    manualPrincipalSet = new Set();
-    renderManualPrincipalUI();
-
-    updateCheckButtons();
-  }catch(e){
-    setStatus(false,""); setProgress(0);
     document.getElementById("principalArea").innerHTML = `
       <div class="box">
-        <b>⚠️ Erro</b>
-        <div class="mini" style="margin-top:8px">${String(e?.message || e)}</div>
+        <b>🎯 Jogo Principal</b>
+        <div class="numbers" style="justify-content:flex-start;margin-top:10px">${balls}</div>
       </div>
     `;
+
     goView("viewPrincipal");
+    updateCheckButtons();
+
+  }catch(e){
+    setStatus(false,"");
+    setProgress(0);
+    alert("Erro ao gerar principal.");
   }
 }
 </script>
@@ -3629,50 +3508,34 @@ function render15Editor(){
 function allLinesComplete(lines){
   return lines && lines.length===5 && lines.every(l=>Array.isArray(l) && l.length===5);
 }
-
 function gerar15PComMinhasLinhas(){
+
   if(!allLinesComplete(linesUser15)){
     return alert("Complete as 5 linhas com 5 dezenas cada.");
   }
 
-  const jogos = gerarJogos15P(linesUser15);
+  /* ✅ torna suas linhas a BASE OFICIAL do sistema */
+  linesSystem15 = linesUser15.map(l=>l.slice());
+
+  const jogos = gerarJogos15P(linesSystem15);
 
   const jogosHtml = jogos.map((j, idx)=>`
     <div class="box">
       <b>Jogo ${idx+1}</b>
-      <div class="numbers" style="justify-content:flex-start;margin-top:10px">${renderBallsInline(j)}</div>
+      <div class="numbers" style="justify-content:flex-start;margin-top:10px">
+        ${renderBallsInline(j)}
+      </div>
     </div>
-  `).join("");
-
-  const linesTable = linesUser15.map((l,idx)=>`
-    <tr>
-      <td><b>${idx+1}</b></td>
-      <td class="mono">${l.map(format2).join(" - ")}</td>
-    </tr>
   `).join("");
 
   document.getElementById("user15Output").innerHTML = `
     <div class="box" style="margin-top:12px">
-      <b>📌 Suas linhas (manual)</b>
-      <div style="margin-top:10px;overflow:auto">
-        <table class="table">
-          <thead><tr><th>Linha</th><th>Dezenas</th></tr></thead>
-          <tbody>${linesTable}</tbody>
-        </table>
-      </div>
-    </div>
-
-    <div class="box" style="margin-top:12px">
-      <b>🎯 Seus 10 jogos (com suas linhas)</b>
+      <b>🎯 Seus 10 jogos (baseados nas SUAS linhas)</b>
       <div class="grid" style="margin-top:12px">${jogosHtml}</div>
-      <div class="mini" style="margin-top:10px">
-        Este método cobre todas as combinações de 3 linhas entre 5 (10 jogos).
-<b style="text-transform:uppercase">Acertando 3 linhas completas, você forma 1 dos 10 jogos.</b>
-      </div>
     </div>
   `;
 
-  alert("✅ 10 jogos gerados com suas linhas!");
+  alert("✅ Jogos gerados usando suas linhas como base!");
 }
 
 async function gerar15P(){
