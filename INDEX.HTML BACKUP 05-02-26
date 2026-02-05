@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html>.
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
@@ -180,7 +180,7 @@
     position:relative;min-height:126px;
     box-shadow: 0 18px 55px rgba(0,0,0,.38);
   }
-  .actionCard:hover{transform:translateY(-2px);background: var(--surface2);cursor:not-allowed;transform:none;box-shadow:none}
+  .actionCard:hover{transform:translateY(-2px);background: var(--surface2);}
   .actionTitle{font-weight:1000;font-size:16px;margin:0 0 8px;color: var(--yellow);}
   .actionDesc{margin:0;color: rgba(255,255,255,.88);font-size:13px;line-height:1.55}
   /* ✅ Título amarelo dentro dos cards (padrão vendas) */
@@ -392,6 +392,58 @@
     .ball{ width:38px; height:38px; font-size:13px; }
     .numbers{ gap:6px; }
   }
+
+  /* ✅ Ilustração de troca de COLUNAS (Invertida/Técnica) */
+  .swapCard{ margin-top: 10px; }
+  .swapImgs{
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap:12px;
+    margin-top:12px;
+    align-items:start;
+  }
+  .swapImgWrap{
+    border:1px solid rgba(255,255,255,.14);
+    background: rgba(0,0,0,.66);
+    border-radius:16px;
+    padding:12px;
+    text-align:center;
+    overflow:visible;
+  }
+  .swapImgWrap b{ color: var(--yellow); display:block; margin-bottom:8px; }
+  .swapImg{
+    display:block;
+    width:100%;
+    max-width: 520px;
+    height:auto;
+    aspect-ratio: 5 / 6;
+    object-fit: contain;
+    margin: 0 auto;
+    border-radius:14px;
+    border:1px solid rgba(250,204,21,.22);
+    background: rgba(0,0,0,.70);
+    box-shadow: 0 18px 55px rgba(0,0,0,.38);
+  }
+  .swapRow{ display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
+  .swapMini{
+    flex: 1 1 260px;
+    border:1px solid rgba(255,255,255,.14);
+    background: rgba(0,0,0,.66);
+    border-radius:16px;
+    padding:12px;
+  }
+  .swapMini b{ color: var(--yellow); }
+  .swapGamesRow{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:12px;
+    margin-top:12px;
+    align-items:start;
+  }
+  @media (max-width: 900px){
+    .swapGamesRow{ grid-template-columns: 1fr; }
+  }
+
 </style>
 </head>
 
@@ -1047,6 +1099,98 @@ auth.onAuthStateChanged(async (user)=>{
    MOTOR BASE
 ========================= */
 function format2(n){ return String(n).padStart(2,"0"); }
+
+/* =========================
+   ✅ Trocas por COLUNAS (cartão 5x5) + cards ilustrativos (SVG)
+========================= */
+function inverterJogoPorColPerm(jogo, colMap){
+  // colMap: array [c1->?, c2->?, c3->?, c4->?, c5->?] (1..5)
+  const out = [];
+  const set = new Set();
+  for(const n of (jogo||[])){
+    const num = Number(n);
+    if(!(num>=1 && num<=25)) continue;
+    const row = Math.floor((num-1)/5); // 0..4
+    const col = ((num-1)%5) + 1;       // 1..5
+    const newCol = colMap[col-1];      // 1..5
+    const newNum = row*5 + newCol;     // 1..25
+    if(!set.has(newNum)){ set.add(newNum); out.push(newNum); }
+  }
+  // mantém ordenado para exibição padrão
+  out.sort((a,b)=>a-b);
+  return out;
+}
+
+function buildCardSVG(selectedNums, title){
+  const sel = new Set((selectedNums||[]).map(Number));
+  const W=520, H=620;
+  const pad=26;
+  const cell=88, gap=12;
+  const gridW = 5*cell + 4*gap;
+  const startX = (W - gridW)/2;
+  const startY = 92;
+
+  const bg = `
+    <defs>
+      <radialGradient id="g1" cx="30%" cy="20%" r="85%">
+        <stop offset="0%" stop-color="rgba(250,204,21,0.14)"/>
+        <stop offset="70%" stop-color="rgba(0,0,0,0)"/>
+      </radialGradient>
+      <linearGradient id="g2" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#000000"/>
+        <stop offset="100%" stop-color="#050505"/>
+      </linearGradient>
+      <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+        <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="rgba(0,0,0,0.55)"/>
+      </filter>
+    </defs>
+    <rect x="0" y="0" width="${W}" height="${H}" rx="26" fill="url(#g2)"/>
+    <rect x="0" y="0" width="${W}" height="${H}" rx="26" fill="url(#g1)"/>
+    <rect x="${pad}" y="${pad}" width="${W-2*pad}" height="${H-2*pad}" rx="22"
+          fill="rgba(0,0,0,0.55)" stroke="rgba(255,255,255,0.14)"/>
+  `;
+
+  let cells="";
+  for(let r=0;r<5;r++){
+    for(let c=0;c<5;c++){
+      const n = r*5 + (c+1);
+      const x = startX + c*(cell+gap);
+      const y = startY + r*(cell+gap);
+      const on = sel.has(n);
+      const stroke = on ? "rgba(250,204,21,0.70)" : "rgba(255,255,255,0.16)";
+      const fill = "rgba(0,0,0,0.70)";
+      const numColor = on ? "#facc15" : "#ffffff";
+      cells += `
+        <rect x="${x}" y="${y}" width="${cell}" height="${cell}" rx="20"
+              fill="${fill}" stroke="${stroke}" stroke-width="3" filter="url(#shadow)"/>
+        <text x="${x+cell/2}" y="${y+cell/2+10}" text-anchor="middle"
+              font-family="Georgia, 'Times New Roman', serif"
+              font-size="34" font-weight="700" fill="${numColor}">
+          ${String(n).padStart(2,'0')}
+        </text>
+      `;
+    }
+  }
+
+  const t = (title||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  const titleBlock = `
+    <text x="${W/2}" y="62" text-anchor="middle"
+          font-family="Georgia, 'Times New Roman', serif"
+          font-size="34" font-weight="700" fill="#ffffff">${t}</text>
+  `;
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+    ${bg}
+    ${titleBlock}
+    ${cells}
+  </svg>`;
+}
+
+function svgToDataUri(svg){
+  return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+}
+
+
 function toNum(d){ return Number(String(d).replace(/^0+/,"")) || Number(d); }
 function sortNum(arr){ return arr.slice().sort((a,b)=>a-b); }
 
@@ -1224,25 +1368,32 @@ function getDominantEvenOdd(concursos){
 /* Seleciona X itens de uma lista, sem repetir e com preferência por paridade
    - sem aleatório
 */
-function pickFromListDeterministic(list, needed, set, targetPares){
+function pickFromListDeterministic(list, needed, set, targetPares, lastSet){
   const out = [];
+  const last = lastSet || new Set();
+
   while(out.length < needed){
     const cur = [...set];
     const curPares = cur.filter(n=>n%2===0).length;
     const needMoreEven = (curPares < targetPares);
 
-    // 1) tenta pegar número com paridade “necessária”
     let picked = null;
+
+    // 1) tenta pegar número com paridade “necessária” + não repetida do último
     for(const n of list){
       if(set.has(n)) continue;
+      if(last.has(n)) continue;
+
       if(needMoreEven && (n%2===0)) { picked = n; break; }
       if(!needMoreEven && (n%2===1)) { picked = n; break; }
     }
 
-    // 2) se não achou por paridade, pega o primeiro disponível
+    // 2) se não achou por paridade, pega o primeiro disponível (não repetida do último)
     if(picked === null){
       for(const n of list){
-        if(!set.has(n)){ picked = n; break; }
+        if(set.has(n)) continue;
+        if(last.has(n)) continue;
+        picked = n; break;
       }
     }
 
@@ -1252,8 +1403,10 @@ function pickFromListDeterministic(list, needed, set, targetPares){
     set.add(picked);
     out.push(picked);
   }
+
   return out;
 }
+
 
 /* ===== MÉTRICAS MODERNAS (tendência/recência/atraso) ===== */
 function calcModernMetrics(concursos){
@@ -1309,7 +1462,10 @@ function calcModernMetrics(concursos){
 function gerarJogoPrincipalPrime(freq, modern, concursos, dezenasUltimo){
   const last = (dezenasUltimo||[]).map(toNum).filter(n=>n>=1 && n<=25).sort((a,b)=>a-b);
 
-  // 1) define k (8/9/10) pela sequência exata 20/50/30
+  
+
+  const lastSet = new Set(last); // 🔒 bloqueio de repetidas
+// 1) define k (8/9/10) pela sequência exata 20/50/30
   const k = getNextPrincipalBaseSize();
 
   // 2) padrão dominante pares/ímpares
@@ -1345,8 +1501,8 @@ function gerarJogoPrincipalPrime(freq, modern, concursos, dezenasUltimo){
 
   if(k === 8){
     // +3 freq = 2 mais + 1 menos
-    picks.freq.push(...pickFromListDeterministic(freqMost, 2, set, targetPares));
-    picks.freq.push(...pickFromListDeterministic(freqLeast, 1, set, targetPares));
+    picks.freq.push(...pickFromListDeterministic(freqMost, 2, set, targetPares, lastSet));
+    picks.freq.push(...pickFromListDeterministic(freqLeast, 1, set, targetPares, lastSet));
 
     // +2 dupla forte (se já estiverem, busca próxima dupla no ranking)
     // (determinístico: varre a lista de pares)
@@ -1361,17 +1517,17 @@ function gerarJogoPrincipalPrime(freq, modern, concursos, dezenasUltimo){
     }
     chosenPair = chosenPair || pair;
 
-    picks.pair.push(...pickFromListDeterministic([chosenPair[0], chosenPair[1]], 2, set, targetPares));
+    picks.pair.push(...pickFromListDeterministic([chosenPair[0], chosenPair[1]], 2, set, targetPares, lastSet));
 
     // +2 atrasadas = mais atrasada + menos atrasada (dentro do top10)
-    picks.atrasadas.push(...pickFromListDeterministic(atrMost, 1, set, targetPares));
-    picks.atrasadas.push(...pickFromListDeterministic(atrLeast, 1, set, targetPares));
+    picks.atrasadas.push(...pickFromListDeterministic(atrMost, 1, set, targetPares, lastSet));
+    picks.atrasadas.push(...pickFromListDeterministic(atrLeast, 1, set, targetPares, lastSet));
   }
 
   if(k === 9){
     // +2 freq = 1 mais + 1 menos
-    picks.freq.push(...pickFromListDeterministic(freqMost, 1, set, targetPares));
-    picks.freq.push(...pickFromListDeterministic(freqLeast, 1, set, targetPares));
+    picks.freq.push(...pickFromListDeterministic(freqMost, 1, set, targetPares, lastSet));
+    picks.freq.push(...pickFromListDeterministic(freqLeast, 1, set, targetPares, lastSet));
 
     // +2 dupla forte
     const allPairs = calcTopPairsCooc(concursos, 80);
@@ -1385,17 +1541,17 @@ function gerarJogoPrincipalPrime(freq, modern, concursos, dezenasUltimo){
     }
     chosenPair = chosenPair || pair;
 
-    picks.pair.push(...pickFromListDeterministic([chosenPair[0], chosenPair[1]], 2, set, targetPares));
+    picks.pair.push(...pickFromListDeterministic([chosenPair[0], chosenPair[1]], 2, set, targetPares, lastSet));
 
     // +2 atrasadas = mais atrasada + menos atrasada (dentro do top10)
-    picks.atrasadas.push(...pickFromListDeterministic(atrMost, 1, set, targetPares));
-    picks.atrasadas.push(...pickFromListDeterministic(atrLeast, 1, set, targetPares));
+    picks.atrasadas.push(...pickFromListDeterministic(atrMost, 1, set, targetPares, lastSet));
+    picks.atrasadas.push(...pickFromListDeterministic(atrLeast, 1, set, targetPares, lastSet));
   }
 
   if(k === 10){
     // +2 freq = 1 mais + 1 menos
-    picks.freq.push(...pickFromListDeterministic(freqMost, 1, set, targetPares));
-    picks.freq.push(...pickFromListDeterministic(freqLeast, 1, set, targetPares));
+    picks.freq.push(...pickFromListDeterministic(freqMost, 1, set, targetPares, lastSet));
+    picks.freq.push(...pickFromListDeterministic(freqLeast, 1, set, targetPares, lastSet));
 
     // +2 dupla forte
     const allPairs = calcTopPairsCooc(concursos, 80);
@@ -1409,10 +1565,10 @@ function gerarJogoPrincipalPrime(freq, modern, concursos, dezenasUltimo){
     }
     chosenPair = chosenPair || pair;
 
-    picks.pair.push(...pickFromListDeterministic([chosenPair[0], chosenPair[1]], 2, set, targetPares));
+    picks.pair.push(...pickFromListDeterministic([chosenPair[0], chosenPair[1]], 2, set, targetPares, lastSet));
 
     // +1 atrasada = mais atrasada
-    picks.atrasadas.push(...pickFromListDeterministic(atrMost, 1, set, targetPares));
+    picks.atrasadas.push(...pickFromListDeterministic(atrMost, 1, set, targetPares, lastSet));
   }
 
   // 7) garantia final: deve fechar exatamente 15
@@ -1421,12 +1577,12 @@ function gerarJogoPrincipalPrime(freq, modern, concursos, dezenasUltimo){
   // Se por algum motivo raro tiver <15 (por repetição grande), completa determinístico
   if(jogo.length < 15){
     // completa usando top10freq (do mais pro menos), depois atrasadas, depois 1..25
-    pickFromListDeterministic(freqMost, 15 - set.size, set, targetPares);
-    if(set.size < 15) pickFromListDeterministic(atrMost, 15 - set.size, set, targetPares);
+    pickFromListDeterministic(freqMost, 15 - set.size, set, targetPares, lastSet);
+    if(set.size < 15) pickFromListDeterministic(atrMost, 15 - set.size, set, targetPares, lastSet);
     if(set.size < 15){
       const all = [];
       for(let n=1;n<=25;n++) all.push(n);
-      pickFromListDeterministic(all, 15 - set.size, set, targetPares);
+      pickFromListDeterministic(all, 15 - set.size, set, targetPares, lastSet);
     }
   }
 
@@ -2717,9 +2873,11 @@ function carregarPacotePrincipal(){
 /* =========================
    INVERTIDA + TÉCNICA
 ========================= */
-function blocoIndex(n){ return Math.floor((n-1)/5)+1; }
-function offsetNoBloco(n){ return ((n-1)%5)+1; }
-function mapParaBloco(destBloco, offset){ return (destBloco-1)*5 + offset; }
+// ✅ MAPEAMENTO POR COLUNA (cartão DEITADO / vertical)
+// blocoIndex = COLUNA (1..5), offsetNoBloco = LINHA (1..5)
+function blocoIndex(n){ return ((n-1)%5)+1; }
+function offsetNoBloco(n){ return Math.floor((n-1)/5)+1; }
+function mapParaBloco(destBloco, offset){ return (offset-1)*5 + destBloco; }
 
 function remapPorPermutacao(n, perm){
   const b = blocoIndex(n);
@@ -2745,56 +2903,111 @@ function gerarInvertida(){
   if(!access.premium){ alert("🔒 Invertida exige Premium."); return; }
   if(!lastPrincipalGame){ alert("Gere primeiro um Jogo Principal."); return; }
 
-  const permInvertida = [5,4,3,2,1];
-  const inv = inverterJogoPorPerm(lastPrincipalGame, permInvertida);
+  // ✅ Invertida por COLUNAS (vertical): C1→C5, C2→C4, C3→C3, C4→C2, C5→C1
+  const inv = inverterJogoPorColPerm(lastPrincipalGame, [5,4,3,2,1]);
   lastInvertidaGame = inv.slice();
 
+  const imgBefore = svgToDataUri(buildCardSVG(lastPrincipalGame, "ANTES (Principal)"));
+  const imgAfter  = svgToDataUri(buildCardSVG(inv, "DEPOIS (Invertida)"));
+
   document.getElementById("invertidaArea").innerHTML = `
-    <div class="cartaoWrap">
-      <div class="box">
-        <b>🎯 Principal (atual)</b>
-        <div class="numbers" style="justify-content:flex-start">${lastPrincipalGame.map(n=>`<div class="ball">${format2(n)}</div>`).join("")}</div>
-        ${renderCartao(lastPrincipalGame, "on")}
+    <div class="box swapCard">
+      <b>🔄 Troca ilustrativa (Invertida por COLUNAS — cartão 5×5)</b>
+      <div class="mini">
+        Aqui <b>não existe cálculo novo</b>: é o mesmo jogo, apenas <b>espelhado na vertical</b> no cartão.<br>
+        Regra: <b>C1→C5</b> • <b>C2→C4</b> • <b>C3→C3</b> • <b>C4→C2</b> • <b>C5→C1</b>.
       </div>
 
-      <div class="box">
-        <b>🔄 Invertida</b>
-        <div class="numbers" style="justify-content:flex-start">${inv.map(n=>`<div class="ball">${format2(n)}</div>`).join("")}</div>
-        ${renderCartao(inv, "inv")}
+      <div class="swapImgs">
+        <div class="swapImgWrap">
+          <b>ANTES (Principal)</b>
+          <img class="swapImg" src="${imgBefore}" alt="Principal no cartão 5x5">
+        </div>
+        <div class="swapImgWrap">
+          <b>DEPOIS (Invertida)</b>
+          <img class="swapImg" src="${imgAfter}" alt="Invertida no cartão 5x5">
+        </div>
       </div>
+    </div>
+
+    <div class="box" style="margin-top:12px">
+      <b>🔄 Invertida</b>
+      <div class="numbers" style="justify-content:flex-start">${inv.map(n=>`<div class="ball">${format2(n)}</div>`).join("")}</div>
+      ${renderCartao(inv, "inv")}
     </div>
   `;
   updateCheckButtons();
 }
+
 
 function gerarTecnicaPremiada(){
   if(!access.premium){ alert("🔒 Técnica premiada exige Premium."); return; }
   if(!lastPrincipalGame){ alert("Gere primeiro um Jogo Principal."); return; }
 
-  const permTec1 = [4,2,5,1,3];
-  const permTec2 = [3,1,5,2,4];
-
-  const g1 = inverterJogoPorPerm(lastPrincipalGame, permTec1);
-  const g2 = inverterJogoPorPerm(lastPrincipalGame, permTec2);
+  // ✅ Técnica por COLUNAS (vertical)
+  // Jogo 1: C1→C4, C2→C2, C3→C5, C4→C1, C5→C3
+  // Jogo 2: C1→C3, C2→C1, C3→C5, C4→C2, C5→C4
+  const g1 = inverterJogoPorColPerm(lastPrincipalGame, [4,2,5,1,3]);
+  const g2 = inverterJogoPorColPerm(lastPrincipalGame, [3,1,5,2,4]);
   lastTecnicaGames = { g1, g2 };
 
+  const imgBase = svgToDataUri(buildCardSVG(lastPrincipalGame, "BASE (Principal)"));
+  const imgG1   = svgToDataUri(buildCardSVG(g1, "RESULTADO • JOGO 1"));
+  const imgG2   = svgToDataUri(buildCardSVG(g2, "RESULTADO • JOGO 2"));
+
   document.getElementById("tecnicaArea").innerHTML = `
-    <div class="grid">
+    <div class="box swapCard">
+      <b>🏆 Troca ilustrativa (Técnica Premiada por COLUNAS — cartão 5×5)</b>
+      <div class="mini">
+        A Técnica Premiada <b>reorganiza as colunas do Principal</b> (sempre na vertical).<br>
+        <b>Nenhuma dezena é criada</b> — apenas muda a posição no cartão.
+      </div>
+
+      <div class="swapImgs">
+        <div class="swapImgWrap">
+          <b>BASE (Principal)</b>
+          <img class="swapImg" src="${imgBase}" alt="Principal base no cartão 5x5">
+        </div>
+        <div class="swapImgWrap">
+          <b>RESULTADO • Jogo 1</b>
+          <img class="swapImg" src="${imgG1}" alt="Técnica Jogo 1 no cartão 5x5">
+        </div>
+        <div class="swapImgWrap">
+          <b>RESULTADO • Jogo 2</b>
+          <img class="swapImg" src="${imgG2}" alt="Técnica Jogo 2 no cartão 5x5">
+        </div>
+      </div>
+
+      <div class="swapRow">
+        <div class="swapMini">
+          <b>JOGO 1 — regra de colunas</b>
+          <div class="mini" style="margin-top:6px"><b>C1→C4</b> • <b>C2→C2</b> • <b>C3→C5</b> • <b>C4→C1</b> • <b>C5→C3</b></div>
+        </div>
+
+        <div class="swapMini">
+          <b>JOGO 2 — regra de colunas</b>
+          <div class="mini" style="margin-top:6px"><b>C1→C3</b> • <b>C2→C1</b> • <b>C3→C5</b> • <b>C4→C2</b> • <b>C5→C4</b></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="swapGamesRow">
       <div class="box">
         <b>🏆 Jogo 1</b>
         <div class="numbers" style="justify-content:flex-start;margin-top:10px">${g1.map(n=>`<div class="ball">${format2(n)}</div>`).join("")}</div>
-        ${renderCartao(g1, "tech")}
+        ${renderCartao(g1, "tech1")}
       </div>
 
       <div class="box">
         <b>🏆 Jogo 2</b>
         <div class="numbers" style="justify-content:flex-start;margin-top:10px">${g2.map(n=>`<div class="ball">${format2(n)}</div>`).join("")}</div>
-        ${renderCartao(g2, "tech")}
+        ${renderCartao(g2, "tech2")}
       </div>
     </div>
   `;
   updateCheckButtons();
 }
+
 
 /* mostra botões de verificação quando tiver Principal + Invertida + Técnica */
 function updateCheckButtons(){
@@ -3282,7 +3495,7 @@ function explainLine(lineIdx, line, stats, kind){
   const pairsTxt = pairs.map(p=>{
   const isStrong = (kind==="forte");
   const icon = isStrong ? "✅" : "⚠️";
-  const label = isStrong ? "apareceu junto" : "quase não aparece junto";
+  const label = isStrong ? "apareceu junto" : "sem sair juntas";
   return `<span class="chip" style="padding:7px 10px;font-size:12px">
     ${icon} <b>${format2(p.a)}-${format2(p.b)}</b> • ${label}: <b>${p.co}x</b>
   </span>`;
@@ -3766,7 +3979,45 @@ function checkSavedGames(){
           return;
         }
 
-        jogos.forEach((jogoNums, idx)=>{
+        
+        // ✅ Mostrar Linhas 1 a 5 do Extra 15P no topo (uma única vez)
+        const lines = Array.isArray(item?.payload?.linesSystem15) ? item.payload.linesSystem15
+                    : (Array.isArray(item?.payload?.linesUser15) ? item.payload.linesUser15 : null);
+
+        if(Array.isArray(lines) && lines.length === 5){
+          const lineRows = lines.map((l,idx)=>{
+            const kind = (idx < 3) ? "FORTE" : "DIVERSA";
+            const dezenas = (l||[]).slice().map(Number).sort((a,b)=>a-b).map(format2).join(" - ");
+            return `
+              <tr>
+                <td><b>${idx+1}</b></td>
+                <td>${kind}</td>
+                <td class="mono">${dezenas}</td>
+              </tr>
+            `;
+          }).join("");
+
+          html += `
+            <div class="box" style="margin-top:10px">
+              <b>📌 Linhas 1 a 5 (do Extra 15P)</b>
+              <div style="margin-top:10px;overflow:auto">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Linha</th>
+                      <th>Tipo</th>
+                      <th>Dezenas</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${lineRows}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          `;
+        }
+jogos.forEach((jogoNums, idx)=>{
           const jogo = jogoNums.slice().map(Number).sort((a,b)=>a-b);
 
           let linhasResultados = "";
