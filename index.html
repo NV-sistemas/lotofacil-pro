@@ -2359,6 +2359,8 @@ let lastPrincipalMeta=null;
 let lastInvertidaGame=null;
 let lastTecnicaGames=null;
 
+let principalIsManual = false; // ✅ indica quando o Principal foi definido pelo usuário (manual)
+
 /* ✅ MANUAL (Principal) */
 let manualPrincipalSet = new Set();
 
@@ -2609,6 +2611,10 @@ function usarManualComoPrincipal(){
   const jogo = [...manualPrincipalSet].sort((a,b)=>a-b);
 
   lastPrincipalGame = jogo.slice();
+
+  principalIsManual = !!(manualPrincipalSet && manualPrincipalSet.size === 15);
+
+  principalIsManual = true;
   lastInvertidaGame = null;
   lastTecnicaGames = null;
 
@@ -2661,6 +2667,7 @@ async function acaoPrincipal(){
       jogo = result.jogo;
     }
 lastPrincipalGame = jogo.slice();
+principalIsManual = !!(manualPrincipalSet && manualPrincipalSet.size === 15);
     lastInvertidaGame = null;
     lastTecnicaGames = null;
 
@@ -2907,12 +2914,23 @@ function renderCartao(jogo, clsName){
   return html;
 }
 
+function getPrincipalBase(){
+  // ✅ Garantia: se o usuário definiu manual, Invertida/Técnica usam exatamente esse jogo
+  if(principalIsManual && manualPrincipalSet && manualPrincipalSet.size === 15){
+    return [...manualPrincipalSet].sort((a,b)=>a-b);
+  }
+  return Array.isArray(lastPrincipalGame) ? lastPrincipalGame.slice() : null;
+}
+
+
 function gerarInvertida(){
   if(!access.premium){ alert("🔒 Invertida exige Premium."); return; }
   if(!lastPrincipalGame){ alert("Gere primeiro um Jogo Principal."); return; }
-
   // ✅ Invertida por COLUNAS (vertical): C1→C5, C2→C4, C3→C3, C4→C2, C5→C1
-  const inv = inverterJogoPorColPerm(lastPrincipalGame, [5,4,3,2,1]);
+  const base = getPrincipalBase();
+  if(!base){ alert("Gere primeiro um Jogo Principal."); return; }
+  lastPrincipalGame = base.slice();
+  const inv = inverterJogoPorColPerm(base, [5,4,3,2,1]);
   lastInvertidaGame = inv.slice();
 
   const imgBefore = svgToDataUri(buildCardSVG(lastPrincipalGame, "ANTES (Principal)"));
@@ -2951,13 +2969,15 @@ function gerarInvertida(){
 function gerarTecnicaPremiada(){
   if(!access.premium){ alert("🔒 Técnica premiada exige Premium."); return; }
   if(!lastPrincipalGame){ alert("Gere primeiro um Jogo Principal."); return; }
-
   // ✅ Técnica por COLUNAS (vertical)
   // Jogo 1: C1→C4, C2→C2, C3→C5, C4→C1, C5→C3
   // Jogo 2: C1→C3, C2→C1, C3→C5, C4→C2, C5→C4
-  const g1 = inverterJogoPorColPerm(lastPrincipalGame, [4,2,5,1,3]);
-  const g2 = inverterJogoPorColPerm(lastPrincipalGame, [3,1,5,2,4]);
-  lastTecnicaGames = { g1, g2 };
+  const base = getPrincipalBase();
+  if(!base){ alert("Gere primeiro um Jogo Principal."); return; }
+  lastPrincipalGame = base.slice();
+  const g1 = inverterJogoPorColPerm(base, [4,2,5,1,3]);
+  const g2 = inverterJogoPorColPerm(base, [3,1,5,2,4]);
+lastTecnicaGames = { g1, g2 };
 
   const imgBase = svgToDataUri(buildCardSVG(lastPrincipalGame, "BASE (Principal)"));
   const imgG1   = svgToDataUri(buildCardSVG(g1, "RESULTADO • JOGO 1"));
