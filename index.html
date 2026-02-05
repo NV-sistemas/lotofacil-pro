@@ -2408,34 +2408,14 @@ function qtdSelecionada(){ return Number(document.getElementById("qtdConcursos")
 
 async function prepararContextoBase(qtd){
   setStatus(true,"Carregando concursos…");
-
-  setProgress(12);
-
-  let payload;
-  try{
-    setStatus(true,"Buscando concursos reais…");
-    setProgress(25);
-    payload = await getOnlineConcursos(qtd);
-  }catch(e){
-    payload = buildDemo(qtd);
-  }
-
-  // garante ordem crescente
-  payload.concursos = payload.concursos.slice().sort((a,b)=>a.concurso-b.concurso);
-
-  setStatus(true,"Calculando análises do período…");
-  setProgress(62);
-
-  const freq = calcularFrequencias(payload.concursos);
-  const modern = calcModernMetrics(payload.concursos);
-
-  lastPayload = payload;
-  lastCtx = { freq, modern };
-
+  // ✅ cache por 2 minutos
+const now = Date.now();
+if (cacheBase.payload && cacheBase.qtd === qtd && (now - cacheBase.at) < 120000) {
+  lastPayload = cacheBase.payload;
+  lastCtx = { freq: cacheBase.freq, modern: cacheBase.modern };
   setStatus(false,"");
   setProgress(0);
-
-  return { payload, freq, modern };
+  return { payload: lastPayload, freq: lastCtx.freq, modern: lastCtx.modern };
 }
   setProgress(12);
 
