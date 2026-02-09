@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8" />
+<title>Lotofácil Prime Analytics</title>
+
+<style>
+body{
+    margin:0;
+    font-family: Arial, Helvetica, sans-serif;
+    background:#f4f4f4;
+    text-align:center;
+    color:#222;
+}
+
+.section{
+    padding:60px 20px;
+}
+
+.hero{
+    background:#111;
+    color:white;
+}
+
+h1{
+    font-size:36px;
+    margin-bottom:15px;
+}
+
+h2{
+    font-size:26px;
+    margin-bottom:20px;
+}
+
+.btn{
+    display:inline-block;
+    padding:18px 40px;
+    background:#ffc400;
+    color:black;
+    font-weight:bold;
+    border-radius:10px;
+    text-decoration:none;
+    font-size:20px;
+    margin-top:20px;
+}
+
+.cards{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:20px;
+}
+
+.card{
+    background:white;
+    padding:25px;
+    border-radius:10px;
+    width:260px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.1);
+}
+
+.depo{
+    background:#fff;
+    margin:15px auto;
+    padding:15px;
+    width:90%;
+    max-width:600px;
+    border-radius:8px;
+}
+
+.badge{
+    background:#e7ffe7;
+    padding:10px;
+    border-radius:6px;
+    font-weight:bold;
+    margin:8px 0;
+}
+
+.footer{
+    background:#111;
+    color:white;
+    padding:30px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- HERO -->
+<div class="section hero">
+
+<h1>🎯 Pare de escolher números no chute.</h1>
+
+<h2>Use análise estatística real e gere seus jogos da Lotofácil em segundos.</h2>
+
+<p>O sistema que organiza, analisa padrões e cria combinações inteligentes automaticamente.</p>
+
+<a href="#" class="btn">QUERO TESTAR GRÁTIS AGORA</a>
+
+</div>
+
+<!-- VIDEO -->
+<div class="section">
+
+<h2>Veja o sistema funcionando na prática</h2>
+
+<video width="90%" controls>
+<source src="vendas.mp4" type="video/mp4">
+</video>
+
+<a href="#" class="btn">COMEÇAR AGORA</a>
+
+</div>
+
+<!-- BENEFÍCIOS -->
+<div class="section">
+
+<h2>Por que usar o Lotofácil Prime?</h2>
+
+<div class="cards">
+
+<div class="card">⚡ Gera jogos automaticamente em segundos</div>
+<div class="card">📊 Analisa todos os concursos anteriores</div>
+<div class="card">🔥 Identifica dezenas quentes e frias</div>
+<div class="card">📱 Funciona no celular e computador</div>
+<div class="card">💰 Economiza tempo e apostas erradas</div>
+<div class="card">🎯 Organização profissional dos seus jogos</div>
+
+</div>
+
+</div>
+
+<!-- PROVA SOCIAL -->
+<div class="section" style="background:#eee">
+
+<h2>Resultados de usuários</h2>
+
+<div class="depo">💬 "Testei ontem e já bati 13 pontos no primeiro dia!" — Marcos S.</div>
+<div class="depo">💬 "Muito melhor que jogar no chute, agora tenho estratégia." — Carla M.</div>
+<div class="depo">💬 "Sistema rápido e fácil, vale cada centavo." — João P.</div>
+
+<div class="badge">+3.000 usuários já utilizam o sistema</div>
+
+<a href="#" class="btn">QUERO O MEU ACESSO</a>
+
+</div>
+
+<!-- COMO FUNCIONA -->
+<div class="section">
+
+<h2>Como funciona?</h2>
+
+<p>1️⃣ Escolha o modo automático ou manual<br>
+2️⃣ O sistema analisa os dados históricos<br>
+3️⃣ Receba jogos prontos para apostar<br>
+4️⃣ Muito mais organização e estratégia</p>
+
+</div>
+
+<!-- GARANTIA -->
+<div class="section" style="background:#fff8e1">
+
+<h2>Compra 100% segura</h2>
+
+<p>Pagamento protegido via Hotmart<br>
+Acesso imediato após pagamento<br>
+Suporte via WhatsApp e Email</p>
+
+</div>
+
+<!-- CTA FINAL -->
+<div class="section hero">
+
+<h1>Não deixe a sorte decidir por você.</h1>
+
+<h2>Use dados. Use estratégia. Use o Prime.</h2>
+
+<a href="#" class="btn">COMEÇAR AGORA ➜</a>
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+
+Suporte: marketingia2026.digital@gmail.com | WhatsApp (27) 98833-6359
+
+</div>
+
+</body>
+</html>
