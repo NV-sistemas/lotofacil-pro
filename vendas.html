@@ -1,152 +1,2126 @@
-<!doctype html>
+
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Lotofácil Prime Analytics</title>
-<meta name="description" content="Lotofácil Prime Analytics — Gere jogos com base em estatísticas reais. Painel + análises + geração automática."/>
-<meta name="theme-color" content="#000000"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lotofácil Prime Analytics — Página de Vendas</title>
+  <meta name="description" content="Lotofácil Prime Analytics: análise PRIME + geração de jogos (Principal, Invertida, Técnica) e Extra 15P. Página de vendas oficial." />
+  <meta name="theme-color" content="#000000" />
 
-<style>
-:root{
-  --bg:#050505;
-  --card:rgba(255,255,255,.06);
-  --stroke:rgba(255,255,255,.14);
-  --text:#fff;
-  --muted:rgba(255,255,255,.75);
-  --yellow:#facc15;
-  --yellow2:#ffd84d;
-  --green:#22c55e;
-  --green2:#16a34a;
+  <style>
+    :root{
+      --bg:#000000;
+
+      --card: rgba(255,255,255,.05);
+      --stroke: rgba(255,255,255,.12);
+      --shadow: 0 22px 70px rgba(0,0,0,.65);
+
+      --text:#ffffff;
+      --muted: rgba(255,255,255,.82);
+      --muted2: rgba(255,255,255,.70);
+
+      --yellow:#facc15;
+      --yellow2:#ffd84d;
+
+      --green:#22c55e;
+      --green2:#16a34a;
+
+      --glowGold: 0 0 0 1px rgba(250,204,21,.30), 0 18px 60px rgba(250,204,21,.22);
+      --glowGoldStrong: 0 0 0 1px rgba(250,204,21,.45), 0 22px 75px rgba(250,204,21,.34);
+
+      --glowGreenStrong: 0 0 0 1px rgba(34,197,94,.55), 0 22px 80px rgba(34,197,94,.42);
+
+      --radius: 20px;
+    }
+
+    *{box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+    html,body{height:100%}
+    body{
+      margin:0;
+      color:var(--text);
+      background:var(--bg);
+      min-height:100dvh;
+      overflow-x:hidden;
+    
+      padding-bottom:92px;
+    }
+    a{color:inherit;text-decoration:none}
+    .wrap{
+  max-width:1120px;
+  margin:0 auto;
+  padding:18px 16px; /* lateral menor */
 }
-*{box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
-body{margin:0;background:var(--bg);color:var(--text)}
-a{color:inherit;text-decoration:none}
 
-.wrap{max-width:820px;margin:0 auto;padding:22px 16px 160px;}
+    .section{padding:22px 0}
 
-.brand{
+    .grid{display:grid;gap:14px}
+   /* ✅ HERO sempre em 1 coluna (desktop = mobile) */
+.grid2{
+  grid-template-columns: 1.2fr .8fr;
+  align-items:start;
+}
+@media (max-width: 900px){
+  .grid2{ grid-template-columns: 1fr; }
+}
+    @media (max-width: 860px){ .grid3{grid-template-columns:1fr} }
+
+    .card{
+      background:var(--card);
+      border:1px solid var(--stroke);
+      border-radius:var(--radius);
+      padding:16px;
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+    .mini{color:var(--muted);font-size:13px;line-height:1.55}
+    .muted{color:var(--muted2)}
+    .hr{height:1px;background:rgba(255,255,255,.10);margin:14px 0;border-radius:999px}
+
+    /* HERO FRAME */
+    .heroFrame{
+      padding:14px;
+      border-radius:26px;
+      border:1px solid rgba(250,204,21,.22);
+      background:
+        radial-gradient(1200px 380px at 22% 0%, rgba(250,204,21,.14), transparent 60%),
+        radial-gradient(900px 260px at 80% 10%, rgba(34,197,94,.08), transparent 65%),
+        rgba(255,255,255,.03);
+      box-shadow: var(--glowGold), 0 22px 70px rgba(0,0,0,.50);
+    }
+
+    /* ✅ TOPO SEM CARD: apenas logo + nome (sem fundo/borda) */
+    .headerRow{
+      display:grid;
+      grid-template-columns: 120px 1fr 120px;
+      align-items:center;
+      gap:12px;
+      padding:2px 2px 10px;
+      background:transparent;
+      border:none;
+      box-shadow:none;
+    }
+    .brandLeft{display:flex;align-items:center;justify-content:flex-start}
+    .rightSpacer{display:block}
+    .logo{
+      height:54px;
+      width:auto;
+      object-fit:contain;
+      display:block;
+      filter: drop-shadow(0 18px 45px rgba(0,0,0,.55));
+    }
+    .titleCenter{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      text-align:center;
+      padding:0 8px;
+    }
+    .titleCenter span{
+      font-size:clamp(18px, 2.4vw, 24px);
+      font-weight:1200;
+      letter-spacing:.6px;
+      color:var(--yellow);
+      text-shadow:
+        0 10px 35px rgba(250,204,21,.22),
+        0 0 18px rgba(250,204,21,.10);
+      white-space:nowrap;
+    }
+
+    @media (max-width: 620px){
+
+  /* mantém a mesma “moldura” alinhada */
+  .wrap{ padding:16px; }
+
+  /* moldura do HERO mais enxuta */
+  .heroFrame{
+    padding:12px 12px 10px;
+    border-radius:22px;
+  }
+
+  /* topo (logo + nome) alinhado no mobile */
+  .headerRow{
+    grid-template-columns: 56px 1fr;
+    padding:2px 2px 12px;
+    gap:10px;
+  }
+  .rightSpacer{display:block;}
+  .logo{height:44px;}
+
+  .titleCenter span{
+    font-size:19px;
+    white-space:normal;
+    line-height:1.05;
+  }
+
+  /* kicker (Método PRIME...) alinhado e bonito */
+  .kicker{
+    width:100%;
+    justify-content:center;
+    text-align:center;
+    flex-wrap:wrap;
+    line-height:1.35;
+  }
+.dot{ opacity:.85; }
+.kicker b{ white-space:nowrap; } /* PRIME não quebra sozinho */
+
+  /* chips em 2 colunas (bem alinhados) */
+  .heroProofRow{
+    display:grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap:10px;
+  }
+  .proofChip{
+    width:100%;
+    justify-content:center;
+    text-align:center;
+    white-space:normal;
+  }
+}
+
+    /* ✅ PADRONIZAÇÃO DE TAMANHOS (HERO x RESTO) */
+    h1{
+      margin:10px 0 8px;
+      line-height:1.04;
+      letter-spacing:.2px;
+      font-weight:1200;
+      font-size: clamp(22px, 2.9vw, 34px);
+      white-space:normal;
+      text-wrap:balance;
+    }
+    .headlineWhite{ color:#ffffff; }
+    .headlineGold{ color: var(--yellow); }
+
+    h2{margin:0 0 10px;font-size:clamp(18px, 2.2vw, 22px);color:var(--yellow);line-height:1.15}
+    h3{margin:0 0 8px;font-size:16px;color:var(--yellow)}
+
+    .btn{
+      display:inline-flex;align-items:center;justify-content:center;gap:10px;
+      padding:12px 14px;border:none;border-radius:14px;
+      font-weight:1100;cursor:pointer;
+      transition:.15s;
+      box-shadow: 0 18px 45px rgba(0,0,0,.35);
+      width:100%;
+    }
+    .btn:hover{filter:brightness(1.05);transform:translateY(-1px)}
+    .btn:active{transform:translateY(0);filter:brightness(.98)}
+    .btnGold, .btnPrimary{
+      background:linear-gradient(135deg,var(--yellow),var(--yellow2));
+      box-shadow:0 0 0 1px rgba(250,204,21,.30), 0 18px 60px rgba(250,204,21,.22);
+      color:#0b0b0b
+    }
+    .btnGhost{
+      background: rgba(0,0,0,.55);
+      border: 1px solid rgba(255,255,255,.18);
+      color: #ffffff;
+      box-shadow:none;
+    }
+
+    .list{margin:0;padding:0;list-style:none;display:grid;gap:10px}
+    .li{
+      display:flex;gap:10px;align-items:flex-start;
+      padding:10px 12px;border-radius:16px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.045);
+    }
+    .icon{
+      width:34px;height:34px;border-radius:12px;flex:0 0 34px;
+      display:flex;align-items:center;justify-content:center;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.05);
+      font-weight:1000;
+    }
+
+    /* HERO */
+    .hero{padding:14px 0 8px;}
+    .heroInner{padding-top:6px;}
+    .heroCard{padding:16px;}
+    .heroMedia{
+      border-radius:var(--radius);
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.04);
+    }
+    .heroMediaInner{padding:16px;display:grid;gap:12px;}
+    .mock{
+      width:100%;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(0,0,0,.55);
+      display:flex;align-items:center;justify-content:center;
+      padding:18px;
+      color:rgba(255,255,255,.80);
+      min-height:190px;
+      text-align:center;
+      font-weight:1100;
+    }
+    @media (max-width: 900px){
+      .mock{min-height:170px}
+    }
+
+    /* TAGS */
+    .tag{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:7px 12px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.06);
+      font-size:13px;
+      font-weight:1100;
+      color:#ffffff;
+    }
+    .tag.premium{border-color:rgba(255,255,255,.18);background:rgba(255,255,255,.08)}
+    .tag.extra{border-color:rgba(250,204,21,.35);background:rgba(250,204,21,.18);color:#fff2b0}
+    .tag.combo{border-color:rgba(250,204,21,.45);background:rgba(250,204,21,.22);color:#fff2b0}
+
+    /* PRINTS */
+    .shot{
+      width:100%;
+      height:auto;
+      display:block;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(0,0,0,.35);
+      cursor: zoom-in;
+    }
+    .shotWrap{
+      border-radius:16px;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.35);
+    }
+    .shotHint{
+      margin-top:10px;
+      color:rgba(255,255,255,.75);
+      font-size:12px;
+    }
+
+   /* ==========================================================
+   ✅ OFERTAS (PADRÃO DO PRINT) — SEM INLINE / SEM EMENDAS
+========================================================== */
+.offersGrid{
+  display:grid;
+  gap:14px;
+  align-items:stretch;
+}
+@media (min-width: 901px){
+  .offersGrid{ grid-template-columns: repeat(4, 1fr); }
+}
+@media (max-width: 900px){
+  .offersGrid{ grid-template-columns: 1fr; }
+}
+
+/* Card base */
+.offerCard{
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  padding:16px;
+  border-radius:22px;
+  border:1px solid rgba(255,255,255,.14);
+  background: rgba(255,255,255,.035);
+  box-shadow: var(--shadow);
+  position:relative;
+  overflow:hidden;
+}
+
+/* “barra/pílula” do topo */
+.offerTop{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:12px;
+}
+.offerPill{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:7px 12px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.16);
+  background: rgba(255,255,255,.07);
+  font-size:12px;
+  font-weight:1100;
+  letter-spacing:.2px;
+  color:#fff;
+  white-space:nowrap;
+}
+
+/* Título e subtítulo */
+.offerTitle{
+  margin:0;
+  font-size:18px;
+  font-weight:1200;
+  color: var(--yellow);
+  letter-spacing:.2px;
+}
+.offerSubtitle{
+  margin:6px 0 0;
+  color: rgba(255,255,255,.78);
+  font-size:13px;
+  line-height:1.4;
+}
+
+/* “Caixa” de preço central */
+.priceWrap{
+  margin:14px 0 10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.priceBox{
+  width:100%;
+  max-width:260px;
+  border-radius:16px;
+  padding:12px 14px;
+  border:1px solid rgba(255,255,255,.16);
+  background: rgba(0,0,0,.45);
+  display:flex;
+  align-items:baseline;
+  justify-content:center;
+  gap:10px;
+}
+.priceCurrency{
+  font-size:16px;
+  font-weight:1100;
+  color: rgba(255,255,255,.85);
+}
+.priceValue{
+  font-size:40px;
+  font-weight:1300;
+  letter-spacing:.3px;
+  color: var(--yellow);
+}
+.priceNote{
+  margin-top:8px;
   text-align:center;
-  font-weight:1000;
-  letter-spacing:3px;
-  font-size:22px;
-  margin-bottom:14px;
+  font-size:12px;
+  color: rgba(255,255,255,.72);
 }
 
-h1{text-align:center;font-size:28px;line-height:1.25;margin:10px 0;}
-.sub{text-align:center;color:var(--muted);font-size:15px;margin:0 0 14px;}
-
-.video{border-radius:16px;overflow:hidden;border:1px solid var(--stroke);margin-top:14px;background:#000;}
-video{width:100%;display:block}
-
-/* prints (igual antes: arquivos na raiz) */
-.gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px;}
-.gallery img{width:100%;display:block;border-radius:12px;border:1px solid var(--stroke);background:#000;}
-@media(max-width:700px){.gallery{grid-template-columns:1fr;}}
-
-.bullets{display:grid;gap:10px;margin:18px 0;}
-.b{background:var(--card);padding:12px;border-radius:12px;font-size:14px;border:1px solid rgba(255,255,255,.08);}
-
-.btn{display:block;text-align:center;padding:15px;border-radius:14px;font-weight:1000;margin-top:8px;border:1px solid rgba(255,255,255,.10);}
-.free{background:linear-gradient(135deg,var(--green),var(--green2));color:#000;border-color:rgba(34,197,94,.25);}
-.premium{background:linear-gradient(135deg,var(--yellow),var(--yellow2));color:#000;border-color:rgba(250,204,21,.25);}
-.extra{background:#111827;color:#fff;}
-.combo{background:#fff;color:#000;}
-
-.sectionTitle{margin-top:24px;font-size:18px;color:var(--yellow);font-weight:1000;}
-
-.comments{display:grid;gap:10px;margin-top:10px;}
-.comment{background:var(--card);padding:12px;border-radius:12px;font-size:13px;border:1px solid rgba(255,255,255,.08);}
-
-details{background:var(--card);padding:12px;border-radius:12px;margin-top:8px;border:1px solid rgba(255,255,255,.08);}
-summary{font-weight:900;cursor:pointer;}
-details p{margin:10px 0 0;color:var(--muted);line-height:1.5;font-size:13px;}
-
-.footer{margin-top:18px;font-size:12px;text-align:center;color:#aaa;line-height:1.6;}
-
-/* sticky mobile */
-.sticky{
-  position:fixed;bottom:0;left:0;right:0;
-  background:rgba(0,0,0,.92);
-  backdrop-filter:blur(10px);
-  padding:10px;
-  border-top:1px solid var(--stroke);
+/* Lista de benefícios em “pílulas” (igual ao print) */
+.offerList{
+  margin:12px 0 0;
+  padding:0;
+  list-style:none;
+  display:grid;
+  gap:10px;
 }
-.sticky-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;max-width:820px;margin:0 auto;}
-.sticky a{font-size:12px;padding:10px;border-radius:10px;text-align:center;font-weight:1000;}
-@media(min-width:920px){.sticky{display:none;}}
+.offerItem{
+  border-radius:16px;
+  padding:10px 12px;
+  border:1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.045);
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
+  color:#fff;
+  font-size:13px;
+}
+.offerItem .i{
+  width:30px;height:30px;
+  border-radius:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex:0 0 30px;
+  border:1px solid rgba(255,255,255,.14);
+  background: rgba(255,255,255,.06);
+  font-weight:1100;
+}
+
+/* Rodapé/CTA do card */
+.offerCta{
+  margin-top:auto;
+  padding-top:14px;
+}
+.offerBtns{
+  display:grid;
+  gap:10px;
+}
+.offerBtns.two{
+  grid-template-columns:1fr 1fr;
+}
+@media (max-width: 900px){
+  .offerBtns.two{ grid-template-columns:1fr; }
+}
+
+/* ====== VARIAÇÕES (FREE / PREMIUM / EXTRA / COMBO) ====== */
+
+/* FREE */
+.offerFree{
+  border:1px solid rgba(34,197,94,.55);
+  background:
+    radial-gradient(900px 260px at 28% 18%, rgba(34,197,94,.28), transparent 60%),
+    radial-gradient(1000px 360px at 80% 0%, rgba(34,197,94,.14), transparent 55%),
+    rgba(255,255,255,.03);
+  box-shadow: var(--glowGreenStrong), 0 22px 70px rgba(0,0,0,.40);
+}
+.offerFree .offerPill{
+  border-color: rgba(34,197,94,.40);
+  background: rgba(34,197,94,.14);
+}
+
+/* PREMIUM */
+.offerPremium .offerPill{
+  border-color: rgba(255,255,255,.20);
+  background: rgba(255,255,255,.09);
+}
+
+/* EXTRA */
+.offerExtra{
+  border-color: rgba(250,204,21,.28);
+  background:
+    radial-gradient(900px 260px at 30% 18%, rgba(250,204,21,.16), transparent 62%),
+    rgba(255,255,255,.03);
+}
+.offerExtra .offerPill{
+  border-color: rgba(250,204,21,.35);
+  background: rgba(250,204,21,.14);
+  color:#fff2b0;
+}
+
+/* COMBO */
+.offerCombo{
+  border:1px solid rgba(250,204,21,.55);
+  background:
+    radial-gradient(900px 260px at 30% 18%, rgba(250,204,21,.28), transparent 62%),
+    radial-gradient(900px 260px at 70% 18%, rgba(255,216,77,.20), transparent 62%),
+    rgba(255,255,255,.03);
+  box-shadow: var(--glowGoldStrong), 0 22px 70px rgba(0,0,0,.55);
+}
+.offerCombo .offerPill{
+  border-color: rgba(250,204,21,.45);
+  background: rgba(250,204,21,.20);
+  color:#fff2b0;
+}
+/* ==========================================================
+   ✅ PISCAR / BRILHO (FREE + COMBO) — VOLTA O IMPACTO
+   (mantém a estrutura atual das ofertas)
+========================================================== */
+
+/* FREE — pulse + shine */
+.offerFree{
+  animation: freeCardPulse .78s infinite;
+}
+.offerFree::before{
+  content:"";
+  position:absolute;
+  top:-55%;
+  left:-70%;
+  width:70%;
+  height:220%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.30), transparent);
+  transform: rotate(18deg);
+  animation: freeShine 1.85s infinite;
+  pointer-events:none;
+  opacity:.9;
+}
+
+@keyframes freeCardPulse{
+  0%{
+    transform:translateY(0);
+    filter:brightness(1.00) saturate(1.05);
+    box-shadow:
+      0 0 0 2px rgba(34,197,94,.32),
+      0 28px 110px rgba(34,197,94,.40),
+      0 22px 70px rgba(0,0,0,.55);
+  }
+  50%{
+    transform:translateY(-2px);
+    filter:brightness(1.18) saturate(1.18);
+    box-shadow:
+      0 0 0 2px rgba(34,197,94,.55),
+      0 34px 150px rgba(34,197,94,.62),
+      0 22px 70px rgba(0,0,0,.60);
+  }
+  100%{
+    transform:translateY(0);
+    filter:brightness(1.00) saturate(1.05);
+    box-shadow:
+      0 0 0 2px rgba(34,197,94,.32),
+      0 28px 110px rgba(34,197,94,.40),
+      0 22px 70px rgba(0,0,0,.55);
+  }
+}
+@keyframes freeShine{
+  0%{ left:-90%; opacity:0; }
+  15%{ opacity:.55; }
+  45%{ opacity:.90; }
+  70%{ opacity:.45; }
+  100%{ left:150%; opacity:0; }
+}
+
+/* COMBO — pulse + shine */
+.offerCombo{
+  animation: comboCardPulse .90s infinite;
+}
+.offerCombo::before{
+  content:"";
+  position:absolute;
+  top:-60%;
+  left:-80%;
+  width:70%;
+  height:230%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.32), transparent);
+  transform: rotate(16deg);
+  animation: comboShine 2.05s infinite;
+  pointer-events:none;
+  opacity:.95;
+}
+
+@keyframes comboCardPulse{
+  0%{
+    transform:translateY(0);
+    filter:brightness(1.00) saturate(1.06);
+    box-shadow:
+      0 0 0 2px rgba(250,204,21,.26),
+      0 30px 140px rgba(250,204,21,.36),
+      0 22px 70px rgba(0,0,0,.60);
+  }
+  50%{
+    transform:translateY(-2px);
+    filter:brightness(1.22) saturate(1.18);
+    box-shadow:
+      0 0 0 2px rgba(250,204,21,.55),
+      0 38px 190px rgba(250,204,21,.58),
+      0 22px 70px rgba(0,0,0,.65);
+  }
+  100%{
+    transform:translateY(0);
+    filter:brightness(1.00) saturate(1.06);
+    box-shadow:
+      0 0 0 2px rgba(250,204,21,.26),
+      0 30px 140px rgba(250,204,21,.36),
+      0 22px 70px rgba(0,0,0,.60);
+  }
+}
+@keyframes comboShine{
+  0%{ left:-95%; opacity:0; }
+  18%{ opacity:.55; }
+  48%{ opacity:.95; }
+  72%{ opacity:.55; }
+  100%{ left:160%; opacity:0; }
+}
+
+/* ✅ Respeita “reduzir movimento” do celular/navegador */
+@media (prefers-reduced-motion: reduce){
+  .offerFree, .offerCombo{ animation:none !important; }
+  .offerFree::before, .offerCombo::before{ animation:none !important; }
+}
+
+/* “faixa” Mais vendido (opcional no topo do combo) */
+.ribbon{
+  position:absolute;
+  top:14px;
+  right:-46px;
+  transform: rotate(12deg);
+  background: linear-gradient(135deg, var(--yellow), var(--yellow2));
+  color:#0b0b0b;
+  font-weight:1300;
+  font-size:12px;
+  padding:8px 54px;
+  border-radius:999px;
+  box-shadow: 0 18px 55px rgba(250,204,21,.20);
+  border:1px solid rgba(0,0,0,.25);
+}
+
+/* preço do combo com “caixa dourada” */
+.offerCombo .priceBox{
+  background: linear-gradient(135deg, var(--yellow), var(--yellow2));
+  border-color: rgba(250,204,21,.35);
+}
+.offerCombo .priceCurrency,
+.offerCombo .priceValue{
+  color:#0b0b0b;
+}
+
+/* “economize” */
+.savePill{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:6px 10px;
+  border-radius:999px;
+  border:1px solid rgba(250,204,21,.35);
+  background: rgba(0,0,0,.25);
+  color:#fff2b0;
+  font-size:12px;
+  font-weight:1100;
+  justify-content:center;
+}
+.strike{
+  opacity:.65;
+  text-decoration: line-through;
+  font-size:12px;
+}
+
+    /* FREE PULSE */
+    .freeCard{
+      position:relative;
+      border:1px solid rgba(34,197,94,.55);
+      background:
+        radial-gradient(900px 260px at 28% 18%, rgba(34,197,94,.32), transparent 60%),
+        radial-gradient(1000px 360px at 80% 0%, rgba(34,197,94,.16), transparent 55%),
+        rgba(255,255,255,.04);
+      box-shadow: var(--glowGreenStrong), 0 22px 70px rgba(0,0,0,.40);
+      animation: freeCardPulse 0.72s infinite;
+      overflow:hidden;
+    }
+    .freeCard::before{
+      content:"";
+      position:absolute; top:-50%; left:-60%;
+      width:70%; height:210%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.30), transparent);
+      transform: rotate(18deg);
+      animation: freeShine 1.8s infinite;
+      pointer-events:none;
+      opacity:.85;
+    }
+    @keyframes freeCardPulse{
+      0%{transform:translateY(0);filter:brightness(1.00) saturate(1.05);
+        box-shadow:0 0 0 2px rgba(34,197,94,.35),0 26px 95px rgba(34,197,94,.40),0 22px 70px rgba(0,0,0,.50);}
+      50%{transform:translateY(-2px);filter:brightness(1.18) saturate(1.18);
+        box-shadow:0 0 0 2px rgba(34,197,94,.55),0 30px 120px rgba(34,197,94,.62),0 22px 70px rgba(0,0,0,.55);}
+      100%{transform:translateY(0);filter:brightness(1.00) saturate(1.05);
+        box-shadow:0 0 0 2px rgba(34,197,94,.35),0 26px 95px rgba(34,197,94,.40),0 22px 70px rgba(0,0,0,.50);}
+    }
+    @keyframes freeShine{
+      0%{ left:-80%; opacity:0; }
+      15%{ opacity:.55; }
+      45%{ opacity:.85; }
+      70%{ opacity:.45; }
+      100%{ left:140%; opacity:0; }
+    }
+
+    /* COMBO PULSE */
+    .comboCard{
+      position:relative;
+      border:1px solid rgba(250,204,21,.55);
+      background:
+        radial-gradient(900px 260px at 30% 18%, rgba(250,204,21,.32), transparent 62%),
+        radial-gradient(900px 260px at 70% 18%, rgba(255,216,77,.22), transparent 62%),
+        rgba(255,255,255,.04);
+      box-shadow: var(--glowGoldStrong), 0 22px 70px rgba(0,0,0,.50);
+      animation: comboCardPulse 0.88s infinite;
+      overflow:hidden;
+    }
+    .comboCard::before{
+      content:"";
+      position:absolute; top:-55%; left:-70%;
+      width:70%; height:220%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.32), transparent);
+      transform: rotate(16deg);
+      animation: comboShine 2.0s infinite;
+      pointer-events:none;
+      opacity:.9;
+    }
+    @keyframes comboCardPulse{
+      0%{transform:translateY(0);filter:brightness(1.00) saturate(1.06);
+        box-shadow:0 0 0 2px rgba(250,204,21,.30),0 26px 110px rgba(250,204,21,.36),0 22px 70px rgba(0,0,0,.55);}
+      50%{transform:translateY(-2px);filter:brightness(1.20) saturate(1.18);
+        box-shadow:0 0 0 2px rgba(250,204,21,.55),0 32px 150px rgba(250,204,21,.58),0 22px 70px rgba(0,0,0,.60);}
+      100%{transform:translateY(0);filter:brightness(1.00) saturate(1.06);
+        box-shadow:0 0 0 2px rgba(250,204,21,.30),0 26px 110px rgba(250,204,21,.36),0 22px 70px rgba(0,0,0,.55);}
+    }
+    @keyframes comboShine{
+      0%{ left:-90%; opacity:0; }
+      18%{ opacity:.55; }
+      48%{ opacity:.95; }
+      72%{ opacity:.55; }
+      100%{ left:150%; opacity:0; }
+    }
+
+    /* STICKY CTA */
+
+    /* ===========================
+       BLINK CTA (BOTÃO + BORDA)
+       =========================== */
+    .blinkGreen{
+      position:relative;
+      border:2px solid rgba(34,197,94,.65) !important;
+      animation: ctaBlinkGreen .85s infinite;
+    }
+    .blinkGold{
+      position:relative;
+      border:2px solid rgba(250,204,21,.65) !important;
+      animation: ctaBlinkGold .85s infinite;
+    }
+    @keyframes ctaBlinkGreen{
+      0%,100%{
+        filter:brightness(1.00);
+        box-shadow:
+          0 0 0 2px rgba(34,197,94,.20),
+          0 16px 55px rgba(34,197,94,.20);
+        transform:translateY(0);
+      }
+      50%{
+        filter:brightness(1.30);
+        box-shadow:
+          0 0 0 2px rgba(34,197,94,.60),
+          0 0 24px rgba(34,197,94,.55),
+          0 22px 80px rgba(34,197,94,.45);
+        transform:translateY(-1px);
+      }
+    }
+    @keyframes ctaBlinkGold{
+      0%,100%{
+        filter:brightness(1.00);
+        box-shadow:
+          0 0 0 2px rgba(250,204,21,.20),
+          0 16px 55px rgba(250,204,21,.18);
+        transform:translateY(0);
+      }
+      50%{
+        filter:brightness(1.35);
+        box-shadow:
+          0 0 0 2px rgba(250,204,21,.65),
+          0 0 26px rgba(250,204,21,.55),
+          0 24px 90px rgba(250,204,21,.45);
+        transform:translateY(-1px);
+      }
+    }
+
+    .stickyCta{
+      position:fixed;left:0;right:0;bottom:0;
+      padding:10px 12px;
+      background:rgba(0,0,0,.88);
+      backdrop-filter: blur(10px);
+      border-top:1px solid rgba(255,255,255,.12);
+      display:none;
+      z-index:999;
+    }
+    .stickyRow{
+      max-width:1120px;margin:0 auto;
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:10px;
+      align-items:stretch;
+    }
+    .stickyRow a{
+      height:46px;
+      padding:0 10px;
+      border-radius:14px;
+      font-size:15px;
+      font-weight:1200;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      white-space:nowrap;
+      border:1px solid rgba(255,255,255,.12);
+      background:linear-gradient(135deg,var(--yellow),var(--yellow2));
+      color:#0b0b0b;
+      box-shadow:0 18px 45px rgba(0,0,0,.35);
+    }
+    .btnFreeSticky{
+      background: linear-gradient(135deg, var(--green), var(--green2)) !important;
+      color:#04160b !important;
+      border:1px solid rgba(34,197,94,.28) !important;
+      box-shadow: var(--glowGreenStrong) !important;
+    }
+    .btnComboSticky{
+      border:1px solid rgba(250,204,21,.25) !important;
+      box-shadow: var(--glowGoldStrong) !important;
+      animation: comboBtnPulse 0.85s infinite;
+    }
+    @keyframes comboBtnPulse{
+      0%{ filter:brightness(1.00); box-shadow: 0 0 0 2px rgba(250,204,21,.25), 0 20px 70px rgba(250,204,21,.28); }
+      50%{ filter:brightness(1.22); box-shadow: 0 0 0 2px rgba(250,204,21,.55), 0 26px 90px rgba(250,204,21,.55); }
+      100%{ filter:brightness(1.00); box-shadow: 0 0 0 2px rgba(250,204,21,.25), 0 20px 70px rgba(250,204,21,.28); }
+    }
+
+    @media (max-width: 900px){
+      body{padding-bottom:92px}
+    }
+    @media (max-width: 420px){
+      body{padding-bottom:104px}
+      .stickyRow{gap:8px}
+      .stickyRow a{height:46px;border-radius:12px;font-size:14.5px}
+    }
+
+    details{
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.045);
+      border-radius:16px;
+      padding:12px 12px;
+    }
+    summary{cursor:pointer;font-weight:1100;list-style:none;}
+    details p{margin:10px 0 0;color:var(--muted);line-height:1.55;font-size:13px}
+
+    /* ✅ BLOCO “QUEBRANDO OBJEÇÕES” MAIS VENDÁVEL */
+    .objectionHead{
+      display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+    }
+    .pill{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:8px 12px;border-radius:999px;
+      border:1px solid rgba(250,204,21,.22);
+      background:rgba(250,204,21,.10);
+      color:#fff2b0;
+      font-size:12px;
+      font-weight:1100;
+      white-space:nowrap;
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+    }
+
+    .foot{
+      text-align:center;
+      color:rgba(203,213,225,.7);
+      font-size:12px;
+      padding:16px 0 26px;
+    }
+
+    /* LIGHTBOX */
+    .lightbox{position:fixed;inset:0;background:rgba(0,0,0,.86);display:none;align-items:center;justify-content:center;padding:18px;z-index:2000;}
+    .lightbox.open{display:flex}
+    .lightboxInner{max-width:min(1080px, 96vw);max-height:90vh;width:100%;border-radius:18px;overflow:hidden;border:1px solid rgba(255,255,255,.16);background:rgba(0,0,0,.55);box-shadow: 0 30px 90px rgba(0,0,0,.65);position:relative;}
+    .lightboxImg{width:100%;height:auto;display:block;max-height:90vh;object-fit:contain;background:#000;}
+    .lightboxClose{position:absolute;top:10px;right:10px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.55);color:#fff;border-radius:12px;padding:10px 12px;cursor:pointer;font-weight:1100;}
+ /* ==========================================================
+   ✅ STICKY CTA MOBILE (FREE / PREMIUM / 15P / COMBO)
+========================================================== */
+.stickyCta{
+  position:fixed;
+  left:0; right:0; bottom:0;
+  padding:10px 12px;
+  background:rgba(0,0,0,.88);
+  backdrop-filter: blur(10px);
+  border-top:1px solid rgba(255,255,255,.12);
+  display:none;
+  z-index:999;
+}
+.stickyRow{
+  max-width:1120px;
+  margin:0 auto;
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+  align-items:stretch;
+}
+.stickyRow a{
+  height:46px;
+  padding:0 10px;
+  border-radius:14px;
+  font-size:15px;
+  font-weight:1200;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  white-space:nowrap;
+  border:1px solid rgba(255,255,255,.12);
+  background:linear-gradient(135deg,var(--yellow),var(--yellow2));
+  color:#0b0b0b;
+  box-shadow:0 18px 45px rgba(0,0,0,.35);
+}
+
+/* FREE destaque */
+.btnFreeSticky{
+  background: linear-gradient(135deg, var(--green), var(--green2)) !important;
+  color:#04160b !important;
+  border:1px solid rgba(34,197,94,.28) !important;
+  box-shadow: 0 0 0 1px rgba(34,197,94,.55), 0 22px 80px rgba(34,197,94,.42) !important;
+}
+
+/* COMBO destaque (pulsando) */
+.btnComboSticky{
+  border:1px solid rgba(250,204,21,.25) !important;
+  box-shadow: 0 0 0 1px rgba(250,204,21,.45), 0 22px 75px rgba(250,204,21,.34) !important;
+  animation: comboBtnPulse .85s infinite;
+}
+@keyframes comboBtnPulse{
+  0%{ filter:brightness(1.00); box-shadow: 0 0 0 2px rgba(250,204,21,.25), 0 20px 70px rgba(250,204,21,.28); }
+  50%{ filter:brightness(1.22); box-shadow: 0 0 0 2px rgba(250,204,21,.55), 0 26px 90px rgba(250,204,21,.55); }
+  100%{ filter:brightness(1.00); box-shadow: 0 0 0 2px rgba(250,204,21,.25), 0 20px 70px rgba(250,204,21,.28); }
+}
+
+@media (max-width: 900px){
+  body{padding-bottom:92px}
+}
+@media (max-width: 420px){
+  body{padding-bottom:104px}
+  .stickyRow{gap:8px}
+  .stickyRow a{height:46px;border-radius:12px;font-size:14.5px}
+}
+@media (prefers-reduced-motion: reduce){
+  .btnComboSticky{ animation:none !important; }
+}
+/* =========================
+   HERO ELITE (impacto real)
+========================= */
+.kicker{
+  display:flex;                 /* era inline-flex */
+  align-items:center;
+  justify-content:flex-start;
+  flex-wrap:wrap;               /* ✅ quebra bonito */
+  gap:10px;
+  width:100%;                   /* ✅ alinha com o card */
+  text-align:left;
+
+  padding:8px 12px;
+  border-radius:999px;
+  border:1px solid rgba(250,204,21,.22);
+  background: rgba(250,204,21,.10);
+  color:#fff2b0;
+  font-size:12.5px;
+  font-weight:1200;
+  letter-spacing:.25px;
+  box-shadow: 0 12px 35px rgba(0,0,0,.35);
+}
+.kicker b{ color: var(--yellow); }
+
+/* ✅ ouro funciona em qualquer lugar (não só dentro do heroTitle) */
+.gold{
+  color:var(--yellow);
+  text-shadow:
+    0 14px 45px rgba(250,204,21,.22),
+    0 0 18px rgba(250,204,21,.10);
+}
+.heroSub{
+  text-align:left;              /* ✅ força alinhamento */
+  font-size:14px;
+  line-height:1.65;
+  color: rgba(255,255,255,.84);
+}
+.proofChip{
+  flex:0 0 auto;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 10px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.14);
+  background: rgba(255,255,255,.06);
+  color:#fff;
+  font-size:12px;
+  font-weight:1100;
+}
+
+.ctaStack{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+@media (max-width:620px){
+  .ctaStack{ grid-template-columns:1fr; }
+}
+@media (max-width: 620px){
+  .ctaStack{ grid-template-columns:1fr; }
+}
+
+.btnBig{
+  padding:14px 14px;
+  border-radius:16px;
+  font-size:15px;
+  font-weight:1300;
+}
+.btnGreen{
+  background: linear-gradient(135deg, var(--green), var(--green2));
+  color:#04160b;
+  border:1px solid rgba(34,197,94,.28);
+  box-shadow: var(--glowGreenStrong);
+}
+.btnGreen:hover{ filter:brightness(1.06); transform:translateY(-1px); }
+.btnGreen:active{ transform:translateY(0); filter:brightness(.98); }
+
+.heroLine{
+  height:1px;
+  background: rgba(255,255,255,.10);
+  margin:14px 0;
+  border-radius:999px;
+}
+
+.heroSideBox{
+  border:1px solid rgba(255,255,255,.14);
+  background: rgba(255,255,255,.045);
+  border-radius:18px;
+  padding:14px;
+}
+.heroSideTitle{
+  margin:0 0 6px;
+  font-size:14px;
+  font-weight:1300;
+  color:var(--yellow);
+}
+.heroSideText{
+  margin:0;
+  font-size:13px;
+  line-height:1.55;
+  color: rgba(255,255,255,.82);
+}
+@media (max-width: 620px){
+  .titleCenter{
+    justify-content:flex-start;   /* em vez de centralizado */
+    text-align:left;
+  }
+  .titleCenter span{
+    white-space:normal;
+  }
+}
+
+  
+/* ======================================================
+🚀 HERO ELITE NOVO
+====================================================== */
+
+.gold{
+  color:var(--yellow);
+  text-shadow:
+    0 14px 45px rgba(250,204,21,.22),
+    0 0 18px rgba(250,204,21,.10);
+}
+
+.heroElite{
+  padding:26px 0 44px;
+}
+
+.heroEliteGrid{
+  display:grid;
+  grid-template-columns: 1.1fr .9fr;
+  gap:40px;
+  align-items:center;
+}
+
+@media(max-width:900px){
+  .heroEliteGrid{ grid-template-columns:1fr; }
+}
+
+/* COPY */
+.heroBadge{
+  display:inline-block;
+  padding:8px 16px;
+  border-radius:999px;
+  border:1px solid rgba(250,204,21,.35);
+  background:rgba(250,204,21,.12);
+  color:#fff2b0;
+  font-size:13px;
+  font-weight:1100;
+  margin:6px 0 18px;
+}
+
+.heroEliteTitle{
+  font-size: clamp(32px, 5vw, 54px);
+  font-weight:1300;
+  line-height:1.05;
+  margin:0 0 18px;
+  letter-spacing:.2px;
+}
+
+.heroEliteSub{
+  font-size:16px;
+  line-height:1.65;
+  color:rgba(255,255,255,.85);
+  max-width:640px;
+  margin:0;
+}
+
+/* PROVAS */
+.heroEliteProofs{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin:22px 0 16px;
+}
+
+.heroEliteProofs span{
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.14);
+  padding:8px 12px;
+  border-radius:999px;
+  font-size:13px;
+  font-weight:1100;
+}
+
+/* BOTÕES */
+.heroEliteBtns{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  margin-top:8px;
+}
+
+@media(max-width:620px){
+  .heroEliteBtns{ grid-template-columns:1fr; }
+}
+
+/* VÍDEO */
+.heroEliteVideo{ width:100%; }
+
+.videoMock{
+  width:100%;
+  min-height:360px;
+  border-radius:20px;
+  border:1px solid rgba(255,255,255,.16);
+  background:rgba(0,0,0,.55);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  font-weight:1100;
+  color:rgba(255,255,255,.75);
+  padding:18px;
+}
+
+@media(max-width:900px){
+  .videoMock{ min-height:260px; }
+}
+
+
+
+/* ==========================================================
+   ✅ STICKY CTA MOBILE — SEMPRE VISÍVEL (100% do tempo)
+   força exibição contínua no mobile, independente de scroll
+========================================================== */
+@media (max-width: 900px){
+  .stickyCta{
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: none !important;
+    z-index: 99999 !important;
+  }
+  body{
+    padding-bottom: 110px !important;
+  }
+}
+
+
+/* ==========================================================
+   ✅ FIX DEFINITIVO: STICKY CTA SEMPRE VISÍVEL NO MOBILE
+   (FREE / PREMIUM / EXTRA15P / COMBO)
+========================================================== */
+.stickyCta{
+  position:fixed !important;
+  left:0 !important;
+  right:0 !important;
+  bottom:0 !important;
+  padding:10px 12px !important;
+  background:rgba(0,0,0,.88) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-top:1px solid rgba(255,255,255,.12) !important;
+  z-index:99999 !important;
+  display:none !important; /* padrão: desktop escondido */
+}
+.stickyRow{
+  max-width:1120px;
+  margin:0 auto;
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+  align-items:stretch;
+}
+.stickyRow a{
+  height:46px;
+  padding:0 10px;
+  border-radius:14px;
+  font-size:15px;
+  font-weight:1200;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  white-space:nowrap;
+  border:1px solid rgba(255,255,255,.12);
+  background:linear-gradient(135deg,var(--yellow),var(--yellow2));
+  color:#0b0b0b;
+  box-shadow:0 18px 45px rgba(0,0,0,.35);
+}
+
+/* FREE destaque */
+.btnFreeSticky{
+  background: linear-gradient(135deg, var(--green), var(--green2)) !important;
+  color:#04160b !important;
+  border:1px solid rgba(34,197,94,.28) !important;
+  box-shadow: var(--glowGreenStrong) !important;
+}
+
+/* COMBO destaque (pulsando) */
+.btnComboSticky{
+  border:1px solid rgba(250,204,21,.25) !important;
+  box-shadow: var(--glowGoldStrong) !important;
+  animation: comboBtnPulse .85s infinite;
+}
+
+@media (max-width: 900px){
+  .stickyCta{display:block !important;}
+  body{padding-bottom:96px;} /* espaço para não cobrir conteúdo */
+}
+@media (max-width: 420px){
+  body{padding-bottom:108px;}
+  .stickyRow{gap:8px;}
+  .stickyRow a{height:46px;border-radius:12px;font-size:14.5px;}
+}
+@media (prefers-reduced-motion: reduce){
+  .btnComboSticky{ animation:none !important; }
+}
+
+
+
+/* ==========================================================
+   ✅ FIX FINAL (02-02-26) — CERTEIRO
+   1) HERO: 2 botões com borda + piscar (botão inteiro)
+   2) MOBILE: Barra fixa (FREE/PREMIUM/EXTRA15P/COMBO) sempre visível
+   3) MOBILE: Piscando somente FREE + COMBO (não PREMIUM)
+========================================================== */
+
+/* (Re)declara keyframes caso algum bloco anterior conflite */
+@keyframes ctaBlinkGreen{
+  0%,100%{
+    filter:brightness(1.00);
+    box-shadow:
+      0 0 0 2px rgba(34,197,94,.20),
+      0 16px 55px rgba(34,197,94,.20);
+    transform:translateY(0);
+  }
+  50%{
+    filter:brightness(1.30);
+    box-shadow:
+      0 0 0 2px rgba(34,197,94,.70),
+      0 0 26px rgba(34,197,94,.65),
+      0 24px 95px rgba(34,197,94,.50);
+    transform:translateY(-1px);
+  }
+}
+@keyframes ctaBlinkGold{
+  0%,100%{
+    filter:brightness(1.00);
+    box-shadow:
+      0 0 0 2px rgba(250,204,21,.18),
+      0 16px 55px rgba(250,204,21,.16);
+    transform:translateY(0);
+  }
+  50%{
+    filter:brightness(1.35);
+    box-shadow:
+      0 0 0 2px rgba(250,204,21,.75),
+      0 0 30px rgba(250,204,21,.60),
+      0 26px 105px rgba(250,204,21,.48);
+    transform:translateY(-1px);
+  }
+}
+
+/* Classe única para aplicar o efeito (botão inteiro + borda) */
+.btnBlinkGreen{
+  border: 2px solid rgba(34,197,94,.80) !important;
+  animation: ctaBlinkGreen .85s infinite !important;
+  will-change: filter, box-shadow, transform;
+}
+.btnBlinkGold{
+  border: 2px solid rgba(250,204,21,.80) !important;
+  animation: ctaBlinkGold .85s infinite !important;
+  will-change: filter, box-shadow, transform;
+}
+
+/* ✅ Barra fixa: sempre visível no MOBILE durante TODA a página */
+.stickyCta{ display:none !important; }
+@media (max-width: 900px){
+  .stickyCta{
+    display:block !important;
+    position:fixed !important;
+    left:0 !important; right:0 !important; bottom:0 !important;
+    z-index:99999 !important;
+  }
+  body{ padding-bottom:110px !important; }
+}
+
+/* ✅ MOBILE: garantir que PREMIUM não pisque (mesmo se alguém adicionar classe sem querer) */
+.btnPremiumSticky{
+  animation:none !important;
+  border:1px solid rgba(255,255,255,.12) !important;
+  box-shadow:0 18px 45px rgba(0,0,0,.35) !important;
+}
+
+
+/* HERO AMARELO */
+.heroYellowCard{
+  background:#facc15;
+  border-radius:22px;
+  padding:28px;
+  box-shadow:0 25px 80px rgba(250,204,21,.35);
+}
+
+
+/* ==========================================================
+   ✅ AJUSTES DO HERO (02-02-26) — BADGE/CHIPS PRETOS + PISCA PREMIUM
+   (somente visual, sem mexer em funções)
+========================================================== */
+
+/* Badge do método: fundo preto, texto branco e negrito */
+.heroBadgeBlack{
+  background:#000 !important;
+  color:#fff !important;
+  font-weight:1300 !important;
+  border:1px solid rgba(255,255,255,.20) !important;
+}
+
+/* Chips 1-4: fundo preto, texto branco, negrito e tamanho padronizado */
+.proofBlack{
+  background:#000 !important;
+  color:#fff !important;
+  font-weight:1300 !important;
+  border:1px solid rgba(255,255,255,.18) !important;
+  height:34px;
+  padding:0 12px !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  gap:8px;
+  border-radius:999px !important;
+  white-space:nowrap;
+}
+
+/* Premium preto com piscar dourado (mantém o fundo preto) */
+.btnBlinkGoldBlack{
+  background:#000 !important;
+  color:#fff !important;
+  border:2px solid rgba(250,204,21,.80) !important;
+  animation: ctaBlinkGold .85s infinite !important;
+  will-change: filter, box-shadow, transform;
+}
+
+
+/* ===== AJUSTES HERO v3 ===== */
+
+/* Título topo maior e negrito */
+.titleCenter span{
+  font-size:26px !important;
+  font-weight:1400 !important;
+}
+
+/* Logo maior */
+.logo{
+  height:70px !important;
+}
+
+/* Linha branca em negrito */
+.heroEliteSub b,
+.heroEliteSub .whiteBold{
+  color:#fff !important;
+  font-weight:1300 !important;
+}
+
+/* Premium piscando + ícone */
+.btnPremiumBlink{
+  background:#000 !important;
+  color:#fff !important;
+  border:2px solid rgba(250,204,21,.85) !important;
+  animation: ctaBlinkGold .85s infinite !important;
+  font-weight:1300 !important;
+}
+
+
+/* ===== HERO FIX v4 ===== */
+
+/* GARANTE LOGO VISÍVEL E MAIOR */
+.logo{
+  height:82px !important;
+  display:block !important;
+  opacity:1 !important;
+}
+
+/* TÍTULO IGUAL PRINT 2 (maior + negrito forte) */
+.titleCenter span{
+  font-size:30px !important;
+  font-weight:1500 !important;
+  letter-spacing:.6px !important;
+}
+
+/* BOTÃO PREMIUM PISCANDO FORÇADO */
+.btnPremiumBlink{
+  background:#000 !important;
+  color:#fff !important;
+  border:2px solid rgba(250,204,21,.90) !important;
+  animation: ctaBlinkGold .75s infinite !important;
+  font-weight:1300 !important;
+}
+
+/* TEXTO PRIME EM MAIÚSCULO + NEGRITO + PRETO */
+.primeBlack{
+  color:#000 !important;
+  font-weight:1300 !important;
+  text-transform:uppercase !important;
+}
+
+
+/* ===== FIX v5 (logo fallback + premium blink) ===== */
+.btnPremiumBlink{
+  background:#000 !important;
+  color:#fff !important;
+  border:2px solid rgba(250,204,21,.90) !important;
+  animation: ctaBlinkGold .75s infinite !important;
+  font-weight:1300 !important;
+}
+
+
+/* ==============================
+   HEADER VISUAL IGUAL PRINT 2
+   ============================== */
+
+/* texto maior + mais grosso + dourado forte */
+.titleCenter span{
+  font-size:34px !important;
+  font-weight:1500 !important;
+  color:#facc15 !important;
+  letter-spacing:.8px !important;
+}
+
+/* linha divisória abaixo do título */
+.headerRow{
+  border-bottom:2px solid rgba(255,255,255,.35) !important;
+  padding-bottom:14px !important;
+}
+
+/* centralização vertical melhor */
+.titleCenter{
+  align-items:center !important;
+  gap:12px !important;
+}
+
+
+/* =========================
+   HEADER FINAL — IGUAL PRINT 2 (DEFINITIVO)
+   ========================= */
+
+.titleCenter span{
+  font-size:40px !important;
+  font-weight:900 !important;
+  color:#facc15 !important;
+  letter-spacing:1.2px !important;
+  text-shadow:
+    0 0 10px rgba(250,204,21,.30),
+    0 8px 30px rgba(250,204,21,.28);
+}
+
+.headerRow{
+  border-bottom:2px solid rgba(255,255,255,.35) !important;
+  padding-bottom:14px !important;
+}
+
+.titleCenter{
+  gap:14px !important;
+  align-items:center !important;
+}
+
+
+/* =========================
+   MOBILE LOGO FIX DEFINITIVO
+   remove fundo + enquadra
+   ========================= */
+
+.logo{
+  background:transparent !important;
+  box-shadow:none !important;
+  border:none !important;
+}
+
+/* mobile */
+@media (max-width: 900px){
+
+  .headerRow{
+    grid-template-columns: 56px 1fr !important;
+    gap:10px !important;
+    align-items:center !important;
+  }
+
+  .logo{
+    height:46px !important;   /* menor no mobile */
+    width:auto !important;
+    object-fit:contain !important;
+  }
+
+  .titleCenter span{
+    font-size:20px !important; /* proporcional */
+    line-height:1.1 !important;
+  }
+}
+
+
+/* =========================
+   MOBILE-FIRST (ajustes finais)
+   ========================= */
+.btnSupport{
+  background: rgba(0,0,0,.08);
+  border: 2px solid rgba(0,0,0,.22);
+  color:#000;
+}
+.btnSupport:hover{ filter:brightness(.98); }
+
+.btnSupportSticky{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:10px 12px;
+  border-radius:10px;
+  font-weight:900;
+  letter-spacing:.2px;
+  text-decoration:none;
+  background: rgba(255,255,255,.10);
+  border:1px solid rgba(255,255,255,.22);
+  color:#fff;
+}
+
+/* Botões do HERO em coluna no celular */
+@media (max-width: 720px){
+  .heroEliteBtns{ grid-template-columns:1fr !important; }
+  .btnBig{ width:100% !important; }
+}
+
+/* Melhor leitura e espaçamento no celular */
+@media (max-width: 600px){
+  body{ font-size: 16px; }
+  .wrap{ padding-left:14px !important; padding-right:14px !important; }
+  .headerRow{ gap:12px !important; }
+  .heroTitle{ line-height:1.15 !important; }
+  .heroSub{ line-height:1.25 !important; }
+}
+
+/* Sticky: aparece só no mobile (evita poluir desktop) */
+@media (max-width: 900px){
+  .stickyCta{ display:block !important; }
+  .stickyRow{ gap:8px !important; flex-wrap:wrap !important; }
+  .stickyRow a{ flex:1 1 auto; min-width:84px; }
+}
+@media (min-width: 901px){
+  .stickyCta{ display:none !important; }
+}
 </style>
 </head>
 
 <body>
-<div class="wrap">
 
-  <div class="brand">🎯 LOTOFÁCIL PRIME ANALYTICS</div>
+  <div class="wrap" style="padding-top:32px">
 
-  <h1><br><span style="color:var(--yellow)">  "Já pensou em jogar com os 25 números em apenas 10 jogos? Eu tenho o segredo!</span></h1>
-  <p class="sub">Assista o vídeo e veja o sistema gerando os jogos com base em análises reais.</p>
+  <!-- ✅ TOPO: LOGO + NOME (mantido) -->
+  <div class="headerRow">
+    <div class="brandLeft">
+      <img class="logo" src="data:image/png;base64,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" alt="Lotofácil Prime Analytics" onerror="this.onerror=null;var c=['LOGOMARCA.PNG','logomarca.png','logomarca.PNG','logo.png','logo.PNG'];for(var i=0;i<c.length;i++){var t=this.cloneNode();t.removeAttribute('onerror');t.src=c[i];t.onload=()=>{this.src=t.src;};}}" />
+    </div>
 
-  <!-- ✅ VÍDEO NA RAIZ (igual estava antes) -->
-  <div class="video">
-    <video src="vendas.mp4" controls playsinline></video>
+    <div class="titleCenter">
+      <span>🎯 LOTOFÁCIL PRIME ANALYTICS</span>
+    </div>
+
+    <div class="rightSpacer"></div>
   </div>
 
-  <!-- ✅ FOTOS NA RAIZ (igual estava antes) -->
-  <div class="gallery" aria-label="prints do sistema">
-    <img src="JOGO%20PRINCIPAL.png" alt="Jogo Principal — exemplo de geração"/>
-    <img src="JOGOS%20SALVOS.png" alt="Jogos Salvos — exemplo do painel"/>
-    <img src="EXTRA%2015%20PONTOS.png" alt="Extra 15P — exemplo do módulo"/>
+  <!-- =======================================================
+  🚀 HERO ELITE NOVO (VERSÃO VENDAS 7 DÍGITOS)
+  ======================================================= -->
+  <section class="heroElite">
+
+    <div class="heroEliteGrid">
+
+      <!-- LADO ESQUERDO (COPY FORTE) -->
+      <div class="heroEliteContent heroYellowCard">
+
+        <div class="heroBadge heroBadgeBlack">
+          🏆 MÉTODO <b>PRIME</b> • Painel + Geração + Análises
+        </div>
+
+        <h1 class="heroEliteTitle" style="color:#000">
+          Gere seus jogos com
+          <span style="color:#fff">Lógica e Dados</span>
+          <br>
+          não com sorte.
+        </h1>
+
+        <p class="heroEliteSub" style="color:#000">
+          O <span class="primeBlack">Lotofácil Prime Analytics</span> analisa concursos automaticamente,
+          identifica padrões estatísticos e entrega jogos prontos em segundos.
+          <br><br>
+          <b><span class="whiteBold">SEM PLANILHAS. SEM ACHISMO. SEM PERDA DE TEMPO.</span></b>
+        </p>
+
+        <div class="heroEliteProofs" style="color:#000">
+          <span class="proofBlack">✅ Prints reais do sistema</span>
+          <span class="proofBlack">⚡ Geração automática</span>
+          <span class="proofBlack">📱 100% mobile</span>
+          <span class="proofBlack">🔒 Checkout seguro</span>
+        </div>
+
+        <div class="heroEliteBtns">
+          <a class="btn btnBig btnGreen btnBlinkGreen"
+             href="https://nv-sistemas.github.io/lotofacil-pro/"
+             target="_blank">
+             🚀 Testar FREE agora
+          </a>
+
+          <a class="btn btnBig btnPremiumBlink" href="#oferta">🔥 Ver planos Premium</a>
+
+          <a class="btn btnBig btnSupport" href="#suporte">💬 Suporte</a>
+        </div>
+
+        <div class="mini" style="margin-top:12px;font-weight:1200;color:#000">
+          🔥 Comece pelo FREE e sinta o fluxo por dentro. Depois escolha Premium ou Combo para liberar tudo.
+        </div>
+
+      </div>
+
+      <!-- LADO DIREITO (VÍDEO GRANDE) -->
+      <div class="heroEliteVideo">
+        <video
+  src="video/vendas.mp4"
+  controls
+  autoplay
+  muted
+  loop
+  playsinline
+  style="
+    width:100%;
+    border-radius:20px;
+    border:1px solid rgba(255,255,255,.16);
+    box-shadow:0 25px 80px rgba(0,0,0,.55);
+  ">
+</video>
+      </div>
+
+    </div>
+
+  </section>
+</div>
+
+<div class="wrap section" id="como-funciona">
+    <div class="card">
+      <h2>O que torna o Prime “diferente” na prática</h2>
+      <div class="grid grid3">
+        <div class="card" style="margin:0"><h3>✅ Clareza</h3><div class="mini">Em vez de “um monte de números”, você vê um painel que organiza a decisão com lógica e contexto.</div></div>
+        <div class="card" style="margin:0"><h3>⚡ Velocidade</h3><div class="mini">Tudo direto: escolher janela, clicar e receber a análise/jogos. Sem excesso de navegação.</div></div>
+        <div class="card" style="margin:0"><h3>🎯 Foco em ação</h3><div class="mini">O produto é desenhado para levar o usuário à ação: gerar, salvar e conferir.</div></div>
+      </div>
+    </div>
   </div>
 
-  <div class="bullets">
-    <div class="b">⚡ Geração automática de jogos em segundos</div>
-    <div class="b">📊 Estatísticas, padrões e organização do seu método</div>
-    <div class="b">📱 100% no celular (sem instalar nada)</div>
+  <div class="wrap section" id="beneficios">
+    <div class="grid grid2">
+      <div class="card">
+        <h2>Benefícios que o usuário sente</h2>
+        <ul class="list">
+          <li class="li"><span class="icon">⏱️</span><div><b>Economiza tempo</b><div class="mini">Ao invés de “olhar concurso por concurso”, você usa uma análise consolidada.</div></div></li>
+          <li class="li"><span class="icon">🧠</span><div><b>Reduz indecisão</b><div class="mini">O sistema guia a montagem e dá contexto do jogo gerado.</div></div></li>
+          <li class="li"><span class="icon">📌</span><div><b>Organiza sua estratégia</b><div class="mini">Salvar e conferir jogos deixa tudo rastreável e comparável.</div></div></li>
+          <li class="li"><span class="icon">📱</span><div><b>Funciona no celular</b><div class="mini">Layout pensado para mobile (rapidez e eficiência).</div></div></li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h2>O que você recebe</h2>
+        <div class="mini">Estrutura do produto (clara, sem enrolação):</div>
+        <div class="hr"></div>
+        <ul class="list">
+          <li class="li"><span class="icon">🎯</span><div><b>Jogo Principal</b><div class="mini">15 dezenas + resumo PRIME.</div></div></li>
+          <li class="li"><span class="icon">📈</span><div><b>Gerar Análise</b><div class="mini">Resumo estatístico do período selecionado.</div></div></li>
+          <li class="li"><span class="icon">🔄</span><div><b>Invertida</b><div class="mini">Variações a partir do principal.</div></div></li>
+          <li class="li"><span class="icon">🏆</span><div><b>Técnica Premiada</b><div class="mini">Jogos extras por reordenação.</div></div></li>
+          <li class="li"><span class="icon">💾</span><div><b>Jogos Salvos</b><div class="mini">Guardar e conferir resultados.</div></div></li>
+        </ul>
+      </div>
+    </div>
   </div>
 
-  <!-- ✅ LINKS HOTMART (do seu arquivo anterior) -->
-  <a class="btn free" href="https://nv-sistemas.github.io/lotofacil-pro/" target="_blank" rel="noopener">🚀 TESTAR FREE</a>
-  <a class="btn premium" href="https://pay.hotmart.com/O104148865Y?off=c4m0nezi" target="_blank" rel="noopener">🔥 COMPRAR PREMIUM</a>
-  <a class="btn extra" href="https://pay.hotmart.com/Y104149008G?off=eehchnv4" target="_blank" rel="noopener">⭐ COMPRAR EXTRA 15P</a>
-  <a class="btn combo" href="https://pay.hotmart.com/S104212403J?off=qbcz91p3" target="_blank" rel="noopener">💎 QUERO O COMBO</a>
+  <div class="wrap section" id="provas">
+    <div class="card">
+      <h2>🔥 Veja o Prime funcionando na prática</h2>
+      <div class="mini">Enquanto outros prometem, nós mostramos. Toque nas imagens para abrir em tela cheia (zoom).</div>
+      <div class="hr"></div>
 
-  <div class="sectionTitle">Feedback de usuários</div>
-  <div class="comments">
-    <div class="comment">⭐⭐⭐⭐⭐ “Ficava horas para fazer meus jogos, obrigado pelo sistema .”</div>
-    <div class="comment">⭐⭐⭐⭐⭐ “Estou utilizando a um semana e já cheguei nos 13 pontos.”</div>
-    <div class="comment">⭐⭐⭐⭐⭐ “Uso só no celular, ficou simples e prático.”</div>
-    <div class="comment">⭐⭐⭐⭐⭐ “Não sabe o quanto me ajudou com este sistema, muito grata.”</div>
-    <div class="comment">⭐⭐⭐⭐⭐ “Obrigada pelo sistema, prático, rápido e eficiente.”</div>
+      <div class="grid grid3">
+        <div class="card" style="margin:0">
+          <h3>📸 Jogo Principal</h3>
+          <div class="shotWrap"><img class="shot" src="JOGO%20PRINCIPAL.png" alt="Print do Jogo Principal" loading="lazy" /></div>
+          <div class="shotHint">✅ Toque para ampliar</div>
+          <div class="mini" style="margin-top:10px">Tela real do <b>Jogo Principal</b> gerado (15 dezenas + lógica PRIME).</div>
+        </div>
+
+        <div class="card" style="margin:0">
+          <h3>📸 Jogos Salvos</h3>
+          <div class="shotWrap"><img class="shot" src="JOGOS%20SALVOS.png" alt="Print de Jogos Salvos" loading="lazy" /></div>
+          <div class="shotHint">✅ Toque para ampliar</div>
+          <div class="mini" style="margin-top:10px">Tela real de <b>Jogos Salvos + Conferência</b> (organização e validação).</div>
+        </div>
+
+        <div class="card" style="margin:0">
+          <h3>📸 Extra 15 Pontos</h3>
+          <div class="shotWrap"><img class="shot" src="EXTRA%2015%20PONTOS.png" alt="Print do Extra 15 Pontos" loading="lazy" /></div>
+          <div class="shotHint">✅ Toque para ampliar</div>
+          <div class="mini" style="margin-top:10px">Tela real do <b>Extra 15P</b> (estratégia + geração).</div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div class="sectionTitle">Perguntas rápidas</div>
-  <details>
-    <summary>Isso garante prêmio?</summary>
-    <p>Não. O sistema é uma ferramenta estatística e de organização. Loteria envolve aleatoriedade.</p>
-  </details>
-  <details>
-    <summary>Funciona no celular?</summary>
-    <p>Sim. A página e o painel funcionam no mobile (recomendado Chrome).</p>
-  </details>
-  <details>
-    <summary>Como recebo o acesso após pagamento?</summary>
-    <p>Após o checkout, você recebe a liberação/ativação conforme instruções da plataforma.</p>
-  </details>
+  <!-- ✅ OBJEÇÕES (ELITE) / SEM “Pronto pra testar?” -->
+  <div class="wrap section" id="garantia">
+    <div class="card">
 
-  <div class="footer">
-    Suporte: marketingia2026.digital@gmail.com • WhatsApp (27) 98833-6359
+      <div class="objectionHead">
+        <h2 style="margin:0">Ainda com dúvida? Vamos eliminar isso agora 👇</h2>
+        <span class="pill">🎯 Direto ao ponto • Sem enrolação</span>
+      </div>
+
+      <div class="mini" style="margin-top:8px">
+        As dúvidas abaixo travam a compra de muita gente. Aqui vai a resposta objetiva:
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="grid" style="gap:10px">
+        <details open>
+          <summary>⏱️ “Eu não tenho tempo para analisar concursos...”</summary>
+          <p>
+            Justamente por isso o Prime existe.
+            Você escolhe o período → clica → recebe análise + jogos prontos.
+            <b>Fluxo rápido e direto.</b>
+          </p>
+        </details>
+
+        <details>
+          <summary>📱 “Sou iniciante, vou conseguir usar?”</summary>
+          <p>
+            Sim. O sistema é feito para celular, com botões grandes e fluxo simples.
+            Nada técnico, nada confuso — é abrir e usar.
+          </p>
+        </details>
+
+        <details>
+          <summary>🎯 “Tem como buscar 15 pontos com estratégia?”</summary>
+          <p>
+            O módulo <b>Extra 15P</b> traz uma estratégia de montagem por linhas e geração de jogos.
+            <b>Não é promessa de premiação</b> (loterias envolvem risco), mas é uma forma estruturada de jogar com método.
+          </p>
+        </details>
+
+        <details>
+          <summary>🎯 “Se não garante prêmio, por que usar o Prime?”</summary>
+          <p>
+            Loterias não têm garantia.
+            O Prime ajuda você a sair do achismo e tomar decisões com <b>dados + estratégia</b>.
+            Você ganha clareza, organização e consistência no processo.
+          </p>
+        </details>
+
+        <details>
+          <summary>🔒 “A compra é segura?”</summary>
+          <p>
+            Sim. O pagamento é feito pela Hotmart (checkout seguro).
+            Você recebe confirmação automática e acessa usando o seu email.
+          </p>
+        </details>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="grid" style="grid-template-columns:1fr 1fr;gap:10px">
+        <a class="btn btnPrimary" href="#oferta">Ver as ofertas</a>
+        <a class="btn btnGhost" href="#faq">Ver perguntas frequentes</a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- OFERTAS COM PREÇOS (SEM 12x) -->
+  <div class="wrap section" id="oferta">
+    <div class="card">
+
+      <h2>Escolha seu plano</h2>
+      <div class="mini">Acesso imediato após pagamento • Use o mesmo email para login</div>
+
+      <div class="hr"></div>
+
+      <div class="offersGrid">
+
+  <!-- FREE -->
+  <div class="offerCard offerFree">
+    <div class="offerTop">
+      <span class="offerPill">✅ FREE</span>
+    </div>
+
+    <h3 class="offerTitle">Primeiro acesso (teste real)</h3>
+    <p class="offerSubtitle">
+      Crie login com email + senha e gere <b>1 jogo grátis</b>.
+    </p>
+
+    <div class="priceWrap">
+      <div style="width:100%;max-width:260px;">
+        <div class="priceBox" style="background:rgba(0,0,0,.42)">
+          <span class="priceCurrency">R$</span>
+          <span class="priceValue" style="color:var(--yellow)">0,00</span>
+        </div>
+        <div class="priceNote">Acesso imediato • 1 geração grátis</div>
+      </div>
+    </div>
+
+    <ul class="offerList">
+      <li class="offerItem"><span class="i">📩</span><span>Cadastro rápido (sem burocracia)</span></li>
+      <li class="offerItem"><span class="i">🎯</span><span>1 geração grátis do Jogo Principal</span></li>
+      <li class="offerItem"><span class="i">🔒</span><span>Depois: Premium ou Combo</span></li>
+    </ul>
+
+    <div class="offerCta">
+      <div class="offerBtns">
+        <a class="btn btnGold" href="https://nv-sistemas.github.io/lotofacil-pro/" target="_blank" rel="noopener">
+          Entrar no FREE
+        </a>
+        <a class="btn btnGhost" href="#oferta">
+          Ver planos
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- PREMIUM -->
+  <div class="offerCard offerPremium">
+    <div class="offerTop">
+      <span class="offerPill">👑 PREMIUM</span>
+    </div>
+
+    <h3 class="offerTitle">Painel Premium</h3>
+    <p class="offerSubtitle">Libera as ferramentas principais do Prime.</p>
+
+    <div class="priceWrap">
+      <div style="width:100%;max-width:260px;">
+        <div class="priceBox">
+          <span class="priceCurrency">R$</span>
+          <span class="priceValue">69,90</span>
+        </div>
+        <div class="priceNote">Acesso completo ao painel</div>
+      </div>
+    </div>
+
+    <ul class="offerList">
+      <li class="offerItem"><span class="i">📈</span><span>Gerar Análise</span></li>
+      <li class="offerItem"><span class="i">🔄</span><span>Invertida</span></li>
+      <li class="offerItem"><span class="i">🏆</span><span>Técnica Premiada</span></li>
+      <li class="offerItem"><span class="i">💾</span><span>Jogos Salvos</span></li>
+    </ul>
+
+    <div class="offerCta">
+      <div class="offerBtns">
+        <a class="btn btnPrimary" href="https://pay.hotmart.com/O104148865Y?off=c4m0nezi" target="_blank" rel="noopener">
+          Comprar Premium
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXTRA 15P -->
+  <div class="offerCard offerExtra">
+    <div class="offerTop">
+      <span class="offerPill">✨ EXTRA 15P</span>
+    </div>
+
+    <h3 class="offerTitle">Módulo Extra 15P</h3>
+    <p class="offerSubtitle">Estratégia + geração (módulo separado).</p>
+
+    <div class="priceWrap">
+      <div style="width:100%;max-width:260px;">
+        <div class="priceBox">
+          <span class="priceCurrency">R$</span>
+          <span class="priceValue">49,90</span>
+        </div>
+        <div class="priceNote">Módulo adicional</div>
+      </div>
+    </div>
+
+    <ul class="offerList">
+      <li class="offerItem"><span class="i">🧩</span><span>Estratégia (10 jogos)</span></li>
+      <li class="offerItem"><span class="i">📏</span><span>Linhas / montagem</span></li>
+      <li class="offerItem"><span class="i">⚡</span><span>Fluxo exclusivo</span></li>
+    </ul>
+
+    <div class="offerCta">
+      <div class="offerBtns">
+        <a class="btn btnGold" href="https://pay.hotmart.com/Y104149008G?off=eehchnv4" target="_blank" rel="noopener">
+          Comprar Extra 15P
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMBO ELITE -->
+  <div class="offerCard offerCombo">
+    <span class="ribbon">🔥 MAIS VENDIDO • COMBO ELITE</span>
+
+    <div class="offerTop">
+      <span class="offerPill">🔥 MAIS VENDIDO • COMBO ELITE</span>
+    </div>
+
+    <h3 class="offerTitle">Acesso Total (Premium + Extra 15P)</h3>
+    <p class="offerSubtitle">Melhor custo-benefício: libera tudo.</p>
+
+    <div class="priceWrap" style="flex-direction:column;gap:10px">
+      <div class="savePill">
+        <span class="strike">de R$ 119,90</span>
+        <span>economize R$ 20,00</span>
+      </div>
+
+      <div style="width:100%;max-width:260px;">
+        <div class="priceBox">
+          <span class="priceCurrency">R$</span>
+          <span class="priceValue">99,90</span>
+        </div>
+        <div class="priceNote">Premium + Extra 15P completos</div>
+      </div>
+    </div>
+
+    <ul class="offerList">
+      <li class="offerItem"><span class="i">👑</span><span>Premium completo (análises + modos)</span></li>
+      <li class="offerItem"><span class="i">✨</span><span>Extra 15P completo (estratégia + fluxo)</span></li>
+      <li class="offerItem"><span class="i">💰</span><span>Mais barato que comprar separado</span></li>
+    </ul>
+
+    <div class="offerCta">
+      <div class="offerBtns">
+        <a class="btn btnGold" href="https://pay.hotmart.com/S104212403J?off=qbcz91p3" target="_blank" rel="noopener">
+          🚀 Quero o Combo Elite
+        </a>
+      </div>
+      <div class="mini" style="margin-top:10px;color:rgba(255,255,255,.78);text-align:center">
+        Recomendado para quem quer o sistema completo.
+      </div>
+    </div>
+  </div>
+
+</div>
+
+  <!-- FAQ -->
+  <div class="wrap section" id="faq">
+    <div class="card">
+      <h2>❓ Perguntas Frequentes (FAQ)</h2>
+      <div class="mini">Aqui estão as dúvidas que mais travam a compra — respondidas de forma clara.</div>
+      <div class="hr"></div>
+
+      <div class="grid" style="gap:10px">
+        <details>
+          <summary>Como eu acesso depois da compra?</summary>
+          <p>Após a compra, você acessa com o <b>mesmo email</b> usado no checkout/cadastro.</p>
+        </details>
+
+        <details>
+          <summary>Precisa instalar? Funciona no celular?</summary>
+          <p>Não precisa instalar. Você acessa direto pelo navegador (celular ou PC). A interface é otimizada para mobile.</p>
+        </details>
+
+        <details>
+          <summary>Como funciona o FREE (1 jogo)?</summary>
+          <p>Você cria login com <b>email + senha</b> e consegue gerar <b>1 Jogo Principal</b>. Depois disso, para continuar gerando e usar o painel completo, é necessário Premium ou Combo.</p>
+        </details>
+
+        <details>
+          <summary>O Premium libera o quê exatamente?</summary>
+          <p>Libera as ferramentas do painel: análises, Principal/Invertida/Técnica, jogos salvos e conferência (conforme descrito na oferta).</p>
+        </details>
+
+        <details>
+          <summary>O Extra 15P é separado?</summary>
+          <p>Sim. Ele é um módulo separado. Se você quer <b>tudo liberado</b>, o melhor custo-benefício é o <b>Combo Elite</b>.</p>
+        </details>
+
+        <details>
+          <summary>Existe garantia de prêmio?</summary>
+          <p>Não. Loterias envolvem risco e não há garantia de premiação. O Prime entrega <b>análise e estratégia</b> para decisões baseadas em dados.</p>
+        </details>
+
+        <details>
+          <summary>A compra é segura?</summary>
+          <p>O pagamento é feito via checkout (Hotmart). Você recebe confirmação, e o acesso segue conforme o email informado.</p>
+        </details>
+
+        <details>
+          <summary>Posso usar em mais de um dispositivo?</summary>
+          <p>Sim. Você pode acessar no celular e no computador usando o mesmo login.</p>
+        </details>
+
+        <details>
+          <summary>Tem suporte?</summary>
+          <p>Sim. Se tiver qualquer problema de acesso ou dúvida do fluxo, entre em contato pelo canal de suporte do seu produto.</p>
+        </details>
+      </div>
+
+      <div class="hr"></div>
+      <a class="btn btnGold" href="#oferta">⬇ Ver oferta novamente</a>
+    </div>
+  </div>
+
+  <div class="wrap foot">
+    <div>© <span id="year"></span> Lotofácil Prime Analytics • N&V Sistemas</div>
+    <div style="margin-top:6px">Aviso: loterias envolvem risco e não há garantia de premiação.</div>
+  </div>
+  <div class="wrap section" id="suporte" style="padding-top:10px;padding-bottom:0" style="scroll-margin-top:90px;">
+    <div class="card" style="box-shadow:none">
+      <h2 style="margin-top:0">📩 Suporte</h2>
+      <div class="mini">Se precisar de ajuda com acesso, pagamento ou qualquer dúvida, fale com a gente:</div>
+      <div class="hr"></div>
+      <div class="grid" style="grid-template-columns:1fr 1fr;gap:10px">
+        <a class="btn btnPrimary" href="mailto:marketingia2026.digital@gmail.com">✉️ Email: marketingia2026.digital@gmail.com</a>
+        <a class="btn btnGreen" href="https://wa.me/5527988336359" target="_blank" rel="noopener">💬 WhatsApp: (27) 98833-6359</a>
+      </div>
+      <div class="mini" style="margin-top:10px">Horário comercial • Resposta mais rápida pelo WhatsApp.</div>
+    </div>
+  </div>
+
+
+  <div class="stickyCta" aria-hidden="false">
+  <div class="stickyRow">
+    <a class="btnFreeSticky btnBlinkGreen" href="https://nv-sistemas.github.io/lotofacil-pro/" target="_blank" rel="noopener">FREE</a>
+    <a class="btnPremiumSticky" href="https://pay.hotmart.com/O104148865Y?off=c4m0nezi" target="_blank" rel="noopener">PREMIUM</a>
+    <a href="https://pay.hotmart.com/Y104149008G?off=eehchnv4" target="_blank" rel="noopener">EXTRA15P</a>
+    <a class="btnComboSticky btnBlinkGold" href="https://pay.hotmart.com/S104212403J?off=qbcz91p3" target="_blank" rel="noopener">COMBO</a>
+    <a class="btnSupportSticky" href="#suporte">SUPORTE</a>
   </div>
 </div>
 
-<!-- ✅ BARRA FIXA MOBILE (com links reais) -->
-<div class="sticky">
-  <div class="sticky-grid">
-    <a class="free" href="https://nv-sistemas.github.io/lotofacil-pro/" target="_blank" rel="noopener">FREE</a>
-    <a class="premium" href="https://pay.hotmart.com/O104148865Y?off=c4m0nezi" target="_blank" rel="noopener">PREMIUM</a>
-    <a class="extra" href="https://pay.hotmart.com/Y104149008G?off=eehchnv4" target="_blank" rel="noopener">15P</a>
-    <a class="combo" href="https://pay.hotmart.com/S104212403J?off=qbcz91p3" target="_blank" rel="noopener">COMBO</a>
+  <div class="lightbox" id="lightbox">
+    <div class="lightboxInner" role="dialog" aria-modal="true" aria-label="Imagem ampliada">
+      <button class="lightboxClose" id="lightboxClose">✕ Fechar</button>
+      <img class="lightboxImg" id="lightboxImg" alt="Imagem ampliada" />
+    </div>
   </div>
-</div>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    // Scroll suave
+    document.querySelectorAll('a[href^="#"]').forEach(a=>{
+      a.addEventListener("click", (e)=>{
+        const id = a.getAttribute("href");
+        if(!id || id === "#") return;
+        const el = document.querySelector(id);
+        if(!el) return;
+        e.preventDefault();
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    });
+
+    // Lightbox
+    const lb = document.getElementById("lightbox");
+    const lbImg = document.getElementById("lightboxImg");
+    const lbClose = document.getElementById("lightboxClose");
+
+    function openLightbox(src, alt){
+      lbImg.src = src;
+      lbImg.alt = alt || "Imagem ampliada";
+      lb.classList.add("open");
+      document.body.style.overflow = "hidden";
+    }
+    function closeLightbox(){
+      lb.classList.remove("open");
+      lbImg.src = "";
+      document.body.style.overflow = "";
+    }
+
+    document.querySelectorAll(".shot").forEach(img=>{
+      img.addEventListener("click", ()=>{
+        openLightbox(img.getAttribute("src"), img.getAttribute("alt"));
+      });
+    });
+
+    lbClose.addEventListener("click", closeLightbox);
+    lb.addEventListener("click", (e)=>{ if(e.target === lb) closeLightbox(); });
+    document.addEventListener("keydown", (e)=>{ if(e.key === "Escape") closeLightbox(); });
+  </script>
 
 </body>
 </html>
