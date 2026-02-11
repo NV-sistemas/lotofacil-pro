@@ -1573,7 +1573,12 @@ function gerarJogoPrincipalPrime(freq, modern, concursos, dezenasUltimo){
   const top10atr  = getTop10AtrasadasList(modern); // desc (mais atrasadas primeiro)
 
   // Pool “morno” (meio do ranking de frequência)
-  const rankedByFreq = (freq||[]).slice().sort((a,b)=>b.freq-a.freq).map(x=>Number(x.num)).filter(n=>n>=1 && n<=25);
+  // Normaliza freq: pode ser objeto {1:count} ou array de itens
+  const _freqArr = Array.isArray(freq) ? freq : ordenarPorFreq(freq);
+  const rankedByFreq = (_freqArr||[]).slice()
+    .sort((a,b)=> (Number(b.freq||b.f||0) - Number(a.freq||a.f||0)))
+    .map(x=> Number(x.dez ?? x.num ?? x.n ?? x.numero ?? x[0] ?? x))
+    .filter(n=>n>=1 && n<=25);
   const mediumPool = rankedByFreq.slice(10, 20).length ? rankedByFreq.slice(10, 20) : ALL.slice();
 
   const sumRange = getSumRange();
