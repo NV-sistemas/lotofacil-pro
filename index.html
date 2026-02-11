@@ -3464,9 +3464,11 @@ function gerarInvertida(){
   if(!access.premium){ alert("🔒 Invertida exige Premium."); return; }
     // ✅ Base do Principal (evita erro de timing: busca também o último pack salvo)
   const _pack = loadLocal(SAVE_PACK_KEY);
+  const _packPrincipal = (_pack?.data && Array.isArray(_pack.data.principal)) ? _pack.data.principal
+    : (Array.isArray(_pack?.principal) ? _pack.principal : null); // compat legado
   const _basePrincipal = (Array.isArray(lastPrincipalGame) && lastPrincipalGame.length===15)
     ? lastPrincipalGame
-    : (Array.isArray(_pack?.principal) && _pack.principal.length===15 ? _pack.principal : null);
+    : (Array.isArray(_packPrincipal) && _packPrincipal.length===15 ? _packPrincipal : null);
   if(!_basePrincipal){ alert("Gere primeiro um Jogo Principal."); return; }
   // mantém em memória para as próximas telas
   lastPrincipalGame = _basePrincipal.slice();
@@ -3518,9 +3520,11 @@ function gerarTecnicaPremiada(){
   if(!access.premium){ alert("🔒 Técnica premiada exige Premium."); return; }
     // ✅ Base do Principal (evita erro de timing: busca também o último pack salvo)
   const _pack = loadLocal(SAVE_PACK_KEY);
+  const _packPrincipal = (_pack?.data && Array.isArray(_pack.data.principal)) ? _pack.data.principal
+    : (Array.isArray(_pack?.principal) ? _pack.principal : null); // compat legado
   const _basePrincipal = (Array.isArray(lastPrincipalGame) && lastPrincipalGame.length===15)
     ? lastPrincipalGame
-    : (Array.isArray(_pack?.principal) && _pack.principal.length===15 ? _pack.principal : null);
+    : (Array.isArray(_packPrincipal) && _packPrincipal.length===15 ? _packPrincipal : null);
   if(!_basePrincipal){ alert("Gere primeiro um Jogo Principal."); return; }
   // mantém em memória para as próximas telas
   lastPrincipalGame = _basePrincipal.slice();
