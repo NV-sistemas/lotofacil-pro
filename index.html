@@ -902,6 +902,15 @@ function goView(id){
   if(id === 'viewSavedGames'){
     renderJogosSalvosAoAbrir();
   }
+
+  // ✅ Auto-render ao abrir (evita tela vazia quando usuário navega por botões/atalhos)
+  // Sem mudar lógica: apenas dispara as rotinas existentes quando houver Principal carregado.
+  if(id === 'viewInvertida'){
+    if(lastPrincipalGame && typeof gerarInvertida === 'function'){ try{ gerarInvertida(); }catch(e){ console.error(e); } }
+  }
+  if(id === 'viewTecnica'){
+    if(lastPrincipalGame && typeof gerarTecnicaPremiada === 'function'){ try{ gerarTecnicaPremiada(); }catch(e){ console.error(e); } }
+  }
 }
 </script>
 
