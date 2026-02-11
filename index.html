@@ -462,6 +462,21 @@ const APP_NAME = "LOTOFÁCIL PRIME ANALYTICS";
 const BUY_LINK = "https://pay.hotmart.com/O104148865Y?off=c4m0nezi";
 const BUY_LINK_15P = "https://pay.hotmart.com/Y104149008G?off=eehchnv4";
 
+
+/* =========================
+   ✅ ACESSO AUTOMÁTICO (LISTA REMOTA)
+   - Coloque um arquivo JSON no seu GitHub com os emails liberados.
+   - Exemplo de conteúdo (acessos.json):
+     [
+       {"email":"cliente@email.com","premium":true,"addon15":false,"expires":"2026-12-31"},
+       {"email":"outro@email.com","premium":true,"addon15":true}
+     ]
+   - Se não existir/der erro, o sistema continua funcionando com claims/código normalmente.
+========================= */
+const ACCESS_LIST_URL = "https://raw.githubusercontent.com/nv-sistemas/lotofacil-pro/main/acessos.json";
+/* cache local (minutos) para evitar bater no GitHub toda hora */
+const ACCESS_CACHE_MINUTES = 10;
+
 /* ✅ Admin sempre com tudo (no front só para UI; o correto é garantir via claims no backend) */
 const ADMIN_EMAIL = "admin@lotofacilprime.com";
 
@@ -917,6 +932,76 @@ let access = {
   isAdmin: false
 };
 
+
+/* =========================
+   ✅ ACESSO AUTOMÁTICO (Mercado Livre / Hotmart / etc.)
+   Como funciona:
+   1) Você mantém um arquivo acessos.json no GitHub (URL acima).
+   2) Quem comprar: você adiciona o email lá (premium/addon15).
+   3) Ao logar, o sistema verifica e libera automaticamente.
+   Observação: é um método simples (front-end), bom para começar.
+========================= */
+function _nowMs(){ return Date.now(); }
+
+function _readAccessCache(){
+  try{
+    const raw = localStorage.getItem("lf_access_cache_v1");
+    if(!raw) return null;
+    const obj = JSON.parse(raw);
+    if(!obj || !obj.ts || !obj.data) return null;
+    const maxAge = ACCESS_CACHE_MINUTES * 60 * 1000;
+    if((_nowMs() - Number(obj.ts)) > maxAge) return null;
+    return obj.data;
+  }catch(e){ return null; }
+}
+function _writeAccessCache(data){
+  try{
+    localStorage.setItem("lf_access_cache_v1", JSON.stringify({ ts:_nowMs(), data }));
+  }catch(e){}
+}
+
+async function fetchAccessList(){
+  const cached = _readAccessCache();
+  if(cached) return cached;
+
+  try{
+    const r = await fetch(ACCESS_LIST_URL, { cache: "no-store" });
+    if(!r.ok) throw new Error("HTTP " + r.status);
+    const json = await r.json();
+    _writeAccessCache(json);
+    return json;
+  }catch(e){
+    // silencioso: se falhar, apenas não libera por lista
+    return null;
+  }
+}
+
+function normalizeEmail(e){ return String(e||"").trim().toLowerCase(); }
+
+function isExpired(expires){
+  if(!expires) return false;
+  // aceita "YYYY-MM-DD" ou ISO
+  const t = Date.parse(expires);
+  if(Number.isNaN(t)) return false;
+  return t < _nowMs();
+}
+
+async function getEntitlementByEmail(email){
+  const list = await fetchAccessList();
+  if(!list || !Array.isArray(list)) return { premium:false, addon15:false };
+
+  const e = normalizeEmail(email);
+  const found = list.find(x => normalizeEmail(x?.email) === e);
+  if(!found) return { premium:false, addon15:false };
+
+  if(isExpired(found.expires)) return { premium:false, addon15:false };
+
+  return {
+    premium: !!found.premium,
+    addon15: !!found.addon15
+  };
+}
+
 async function refreshClaims(force=false){
   const u = auth.currentUser;
   if(!u) return access;
@@ -925,8 +1010,10 @@ async function refreshClaims(force=false){
   const email = (u.email || "").toLowerCase();
   const isAdmin = email === String(ADMIN_EMAIL).toLowerCase();
 
-  const premium = !!token.claims.premium || isAdmin;
-  const addon15 = !!token.claims.addon15 || isAdmin;
+  const ent = await getEntitlementByEmail(email);
+
+  const premium = (!!token.claims.premium || ent.premium || isAdmin);
+  const addon15 = (!!token.claims.addon15 || ent.addon15 || isAdmin);
 
   access = { email, uid: u.uid, premium, addon15, isAdmin };
   updateChip();
@@ -2359,8 +2446,6 @@ let lastPrincipalMeta=null;
 let lastInvertidaGame=null;
 let lastTecnicaGames=null;
 
-let principalIsManual = false; // ✅ indica quando o Principal foi definido pelo usuário (manual)
-
 /* ✅ MANUAL (Principal) */
 let manualPrincipalSet = new Set();
 
@@ -2611,10 +2696,6 @@ function usarManualComoPrincipal(){
   const jogo = [...manualPrincipalSet].sort((a,b)=>a-b);
 
   lastPrincipalGame = jogo.slice();
-
-  principalIsManual = !!(manualPrincipalSet && manualPrincipalSet.size === 15);
-
-  principalIsManual = true;
   lastInvertidaGame = null;
   lastTecnicaGames = null;
 
@@ -2655,19 +2736,10 @@ async function acaoPrincipal(){
     setStatus(true,"Gerando jogo principal (15 dezenas)…");
     setProgress(80);
 
-    let result = null;
-    let jogo = null;
+    const result = gerarJogoPrincipalPrime(freq, modern, payload.concursos, payload.latest.dezenas);
+const jogo = result.jogo;
 
-    // ✅ Se o usuário marcou 15 dezenas no modo manual, usa elas como base do Jogo Principal
-    if(manualPrincipalSet && manualPrincipalSet.size === 15){
-      jogo = [...manualPrincipalSet].sort((a,b)=>a-b);
-      result = { jogo, motivos: [] }; // mantém compatibilidade com o restante do fluxo
-    }else{
-      result = gerarJogoPrincipalPrime(freq, modern, payload.concursos, payload.latest.dezenas);
-      jogo = result.jogo;
-    }
-lastPrincipalGame = jogo.slice();
-principalIsManual = !!(manualPrincipalSet && manualPrincipalSet.size === 15);
+    lastPrincipalGame = jogo.slice();
     lastInvertidaGame = null;
     lastTecnicaGames = null;
 
@@ -2914,23 +2986,12 @@ function renderCartao(jogo, clsName){
   return html;
 }
 
-function getPrincipalBase(){
-  // ✅ Garantia: se o usuário definiu manual, Invertida/Técnica usam exatamente esse jogo
-  if(principalIsManual && manualPrincipalSet && manualPrincipalSet.size === 15){
-    return [...manualPrincipalSet].sort((a,b)=>a-b);
-  }
-  return Array.isArray(lastPrincipalGame) ? lastPrincipalGame.slice() : null;
-}
-
-
 function gerarInvertida(){
   if(!access.premium){ alert("🔒 Invertida exige Premium."); return; }
   if(!lastPrincipalGame){ alert("Gere primeiro um Jogo Principal."); return; }
+
   // ✅ Invertida por COLUNAS (vertical): C1→C5, C2→C4, C3→C3, C4→C2, C5→C1
-  const base = getPrincipalBase();
-  if(!base){ alert("Gere primeiro um Jogo Principal."); return; }
-  lastPrincipalGame = base.slice();
-  const inv = inverterJogoPorColPerm(base, [5,4,3,2,1]);
+  const inv = inverterJogoPorColPerm(lastPrincipalGame, [5,4,3,2,1]);
   lastInvertidaGame = inv.slice();
 
   const imgBefore = svgToDataUri(buildCardSVG(lastPrincipalGame, "ANTES (Principal)"));
@@ -2969,15 +3030,13 @@ function gerarInvertida(){
 function gerarTecnicaPremiada(){
   if(!access.premium){ alert("🔒 Técnica premiada exige Premium."); return; }
   if(!lastPrincipalGame){ alert("Gere primeiro um Jogo Principal."); return; }
+
   // ✅ Técnica por COLUNAS (vertical)
   // Jogo 1: C1→C4, C2→C2, C3→C5, C4→C1, C5→C3
   // Jogo 2: C1→C3, C2→C1, C3→C5, C4→C2, C5→C4
-  const base = getPrincipalBase();
-  if(!base){ alert("Gere primeiro um Jogo Principal."); return; }
-  lastPrincipalGame = base.slice();
-  const g1 = inverterJogoPorColPerm(base, [4,2,5,1,3]);
-  const g2 = inverterJogoPorColPerm(base, [3,1,5,2,4]);
-lastTecnicaGames = { g1, g2 };
+  const g1 = inverterJogoPorColPerm(lastPrincipalGame, [4,2,5,1,3]);
+  const g2 = inverterJogoPorColPerm(lastPrincipalGame, [3,1,5,2,4]);
+  lastTecnicaGames = { g1, g2 };
 
   const imgBase = svgToDataUri(buildCardSVG(lastPrincipalGame, "BASE (Principal)"));
   const imgG1   = svgToDataUri(buildCardSVG(g1, "RESULTADO • JOGO 1"));
@@ -3662,9 +3721,6 @@ function gerar15PComMinhasLinhas(){
   if(!allLinesComplete(linesUser15)){
     return alert("Complete as 5 linhas com 5 dezenas cada.");
   }
-
-  // ✅ Baseia a geração nas suas linhas e mantém como referência atual do sistema
-  linesSystem15 = linesUser15.map(l=>l.slice());
 
   const jogos = gerarJogos15P(linesUser15);
 
