@@ -3461,6 +3461,8 @@ function _renderResumoPrime(jogo, freq, payload, motivos){
   `;
 }
 function gerarInvertida(){
+  if(!window.lastPrincipalGame){ try{ window.lastPrincipalGame = (gerarJogoPrincipalPrime().jogo||[]); }catch(e){} }
+
   if(!access.premium){ alert("🔒 Invertida exige Premium."); return; }
     // ✅ Base do Principal (evita erro de timing: busca também o último pack salvo)
   const _pack = loadLocal(SAVE_PACK_KEY);
@@ -3517,6 +3519,8 @@ function gerarInvertida(){
 
 
 function gerarTecnicaPremiada(){
+  if(!window.lastPrincipalGame){ try{ window.lastPrincipalGame = (gerarJogoPrincipalPrime().jogo||[]); }catch(e){} }
+
   if(!access.premium){ alert("🔒 Técnica premiada exige Premium."); return; }
     // ✅ Base do Principal (evita erro de timing: busca também o último pack salvo)
   const _pack = loadLocal(SAVE_PACK_KEY);
