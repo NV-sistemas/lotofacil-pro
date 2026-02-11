@@ -3194,44 +3194,306 @@ function renderCartao(jogo, clsName){
   return html;
 }
 
+
+/* ============================================================
+   ✅ Variações "FORTES" (sem criar do zero)
+   - Base: Jogo Principal (15 dezenas)
+   - Objetivo: aumentar cobertura com estratégia (conservador/contrarian/tendência)
+   - IMPORTANTE: não garante premiação; apenas melhora construção e diversidade.
+   ============================================================ */
+function _arrUniqueSorted(arr){
+  return Array.from(new Set((arr||[]).map(Number).filter(n=>n>=1&&n<=25))).sort((a,b)=>a-b);
+}
+function _diffCount(a,b){
+  const A=new Set(a), B=new Set(b); let d=0;
+  for(const n of A) if(!B.has(n)) d++;
+  for(const n of B) if(!A.has(n)) d++;
+  return d/2; // diferenças em dezenas (não simétrico duplicado)
+}
+function _countEvens(arr){ return arr.filter(n=>n%2===0).length; }
+function _countLows(arr){ return arr.filter(n=>n<=13).length; }
+function _sumArr(arr){ return arr.reduce((s,n)=>s+n,0); }
+function _maxConsecutiveLen(sorted){
+  let best=1, cur=1;
+  for(let i=1;i<sorted.length;i++){
+    if(sorted[i]===sorted[i-1]+1){ cur++; if(cur>best) best=cur; }
+    else cur=1;
+  }
+  return best;
+}
+function _quantile(sorted, q){
+  if(!sorted.length) return 0;
+  const pos=(sorted.length-1)*q, base=Math.floor(pos), rest=pos-base;
+  if(sorted[base+1]===undefined) return sorted[base];
+  return sorted[base] + rest*(sorted[base+1]-sorted[base]);
+}
+function _getSumRange(concursos){
+  const window = Math.min(200, (concursos||[]).length);
+  const sums=[];
+  for(let i=Math.max(0,(concursos||[]).length-window); i<(concursos||[]).length; i++){
+    const d=(concursos[i]?.dezenas||[]).map(Number);
+    if(d.length===15) sums.push(_sumArr(d));
+  }
+  sums.sort((a,b)=>a-b);
+  const min=Math.round(_quantile(sums,0.20));
+  const max=Math.round(_quantile(sums,0.80));
+  return {min,max};
+}
+function _getPools(freq, modern){
+  const hot = (ordenarPorFreq(freq||{}).map(o=>o.dez) || []).slice(0,10);
+  const gaps = Object.entries(modern?.gap||{}).map(([k,v])=>({dez:Number(k), g:Number(v||0)})).sort((a,b)=>b.g-a.g).map(o=>o.dez);
+  const cold = gaps.slice(0,10);
+  const all = Array.from({length:25}, (_,i)=>i+1);
+  const hotSet=new Set(hot), coldSet=new Set(cold);
+  const mid = all.filter(n=>!hotSet.has(n) && !coldSet.has(n));
+  return {hot, cold, mid, all};
+}
+function _scoreGame(game, base, ctx, profile){
+  const {concursos, freq, modern, latest} = ctx;
+  const g=_arrUniqueSorted(game);
+  if(g.length!==15) return -1e9;
+
+  const sumRange=_getSumRange(concursos);
+  const sum=_sumArr(g);
+  const ev=_countEvens(g);
+  const low=_countLows(g);
+  const cons=_maxConsecutiveLen(g);
+
+  // alvos (fixos e simples)
+  const targetE = (ev>=7 && ev<=8) ? 1 : 0;
+  const targetL = (low>=7 && low<=8) ? 1 : 0;
+  const sumOk   = (sum>=sumRange.min && sum<=sumRange.max) ? 1 : 0;
+
+  // repetidas do último
+  const last = _arrUniqueSorted((latest?.dezenas||[]));
+  const lastSet=new Set(last);
+  const reps = g.filter(n=>lastSet.has(n)).length;
+
+  // mix quente/fria
+  const pools=_getPools(freq, modern);
+  const hotSet=new Set(pools.hot), coldSet=new Set(pools.cold);
+  const hotCount=g.filter(n=>hotSet.has(n)).length;
+  const coldCount=g.filter(n=>coldSet.has(n)).length;
+
+  // score base
+  let score=0;
+  score += targetE ? 120 : -120;
+  score += targetL ? 90 : -90;
+  score += sumOk   ? 140 : -160;
+
+  // sequência
+  if(cons>=4) score -= 180 + (cons-4)*60;
+
+  // repetidas: preferir 8..10 (mas depende do perfil)
+  if(profile==='contrarian'){
+    if(reps>=7 && reps<=9) score += 90; else score -= 70;
+  }else if(profile==='hot'){
+    if(reps>=9 && reps<=11) score += 90; else score -= 70;
+  }else{ // balanced
+    if(reps>=8 && reps<=10) score += 110; else score -= 90;
+  }
+
+  // mix de quentes/frias por perfil
+  if(profile==='contrarian'){
+    if(coldCount>=3 && coldCount<=6) score += 120; else score -= 60;
+    if(hotCount>=3 && hotCount<=6) score += 70; else score -= 40;
+  }else if(profile==='hot'){
+    if(hotCount>=5 && hotCount<=8) score += 130; else score -= 70;
+    if(coldCount<=4) score += 40; else score -= 80;
+  }else{ // balanced
+    if(hotCount>=4 && hotCount<=7) score += 120; else score -= 70;
+    if(coldCount>=2 && coldCount<=4) score += 90; else score -= 70;
+  }
+
+  // diversidade vs principal (base)
+  const diff = _diffCount(g, base);
+  const minDiff = (profile==='contrarian') ? 6 : 5;
+  if(diff < minDiff) score -= (minDiff-diff)*220;
+
+  // bônus leve por frequência total
+  const sumFreq = g.reduce((a,n)=>a+(freq?.[n]||0),0);
+  score += sumFreq * 0.6;
+
+  // bônus de sinergia (pares) — usa seu contador já existente
+  // quanto mais pares do jogo aparecem juntos na janela, melhor
+  const together = countGroupTogetherInWindow(g, concursos);
+  score += together * 1.2;
+
+  return score;
+}
+
+function _buildVariant(baseGame, ctx, profile, swapMin, swapMax){
+  const base=_arrUniqueSorted(baseGame);
+  const {freq, modern} = ctx;
+  const pools=_getPools(freq, modern);
+
+  function pickFrom(arr, excludeSet){
+    const cand = arr.filter(n=>!excludeSet.has(n));
+    if(!cand.length) return null;
+    return cand[Math.floor(Math.random()*cand.length)];
+  }
+
+  // escolhe removíveis preferenciais
+  const hotSet=new Set(pools.hot), coldSet=new Set(pools.cold);
+  const baseSet=new Set(base);
+
+  const removableHot = base.filter(n=>hotSet.has(n));
+  const removableCold= base.filter(n=>coldSet.has(n));
+  const removableMid = base.filter(n=>!hotSet.has(n) && !coldSet.has(n));
+
+  const attempts = 900; // leve e rápido
+  let best=null;
+
+  for(let t=0; t<attempts; t++){
+    const swaps = swapMin + Math.floor(Math.random()*(swapMax-swapMin+1));
+    let g = base.slice();
+    const gSet = new Set(g);
+
+    // removals
+    const toRemove = [];
+    for(let i=0;i<swaps;i++){
+      let pick=null;
+      if(profile==='contrarian'){
+        // tira mais quentes e mais repetidas do base
+        pick = (removableHot.length && Math.random()<0.65) ? removableHot[Math.floor(Math.random()*removableHot.length)] :
+               (removableMid.length ? removableMid[Math.floor(Math.random()*removableMid.length)] :
+                g[Math.floor(Math.random()*g.length)]);
+      }else if(profile==='hot'){
+        pick = (removableCold.length && Math.random()<0.55) ? removableCold[Math.floor(Math.random()*removableCold.length)] :
+               (removableMid.length ? removableMid[Math.floor(Math.random()*removableMid.length)] :
+                g[Math.floor(Math.random()*g.length)]);
+      }else{
+        pick = (removableMid.length && Math.random()<0.55) ? removableMid[Math.floor(Math.random()*removableMid.length)] :
+               g[Math.floor(Math.random()*g.length)];
+      }
+      if(pick!=null) toRemove.push(pick);
+    }
+
+    // aplica remoções
+    for(const r of toRemove){
+      const idx=g.indexOf(r);
+      if(idx>-1){ g.splice(idx,1); gSet.delete(r); }
+    }
+
+    // adições por perfil
+    while(g.length<15){
+      let n=null;
+      if(profile==='contrarian'){
+        n = pickFrom(pools.cold, gSet) ?? pickFrom(pools.mid, gSet) ?? pickFrom(pools.all, gSet);
+      }else if(profile==='hot'){
+        n = pickFrom(pools.hot, gSet) ?? pickFrom(pools.mid, gSet) ?? pickFrom(pools.all, gSet);
+      }else{
+        // balanced
+        n = (Math.random()<0.45 ? pickFrom(pools.hot,gSet) : null) ??
+            (Math.random()<0.55 ? pickFrom(pools.cold,gSet) : null) ??
+            pickFrom(pools.mid,gSet) ?? pickFrom(pools.all,gSet);
+      }
+      if(n==null) break;
+      g.push(n); gSet.add(n);
+    }
+
+    g=_arrUniqueSorted(g);
+    if(g.length!==15) continue;
+
+    const score=_scoreGame(g, base, ctx, profile);
+    if(!best || score>best.score){
+      // monta motivos simples
+      const removed = base.filter(n=>!new Set(g).has(n));
+      const added   = g.filter(n=>!new Set(base).has(n));
+      best = {g, score, removed, added};
+    }
+  }
+
+  if(!best){
+    // fallback: retorna base mesmo
+    return {jogo: base.slice(), motivos:[{texto:"Fallback: manteve o Principal (sem variação)", dezena: base[0]||1}]};
+  }
+
+  const motivos = [];
+  // motivos principais
+  motivos.push({texto:`Perfil: ${profile==='contrarian'?'Invertida Forte (cobertura/fria controlada)':profile==='hot'?'Técnica (tendência/quentes + sinergia)':'Técnica (equilibrada)'} • variação real de dezenas`, dezena: best.g[0]});
+  if(best.added?.length) motivos.push({texto:`Entraram ${best.added.length} dezenas para diversificar`, dezena: best.added[0]});
+  if(best.removed?.length) motivos.push({texto:`Saíram ${best.removed.length} dezenas do Principal (para cobertura)`, dezena: best.removed[0]});
+
+  return {jogo: best.g.slice(), motivos};
+}
+
+function _renderResumoPrime(jogo, freq, payload, motivos){
+  const cls = classificarDezenas(freq, jogo);
+  const pi = contarParesImpares(jogo);
+  const soma = somaDezenas(jogo);
+  const seq = contarSequencias(jogo);
+  const blocos = distribuicaoBlocos(jogo);
+  const reps = repetidasDoUltimo(jogo, payload?.latest?.dezenas||[]);
+  const motivosAgrupados = {};
+  (motivos||[]).forEach(m=>{
+    const key=(m.texto||"").trim();
+    if(!motivosAgrupados[key]) motivosAgrupados[key]=[];
+    motivosAgrupados[key].push(m.dezena||0);
+  });
+  const motivosHtml = Object.keys(motivosAgrupados).map(texto=>`<li>${texto}</li>`).join("");
+  return `
+    <div class="box" style="margin-top:12px">
+      <b>📌 Resumo PRIME</b>
+      <div class="mini" style="margin-top:6px">
+        <b>Pares/Ímpares:</b> ${pi.pares}/${pi.impares} •
+        <b>Altas/Baixas:</b> ${jogo.filter(n=>n>13).length}/${jogo.filter(n=>n<=13).length} •
+        <b>Soma:</b> ${soma} •
+        <b>Sequências:</b> ${seq} •
+        <b>Repetidas do último:</b> ${reps}
+      </div>
+      <div class="mini" style="margin-top:8px">
+        <b>Quentes:</b> ${cls.quentes.map(format2).join(", ")} •
+        <b>Mornas:</b> ${cls.mornas.map(format2).join(", ")} •
+        <b>Frias:</b> ${cls.frias.map(format2).join(", ")}
+      </div>
+      ${motivosHtml?`<div class="mini" style="margin-top:8px"><b>Motivos:</b><ul style="margin:6px 0 0 18px">${motivosHtml}</ul></div>`:""}
+    </div>
+  `;
+}
 function gerarInvertida(){
   if(!access.premium){ alert("🔒 Invertida exige Premium."); return; }
   if(!lastPrincipalGame){ alert("Gere primeiro um Jogo Principal."); return; }
 
-  // ✅ Invertida por COLUNAS (vertical): C1→C5, C2→C4, C3→C3, C4→C2, C5→C1
-  const inv = inverterJogoPorColPerm(lastPrincipalGame, [5,4,3,2,1]);
+  const payload = lastPayload;
+  const {freq, modern} = lastCtx||{};
+  const ctx = { concursos: payload?.concursos||[], freq: freq||{}, modern: modern||{}, latest: payload?.latest||{} };
+
+  // ✅ Invertida FORTE: variação real (perfil contrarian) mantendo filtros e diversidade
+  const res = _buildVariant(lastPrincipalGame, ctx, "contrarian", 4, 6);
+  const inv = res.jogo.slice();
   lastInvertidaGame = inv.slice();
 
-  const imgBefore = svgToDataUri(buildCardSVG(lastPrincipalGame, "ANTES (Principal)"));
-  const imgAfter  = svgToDataUri(buildCardSVG(inv, "DEPOIS (Invertida)"));
+  const imgBefore = svgToDataUri(buildCardSVG(lastPrincipalGame, "BASE (Principal)"));
+  const imgAfter  = svgToDataUri(buildCardSVG(inv, "RESULTADO (Invertida Forte)"));
 
   document.getElementById("invertidaArea").innerHTML = `
     <div class="box swapCard">
-      <b>🔄 Troca ilustrativa (Invertida por COLUNAS — cartão 5×5)</b>
+      <b>🔄 Invertida FORTE (variação real de dezenas)</b>
       <div class="mini">
-        Aqui <b>não existe cálculo novo</b>: é o mesmo jogo, apenas <b>espelhado na vertical</b> no cartão.<br>
-        Regra: <b>C1→C5</b> • <b>C2→C4</b> • <b>C3→C3</b> • <b>C4→C2</b> • <b>C5→C1</b>.
+        A Invertida Forte <b>não</b> é apenas trocar colunas: ela cria uma <b>variação controlada</b> do Principal para aumentar cobertura.<br>
+        Perfil: <b>contrarian</b> (inclui mais frias/atrasadas com controle de paridade, soma e sinergia).
       </div>
 
       <div class="swapImgs">
         <div class="swapImgWrap">
-          <b>ANTES (Principal)</b>
+          <b>BASE (Principal)</b>
           <img class="swapImg" src="${imgBefore}" alt="Principal no cartão 5x5">
         </div>
         <div class="swapImgWrap">
-          <b>DEPOIS (Invertida)</b>
-          <img class="swapImg" src="${imgAfter}" alt="Invertida no cartão 5x5">
+          <b>RESULTADO (Invertida Forte)</b>
+          <img class="swapImg" src="${imgAfter}" alt="Invertida Forte no cartão 5x5">
         </div>
       </div>
     </div>
 
     <div class="box" style="margin-top:12px">
-      <b>🔄 Invertida</b>
+      <b>🔄 Invertida (Forte)</b>
       <div class="numbers" style="justify-content:flex-start">${inv.map(n=>`<div class="ball">${format2(n)}</div>`).join("")}</div>
-      ${renderCartao(inv, "inv")}
     </div>
+
+    ${_renderResumoPrime(inv, freq, payload, res.motivos)}
   `;
-  updateCheckButtons();
 }
 
 
@@ -3239,244 +3501,69 @@ function gerarTecnicaPremiada(){
   if(!access.premium){ alert("🔒 Técnica premiada exige Premium."); return; }
   if(!lastPrincipalGame){ alert("Gere primeiro um Jogo Principal."); return; }
 
-  // ✅ NOVA "TÉCNICA PREMIADA": MELHOR TRANSFORMAÇÃO (sem aleatório)
-  // Em vez de apenas trocar colunas, testamos várias transformações no cartão 5×5
-  // e escolhemos as 2 melhores por um score de equilíbrio (linhas/colunas/moldura/soma/paridade/seq).
+  const payload = lastPayload;
+  const {freq, modern} = lastCtx||{};
+  const ctx = { concursos: payload?.concursos||[], freq: freq||{}, modern: modern||{}, latest: payload?.latest||{} };
 
-  // Fallback seguro: se não houver contexto carregado, mantém as permutas antigas
-  const concursos = lastPayload?.concursos || null;
+  // ✅ Técnica 1 (equilibrada): mix quente/morna/fria + score
+  let r1 = _buildVariant(lastPrincipalGame, ctx, "balanced", 3, 5);
+  let g1 = r1.jogo.slice();
 
-  function applyMap(jogo, mapFn){
-    const out=[]; const set=new Set();
-    for(const n0 of (jogo||[])){
-      const n = Number(n0);
-      if(!(n>=1 && n<=25)) continue;
-      const nn = mapFn(n);
-      if(nn>=1 && nn<=25 && !set.has(nn)){ set.add(nn); out.push(nn); }
-    }
-    out.sort((a,b)=>a-b);
-    return out;
+  // ✅ Técnica 2 (tendência): mais quentes + sinergia + score
+  let r2 = _buildVariant(lastPrincipalGame, ctx, "hot", 3, 5);
+  let g2 = r2.jogo.slice();
+
+  // Garante diversidade entre T1 e T2 (mínimo 5 dezenas diferentes)
+  let guard=0;
+  while(_diffCount(g1,g2) < 5 && guard<6){
+    // tenta reforçar diversidade aumentando swaps no hot
+    r2 = _buildVariant(lastPrincipalGame, ctx, "hot", 4, 6);
+    g2 = r2.jogo.slice();
+    guard++;
   }
 
-  // Métricas do cartão
-  const MOLDURA = new Set([1,2,3,4,5,6,10,11,15,16,20,21,22,23,24,25]);
-  function lineIndex(n){ return Math.floor((n-1)/5); } // 0..4
-  function colIndex(n){ return (n-1)%5; }             // 0..4
-  function countMoldura(arr){ return arr.filter(n=>MOLDURA.has(n)).length; }
-  function maxConsecutiveLen(arr){
-    const a = sortNum(arr);
-    let best=1, cur=1;
-    for(let i=1;i<a.length;i++){
-      if(a[i]===a[i-1]+1){ cur++; best=Math.max(best,cur); }
-      else cur=1;
-    }
-    return best;
-  }
-  function countLows(arr){ return arr.filter(n=>n<=13).length; } // 1..13
-  function calcLineCol(arr){
-    const lines=[0,0,0,0,0], cols=[0,0,0,0,0];
-    for(const n of arr){
-      lines[lineIndex(n)]++;
-      cols[colIndex(n)]++;
-    }
-    return {lines, cols};
-  }
-
-  // Faixa de soma (percentis simples na janela)
-  function getSumRangeFromWindow(){
-    if(!concursos || !concursos.length) return {min:null, max:null};
-    const window = Math.min(200, concursos.length);
-    const sums=[];
-    for(let i=Math.max(0, concursos.length-window); i<concursos.length; i++){
-      const d = (concursos[i]?.dezenas||[]).map(Number);
-      if(d.length===15) sums.push(somaDezenas(d));
-    }
-    sums.sort((a,b)=>a-b);
-    if(!sums.length) return {min:null, max:null};
-    const q = (p)=>{
-      const pos=(sums.length-1)*p;
-      const b=Math.floor(pos), r=pos-b;
-      if(sums[b+1]===undefined) return sums[b];
-      return sums[b] + r*(sums[b+1]-sums[b]);
-    };
-    return {min: Math.round(q(0.20)), max: Math.round(q(0.80))};
-  }
-
-  const sumRange = getSumRangeFromWindow();
-
-  function scoreGame(g){
-    // Score simples (determinístico)
-    let score = 0;
-
-    // Par/Ímpar: prefere 7/8 ou 8/7
-    const pi = contarParesImpares(g);
-    if(pi.pares===7 || pi.pares===8) score += 6;
-    else score -= Math.abs(pi.pares - 7.5) * 3;
-
-    // Alta/Baixa: prefere 7/8 ou 8/7
-    const lows = countLows(g);
-    if(lows===7 || lows===8) score += 4;
-    else score -= Math.abs(lows - 7.5) * 2;
-
-    // Soma: dentro da faixa central da janela
-    const s = somaDezenas(g);
-    if(sumRange.min!=null && sumRange.max!=null){
-      if(s>=sumRange.min && s<=sumRange.max) score += 6;
-      else{
-        const dist = (s < sumRange.min) ? (sumRange.min - s) : (s - sumRange.max);
-        score -= dist / 8; // penaliza suavemente
-      }
-    }
-
-    // Moldura: alvo 9..11 (ideal 10)
-    const m = countMoldura(g);
-    if(m>=9 && m<=11) score += 5;
-    else score -= Math.abs(m-10) * 2;
-
-    // Linhas/Colunas: evita vazio (0/1) e lotado (5+)
-    const lc = calcLineCol(g);
-    const pen = (arr)=>{
-      let p=0;
-      for(const v of arr){
-        if(v===0) p += 4;
-        else if(v===1) p += 2;
-        else if(v>=5) p += 3;
-      }
-      return p;
-    };
-    score -= pen(lc.lines);
-    score -= pen(lc.cols);
-
-    // Sequências: penaliza 4+
-    const maxSeq = maxConsecutiveLen(g);
-    if(maxSeq<=3) score += 3;
-    else score -= (maxSeq-3) * 4;
-
-    return score;
-  }
-
-  // Conjunto de transformações (todas determinísticas)
-  const transforms = [
-    { id:"COL-A", name:"Colunas (variação A)", fn:(n)=>{
-        const row = Math.floor((n-1)/5);
-        const col = ((n-1)%5)+1;
-        const map = [4,2,5,1,3];
-        const newCol = map[col-1];
-        return row*5 + newCol;
-      }
-    },
-    { id:"COL-B", name:"Colunas (variação B)", fn:(n)=>{
-        const row = Math.floor((n-1)/5);
-        const col = ((n-1)%5)+1;
-        const map = [3,1,5,2,4];
-        const newCol = map[col-1];
-        return row*5 + newCol;
-      }
-    },
-    { id:"MIR-H", name:"Espelho horizontal", fn:(n)=>{
-        const row = Math.floor((n-1)/5);
-        const col0 = (n-1)%5;
-        const newCol0 = 4 - col0;
-        return row*5 + (newCol0+1);
-      }
-    },
-    { id:"MIR-V", name:"Espelho vertical", fn:(n)=>{
-        const row0 = Math.floor((n-1)/5);
-        const col0 = (n-1)%5;
-        const newRow0 = 4 - row0;
-        return newRow0*5 + (col0+1);
-      }
-    },
-    { id:"ROT-180", name:"Rotação 180°", fn:(n)=>{
-        const row0 = Math.floor((n-1)/5);
-        const col0 = (n-1)%5;
-        const newRow0 = 4 - row0;
-        const newCol0 = 4 - col0;
-        return newRow0*5 + (newCol0+1);
-      }
-    },
-    { id:"TRANS", name:"Transposição (linha↔coluna)", fn:(n)=>{
-        const row0 = Math.floor((n-1)/5);
-        const col0 = (n-1)%5;
-        // swap row/col
-        return col0*5 + (row0+1);
-      }
-    }
-  ];
-
-  // Se não houver concursos (sem contexto), usa permutas antigas para não quebrar
-  let ranked = [];
-  if(!concursos || !Array.isArray(concursos) || concursos.length===0){
-    const g1 = inverterJogoPorColPerm(lastPrincipalGame, [4,2,5,1,3]);
-    const g2 = inverterJogoPorColPerm(lastPrincipalGame, [3,1,5,2,4]);
-    ranked = [
-      { t: transforms[0], g: g1, score: 0 },
-      { t: transforms[1], g: g2, score: 0 }
-    ];
-  }else{
-    ranked = transforms.map(t=>{
-      const g = applyMap(lastPrincipalGame, t.fn);
-      const sc = scoreGame(g);
-      return { t, g, score: sc };
-    }).sort((a,b)=>{
-      if(b.score!==a.score) return b.score - a.score;
-      return a.t.id.localeCompare(b.t.id);
-    });
-  }
-
-  const pick1 = ranked[0];
-  // pick2: o próximo diferente do pick1 (garante 2 jogos)
-  let pick2 = ranked.find(x=>x.t.id!==pick1.t.id) || ranked[1] || pick1;
-
-  const g1 = pick1.g;
-  const g2 = pick2.g;
-  lastTecnicaGames = { g1, g2, meta: { t1: pick1.t, s1: pick1.score, t2: pick2.t, s2: pick2.score } };
+  lastTecnicaGames = { g1, g2 };
 
   const imgBase = svgToDataUri(buildCardSVG(lastPrincipalGame, "BASE (Principal)"));
-  const imgG1   = svgToDataUri(buildCardSVG(g1, "RESULTADO • JOGO 1"));
-  const imgG2   = svgToDataUri(buildCardSVG(g2, "RESULTADO • JOGO 2"));
-
-  const explain = `
-    A Técnica Premiada agora usa <b>Melhor Transformação</b>: testamos várias reorganizações do cartão 5×5
-    (espelhos/rotação/transposição/colunas) e escolhemos as <b>2 melhores</b> por equilíbrio (linhas/colunas, moldura, soma, paridade e sequências).<br>
-    <b>Sem aleatório</b>: sempre determinístico para a mesma janela e Principal.
-  `;
+  const imgG1   = svgToDataUri(buildCardSVG(g1, "TÉCNICA 1"));
+  const imgG2   = svgToDataUri(buildCardSVG(g2, "TÉCNICA 2"));
 
   document.getElementById("tecnicaArea").innerHTML = `
     <div class="box swapCard">
-      <b>🏆 Técnica Premiada • Melhor Transformação (cartão 5×5)</b>
-      <div class="mini">${explain}</div>
+      <b>🏆 Técnica Premiada (Diferenciada)</b>
+      <div class="mini">
+        Agora a Técnica Premiada cria <b>2 variações reais</b> do Principal (sem gerar do zero), com estratégias diferentes:<br>
+        <b>Técnica 1:</b> equilibrada (mix quente/morna/fria) • <b>Técnica 2:</b> tendência (mais quentes + sinergia).
+      </div>
 
       <div class="swapImgs">
         <div class="swapImgWrap">
           <b>BASE (Principal)</b>
-          <img class="swapImg" src="${imgBase}" alt="Base principal" />
+          <img class="swapImg" src="${imgBase}" alt="Principal base no cartão 5x5">
         </div>
         <div class="swapImgWrap">
-          <b>JOGO 1 • ${pick1.t.name}${(concursos && concursos.length)?` • score ${Number(pick1.score).toFixed(2)}`:""}</b>
-          <img class="swapImg" src="${imgG1}" alt="Técnica jogo 1" />
+          <b>TÉCNICA 1</b>
+          <img class="swapImg" src="${imgG1}" alt="Técnica 1 no cartão 5x5">
         </div>
         <div class="swapImgWrap">
-          <b>JOGO 2 • ${pick2.t.name}${(concursos && concursos.length)?` • score ${Number(pick2.score).toFixed(2)}`:""}</b>
-          <img class="swapImg" src="${imgG2}" alt="Técnica jogo 2" />
-        </div>
-      </div>
-
-      <div class="swapGamesRow">
-        <div class="swapMini">
-          <b>Jogo 1</b>
-          <div class="numbers" style="justify-content:flex-start;margin-top:10px">${g1.map(n=>`<div class="ball">${format2(n)}</div>`).join("")}</div>
-          ${renderCartao(g1, "tech1")}
-        </div>
-        <div class="swapMini">
-          <b>Jogo 2</b>
-          <div class="numbers" style="justify-content:flex-start;margin-top:10px">${g2.map(n=>`<div class="ball">${format2(n)}</div>`).join("")}</div>
-          ${renderCartao(g2, "tech2")}
+          <b>TÉCNICA 2</b>
+          <img class="swapImg" src="${imgG2}" alt="Técnica 2 no cartão 5x5">
         </div>
       </div>
     </div>
+
+    <div class="box" style="margin-top:12px">
+      <b>🏆 Técnica 1 (equilibrada)</b>
+      <div class="numbers" style="justify-content:flex-start">${g1.map(n=>`<div class="ball">${format2(n)}</div>`).join("")}</div>
+      ${_renderResumoPrime(g1, freq, payload, r1.motivos)}
+    </div>
+
+    <div class="box" style="margin-top:12px">
+      <b>🏆 Técnica 2 (tendência)</b>
+      <div class="numbers" style="justify-content:flex-start">${g2.map(n=>`<div class="ball">${format2(n)}</div>`).join("")}</div>
+      ${_renderResumoPrime(g2, freq, payload, r2.motivos)}
+    </div>
   `;
-  updateCheckButtons();
 }
 
 
