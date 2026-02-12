@@ -4010,6 +4010,10 @@ function checkSavedGames(){
       if(item.tipo === "pack" && item.pack){
         const pack = item.pack;
 
+        const principalRef = Array.isArray(pack.principal)
+          ? pack.principal.slice().map(Number).sort((a,b)=>a-b)
+          : null;
+
         const jogos = [
           { nome: "🎯 Principal (salvo)", nums: Array.isArray(pack.principal) ? pack.principal : null },
           { nome: "🔄 Invertida (salva)", nums: Array.isArray(pack.invertida) ? pack.invertida : null },
@@ -4025,6 +4029,15 @@ function checkSavedGames(){
         jogos.forEach(obj=>{
           const jogo = obj.nums.slice().map(Number).sort((a,b)=>a-b);
 
+          let principalLine = "";
+          if(obj.nome !== "🎯 Principal (salvo)" && Array.isArray(principalRef) && principalRef.length){
+            principalLine = `
+              <div class="mini" style="margin-top:6px">
+                🎯 <b>Principal:</b> <span class="mono">${principalRef.map(format2).join(" - ")}</span>
+              </div>
+            `;
+          }
+
           let linhasResultados = "";
           concursos.forEach(c=>{
             const hits = hitsCount(jogo, c.dezenas);
@@ -4039,6 +4052,7 @@ function checkSavedGames(){
           html += `
             <div class="box" style="margin-top:10px">
               <b>${obj.nome}</b>
+              ${principalLine}
               <div class="numbers" style="justify-content:flex-start;margin-top:8px">
                 ${jogo.map(format2).join(" - ")}
               </div>
