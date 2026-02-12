@@ -3395,203 +3395,19 @@ function worstPairsInGroup(group, stats, topN=3){
 
 /* ✅ NOVO: construção inicial por score (freq + recência + atraso controlado) */
 function buildInitialLines(stats){
-  // ===============================
-  // NOVA LÓGICA 15P (SEM GAMBIARRAS)
-  // Regras (último concurso vs não saiu):
-  // Linha 1: 4 que saíram + 1 que não saiu (casando = quinteto forte)
-  // Linha 2: 4 que saíram (2º melhor quarteto, sem repetir) + 1 que não saiu (casando)
-  // Linha 3: 1 que saiu (9º do último, pois 8 já foram nas linhas 1/2) + 4 que não saíram (andando juntos)
-  // Linhas 4 e 5: trabalham juntas (sobras), cada uma com 3 que saíram + 2 que não saíram, otimizadas em conjunto.
-  // Resultado final: 5 linhas com 5 dezenas (total 25), SEM repetir dezenas entre linhas.
-  // ===============================
-
-  const concursos = stats.concursosRef || [];
-  const last = concursos.length ? concursos[concursos.length-1] : null;
-
-  // fallback seguro (se por algum motivo não houver concursos carregados)
-  if(!last || !(last.dezenas||last.numeros||[]).length){
-    const order = [];
-    for(let i=1;i<=25;i++){
-      const s = (stats.freq[i]*1.0) + (stats.decay[i]*3.0) + Math.min(6, stats.gap[i]*0.35);
-      order.push({i, s});
-    }
-    order.sort((a,b)=>b.s-a.s);
-    const lines = [[],[],[],[],[]];
-    for(let k=0;k<order.length;k++) lines[k%5].push(order[k].i);
-    lines.forEach(l=>l.sort((a,b)=>a-b));
-    return lines;
+  const order = [];
+  for(let i=1;i<=25;i++){
+    // score: frequência + recência, com bônus leve para atraso (sem exagero)
+    const s = (stats.freq[i]*1.0) + (stats.decay[i]*3.0) + Math.min(6, stats.gap[i]*0.35);
+    order.push({i, s});
   }
+  order.sort((a,b)=>b.s-a.s);
 
-  const lastNums = (last.dezenas || last.numeros)
-    .map(d=>Number(String(d).replace(/^0+/,"")))
-    .filter(x=>x>=1 && x<=25)
-    .sort((a,b)=>a-b);
-
-  const lastSet = new Set(lastNums);
-  const notLastNums = [];
-  for(let i=1;i<=25;i++) if(!lastSet.has(i)) notLastNums.push(i);
-
-  let lastRem = new Set(lastNums);
-  let notRem = new Set(notLastNums);
-
-  function arrFromSet(s){ return Array.from(s).sort((a,b)=>a-b); }
-
-  // score por linha (força - penalidades iguais ao objective)
-  function lineScore(line){
-    const st = groupStrength(line, stats).sum;
-
-    const pares = line.filter(n=>n%2===0).length;
-    const blocos = distribuicaoBlocos(line);
-    const maxBlock = Math.max(blocos.A,blocos.B,blocos.C,blocos.D,blocos.E);
-
-    const fvals = line.map(n=>stats.freq[n]).sort((a,b)=>a-b);
-    const spread = (fvals[4]-fvals[0]);
-
-    let penalty=0;
-    if(!(pares===2 || pares===3)) penalty += 6;
-    if(maxBlock>=4) penalty += (maxBlock-3)*10;
-    if(spread<=1) penalty += 6;
-
-    return st - penalty;
+  const lines = [[],[],[],[],[]];
+  // distribuição round-robin para já evitar concentração
+  for(let k=0;k<order.length;k++){
+    lines[k%5].push(order[k].i);
   }
-
-  // gera combinações k (pool pequeno)
-  function combinations(pool, k){
-    const res=[];
-    const n=pool.length;
-    const combo=new Array(k);
-    function rec(start, depth){
-      if(depth===k){ res.push(combo.slice()); return; }
-      for(let i=start; i<=n-(k-depth); i++){
-        combo[depth]=pool[i];
-        rec(i+1, depth+1);
-      }
-    }
-    rec(0,0);
-    return res;
-  }
-
-  function bestQuartetPlusOne(lastPool, notPool){
-    const lastArr = lastPool;
-    const notArr  = notPool;
-
-    let best=null;
-
-    const qs = combinations(lastArr, 4);
-    for(const q of qs){
-      // para cada quarteto, escolhe o melhor 1 que não saiu para casar
-      let bestX=null, bestScore=-1e18;
-      for(const x of notArr){
-        const line = q.concat([x]).slice().sort((a,b)=>a-b);
-        const sc = lineScore(line);
-        if(sc>bestScore){
-          bestScore=sc; bestX=x;
-        }
-      }
-      if(bestX==null) continue;
-
-      const line = q.concat([bestX]).slice().sort((a,b)=>a-b);
-      const sc = lineScore(line);
-      if(!best || sc>best.score){
-        best = { q: q.slice(), x: bestX, line, score: sc };
-      }
-    }
-    return best;
-  }
-
-  function removeMany(setObj, nums){ nums.forEach(n=>setObj.delete(n)); }
-
-  // -------- Linha 1 --------
-  let L1 = bestQuartetPlusOne(arrFromSet(lastRem), arrFromSet(notRem));
-  if(!L1){ return [[],[],[],[],[]]; }
-  removeMany(lastRem, L1.q);
-  removeMany(notRem, [L1.x]);
-
-  // -------- Linha 2 (2º melhor quarteto, sem repetir) --------
-  // Busca novamente no restante (automaticamente evita repetir o quarteto da L1 por não ter mais as dezenas)
-  let L2 = bestQuartetPlusOne(arrFromSet(lastRem), arrFromSet(notRem));
-  if(!L2){
-    // fallback mínimo: pega 4 do restante + 1 do não saiu
-    const la = arrFromSet(lastRem).slice(0,4);
-    const na = arrFromSet(notRem).slice(0,1);
-    L2 = { q: la, x: na[0], line: la.concat(na).sort((a,b)=>a-b), score: 0 };
-  }
-  removeMany(lastRem, L2.q);
-  removeMany(notRem, [L2.x]);
-
-  // -------- Linha 3 (1 que saiu = 9º, + 4 que não saíram andando juntos) --------
-  // Escolhe (a ∈ lastRem) e (quarteto ∈ notRem) que maximizam o quinteto (força/penalidades)
-  const lastArr3 = arrFromSet(lastRem);
-  const notArr3 = arrFromSet(notRem);
-
-  let bestL3=null;
-  const notQs = combinations(notArr3, 4);
-  for(const a of lastArr3){
-    for(const q of notQs){
-      const line = [a].concat(q).slice().sort((x,y)=>x-y);
-      const sc = lineScore(line);
-      if(!bestL3 || sc>bestL3.score){
-        bestL3 = { a, q: q.slice(), line, score: sc };
-      }
-    }
-  }
-  if(!bestL3){
-    // fallback: 1 do last + 4 do not
-    const a = lastArr3[0];
-    const q = notArr3.slice(0,4);
-    bestL3 = { a, q, line:[a].concat(q).sort((x,y)=>x-y), score:0 };
-  }
-  removeMany(lastRem, [bestL3.a]);
-  removeMany(notRem, bestL3.q);
-
-  // -------- Linhas 4 e 5 (otimizadas em conjunto) --------
-  const lastArr45 = arrFromSet(lastRem);   // 6
-  const notArr45  = arrFromSet(notRem);    // 4
-
-  const trios = combinations(lastArr45, 3); // 20
-  const pairs = combinations(notArr45, 2);  // 6
-
-  let best45=null;
-
-  // pequeno incentivo para "errar junto": preferir cooc média menor nas linhas 4/5 (diversas),
-  // mas sem derrubar a força (peso leve).
-  function coAvg(line){
-    return groupCoSum(line, stats).avg;
-  }
-
-  for(const t4 of trios){
-    const t4set = new Set(t4);
-    const t5 = lastArr45.filter(n=>!t4set.has(n));
-    for(const p4 of pairs){
-      const p4set = new Set(p4);
-      const p5 = notArr45.filter(n=>!p4set.has(n));
-
-      const line4 = t4.concat(p4).slice().sort((a,b)=>a-b);
-      const line5 = t5.concat(p5).slice().sort((a,b)=>a-b);
-
-      const s4 = lineScore(line4);
-      const s5 = lineScore(line5);
-
-      const diversityBonus = -0.15*(coAvg(line4)+coAvg(line5)); // peso leve
-      const total = (s4+s5) + diversityBonus;
-
-      if(!best45 || total>best45.total){
-        best45 = { line4, line5, total };
-      }
-    }
-  }
-
-  let line4, line5;
-  if(best45){
-    line4 = best45.line4;
-    line5 = best45.line5;
-  }else{
-    // fallback simples
-    line4 = lastArr45.slice(0,3).concat(notArr45.slice(0,2)).sort((a,b)=>a-b);
-    line5 = lastArr45.slice(3,6).concat(notArr45.slice(2,4)).sort((a,b)=>a-b);
-  }
-
-  const lines = [L1.line, L2.line, bestL3.line, line4, line5];
   lines.forEach(l=>l.sort((a,b)=>a-b));
   return lines;
 }
@@ -3632,12 +3448,355 @@ function objective(lines, stats){
 }
 
 function optimizeLines(lines, stats){
-  // A nova lógica 15P já monta as linhas obedecendo as regras de "saiu / não saiu"
-  // e otimiza as Linhas 4 e 5 em conjunto. Mantemos esta função como "pass-through"
-  // para não alterar o fluxo do restante do sistema.
-  return lines;
+  let best = lines.map(l=>l.slice());
+  let bestScore = objective(best, stats);
+
+  function clone(x){ return x.map(l=>l.slice()); }
+  const ITER = 5200;
+
+  for(let t=0;t<ITER;t++){
+    const cand = clone(best);
+
+    const i = Math.floor(Math.random()*5);
+    let j = Math.floor(Math.random()*5);
+    if(i===j) j = (j+1)%5;
+
+    const ai = Math.floor(Math.random()*5);
+    const aj = Math.floor(Math.random()*5);
+
+    const tmp = cand[i][ai];
+    cand[i][ai] = cand[j][aj];
+    cand[j][aj] = tmp;
+
+    cand[i].sort((a,b)=>a-b);
+    cand[j].sort((a,b)=>a-b);
+
+    const sc = objective(cand, stats);
+    if(sc > bestScore || Math.random() < 0.02){
+      best = cand; bestScore = sc;
+    }
+  }
+
+  // ordena linhas por força (para explicar)
+  const withScore = best.map((l)=>({l, s: groupStrength(l,stats).sum}));
+  withScore.sort((a,b)=>b.s-a.s);
+
+  const strong = withScore.slice(0,3).map(x=>x.l);
+  const diverse = withScore.slice(3).map(x=>x.l);
+
+  return strong.concat(diverse);
 }
 
+
+
+/* ============================================================
+   ✅ 15P – GERADOR AVANÇADO (LINHAS POR "SAIU / NÃO SAIU")
+   - Mantém regras: L1 4+1, L2 4+1, L3 1+4, L4 3+2, L5 3+2
+   - Usa força por coocorrência/lift + regularização (curto+médio)
+   - Critérios de desempate: paridade, blocos/colunas, diversidade (anti-repetição)
+   - L4/L5 montadas em conjunto, com baixa correlação com L1–L3
+   ============================================================ */
+
+function numScoreOne(n, stats){
+  // score básico do número: freq + recência (decay) + atraso leve
+  return (stats.freq[n]*1.0) + (stats.decay[n]*3.0) + Math.min(6, stats.gap[n]*0.35);
+}
+
+function mixPairStrength(a,b, sShort, sMed, wShort, wMed){
+  // pairStrength já existe e usa stats (cooc + lift)
+  const ps = pairStrength(a,b, sShort);
+  const pm = (sMed ? pairStrength(a,b, sMed) : ps);
+  return (ps*wShort) + (pm*wMed);
+}
+
+function mixGroupStrength(group, sShort, sMed, wShort=0.7, wMed=0.3){
+  let sum=0, pairs=0;
+  for(let i=0;i<group.length;i++){
+    for(let j=i+1;j<group.length;j++){
+      sum += mixPairStrength(group[i], group[j], sShort, sMed, wShort, wMed);
+      pairs++;
+    }
+  }
+  return { sum, avg: pairs? sum/pairs : 0 };
+}
+
+function parityPenalty(line){
+  const pares = line.filter(n=>n%2===0).length;
+  return (pares===2 || pares===3) ? 0 : 6;
+}
+
+function blockPenalty(line){
+  const b = distribuicaoBlocos(line);
+  const maxBlock = Math.max(b.A,b.B,b.C,b.D,b.E);
+  return (maxBlock>=4) ? (maxBlock-3)*10 : 0;
+}
+
+function colPenalty(line){
+  // colunas 1..5: 1-5,6-10,11-15,16-20,21-25
+  const cols=[0,0,0,0,0];
+  for(const n of line){
+    const c = Math.min(4, Math.floor((n-1)/5));
+    cols[c]++;
+  }
+  const maxCol = Math.max(...cols);
+  return (maxCol>=4) ? (maxCol-3)*8 : 0;
+}
+
+function lineQualityScore(line, sShort, sMed){
+  const st = mixGroupStrength(line, sShort, sMed).sum;
+  const pen = parityPenalty(line) + blockPenalty(line) + colPenalty(line);
+  return st - pen;
+}
+
+function overlapCount(a,b){
+  const sb=new Set(b);
+  let k=0;
+  for(const x of a) if(sb.has(x)) k++;
+  return k;
+}
+
+function diversifyPenalty(candidateLine, existingLines){
+  // penaliza repetição com linhas já formadas
+  let pen=0;
+  for(const l of existingLines){
+    pen += overlapCount(candidateLine, l) * 2.0;
+  }
+  return pen;
+}
+
+function buildCombinations(arr, k){
+  const res=[];
+  const a=arr.slice().sort((x,y)=>x-y);
+  const pick=[];
+  function bt(start){
+    if(pick.length===k){ res.push(pick.slice()); return; }
+    for(let i=start;i<a.length;i++){
+      pick.push(a[i]); bt(i+1); pick.pop();
+    }
+  }
+  bt(0);
+  return res;
+}
+
+function bestKFromPool(pool, k, sShort, sMed, existingLines=[], hardExclude=new Set()){
+  const arr = pool.filter(n=>!hardExclude.has(n));
+  if(arr.length<k) return null;
+  const combs = buildCombinations(arr, k);
+  let best=null, bestScore=-Infinity;
+  for(const g of combs){
+    const sc = lineQualityScore(g, sShort, sMed) - diversifyPenalty(g, existingLines);
+    if(sc>bestScore){ bestScore=sc; best=g; }
+  }
+  return best;
+}
+
+function bestComplement(quartet, poolNaoSaiu, sShort, sMed, existingLines=[]){
+  let best=null, bestScore=-Infinity;
+  for(const n of poolNaoSaiu){
+    const line = sortNum([...quartet, n]);
+    const sc = lineQualityScore(line, sShort, sMed) - diversifyPenalty(line, existingLines);
+    if(sc>bestScore){ bestScore=sc; best=n; }
+  }
+  return best;
+}
+
+function countsInConcursos(concursos){
+  const cnt=Array(26).fill(0);
+  for(const c of concursos){
+    for(const n of (c.dezenas||[]).map(toNum)) cnt[n]++;
+  }
+  return cnt;
+}
+
+async function getMediumPayloadFor15P(medN){
+  try{
+    const p = await getOnlineConcursos(medN);
+    p.concursos = p.concursos.slice().sort((a,b)=>a.concurso-b.concurso);
+    return p;
+  }catch(e){
+    return null;
+  }
+}
+
+async function buildLines15PAdvanced(payloadShort, qtdShort){
+  const shortConc = payloadShort.concursos;
+  const ultimo = shortConc[shortConc.length-1];
+  const saiuUlt = new Set((ultimo.dezenas||[]).map(toNum));
+  const naoSaiuUlt = [];
+  for(let i=1;i<=25;i++) if(!saiuUlt.has(i)) naoSaiuUlt.push(i);
+
+  // stats curto
+  const sShort = calcCoocAndStats(shortConc);
+  sShort.concursosRef = shortConc;
+
+  // stats médio (regularização): busca 20 (ou 30 se usuário já usa maior)
+  const MED = Math.max(20, Math.min(30, qtdShort*5));
+  const medPayload = await getMediumPayloadFor15P(MED);
+  let sMed = null;
+  if(medPayload && medPayload.concursos?.length){
+    sMed = calcCoocAndStats(medPayload.concursos);
+    sMed.concursosRef = medPayload.concursos;
+  }
+
+  // quase-repetidas: apareceram em (qtdShort-1) ou mais na janela curta
+  const cntShort = countsInConcursos(shortConc);
+  const quasi = [];
+  const minQuasi = Math.max(2, qtdShort-1);
+  for(let i=1;i<=25;i++){
+    if(!saiuUlt.has(i) && cntShort[i] >= minQuasi) quasi.push(i);
+  }
+
+  const poolSaiu = [...saiuUlt].sort((a,b)=>a-b);
+  const poolNao = naoSaiuUlt.slice();
+
+  const lines=[];
+
+  // Linha 1: melhor quarteto do "saiu" + 1 do "não saiu" que casa
+  const q1 = bestKFromPool(poolSaiu, 4, sShort, sMed, []);
+  const c1 = bestComplement(q1, poolNao, sShort, sMed, []);
+  const L1 = sortNum([...q1, c1]); lines.push(L1);
+
+  // remove usados do pool (para evitar repetição na linha 2)
+  const used = new Set(L1);
+
+  // Linha 2: 2º melhor quarteto do "saiu" sem repetir dezenas do quarteto 1 + 1 do "não saiu" que casa
+  const q2 = bestKFromPool(poolSaiu, 4, sShort, sMed, lines, used);
+  const c2 = bestComplement(q2, poolNao.filter(n=>n!==c1), sShort, sMed, lines);
+  const L2 = sortNum([...q2, c2]); lines.push(L2);
+  L2.forEach(n=>used.add(n));
+
+  // Linha 3: 1 do "saiu" (9º / próximo disponível) + 4 do "não saiu" andando juntos
+  const saiuRest = poolSaiu.filter(n=>!used.has(n));
+  let n3 = null;
+  if(saiuRest.length){
+    // escolhe o melhor número restante por score individual (curto+médio)
+    let best=-Infinity;
+    for(const n of saiuRest){
+      const sc = (numScoreOne(n, sShort)*0.7) + (sMed? numScoreOne(n, sMed)*0.3 : 0);
+      if(sc>best){ best=sc; n3=n; }
+    }
+  }else if(quasi.length){
+    // se faltar "saiu", usa quasi-repetida
+    let best=-Infinity;
+    for(const n of quasi){
+      const sc = (numScoreOne(n, sShort)*0.7) + (sMed? numScoreOne(n, sMed)*0.3 : 0);
+      if(sc>best){ best=sc; n3=n; }
+    }
+  }else{
+    n3 = poolSaiu[0]; // fallback
+  }
+  used.add(n3);
+
+  const naoRest = poolNao.filter(n=>!used.has(n) && n!==c1 && n!==c2);
+  const q3 = bestKFromPool(naoRest, 4, sShort, sMed, lines);
+  const L3 = sortNum([n3, ...q3]); lines.push(L3);
+  L3.forEach(n=>used.add(n));
+
+  // Linhas 4 e 5: trabalham juntas (sobras), 3 "saiu/quasi" + 2 "não saiu"
+  // objetivo: boa força interna, baixa correlação com L1–L3
+  const baseStrong = lines.slice(0,3);
+  const union13 = [...new Set(baseStrong.flat())];
+
+  // pools restantes
+  let saiuLeft = poolSaiu.filter(n=>!used.has(n));
+  let naoLeft = poolNao.filter(n=>!used.has(n) && n!==c1 && n!==c2);
+
+  // completar "saiuLeft" com quasi se estiver curto
+  const needSaiu = 6;
+  if(saiuLeft.length < needSaiu){
+    const add = quasi.filter(n=>!used.has(n) && !saiuLeft.includes(n));
+    for(const n of add){
+      if(saiuLeft.length>=needSaiu) break;
+      saiuLeft.push(n);
+    }
+    saiuLeft = saiuLeft.sort((a,b)=>a-b);
+  }
+
+  // Escolhe melhores pares de linhas (L4,L5) por busca limitada
+  const candSaiuTrio = buildCombinations(saiuLeft, Math.min(3, saiuLeft.length));
+  const candNaoPair = buildCombinations(naoLeft, Math.min(2, naoLeft.length));
+
+  let bestPair=null, bestPairScore=-Infinity;
+
+  // limita para performance: top 50 trios por score individual
+  const trioScored = candSaiuTrio.map(t=>{
+    const sc = t.reduce((a,n)=>a+((numScoreOne(n,sShort)*0.7)+(sMed?numScoreOne(n,sMed)*0.3:0)),0);
+    return {t, sc};
+  }).sort((a,b)=>b.sc-a.sc).slice(0, Math.min(50, candSaiuTrio.length));
+
+  const pairScored = candNaoPair.map(p=>{
+    const sc = p.reduce((a,n)=>a+((numScoreOne(n,sShort)*0.7)+(sMed?numScoreOne(n,sMed)*0.3:0)),0);
+    return {p, sc};
+  }).sort((a,b)=>b.sc-a.sc).slice(0, Math.min(50, candNaoPair.length));
+
+  for(const A of trioScored){
+    for(const B of pairScored){
+      const L4c = sortNum([...A.t, ...B.p]);
+      const sc4 = lineQualityScore(L4c, sShort, sMed) - diversifyPenalty(L4c, baseStrong) - (overlapCount(L4c, union13)*1.2);
+
+      // remove usados para linha 5
+      const used45 = new Set([...A.t, ...B.p]);
+      const saiu2 = saiuLeft.filter(n=>!used45.has(n));
+      const nao2 = naoLeft.filter(n=>!used45.has(n));
+      if(saiu2.length<3 || nao2.length<2) continue;
+
+      const trios2 = buildCombinations(saiu2,3);
+      const pairs2 = buildCombinations(nao2,2);
+
+      // pega o melhor L5 dado este L4 (busca parcial)
+      let bestL5=null, bestL5Score=-Infinity;
+      // limita com top 20
+      const t2 = trios2.slice(0, Math.min(20, trios2.length));
+      const p2 = pairs2.slice(0, Math.min(20, pairs2.length));
+
+      for(const t of t2){
+        for(const p of p2){
+          const L5c = sortNum([...t,...p]);
+          const sc5 = lineQualityScore(L5c, sShort, sMed)
+                     - diversifyPenalty(L5c, baseStrong.concat([L4c]))
+                     - (overlapCount(L5c, union13)*1.2);
+          if(sc5>bestL5Score){ bestL5Score=sc5; bestL5=L5c; }
+        }
+      }
+
+      if(!bestL5) continue;
+
+      // score do par: 3 linhas fortes + 2 controladas
+      const total = (lineQualityScore(L1,sShort,sMed) + lineQualityScore(L2,sShort,sMed) + lineQualityScore(L3,sShort,sMed))*1.0
+                    + (sc4 + bestL5Score)*0.62;
+
+      // bônus leve por cobertura global de blocos/colunas
+      const pack = [L1,L2,L3,L4c,bestL5];
+      let coverBonus = 0;
+      const all = pack.flat();
+      const blocks = distribuicaoBlocos(all);
+      const maxB = Math.max(blocks.A,blocks.B,blocks.C,blocks.D,blocks.E);
+      if(maxB<=10) coverBonus += 6;
+      // colunas global
+      const cols=[0,0,0,0,0];
+      for(const n of all){ cols[Math.min(4,Math.floor((n-1)/5))]++; }
+      const maxC=Math.max(...cols);
+      if(maxC<=10) coverBonus += 6;
+
+      const finalScore = total + coverBonus;
+
+      if(finalScore>bestPairScore){
+        bestPairScore=finalScore;
+        bestPair={L4:L4c, L5:bestL5};
+      }
+    }
+  }
+
+  const L4 = bestPair ? bestPair.L4 : sortNum([...saiuLeft.slice(0,3), ...naoLeft.slice(0,2)]);
+  const L5 = bestPair ? bestPair.L5 : sortNum([...saiuLeft.slice(3,6), ...naoLeft.slice(2,4)]);
+
+  lines.push(L4);
+  lines.push(L5);
+
+  // garante 5 linhas x 5 dezenas
+  const finalLines = lines.slice(0,5).map(l=>sortNum(l).slice(0,5));
+  return { lines: finalLines, sShort, sMed, quasi, ultimoConcurso: ultimo.concurso };
+}
 function combos3de5(){
   const r=[];
   for(let a=1;a<=3;a++){
@@ -3927,8 +4086,10 @@ async function gerar15P(){
     const stats = calcCoocAndStats(payload.concursos);
     stats.concursosRef = payload.concursos; // ✅ usado para calcular 5/4/3/2 juntas
 
-    let lines = buildInitialLines(stats);
-    lines = optimizeLines(lines, stats);
+    // ✅ NOVO 15P: linhas por "saiu / não saiu" + regularização curto+médio + cobertura
+    const adv = await buildLines15PAdvanced(payload, qtd);
+    let lines = adv.lines;
+
 
     const jogos = gerarJogos15P(lines);
     const sourceInfo = { source: payload.source, mode: payload.mode };
@@ -3977,12 +4138,7 @@ async function gerar15P(){
       <div class="box" style="margin-top:12px">
         <b>📌 Linhas 1 a 5 (geradas pelo sistema)</b>
         <div class="mini" style="margin-top:6px">
-          <b>Regras desta análise (saiu / não saiu no último concurso):</b><br>
-          • Linha 1: <b>4 que saíram</b> + <b>1 que não saiu</b> (casando para formar quinteto forte)<br>
-          • Linha 2: <b>4 que saíram</b> (2º melhor quarteto) + <b>1 que não saiu</b> (casando)<br>
-          • Linha 3: <b>1 que saiu</b> (9º do último) + <b>4 que não saíram</b> (andando juntos)<br>
-          • Linhas 4 e 5: <b>3 que saíram</b> + <b>2 que não saíram</b> (otimizadas juntas, usando as sobras)<br>
-          <span class="mini">A força do quinteto considera <b>coocorrência + lift + recência</b>, com controle de paridade e blocos.</span>
+          O sistema usa: <b>frequência + recência + coocorrência + lift</b>, com controle de paridade e blocos.
         </div>
         <div style="margin-top:12px;overflow:auto">
           <table class="table">
@@ -4350,42 +4506,5 @@ function renderJogosSalvosAoAbrir(){
 
 </script>
 
-
-<script>
-/* ============================================================
-   🔵 BLOCO NOVO – DIVERSIFICAÇÃO ENTRE LINHAS (ANTI-REPETIÇÃO)
-   Objetivo:
-   - NÃO altera regras 4+1 / 1+4 / 3+2
-   - Atua somente como critério de desempate
-   - Reduz dezenas repetidas entre linhas
-   ============================================================ */
-
-function scoreDiversificacao(candidate, linhasExistentes){
-  let penalidade = 0;
-  for(const linha of linhasExistentes){
-    const inter = candidate.filter(n => linha.includes(n)).length;
-    penalidade += inter * 2; // quanto mais repetir, maior penalidade
-  }
-  return -penalidade; // maior score = melhor
-}
-
-// Use somente quando a força estatística for equivalente (empate/near-tie)
-function escolherMelhorComDiversificacao(opcoes, linhasExistentes){
-  let melhor = opcoes[0];
-  let melhorScore = -Infinity;
-
-  for(const op of opcoes){
-    const score = (op.forca || 0) + scoreDiversificacao(op.dezenas, linhasExistentes);
-    if(score > melhorScore){
-      melhorScore = score;
-      melhor = op;
-    }
-  }
-  return melhor;
-}
-/* ============================================================ */
-</script>
-
 </body>
 </html>
-
