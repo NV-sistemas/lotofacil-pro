@@ -898,9 +898,52 @@ function goView(id){
   document.querySelectorAll('.view').forEach(v => v.style.display='none');
   document.getElementById(id).style.display='block';
 
-  // 🔥 AQUI é a mágica
+  // ✅ Ao abrir "JOGOS SALVOS"
   if(id === 'viewSavedGames'){
     renderJogosSalvosAoAbrir();
+    return;
+  }
+
+  // ✅ Auto-ação ao abrir as telas (sem "remendos")
+  // - Principal: se ainda não existe, gera automaticamente (respeita Free/Premium pela própria acaoPrincipal)
+  // - Invertida/Técnica: se existe Principal, gera automaticamente ao entrar na tela (Premium)
+  if(id === 'viewPrincipal'){
+    const el = document.getElementById("principalArea");
+    const temMsg = el && /Gere um Jogo Principal/i.test(el.textContent||"");
+
+    if(!lastPrincipalGame){
+      if(!window.__autoGenLock){
+        window.__autoGenLock = true;
+        Promise.resolve().then(()=>acaoPrincipal()).finally(()=>{ window.__autoGenLock = false; });
+      }
+      return;
+    }
+
+    // Se já existe jogo mas a tela ainda está com a mensagem, renderiza algo mínimo imediatamente
+    if(temMsg){
+      const balls = lastPrincipalGame.map(n=>`<div class="ball">${format2(n)}</div>`).join("");
+      el.innerHTML = `
+        <div class="box">
+          <b>🎯 Jogo Principal</b>
+          <div class="numbers" style="justify-content:flex-start">${balls}</div>
+        </div>
+      `;
+    }
+    return;
+  }
+
+  if(id === 'viewInvertida'){
+    if(access?.premium && lastPrincipalGame){
+      gerarInvertida(true);
+    }
+    return;
+  }
+
+  if(id === 'viewTecnica'){
+    if(access?.premium && lastPrincipalGame){
+      gerarTecnicaPremiada(true);
+    }
+    return;
   }
 }
 </script>
@@ -1459,265 +1502,173 @@ function calcModernMetrics(concursos){
      k=10 -> +2 Top10 freq (1 mais + 1 menos) +2 (dupla forte) +1 atrasada (mais atrasada)
    - Paridade: segue o padrão dominante da janela (ex: 7 pares / 8 ímpares)
 ========================= */
-function gerarJogoPrincipalPrime(freq, modern, concursos, dezenasUltimo){
-  // ===============================
-  // ✅ JOGO PRINCIPAL (Modelo de Transição t → t+1)
-  // - Aprende na janela (concursos) como as repetidas e ausentes se comportam no sorteio seguinte
-  // - Escolhe repetidas por P(repetir | saiu) e ausentes por P(entrar | não saiu)
-  // - Mantém equilíbrio (par/ímpar, alta/baixa), soma, moldura e linhas/colunas via score (sem travar excessivo)
-  // ===============================
+function gerarJogoPrincipalPrime(freq, modern, concursos, latestDezenas){
+  // Estratégia "FORTE": mistura curto + médio prazo, repetidas, pares/ímpares, moldura e distribuição 5x5.
+  // Retorna { jogo:[1..25], motivos:[{dezena, texto}] }
 
-  const last = (dezenasUltimo||[]).map(toNum).filter(n=>n>=1 && n<=25).sort((a,b)=>a-b);
-  const lastSet = new Set(last);
-  const ALL = Array.from({length:25}, (_,i)=>i+1);
+  const toN = (x)=>toNum ? toNum(x) : Number(x);
+  const allNums = Array.from({length:25},(_,i)=>i+1);
 
-  // normaliza freq para array ordenada por frequência (maior->menor)
-  function freqToArrTop(freqObj){
-    try{
-      if(Array.isArray(freqObj)) return freqObj.slice();
-      if(!freqObj || typeof freqObj!=="object") return [];
-      return Object.keys(freqObj).map(k=>({n:toNum(k), v:toNum(freqObj[k])||0}))
-        .filter(x=>x.n>=1 && x.n<=25)
-        .sort((a,b)=>b.v-a.v)
-        .map(x=>x.n);
-    }catch(e){ return []; }
-  }
+  const conc = Array.isArray(concursos) ? concursos.slice() : [];
+  const latest = Array.isArray(latestDezenas) ? latestDezenas.map(toN).filter(n=>n>=1&&n<=25) : [];
+  const latestSet = new Set(latest);
 
-  function countEvens(arr){ let c=0; for(const n of arr) if(n%2===0) c++; return c; }
-  function countLows(arr){ let c=0; for(const n of arr) if(n<=13) c++; return c; }
-  function sumArr(arr){ let s=0; for(const n of arr) s+=n; return s; }
+  const freqMid = freq || (()=>{ const f={}; for(let i=1;i<=25;i++) f[i]=0; return f; })();
+  const shortN = Math.min(20, conc.length);
+  const freqShort = {}; for(let i=1;i<=25;i++) freqShort[i]=0;
+  conc.slice(-shortN).forEach(c=>{
+    (c.dezenas||[]).forEach(d=>{
+      const n=toN(d); if(n>=1&&n<=25) freqShort[n]+=1;
+    });
+  });
 
-  function molduraCount(arr){
-    const border = new Set([1,2,3,4,5, 6,10,11,15,16,20, 21,22,23,24,25]);
-    let c=0; for(const n of arr) if(border.has(n)) c++; return c;
-  }
-  function linesColsCounts(arr){
-    const lines=[0,0,0,0,0], cols=[0,0,0,0,0];
-    for(const n of arr){
-      const idx = n-1;
-      const r = Math.floor(idx/5);
-      const c = idx%5;
-      lines[r]++; cols[c]++;
+  // atraso: quantos concursos atrás foi a última vez que saiu (0 = saiu no último)
+  const atraso = {}; for(let i=1;i<=25;i++) atraso[i]=999;
+  for(let back=0; back<conc.length; back++){
+    const c = conc[conc.length-1-back];
+    const set = new Set((c?.dezenas||[]).map(toN));
+    for(let n=1;n<=25;n++){
+      if(atraso[n]===999 && set.has(n)) atraso[n]=back;
     }
-    return {lines, cols};
   }
-  function maxRun(arr){
+
+  const norm = (v, min, max)=> (max===min)?0 : (v-min)/(max-min);
+  const maxMid = Math.max(...allNums.map(n=>freqMid[n]||0));
+  const minMid = Math.min(...allNums.map(n=>freqMid[n]||0));
+  const maxS = Math.max(...allNums.map(n=>freqShort[n]||0));
+  const minS = Math.min(...allNums.map(n=>freqShort[n]||0));
+  const maxA = Math.max(...allNums.map(n=>atraso[n]||0));
+  const minA = Math.min(...allNums.map(n=>atraso[n]||0));
+
+  const molduraSet = new Set([1,2,3,4,5,21,22,23,24,25,6,11,16,10,15,20]);
+
+  // score híbrido
+  const score = {};
+  for(let n=1;n<=25;n++){
+    const sMid = norm(freqMid[n]||0, minMid, maxMid);
+    const sShort = norm(freqShort[n]||0, minS, maxS);
+    const sAtr = norm(atraso[n]||0, minA, maxA); // maior atraso => mais perto de 1
+    const inMold = molduraSet.has(n) ? 1 : 0;
+    // peso: curto 45%, médio 30%, atraso 15%, moldura 10%
+    score[n] = (0.45*sShort) + (0.30*sMid) + (0.15*sAtr) + (0.10*inMold);
+  }
+
+  const rowOf = (n)=>Math.floor((n-1)/5)+1; // 1..5
+  const colOf = (n)=>((n-1)%5)+1;
+
+  const countParity = (arr)=>{
+    let p=0,i=0;
+    arr.forEach(n=> (n%2===0)?p++:i++);
+    return {p,i};
+  };
+
+  const hasLongSeq = (arr, maxLen=4)=>{
     const a = arr.slice().sort((x,y)=>x-y);
-    let best=1, cur=1;
-    for(let i=1;i<a.length;i++){
-      if(a[i]===a[i-1]+1){ cur++; best=Math.max(best,cur); }
-      else cur=1;
+    let run=1;
+    for(let k=1;k<a.length;k++){
+      if(a[k]===a[k-1]+1){ run++; if(run>maxLen) return true; }
+      else run=1;
+    }
+    return false;
+  };
+
+  const scoreGame = (arr)=>arr.reduce((s,n)=>s+(score[n]||0),0);
+
+  function tryBuild(targetEven, targetReps, targetMold, maxTries=800){
+    let best=null, bestScore=-1;
+
+    const candidates = allNums.slice().sort((a,b)=> (score[b]||0)-(score[a]||0));
+
+    for(let t=0;t<maxTries;t++){
+      const chosen = new Set();
+      const rows=[0,0,0,0,0], cols=[0,0,0,0,0];
+
+      // 1) fixa repetidas (preferindo as mais pontuadas)
+      const latestSorted = latest.slice().sort((a,b)=>(score[b]||0)-(score[a]||0));
+      const repsPick = Math.max(8, Math.min(10, targetReps));
+      for(const n of latestSorted){
+        if(chosen.size>=repsPick) break;
+        chosen.add(n);
+        rows[rowOf(n)-1]++; cols[colOf(n)-1]++;
+      }
+
+      // 2) completa com melhor score respeitando distribuição
+      const shuffled = candidates.slice();
+      // pequeno shuffle para variar
+      for(let k=shuffled.length-1;k>0;k--){
+        const j = Math.floor(Math.random()*(k+1));
+        [shuffled[k],shuffled[j]]=[shuffled[j],shuffled[k]];
+      }
+      shuffled.sort((a,b)=>(score[b]||0)-(score[a]||0));
+
+      for(const n of shuffled){
+        if(chosen.size>=15) break;
+        if(chosen.has(n)) continue;
+
+        const r=rowOf(n)-1, c=colOf(n)-1;
+        // evita exagero em linha/coluna
+        if(rows[r]>=4) continue;
+        if(cols[c]>=4) continue;
+
+        chosen.add(n);
+        rows[r]++; cols[c]++;
+      }
+
+      if(chosen.size!==15) continue;
+
+      const arr = Array.from(chosen).sort((a,b)=>a-b);
+
+      // 3) filtros finais (paridade, repetidas, moldura, sequência)
+      const par = countParity(arr);
+      const reps = arr.filter(n=>latestSet.has(n)).length;
+      const mold = arr.filter(n=>molduraSet.has(n)).length;
+
+      const okParity = (par.p===targetEven && par.i===15-targetEven);
+      const okReps = reps>=8 && reps<=10 && Math.abs(reps-targetReps)<=2;
+      const okMold = mold>=9 && mold<=11 && Math.abs(mold-targetMold)<=2;
+      const okSeq = !hasLongSeq(arr,4);
+
+      if(!(okParity && okReps && okMold && okSeq)) continue;
+
+      const sc = scoreGame(arr);
+      if(sc>bestScore){
+        bestScore=sc; best=arr;
+      }
     }
     return best;
   }
 
-  // ====== 1) Aprende transição na janela (t -> t+1) ======
-  // concursos é a janela já filtrada pelo usuário; usamos apenas pares consecutivos dentro dela.
-  const trans = (function buildTransitionModel(conc){
-    const hist = {}; // histograma de repetidas (8/9/10 etc)
-    const repSeen = Array(26).fill(0);
-    const repHit  = Array(26).fill(0);
-    const absSeen = Array(26).fill(0);
-    const absHit  = Array(26).fill(0);
+  // escolhe targets comuns e tenta
+  const targetEven = (Math.random()<0.5)?7:8; // 7 ou 8 pares
+  const targetReps = 9;
+  const targetMold = 10;
 
-    // médias globais de distribuição (para score de regressão)
-    let sumEvens=0, sumLows=0, sumMold=0, sumSoma=0, pairs=0;
+  let jogo = tryBuild(targetEven, targetReps, targetMold, 1200);
 
-    for(let i=0;i<conc.length-1;i++){
-      const a = (conc[i]?.dezenas||[]).map(toNum);
-      const b = (conc[i+1]?.dezenas||[]).map(toNum);
-      if(a.length<15 || b.length<15) continue;
-
-      const setA = new Set(a);
-      const setB = new Set(b);
-      let rep=0;
-      for(const n of setA) if(setB.has(n)) rep++;
-      hist[rep] = (hist[rep]||0) + 1;
-
-      for(let n=1;n<=25;n++){
-        const inA = setA.has(n);
-        const inB = setB.has(n);
-        if(inA){
-          repSeen[n]++; if(inB) repHit[n]++;
-        }else{
-          absSeen[n]++; if(inB) absHit[n]++;
-        }
-      }
-
-      sumEvens += countEvens(b);
-      sumLows  += countLows(b);
-      sumMold  += molduraCount(b);
-      sumSoma  += sumArr(b);
-      pairs++;
-    }
-
-    // escolhe k (repetidas) pela moda (e fallback 9)
-    let bestK=9, bestC=-1;
-    for(const kStr in hist){
-      const k = toNum(kStr);
-      const c = hist[k];
-      if(c>bestC){ bestC=c; bestK=k; }
-    }
-    if(!(bestK>=6 && bestK<=12)) bestK=9;
-
-    // probabilidades suavizadas (Laplace)
-    const repProb = Array(26).fill(0);
-    const entProb = Array(26).fill(0);
-    for(let n=1;n<=25;n++){
-      repProb[n] = (repHit[n] + 1) / (repSeen[n] + 2);
-      entProb[n] = (absHit[n] + 1) / (absSeen[n] + 2);
-    }
-
-    // metas médias (regressão ao padrão)
-    const means = pairs>0 ? {
-      evens: sumEvens/pairs,
-      lows:  sumLows/pairs,
-      mold:  sumMold/pairs,
-      soma:  sumSoma/pairs
-    } : { evens:7.5, lows:7.5, mold:10, soma: 195 };
-
-    return { bestK, repProb, entProb, means, hist };
-  })(concursos||[]);
-
-  // ====== 2) Metas de equilíbrio (não trava; usa score) ======
-  const targetEven = 8; // 7/8 ou 8/7 – no score a gente aceita 7 ou 8 como ótimo
-  const targetLow  = 8; // 7/8 ou 8/7 – idem
-
-  // faixa de soma baseada nas médias da janela (± margem)
-  const somaCenter = trans.means.soma || 195;
-  const somaMin = somaCenter - 30;
-  const somaMax = somaCenter + 30;
-
-  // ====== 3) Score de dezena para montar candidatos ======
-  const topFreq = freqToArrTop(freq);
-  const top10Hot = topFreq.slice(0,10);
-  const hotSet = new Set(top10Hot);
-
-  // gaps/atraso (se existir)
-  function gapOf(n){
-    try{
-      const g = modern && modern.gap && (modern.gap[n] ?? modern.gap[String(n)]);
-      return toNum(g)||0;
-    }catch(e){ return 0; }
+  // fallback: relaxa (ainda mantendo coerência)
+  if(!jogo){
+    jogo = allNums.slice().sort((a,b)=>(score[b]||0)-(score[a]||0)).slice(0,15).sort((a,b)=>a-b);
   }
 
-  function scoreNumber(n){
-    // base: prob condicional de repetir/entrar
-    let s = 0;
-    if(lastSet.has(n)) s += 8 * trans.repProb[n];
-    else s += 8 * trans.entProb[n];
-
-    // quente / morna / fria (leve)
-    if(hotSet.has(n)) s += 0.8;
-
-    // atraso (não exagerar): valoriza até certo ponto
-    const g = gapOf(n);
-    if(!lastSet.has(n)){
-      if(g>=3 && g<=6) s += 0.6;
-      else if(g>6) s += 0.2;
-    }
-    return s;
-  }
-
-  // ====== 4) Score de jogo (melhor que “travar”) ======
-  function scoreGame(arr){
-    const a = arr.slice().sort((x,y)=>x-y);
-    const ev = countEvens(a);
-    const lo = countLows(a);
-    const mo = molduraCount(a);
-    const so = sumArr(a);
-    const run = maxRun(a);
-    const {lines, cols} = linesColsCounts(a);
-
-    // penaliza distância das metas (curvas suaves)
-    let sc = 0;
-
-    // paridade: 7/8 ou 8/7 é ótimo
-    sc += 2.2 - Math.min(2.2, Math.abs(ev - targetEven)*0.35);
-    // alta/baixa
-    sc += 2.2 - Math.min(2.2, Math.abs(lo - targetLow)*0.35);
-
-    // moldura: perto de 10 (9–11 ideal)
-    sc += 1.8 - Math.min(1.8, Math.abs(mo - 10)*0.35);
-
-    // soma: dentro da faixa ganha; fora perde
-    if(so>=somaMin && so<=somaMax) sc += 2.0;
-    else sc -= Math.min(2.0, Math.abs(so - somaCenter)/20);
-
-    // linhas/colunas: ideal 2–4 por linha/col
-    function lineScore(v){
-      if(v>=2 && v<=4) return 0.35;
-      if(v===1 || v===5) return -0.25;
-      return -0.45; // 0 ou 6+
-    }
-    for(const v of lines) sc += lineScore(v);
-    for(const v of cols) sc += lineScore(v);
-
-    // sequências longas
-    if(run>=4) sc -= 1.2;
-
-    // bônus: soma de scores das dezenas (transição)
-    for(const n of a) sc += 0.12 * scoreNumber(n);
-
-    return sc;
-  }
-
-  // ====== 5) Montagem do candidato com base no comportamento (t→t+1) ======
-  // k repetidas = moda observada na janela (com fallback)
-  const k = trans.bestK || 9;
-
-  // repetidas candidatas ranqueadas por P(repetir|saiu)
-  const lastRank = last.slice().sort((a,b)=> (trans.repProb[b]-trans.repProb[a]) || (b-a));
-  const baseRep = lastRank.slice(0, Math.min(k, lastRank.length));
-
-  // pool de ausentes ranqueadas por P(entrar|não saiu)
-  const absent = ALL.filter(n=>!lastSet.has(n));
-  const absentRank = absent.slice().sort((a,b)=> (scoreNumber(b)-scoreNumber(a)) || (b-a));
-
-  // gera muitos candidatos mexendo pouco (para não “engessar”)
-  const CANDS = 800;
-  let bestGame = null;
-  let bestScore = -1e9;
-
-  function pickWeighted(list, take, jitter){
-    // pega os primeiros com uma pequena aleatoriedade controlada
-    const arr = list.slice(0, Math.min(list.length, take*5));
-    // shuffle parcial
-    for(let i=0;i<arr.length;i++){
-      const j = Math.floor(Math.random()*Math.min(arr.length, 1+jitter));
-      const tmp=arr[i]; arr[i]=arr[j]; arr[j]=tmp;
-    }
-    return arr.slice(0, take);
-  }
-
-  for(let t=0;t<CANDS;t++){
-    const repTake = baseRep.slice(); // k já fixo
-    const need = 15 - repTake.length;
-
-    // variar a seleção de ausentes
-    const pick = pickWeighted(absentRank, need, 5);
-    const cand = Array.from(new Set(repTake.concat(pick))).slice(0,15).sort((a,b)=>a-b);
-
-    // se sobrar/ faltar por repetição, completa
-    if(cand.length<15){
-      for(const n of absentRank){
-        if(cand.length>=15) break;
-        if(!cand.includes(n)) cand.push(n);
-      }
-      cand.sort((a,b)=>a-b);
-    }
-
-    const sc = scoreGame(cand);
-    if(sc>bestScore){ bestScore=sc; bestGame=cand.slice(); }
-  }
-
-  const jogo = (bestGame||baseRep.concat(absentRank.slice(0,15-baseRep.length))).slice(0,15).sort((a,b)=>a-b);
-
-  // ===== Motivos (para o resumo) =====
+  // motivos (resumo por dezena)
   const motivos = [];
-  motivos.push(`Modelo t→t+1: repetidas alvo ${k} (moda da janela)`);
-  motivos.push(`Repetidas escolhidas por P(repetir|saiu) e ausentes por P(entrar|não saiu)`);
-  motivos.push(`Score: par/ímpar, alta/baixa, soma, moldura, linhas/colunas e sequências`);
+  const par = countParity(jogo);
+  const repsCount = jogo.filter(n=>latestSet.has(n)).length;
+  const moldCount = jogo.filter(n=>molduraSet.has(n)).length;
+
+  for(const n of jogo){
+    const tags=[];
+    if((freqShort[n]||0) >= Math.ceil(shortN*0.75)) tags.push("🔥 quente no curto prazo");
+    else if((freqShort[n]||0) <= Math.floor(shortN*0.25)) tags.push("🧊 fria no curto prazo");
+    if(latestSet.has(n)) tags.push("♻️ repetida do último");
+    if(molduraSet.has(n)) tags.push("🖼️ moldura");
+    if((atraso[n]||0) >= Math.ceil(conc.length*0.4)) tags.push("⏳ atrasada");
+    if(tags.length===0) tags.push("⚖️ equilíbrio do conjunto");
+    motivos.push({dezena:n, texto: tags.slice(0,2).join(" + ")});
+  }
+
+  // adiciona 1 linha geral compacta (para o agrupador do seu UI)
+  motivos.push({dezena:jogo[0], texto:`📌 Paridade ${par.i} ímpares / ${par.p} pares • ♻️ Repetidas: ${repsCount} • 🖼️ Moldura: ${moldCount}`});
 
   return { jogo, motivos };
 }
@@ -3028,364 +2979,391 @@ function renderCartao(jogo, clsName){
   return html;
 }
 
-
-// =========================
-// ✅ VARIAÇÕES (Invertida/Técnicas) por Transição t→t+1 (sem "troca de colunas")
-// - Reaproveita a mesma ideia do Principal, mas com perfis diferentes e diversidade mínima
-// =========================
-function gerarVariacaoPorTransicao(opts){
-  const { freq, modern, concursos, ultimo, targetRep, minDiffVs, minDiff, avoidSets } = opts || {};
-  const last = (ultimo||[]).map(toNum).filter(n=>n>=1 && n<=25).sort((a,b)=>a-b);
-  const lastSet = new Set(last);
-  const ALL = Array.from({length:25}, (_,i)=>i+1);
-
-  function countEvens(arr){ let c=0; for(const n of arr) if(n%2===0) c++; return c; }
-  function countLows(arr){ let c=0; for(const n of arr) if(n<=13) c++; return c; }
-  function sumArr(arr){ let s=0; for(const n of arr) s+=n; return s; }
-  function molduraCount(arr){
-    const border = new Set([1,2,3,4,5, 6,10,11,15,16,20, 21,22,23,24,25]);
-    let c=0; for(const n of arr) if(border.has(n)) c++; return c;
+function gerarInvertida(silent=false){
+  if(!access.premium){
+    if(!silent) alert("🔒 Invertida exige Premium.");
+    return;
   }
-  function linesColsCounts(arr){
-    const lines=[0,0,0,0,0], cols=[0,0,0,0,0];
-    for(const n of arr){
-      const idx = n-1;
-      lines[Math.floor(idx/5)]++;
-      cols[idx%5]++;
-    }
-    return {lines, cols};
+
+  const area = document.getElementById("invertidaArea");
+  if(!lastPrincipalGame){
+    if(area) area.innerHTML = `<div class="box"><b>ℹ️</b><div class="mini" style="margin-top:8px">Gere um Jogo Principal primeiro.</div></div>`;
+    if(!silent) alert("Gere primeiro um Jogo Principal.");
+    return;
   }
-  function maxRun(arr){
+
+  // Se não tiver contexto carregado, usa fallback (espelho por colunas)
+  const hasCtx = (lastPayload && lastCtx && lastCtx.freq && Array.isArray(lastPayload.concursos));
+  const principal = lastPrincipalGame.map(Number).filter(n=>n>=1&&n<=25);
+
+  const molduraSet = new Set([1,2,3,4,5,21,22,23,24,25,6,11,16,10,15,20]);
+
+  function resumoDoJogo(jogo, latest){
+    const latestSet = new Set((latest||[]).map(toNum));
+    const pares = jogo.filter(n=>n%2===0).length;
+    const imp = 15-pares;
+    const reps = jogo.filter(n=>latestSet.has(n)).length;
+    const mold = jogo.filter(n=>molduraSet.has(n)).length;
+    return {pares, imp, reps, mold};
+  }
+
+  function hasLongSeq(arr, maxLen=4){
     const a = arr.slice().sort((x,y)=>x-y);
-    let best=1, cur=1;
-    for(let i=1;i<a.length;i++){
-      if(a[i]===a[i-1]+1){ cur++; best=Math.max(best,cur); }
-      else cur=1;
-    }
-    return best;
-  }
-  function diffCount(a,b){
-    const sb = new Set(b);
-    let same=0; for(const n of a) if(sb.has(n)) same++;
-    return a.length - same;
-  }
-  function overlapsAvoid(a){
-    if(!avoidSets || !avoidSets.length) return false;
-    for(const s of avoidSets){
-      let same=0; for(const n of a) if(s.has(n)) same++;
-      if(same >= 11) return true; // evita ficar quase igual
+    let run=1;
+    for(let k=1;k<a.length;k++){
+      if(a[k]===a[k-1]+1){ run++; if(run>maxLen) return true; }
+      else run=1;
     }
     return false;
   }
 
-  // transição (Laplace)
-  const repSeen = Array(26).fill(0), repHit = Array(26).fill(0);
-  const absSeen = Array(26).fill(0), absHit = Array(26).fill(0);
-  let pairs=0, sumSoma=0;
+  let inv = null;
+  let motivos = [];
 
-  for(let i=0;i<(concursos||[]).length-1;i++){
-    const a = ((concursos[i]||{}).dezenas||[]).map(toNum);
-    const b = ((concursos[i+1]||{}).dezenas||[]).map(toNum);
-    if(a.length<15 || b.length<15) continue;
-    const setA=new Set(a), setB=new Set(b);
-    for(let n=1;n<=25;n++){
-      if(setA.has(n)){ repSeen[n]++; if(setB.has(n)) repHit[n]++; }
-      else { absSeen[n]++; if(setB.has(n)) absHit[n]++; }
-    }
-    sumSoma += sumArr(b);
-    pairs++;
-  }
+  if(hasCtx){
+    const conc = lastPayload.concursos.slice();
+    const latest = lastPayload.latest?.dezenas || [];
+    const latestSet = new Set(latest.map(toNum));
 
-  const repProb = Array(26).fill(0), entProb = Array(26).fill(0);
-  for(let n=1;n<=25;n++){
-    repProb[n] = (repHit[n] + 1) / (repSeen[n] + 2);
-    entProb[n] = (absHit[n] + 1) / (absSeen[n] + 2);
-  }
-  const somaCenter = pairs>0 ? (sumSoma/pairs) : 195;
-
-  // frequência top10
-  let top10Hot=[];
-  try{
-    if(Array.isArray(freq)) top10Hot = freq.slice(0,10);
-    else if(freq && typeof freq==="object"){
-      top10Hot = Object.keys(freq).map(k=>({n:toNum(k), v:toNum(freq[k])||0}))
-        .filter(x=>x.n>=1&&x.n<=25).sort((a,b)=>b.v-a.v).slice(0,10).map(x=>x.n);
-    }
-  }catch(e){}
-  const hotSet = new Set(top10Hot);
-
-  function gapOf(n){
-    try{
-      const g = modern && modern.gap && (modern.gap[n] ?? modern.gap[String(n)]);
-      return toNum(g)||0;
-    }catch(e){ return 0; }
-  }
-
-  function scoreNumber(n){
-    let s=0;
-    if(lastSet.has(n)) s += 8*repProb[n];
-    else s += 8*entProb[n];
-    if(hotSet.has(n)) s += 0.7;
-    const g = gapOf(n);
-    if(!lastSet.has(n)){
-      if(g>=3 && g<=6) s += 0.5;
-      else if(g>6) s += 0.2;
-    }
-    return s;
-  }
-
-  function scoreGame(arr){
-    const a = arr.slice().sort((x,y)=>x-y);
-    const ev = countEvens(a);
-    const lo = countLows(a);
-    const mo = molduraCount(a);
-    const so = sumArr(a);
-    const run = maxRun(a);
-    const {lines, cols} = linesColsCounts(a);
-
-    let sc=0;
-    // metas suaves
-    sc += 2.0 - Math.min(2.0, Math.abs(ev-8)*0.35);
-    sc += 2.0 - Math.min(2.0, Math.abs(lo-8)*0.35);
-    sc += 1.6 - Math.min(1.6, Math.abs(mo-10)*0.35);
-
-    const distSoma = Math.abs(so - somaCenter);
-    sc += 1.8 - Math.min(1.8, distSoma/18);
-
-    function lineScore(v){
-      if(v>=2 && v<=4) return 0.32;
-      if(v===1 || v===5) return -0.22;
-      return -0.42;
-    }
-    for(const v of lines) sc += lineScore(v);
-    for(const v of cols) sc += lineScore(v);
-
-    if(run>=4) sc -= 1.1;
-
-    // bônus por prob. condicional
-    for(const n of a) sc += 0.10*scoreNumber(n);
-
-    // diversidade mínima
-    if(minDiffVs && Array.isArray(minDiffVs)){
-      const d = diffCount(a, minDiffVs);
-      if(d < (minDiff||0)) sc -= 3.0;
-    }
-    if(overlapsAvoid(a)) sc -= 2.2;
-
-    return sc;
-  }
-
-  // monta com alvo de repetidas
-  const repCandidates = last.slice().sort((a,b)=> (repProb[b]-repProb[a]) || (b-a));
-  const repTake = repCandidates.slice(0, Math.min(targetRep||9, repCandidates.length));
-
-  const absent = ALL.filter(n=>!lastSet.has(n)).sort((a,b)=> (scoreNumber(b)-scoreNumber(a)) || (b-a));
-
-  const CANDS = 700;
-  let best=null, bestSc=-1e9;
-
-  function pickFromTop(list, count, wiggle){
-    const pool = list.slice(0, Math.min(list.length, count*5));
-    for(let i=0;i<pool.length;i++){
-      const j = Math.floor(Math.random()*Math.min(pool.length, 1+wiggle));
-      const tmp=pool[i]; pool[i]=pool[j]; pool[j]=tmp;
-    }
-    return pool.slice(0,count);
-  }
-
-  for(let t=0;t<CANDS;t++){
-    const need = 15 - repTake.length;
-    const pick = pickFromTop(absent, need, 6);
-    let cand = Array.from(new Set(repTake.concat(pick))).slice(0,15);
-    if(cand.length<15){
-      for(const n of absent){
-        if(cand.length>=15) break;
-        if(!cand.includes(n)) cand.push(n);
+    // score rápido (mesmo princípio do principal)
+    const freqMid = lastCtx.freq;
+    const shortN = Math.min(20, conc.length);
+    const freqShort = {}; for(let i=1;i<=25;i++) freqShort[i]=0;
+    conc.slice(-shortN).forEach(c=>{
+      (c.dezenas||[]).forEach(d=>{ const n=toNum(d); if(n>=1&&n<=25) freqShort[n]+=1; });
+    });
+    const atraso={}; for(let i=1;i<=25;i++) atraso[i]=999;
+    for(let back=0; back<conc.length; back++){
+      const c = conc[conc.length-1-back];
+      const set = new Set((c?.dezenas||[]).map(toNum));
+      for(let n=1;n<=25;n++){
+        if(atraso[n]===999 && set.has(n)) atraso[n]=back;
       }
     }
-    cand.sort((a,b)=>a-b);
-    const sc = scoreGame(cand);
-    if(sc>bestSc){ bestSc=sc; best=cand.slice(); }
+    const norm = (v, min, max)=> (max===min)?0 : (v-min)/(max-min);
+    const allNums = Array.from({length:25},(_,i)=>i+1);
+    const maxMid = Math.max(...allNums.map(n=>freqMid[n]||0));
+    const minMid = Math.min(...allNums.map(n=>freqMid[n]||0));
+    const maxS = Math.max(...allNums.map(n=>freqShort[n]||0));
+    const minS = Math.min(...allNums.map(n=>freqShort[n]||0));
+    const maxA = Math.max(...allNums.map(n=>atraso[n]||0));
+    const minA = Math.min(...allNums.map(n=>atraso[n]||0));
+
+    const score = {};
+    for(let n=1;n<=25;n++){
+      const sMid = norm(freqMid[n]||0, minMid, maxMid);
+      const sShort = norm(freqShort[n]||0, minS, maxS);
+      const sAtr = norm(atraso[n]||0, minA, maxA);
+      const inMold = molduraSet.has(n)?1:0;
+      score[n] = (0.45*sShort)+(0.30*sMid)+(0.15*sAtr)+(0.10*inMold);
+    }
+
+    // Invertida FORTE: mantém ~9 do Principal (mais fortes) + adiciona ~6 fora do Principal (diversificação)
+    const principalSorted = principal.slice().sort((a,b)=>(score[b]||0)-(score[a]||0));
+    const fora = allNums.filter(n=>!principal.includes(n));
+
+    // prioriza fora do principal com "atraso" e bom score
+    fora.sort((a,b)=>((atraso[b]||0)-(atraso[a]||0))*0.02 + (score[b]||0)-(score[a]||0));
+
+    const targetEven = (Math.random()<0.5)?7:8;
+    const targetReps = 9;
+    const targetMold = 10;
+
+    let best=null, bestScore=-1, bestMot=[];
+
+    for(let t=0;t<1200;t++){
+      const chosen = new Set();
+
+      // pega 9 do principal (mistura: 7 mais fortes + 2 aleatórias dentre o restante)
+      principalSorted.slice(0,7).forEach(n=>chosen.add(n));
+      const restP = principalSorted.slice(7);
+      while(chosen.size<9 && restP.length){
+        const idx = Math.floor(Math.random()*restP.length);
+        chosen.add(restP.splice(idx,1)[0]);
+      }
+
+      // completa com 6 fora do principal
+      const pool = fora.slice(0,18);
+      while(chosen.size<15 && pool.length){
+        const idx = Math.floor(Math.random()*pool.length);
+        chosen.add(pool.splice(idx,1)[0]);
+      }
+      if(chosen.size!==15) continue;
+
+      const arr = Array.from(chosen).sort((a,b)=>a-b);
+      const r = resumoDoJogo(arr, latest);
+
+      const okParity = (r.pares===targetEven);
+      const okReps = (r.reps>=8 && r.reps<=10);
+      const okMold = (r.mold>=9 && r.mold<=11);
+      const okSeq = !hasLongSeq(arr,4);
+
+      if(!(okParity && okReps && okMold && okSeq)) continue;
+
+      const sc = arr.reduce((s,n)=>s+(score[n]||0),0);
+      if(sc>bestScore){
+        bestScore=sc; best=arr;
+        bestMot = [];
+        for(const n of arr){
+          const tags=[];
+          if(latestSet.has(n)) tags.push("♻️ repetida");
+          if(molduraSet.has(n)) tags.push("🖼️ moldura");
+          if((atraso[n]||0) >= Math.ceil(conc.length*0.4)) tags.push("⏳ atrasada");
+          if((freqShort[n]||0) >= Math.ceil(shortN*0.75)) tags.push("🔥 quente");
+          if(tags.length===0) tags.push("⚖️ equilíbrio");
+          bestMot.push({dezena:n, texto: tags.slice(0,2).join(" + ")});
+        }
+        bestMot.push({dezena:arr[0], texto:`📌 Paridade ${r.imp} ímpares / ${r.pares} pares • ♻️ Repetidas: ${r.reps} • 🖼️ Moldura: ${r.mold}`});
+      }
+    }
+
+    inv = best || inverterJogoPorColPerm(principal, [5,4,3,2,1]); // fallback
+    motivos = bestMot;
+
+  }else{
+    // fallback (sem contexto)
+    inv = inverterJogoPorColPerm(principal, [5,4,3,2,1]);
+    motivos = [{dezena:inv[0], texto:"📌 Sem contexto carregado: aplicado espelho por colunas (fallback)."}];
   }
 
-  return (best||repTake.concat(absent.slice(0,15-repTake.length))).slice(0,15).sort((a,b)=>a-b);
-}
+  lastInvertidaGame = inv.slice();
 
-function buildResumoPrime(jogo, freq, payload, titulo, extras){
-  const cls = classificarDezenas(freq, jogo);
-  const pi = contarParesImpares(jogo);
-  const soma = somaDezenas(jogo);
-  const seq = contarSequencias(jogo);
-  const reps = repetidasDoUltimo(jogo, payload?.latest?.dezenas||[]);
-  const lows = jogo.filter(n=>n<=13).length;
-  const highs = 15 - lows;
+  const balls = inv.map(n=>`<div class="ball">${format2(n)}</div>`).join("");
 
-  const extraHtml = (extras && extras.length)
-    ? `<ul class="miniList">${extras.map(x=>`<li>${x}</li>`).join("")}</ul>`
-    : "";
+  // agrupa motivos como você já faz no Principal
+  const motivosAgrupados = {};
+  (motivos||[]).forEach(m=>{
+    const key = (m.texto||"").trim();
+    if(!motivosAgrupados[key]) motivosAgrupados[key]=[];
+    if(Number.isFinite(m.dezena)) motivosAgrupados[key].push(m.dezena);
+  });
+  const motivosHtml = Object.entries(motivosAgrupados).map(([k,arr])=>{
+    const nums = arr.sort((a,b)=>a-b).map(format2).join(" - ");
+    return `<div class="mini">• <b>${k}</b>${nums?`<br><span style="opacity:.9">${nums}</span>`:""}</div>`;
+  }).join("");
 
-  return `
-    <div class="box resumoPrime">
-      <div class="row between">
-        <div class="h3">${titulo||"Resumo PRIME"}</div>
-      </div>
-      ${extraHtml}
-      <div class="grid2">
-        <div><b>Pares/Ímpares:</b> ${pi.pares}/${pi.impares}</div>
-        <div><b>Altas/Baixas:</b> ${highs}/${lows}</div>
-        <div><b>Soma:</b> ${soma}</div>
-        <div><b>Sequência máx:</b> ${seq.maxLen}</div>
-        <div><b>Repetidas do último:</b> ${reps.length}</div>
-        <div><b>Quentes/Mornas/Frias:</b> ${cls.hot.length}/${cls.warm.length}/${cls.cold.length}</div>
-      </div>
+  area.innerHTML = `
+    <div class="box">
+      <b>🔄 Invertida FORTE (variação estratégica)</b>
+      <div class="numbers" style="justify-content:flex-start">${balls}</div>
+      <div style="margin-top:10px">${motivosHtml}</div>
     </div>
   `;
+
+  updateCheckButtons();
 }
 
-async function gerarInvertida(){
-  if(!access.premium){ alert("🔒 Invertida exige Premium."); return; }
 
-  // garante base (sem travas/sem remendos)
-  if(!lastPrincipalGame){
-    try{ await acaoPrincipal(); }catch(e){}
+function gerarTecnicaPremiada(silent=false){
+  if(!access.premium){
+    if(!silent) alert("🔒 Técnica premiada exige Premium.");
+    return;
   }
-  if(!lastPrincipalGame){ alert("Não foi possível gerar o Principal agora."); return; }
 
-  // ===== Contexto para comportamento t→t+1 =====
-  const payload = lastPayload;
-  const ctx = lastCtx || {};
-  const freq = ctx.freq;
-  const modern = ctx.modern;
-  const concursos = payload?.concursos || [];
-  const ultimo = payload?.latest?.dezenas || [];
+  const area = document.getElementById("tecnicaArea");
 
-  // alvo de repetidas (contrarian controlado)
-  const transTmp = gerarJogoPrincipalPrime(freq, modern, concursos, ultimo); // só para acessar k moda via motivos (já embutido)
-  // extrai k do texto, fallback 9
-  let kBase = 9;
-  try{
-    const m = (transTmp.motivos||[]).join(" ").match(/repetidas alvo\s+(\d+)/i);
-    if(m) kBase = toNum(m[1])||9;
-  }catch(e){}
-  const targetRep = Math.max(7, Math.min(10, kBase-1)); // invertida = repete menos
+  if(!lastPrincipalGame){
+    if(area) area.innerHTML = `<div class="box"><b>ℹ️</b><div class="mini" style="margin-top:8px">Gere um Jogo Principal primeiro.</div></div>`;
+    if(!silent) alert("Gere primeiro um Jogo Principal.");
+    return;
+  }
 
-  const base = lastPrincipalGame.slice().sort((a,b)=>a-b);
-  const last = (ultimo||[]).map(toNum).filter(n=>n>=1 && n<=25).sort((a,b)=>a-b);
-  const lastSet = new Set(last);
-  const baseSet = new Set(base);
+  const principal = lastPrincipalGame.map(Number).filter(n=>n>=1&&n<=25);
+  const invertida = Array.isArray(lastInvertidaGame) ? lastInvertidaGame.map(Number).filter(n=>n>=1&&n<=25) : [];
+
+  const U = new Set([...principal, ...invertida]);
+  const ALL = Array.from({length:25},(_,i)=>i+1);
+  const restantes = ALL.filter(n=>!U.has(n)); // dezenas que não aparecem nem no principal nem na invertida
+
+  // divide os "restantes" para garantir cobertura entre as duas técnicas
+  const r1 = [];
+  const r2 = [];
+  restantes.forEach((n,idx)=> (idx%2===0 ? r1 : r2).push(n));
+
+  const latest = (lastPayload?.latest?.dezenas || []).map(toNum);
+  const latestSet = new Set(latest);
 
   function diffCount(a,b){
-    const sb = new Set(b);
-    let same=0; for(const n of a) if(sb.has(n)) same++;
-    return a.length - same;
+    const bs=new Set(b);
+    return a.filter(n=>!bs.has(n)).length;
   }
 
-  // gera variação real usando o mesmo motor (t→t+1), mas forçando:
-  // - repetidas alvo menor
-  // - diversidade mínima vs Principal
-  const variant = gerarVariacaoPorTransicao({
-    freq, modern, concursos, ultimo,
-    targetRep,
-    minDiffVs: base,
-    minDiff: 6,
-    avoidSets: []
-  });
-
-  lastInvertidaGame = variant.slice();
-
-  // render
-  const imgBefore = svgToDataUri(buildCardSVG(base, "ANTES (Principal)"));
-  const imgAfter  = svgToDataUri(buildCardSVG(variant, "DEPOIS (Invertida Forte)"));
-
-  const resumo = buildResumoPrime(variant, freq, payload, "Invertida Forte", [
-    `Repetidas alvo: ${targetRep} (contrarian controlado)`,
-    `Diferença vs Principal: ${diffCount(variant, base)} dezenas`
-  ]);
-
-  document.getElementById("invertidaArea").innerHTML = `
-    <div class="box split">
-      <div class="imgcol"><img class="cardimg" src="${imgBefore}" alt="Principal"></div>
-      <div class="imgcol"><img class="cardimg" src="${imgAfter}" alt="Invertida"></div>
-    </div>
-    ${resumo}
-  `;
-}
-
-
-async function gerarTecnicaPremiada(){
-  if(!access.premium){ alert("🔒 Técnica exige Premium."); return; }
-
-  if(!lastPrincipalGame){
-    try{ await acaoPrincipal(); }catch(e){}
-  }
-  if(!lastPrincipalGame){ alert("Não foi possível gerar o Principal agora."); return; }
-
-  const payload = lastPayload;
-  const ctx = lastCtx || {};
-  const freq = ctx.freq;
-  const modern = ctx.modern;
-  const concursos = payload?.concursos || [];
-  const ultimo = payload?.latest?.dezenas || [];
-
-  const principal = lastPrincipalGame.slice().sort((a,b)=>a-b);
-
-  // k base (moda) extraído do motor principal (fallback 9)
-  const tmp = gerarJogoPrincipalPrime(freq, modern, concursos, ultimo);
-  let kBase = 9;
-  try{
-    const m = (tmp.motivos||[]).join(" ").match(/repetidas alvo\s+(\d+)/i);
-    if(m) kBase = toNum(m[1])||9;
-  }catch(e){}
-
-  // Técnica 1: sinergia/tendência (k igual)
-  const t1 = gerarVariacaoPorTransicao({
-    freq, modern, concursos, ultimo,
-    targetRep: Math.max(8, Math.min(10, kBase)),
-    minDiffVs: principal,
-    minDiff: 6,
-    avoidSets: []
-  });
-
-  // Técnica 2: cobertura inteligente (k pode ser +1, mas prioriza diversidade vs (principal + t1))
-  const t2 = gerarVariacaoPorTransicao({
-    freq, modern, concursos, ultimo,
-    targetRep: Math.max(8, Math.min(10, kBase+1)),
-    minDiffVs: principal,
-    minDiff: 6,
-    avoidSets: [new Set(t1)]
-  });
-
-  lastTecnicaGames = { t1: t1.slice(), t2: t2.slice() };
-
-  const imgP  = svgToDataUri(buildCardSVG(principal, "Principal"));
-  const imgT1 = svgToDataUri(buildCardSVG(t1, "Técnica 1"));
-  const imgT2 = svgToDataUri(buildCardSVG(t2, "Técnica 2"));
-
-  function diffCount(a,b){
-    const sb = new Set(b);
-    let same=0; for(const n of a) if(sb.has(n)) same++;
-    return a.length - same;
+  function metricsDoJogo(jogo){
+    const pi = contarParesImpares(jogo);
+    const soma = somaDezenas(jogo);
+    const seq = contarSequencias(jogo);
+    const reps = jogo.filter(n=>latestSet.has(n)).length;
+    const cls = classificarDezenas(freq, jogo);
+    // altas/baixas (1-13 vs 14-25)
+    const baixas = jogo.filter(n=>n<=13).length;
+    const altas = 15-baixas;
+    return { pi, soma, seq, reps, cls, baixas, altas };
   }
 
-  const r1 = buildResumoPrime(t1, freq, payload, "Técnica 1 (Tendência)", [
-    `Repetidas alvo: ${Math.max(8, Math.min(10, kBase))}`,
-    `Diferença vs Principal: ${diffCount(t1, principal)} dezenas`
-  ]);
-  const r2 = buildResumoPrime(t2, freq, payload, "Técnica 2 (Cobertura)", [
-    `Repetidas alvo: ${Math.max(8, Math.min(10, kBase+1))}`,
-    `Diferença vs Principal: ${diffCount(t2, principal)} dezenas`,
-    `Cobertura: evita sobrepor Técnica 1`
-  ]);
+  // Tenta construir um jogo a partir do principal, forçando:
+  // - incluir mustInclude
+  // - diferença mínima vs principal e invertida
+  // - boa pontuação pelo scoreJogo
+  function gerarCandidato(mustInclude, alvoDiffP=6, alvoDiffI=6, avoid=null, tentativas=1400){
+    const must = Array.isArray(mustInclude) ? mustInclude.slice() : [];
+    const base = principal.slice();
 
-  document.getElementById("tecnicaArea").innerHTML = `
-    <div class="box split">
-      <div class="imgcol"><img class="cardimg" src="${imgP}" alt="Principal"></div>
-      <div class="imgcol"><img class="cardimg" src="${imgT1}" alt="Técnica 1"></div>
-      <div class="imgcol"><img class="cardimg" src="${imgT2}" alt="Técnica 2"></div>
-    </div>
-    ${r1}
-    ${r2}
-  `;
+    let best=null;
+    let bestScore=-1;
+
+    const poolIn = ALL.filter(n=>!base.includes(n)); // possíveis entradas (fora do principal)
+
+    for(let t=0;t<tentativas;t++){
+      let g = base.slice();
+
+      // garante inclusão dos obrigatórios (prioriza os que não estão ainda)
+      for(const n of must){
+        if(!g.includes(n)){
+          // remove um número que não seja obrigatório
+          const removiveis = g.filter(x=>!must.includes(x));
+          const out = removiveis[Math.floor(Math.random()*removiveis.length)];
+          g = g.filter(x=>x!==out);
+          g.push(n);
+        }
+      }
+
+      // força diversidade vs principal e invertida
+      const targetOut = new Set(must);
+
+      function applyOneSwap(preferRestantes=true){
+        // escolhe entrada
+        let candidatesIn = preferRestantes ? poolIn.filter(n=>restantes.includes(n) && !g.includes(n)) : poolIn.filter(n=>!g.includes(n));
+        if(candidatesIn.length===0) candidatesIn = poolIn.filter(n=>!g.includes(n));
+        const inn = candidatesIn[Math.floor(Math.random()*candidatesIn.length)];
+
+        // escolhe saída: prioriza números que também estão no principal e/ou invertida (para aumentar diferença)
+        let outs = g.filter(x=>!targetOut.has(x));
+        if(outs.length===0) outs = g.slice();
+        // tenta tirar um número que está em ambos (principal+invertida) para liberar espaço
+        const outPref = outs.filter(x=>principal.includes(x) && invertida.includes(x));
+        const out2 = (outPref.length? outPref : outs);
+        const out = out2[Math.floor(Math.random()*out2.length)];
+
+        g = g.filter(x=>x!==out);
+        g.push(inn);
+        // unicidade
+        g = Array.from(new Set(g));
+        // completa se ficou com menos de 15
+        while(g.length<15){
+          const add = ALL.filter(n=>!g.includes(n))[Math.floor(Math.random()* (ALL.filter(n=>!g.includes(n)).length))];
+          g.push(add);
+          g = Array.from(new Set(g));
+        }
+        // corta se passou
+        if(g.length>15){
+          // remove extras não obrigatórios
+          const extras = g.filter(x=>!targetOut.has(x));
+          while(g.length>15 && extras.length){
+            const rem = extras.pop();
+            g = g.filter(x=>x!==rem);
+          }
+          while(g.length>15) g.pop();
+        }
+      }
+
+      // aplica swaps até bater diferença mínima
+      let guard=0;
+      while((diffCount(g, principal)<alvoDiffP || (invertida.length && diffCount(g, invertida)<alvoDiffI) || (avoid && diffCount(g, avoid)<6)) && guard<40){
+        applyOneSwap(true);
+        guard++;
+      }
+
+      // filtros leves: paridade e alta/baixa e sequência
+      const mt = metricsDoJogo(g);
+      const paresOk = (mt.pi.pares===7 || mt.pi.pares===8);
+      const abOk = (mt.baixas===7 || mt.baixas===8);
+      const seqOk = mt.seq.maxLen<=5;
+
+      if(!paresOk || !abOk || !seqOk) continue;
+
+      // pontuação total: score + bônus por diversidade
+      const s = scoreJogo(g)
+        + 3*diffCount(g, principal)
+        + (invertida.length ? 2*diffCount(g, invertida) : 0)
+        + (avoid ? 2*diffCount(g, avoid) : 0)
+        + Math.min(12, must.filter(n=>g.includes(n)).length*2);
+
+      if(s>bestScore){
+        bestScore=s;
+        best=g.slice().sort((a,b)=>a-b);
+      }
+    }
+
+    return best || base.slice().sort((a,b)=>a-b);
+  }
+
+  // Técnica 1: Tendência + cobertura (obriga os "restantes" do pack)
+  const g1 = gerarCandidato(r1.length? r1 : restantes, 6, 6, null, 1800);
+
+  // Técnica 2: Cobertura (prioriza o que sobrou e evita sobrepor Técnica 1)
+  const g2 = gerarCandidato(r2.length? r2 : restantes, 6, 6, g1, 2200);
+
+  lastTecnicaGames = { g1: g1.slice(), g2: g2.slice() };
+
+  // --- Resumos e UI ---
+  const m1 = metricsDoJogo(g1);
+  const m2 = metricsDoJogo(g2);
+
+  const diff1P = diffCount(g1, principal);
+  const diff1I = invertida.length ? diffCount(g1, invertida) : 0;
+  const diff2P = diffCount(g2, principal);
+  const diff2I = invertida.length ? diffCount(g2, invertida) : 0;
+  const diff12 = diffCount(g2, g1);
+
+  const motivos1 = {
+    "Objetivo": "Tendência + Cobertura (inclui dezenas fora do Principal/Invertida)",
+    "Diferença vs Principal": `${diff1P} dezenas`,
+    "Diferença vs Invertida": invertida.length ? `${diff1I} dezenas` : "—",
+    "Pares/Ímpares": `${m1.pi.pares}/${m1.pi.impares}`,
+    "Altas/Baixas": `${m1.altas}/${m1.baixas}`,
+    "Soma": `${m1.soma}`,
+    "Sequência máx": `${m1.seq.maxLen}`,
+    "Repetidas do último": `${m1.reps}`,
+    "Quentes/Mornas/Frias": `${m1.cls.quentes}/${m1.cls.mornas}/${m1.cls.frias}`
+  };
+
+  const motivos2 = {
+    "Objetivo": "Cobertura Inteligente (evita sobrepor Técnica 1)",
+    "Diferença vs Principal": `${diff2P} dezenas`,
+    "Diferença vs Invertida": invertida.length ? `${diff2I} dezenas` : "—",
+    "Diferença vs Técnica 1": `${diff12} dezenas`,
+    "Pares/Ímpares": `${m2.pi.pares}/${m2.pi.impares}`,
+    "Altas/Baixas": `${m2.altas}/${m2.baixas}`,
+    "Soma": `${m2.soma}`,
+    "Sequência máx": `${m2.seq.maxLen}`,
+    "Repetidas do último": `${m2.reps}`,
+    "Quentes/Mornas/Frias": `${m2.cls.quentes}/${m2.cls.mornas}/${m2.cls.frias}`
+  };
+
+  // garante que a técnica realmente está cobrindo os "restantes"
+  const restTxt = (restantes.length>0) ? restantes.map(n=>format2(n)).join(", ") : "—";
+
+  if(area){
+    area.innerHTML = `
+      <div class="box">
+        <div class="mini" style="opacity:.9">Dezenas fora do Principal+Invertida (para cobrir o que ficou de fora): <b class="mono">${restTxt}</b></div>
+      </div>
+
+      <div class="box" style="margin-top:10px">
+        <b>🏆 Técnica 1 (Cobertura + Tendência)</b>
+        <div class="numbers" style="justify-content:flex-start">${g1.map(n=>`<div class="ball">${format2(n)}</div>`).join("")}</div>
+        <div style="margin-top:10px">${motivosToHtml(motivos1)}</div>
+      </div>
+
+      <div class="box" style="margin-top:10px">
+        <b>🏆 Técnica 2 (Cobertura Inteligente)</b>
+        <div class="numbers" style="justify-content:flex-start">${g2.map(n=>`<div class="ball">${format2(n)}</div>`).join("")}</div>
+        <div style="margin-top:10px">${motivosToHtml(motivos2)}</div>
+      </div>
+    `;
+  }
+
+  updateCheckButtons();
 }
 
 
