@@ -1017,22 +1017,14 @@ function aplicarAcessos(){
 
   setCardEnabled(btnAnalise, access.premium, acaoAnalise, "🔒 Gerar análise exige Premium.");
 
-  setCardEnabled(btnInvertida, access.premium, async ()=>{
-    if(!Array.isArray(lastPrincipalGame) || lastPrincipalGame.length!==15){
-      await acaoPrincipal();
-    }
-    if(!Array.isArray(lastPrincipalGame) || lastPrincipalGame.length!==15) return alert("Gere primeiro um Jogo Principal.");
-    goView("viewInvertida");
-    await gerarInvertida();
+  setCardEnabled(btnInvertida, access.premium, ()=>{
+    if(!lastPrincipalGame) return alert("Gere primeiro um Jogo Principal.");
+    goView("viewInvertida"); gerarInvertida();
   }, "🔒 Invertida exige Premium.");
 
-  setCardEnabled(btnTecnica, access.premium, async ()=>{
-    if(!Array.isArray(lastPrincipalGame) || lastPrincipalGame.length!==15){
-      await acaoPrincipal();
-    }
-    if(!Array.isArray(lastPrincipalGame) || lastPrincipalGame.length!==15) return alert("Gere primeiro um Jogo Principal.");
-    goView("viewTecnica");
-    await gerarTecnicaPremiada();
+  setCardEnabled(btnTecnica, access.premium, ()=>{
+    if(!lastPrincipalGame) return alert("Gere primeiro um Jogo Principal.");
+    goView("viewTecnica"); gerarTecnicaPremiada();
   }, "🔒 Técnica premiada exige Premium.");
 
   if(!access.premium && isFreeUsed()){
@@ -2987,35 +2979,20 @@ function renderCartao(jogo, clsName){
   return html;
 }
 
-async async function gerarInvertida(silent=false){
+function gerarInvertida(silent=false){
   if(!access.premium){
     if(!silent) alert("🔒 Invertida exige Premium.");
     return;
   }
 
   const area = document.getElementById("invertidaArea");
-  
-  
-  // Garante jogo principal (geração automática)
-  if(!Array.isArray(lastPrincipalGame) || lastPrincipalGame.length!==15){
-    try{ await acaoPrincipal(); }catch(e){}
-  }
-  if(!Array.isArray(lastPrincipalGame) || lastPrincipalGame.length!==15){
+  if(!lastPrincipalGame){
     if(area) area.innerHTML = `<div class="box"><b>ℹ️</b><div class="mini" style="margin-top:8px">Gere um Jogo Principal primeiro.</div></div>`;
     if(!silent) alert("Gere primeiro um Jogo Principal.");
     return;
-  }
-// Base garantida: se o Principal ainda não estiver em memória, gera agora pelo fluxo oficial.
-  if(!window.lastPrincipalGame || !Array.isArray(window.lastPrincipalGame) || window.lastPrincipalGame.length!==15){
-    try{ await acaoPrincipal(); }catch(e){}
   }
 
-  if(!window.lastPrincipalGame || !Array.isArray(window.lastPrincipalGame) || window.lastPrincipalGame.length!==15){
-    if(area) area.innerHTML = `<div class="box"><b>ℹ️</b><div class="mini" style="margin-top:8px">Gere um Jogo Principal primeiro.</div></div>`;
-    if(!silent) alert("Gere primeiro um Jogo Principal.");
-    return;
-  }
-// Se não tiver contexto carregado, usa fallback (espelho por colunas)
+  // Se não tiver contexto carregado, usa fallback (espelho por colunas)
   const hasCtx = (lastPayload && lastCtx && lastCtx.freq && Array.isArray(lastPayload.concursos));
   const principal = lastPrincipalGame.map(Number).filter(n=>n>=1&&n<=25);
 
@@ -3177,229 +3154,189 @@ async async function gerarInvertida(silent=false){
 }
 
 
-async async function gerarTecnicaPremiada(silent=false){
+function gerarTecnicaPremiada(silent=false){
   if(!access.premium){
     if(!silent) alert("🔒 Técnica premiada exige Premium.");
     return;
   }
 
   const area = document.getElementById("tecnicaArea");
-
-  
-  
-  // Garante jogo principal (geração automática)
-  if(!Array.isArray(lastPrincipalGame) || lastPrincipalGame.length!==15){
-    try{ await acaoPrincipal(); }catch(e){}
-  }
-  if(!Array.isArray(lastPrincipalGame) || lastPrincipalGame.length!==15){
+  if(!lastPrincipalGame){
     if(area) area.innerHTML = `<div class="box"><b>ℹ️</b><div class="mini" style="margin-top:8px">Gere um Jogo Principal primeiro.</div></div>`;
     if(!silent) alert("Gere primeiro um Jogo Principal.");
     return;
   }
-// Base garantida: se o Principal ainda não estiver em memória, gera agora pelo fluxo oficial.
-  if(!window.lastPrincipalGame || !Array.isArray(window.lastPrincipalGame) || window.lastPrincipalGame.length!==15){
-    try{ await acaoPrincipal(); }catch(e){}
+
+  const principal = lastPrincipalGame.map(Number).filter(n=>n>=1&&n<=25);
+  const molduraSet = new Set([1,2,3,4,5,21,22,23,24,25,6,11,16,10,15,20]);
+
+  function hasLongSeq(arr, maxLen=4){
+    const a = arr.slice().sort((x,y)=>x-y);
+    let run=1;
+    for(let k=1;k<a.length;k++){
+      if(a[k]===a[k-1]+1){ run++; if(run>maxLen) return true; }
+      else run=1;
+    }
+    return false;
   }
 
-  if(!window.lastPrincipalGame || !Array.isArray(window.lastPrincipalGame) || window.lastPrincipalGame.length!==15){
-    if(area) area.innerHTML = `<div class="box"><b>ℹ️</b><div class="mini" style="margin-top:8px">Gere um Jogo Principal primeiro.</div></div>`;
-    if(!silent) alert("Gere primeiro um Jogo Principal.");
-    return;
-  }
-const principal = lastPrincipalGame.map(Number).filter(n=>n>=1&&n<=25);
-  const invertida = Array.isArray(lastInvertidaGame) ? lastInvertidaGame.map(Number).filter(n=>n>=1&&n<=25) : [];
+  const hasCtx = (lastPayload && lastCtx && lastCtx.freq && Array.isArray(lastPayload.concursos));
+  let g1=null, g2=null;
+  let motivos1=[], motivos2=[];
 
-  const U = new Set([...principal, ...invertida]);
-  const ALL = Array.from({length:25},(_,i)=>i+1);
-  const restantes = ALL.filter(n=>!U.has(n)); // dezenas que não aparecem nem no principal nem na invertida
+  if(hasCtx){
+    const conc = lastPayload.concursos.slice();
+    const latest = lastPayload.latest?.dezenas || [];
+    const latestSet = new Set(latest.map(toNum));
 
-  // divide os "restantes" para garantir cobertura entre as duas técnicas
-  const r1 = [];
-  const r2 = [];
-  restantes.forEach((n,idx)=> (idx%2===0 ? r1 : r2).push(n));
-
-  const latest = (lastPayload?.latest?.dezenas || []).map(toNum);
-  const latestSet = new Set(latest);
-
-  function diffCount(a,b){
-    const bs=new Set(b);
-    return a.filter(n=>!bs.has(n)).length;
-  }
-
-  function metricsDoJogo(jogo){
-    const pi = contarParesImpares(jogo);
-    const soma = somaDezenas(jogo);
-    const seq = contarSequencias(jogo);
-    const reps = jogo.filter(n=>latestSet.has(n)).length;
-    const cls = classificarDezenas(freq, jogo);
-    // altas/baixas (1-13 vs 14-25)
-    const baixas = jogo.filter(n=>n<=13).length;
-    const altas = 15-baixas;
-    return { pi, soma, seq, reps, cls, baixas, altas };
-  }
-
-  // Tenta construir um jogo a partir do principal, forçando:
-  // - incluir mustInclude
-  // - diferença mínima vs principal e invertida
-  // - boa pontuação pelo scoreJogo
-  function gerarCandidato(mustInclude, alvoDiffP=6, alvoDiffI=6, avoid=null, tentativas=1400){
-    const must = Array.isArray(mustInclude) ? mustInclude.slice() : [];
-    const base = principal.slice();
-
-    let best=null;
-    let bestScore=-1;
-
-    const poolIn = ALL.filter(n=>!base.includes(n)); // possíveis entradas (fora do principal)
-
-    for(let t=0;t<tentativas;t++){
-      let g = base.slice();
-
-      // garante inclusão dos obrigatórios (prioriza os que não estão ainda)
-      for(const n of must){
-        if(!g.includes(n)){
-          // remove um número que não seja obrigatório
-          const removiveis = g.filter(x=>!must.includes(x));
-          const out = removiveis[Math.floor(Math.random()*removiveis.length)];
-          g = g.filter(x=>x!==out);
-          g.push(n);
-        }
-      }
-
-      // força diversidade vs principal e invertida
-      const targetOut = new Set(must);
-
-      function applyOneSwap(preferRestantes=true){
-        // escolhe entrada
-        let candidatesIn = preferRestantes ? poolIn.filter(n=>restantes.includes(n) && !g.includes(n)) : poolIn.filter(n=>!g.includes(n));
-        if(candidatesIn.length===0) candidatesIn = poolIn.filter(n=>!g.includes(n));
-        const inn = candidatesIn[Math.floor(Math.random()*candidatesIn.length)];
-
-        // escolhe saída: prioriza números que também estão no principal e/ou invertida (para aumentar diferença)
-        let outs = g.filter(x=>!targetOut.has(x));
-        if(outs.length===0) outs = g.slice();
-        // tenta tirar um número que está em ambos (principal+invertida) para liberar espaço
-        const outPref = outs.filter(x=>principal.includes(x) && invertida.includes(x));
-        const out2 = (outPref.length? outPref : outs);
-        const out = out2[Math.floor(Math.random()*out2.length)];
-
-        g = g.filter(x=>x!==out);
-        g.push(inn);
-        // unicidade
-        g = Array.from(new Set(g));
-        // completa se ficou com menos de 15
-        while(g.length<15){
-          const add = ALL.filter(n=>!g.includes(n))[Math.floor(Math.random()* (ALL.filter(n=>!g.includes(n)).length))];
-          g.push(add);
-          g = Array.from(new Set(g));
-        }
-        // corta se passou
-        if(g.length>15){
-          // remove extras não obrigatórios
-          const extras = g.filter(x=>!targetOut.has(x));
-          while(g.length>15 && extras.length){
-            const rem = extras.pop();
-            g = g.filter(x=>x!==rem);
-          }
-          while(g.length>15) g.pop();
-        }
-      }
-
-      // aplica swaps até bater diferença mínima
-      let guard=0;
-      while((diffCount(g, principal)<alvoDiffP || (invertida.length && diffCount(g, invertida)<alvoDiffI) || (avoid && diffCount(g, avoid)<6)) && guard<40){
-        applyOneSwap(true);
-        guard++;
-      }
-
-      // filtros leves: paridade e alta/baixa e sequência
-      const mt = metricsDoJogo(g);
-      const paresOk = (mt.pi.pares===7 || mt.pi.pares===8);
-      const abOk = (mt.baixas===7 || mt.baixas===8);
-      const seqOk = mt.seq.maxLen<=5;
-
-      if(!paresOk || !abOk || !seqOk) continue;
-
-      // pontuação total: score + bônus por diversidade
-      const s = scoreJogo(g)
-        + 3*diffCount(g, principal)
-        + (invertida.length ? 2*diffCount(g, invertida) : 0)
-        + (avoid ? 2*diffCount(g, avoid) : 0)
-        + Math.min(12, must.filter(n=>g.includes(n)).length*2);
-
-      if(s>bestScore){
-        bestScore=s;
-        best=g.slice().sort((a,b)=>a-b);
+    const freqMid = lastCtx.freq;
+    const shortN = Math.min(20, conc.length);
+    const freqShort = {}; for(let i=1;i<=25;i++) freqShort[i]=0;
+    conc.slice(-shortN).forEach(c=>{
+      (c.dezenas||[]).forEach(d=>{ const n=toNum(d); if(n>=1&&n<=25) freqShort[n]+=1; });
+    });
+    const atraso={}; for(let i=1;i<=25;i++) atraso[i]=999;
+    for(let back=0; back<conc.length; back++){
+      const c = conc[conc.length-1-back];
+      const set = new Set((c?.dezenas||[]).map(toNum));
+      for(let n=1;n<=25;n++){
+        if(atraso[n]===999 && set.has(n)) atraso[n]=back;
       }
     }
+    const norm = (v, min, max)=> (max===min)?0 : (v-min)/(max-min);
+    const allNums = Array.from({length:25},(_,i)=>i+1);
+    const maxMid = Math.max(...allNums.map(n=>freqMid[n]||0));
+    const minMid = Math.min(...allNums.map(n=>freqMid[n]||0));
+    const maxS = Math.max(...allNums.map(n=>freqShort[n]||0));
+    const minS = Math.min(...allNums.map(n=>freqShort[n]||0));
+    const maxA = Math.max(...allNums.map(n=>atraso[n]||0));
+    const minA = Math.min(...allNums.map(n=>atraso[n]||0));
 
-    return best || base.slice().sort((a,b)=>a-b);
+    const score = {};
+    for(let n=1;n<=25;n++){
+      const sMid = norm(freqMid[n]||0, minMid, maxMid);
+      const sShort = norm(freqShort[n]||0, minS, maxS);
+      const sAtr = norm(atraso[n]||0, minA, maxA);
+      const inMold = molduraSet.has(n)?1:0;
+      score[n] = (0.45*sShort)+(0.30*sMid)+(0.15*sAtr)+(0.10*inMold);
+    }
+
+    const outside = allNums.filter(n=>!principal.includes(n)).sort((a,b)=>(score[b]||0)-(score[a]||0));
+
+    function buildFromSeed(seedArr, mode){
+      // mode: 1 (reforça moldura+repetidas), 2 (reforça atraso+diversificação)
+      const targetEven = (Math.random()<0.5)?7:8;
+      const latestSetLocal = latestSet;
+
+      let best=null, bestScore=-1, bestMot=[];
+      for(let t=0;t<1200;t++){
+        const chosen = new Set(seedArr);
+
+        // troca inteligente: remove 5 "piores" do seed e coloca 5 do outside
+        const seed = Array.from(chosen).slice(0,15);
+        seed.sort((a,b)=>(score[a]||0)-(score[b]||0)); // piores primeiro
+        const removeCount = 5;
+        for(let i=0;i<removeCount;i++){
+          chosen.delete(seed[i]);
+        }
+
+        // adiciona 5 candidatos
+        const pool = outside.slice(0,20);
+        while(chosen.size<15 && pool.length){
+          const idx = Math.floor(Math.random()*pool.length);
+          const pick = pool.splice(idx,1)[0];
+          chosen.add(pick);
+        }
+        if(chosen.size!==15) continue;
+
+        const arr = Array.from(chosen).sort((a,b)=>a-b);
+
+        const pares = arr.filter(n=>n%2===0).length;
+        const reps = arr.filter(n=>latestSetLocal.has(n)).length;
+        const mold = arr.filter(n=>molduraSet.has(n)).length;
+
+        const okParity = (pares===targetEven);
+        const okReps = (reps>=8 && reps<=10);
+        const okMold = (mold>=9 && mold<=11);
+        const okSeq = !hasLongSeq(arr,4);
+
+        if(!(okParity && okReps && okMold && okSeq)) continue;
+
+        // peso extra por modo
+        let bonus=0;
+        if(mode===1){
+          bonus += arr.filter(n=>molduraSet.has(n)).length*0.02;
+          bonus += arr.filter(n=>latestSetLocal.has(n)).length*0.02;
+        }else{
+          bonus += arr.reduce((s,n)=>s + ((atraso[n]||0)>=Math.ceil(conc.length*0.4)?0.03:0), 0);
+          bonus += arr.filter(n=>!principal.includes(n)).length*0.01;
+        }
+
+        const sc = arr.reduce((s,n)=>s+(score[n]||0),0) + bonus;
+        if(sc>bestScore){
+          bestScore=sc; best=arr;
+          const mot=[];
+          for(const n of arr){
+            const tags=[];
+            if(latestSetLocal.has(n)) tags.push("♻️ repetida");
+            if(molduraSet.has(n)) tags.push("🖼️ moldura");
+            if((atraso[n]||0) >= Math.ceil(conc.length*0.4)) tags.push("⏳ atrasada");
+            if((freqShort[n]||0) >= Math.ceil(shortN*0.75)) tags.push("🔥 quente");
+            if(tags.length===0) tags.push("⚖️ equilíbrio");
+            mot.push({dezena:n, texto: tags.slice(0,2).join(" + ")});
+          }
+          mot.push({dezena:arr[0], texto:`📌 Paridade ${15-pares} ímpares / ${pares} pares • ♻️ Repetidas: ${reps} • 🖼️ Moldura: ${mold}`});
+          bestMot = mot;
+        }
+      }
+      return {jogo: best || seedArr.slice().sort((a,b)=>a-b), motivos: bestMot};
+    }
+
+    // Técnica 1: "Trava Forte" (seed = principal) e reforça moldura/repetidas
+    const t1 = buildFromSeed(principal, 1);
+    g1 = t1.jogo; motivos1 = t1.motivos;
+
+    // Técnica 2: "Espelho + Ajuste" (seed = principal espelhado) e reforça atraso/diversificação
+    const seed2 = inverterJogoPorColPerm(principal, [3,1,5,2,4]); // mantém a ideia, mas agora ajusta
+    const t2 = buildFromSeed(seed2, 2);
+    g2 = t2.jogo; motivos2 = t2.motivos;
+
+  }else{
+    // fallback
+    g1 = inverterJogoPorColPerm(principal, [4,2,5,1,3]);
+    g2 = inverterJogoPorColPerm(principal, [3,1,5,2,4]);
+    motivos1 = [{dezena:g1[0], texto:"📌 Sem contexto carregado: técnica em modo fallback (permutação)."}];
+    motivos2 = [{dezena:g2[0], texto:"📌 Sem contexto carregado: técnica em modo fallback (permutação)."}];
   }
 
-  // Técnica 1: Tendência + cobertura (obriga os "restantes" do pack)
-  const g1 = gerarCandidato(r1.length? r1 : restantes, 6, 6, null, 1800);
+  lastTecnicaGames = { g1, g2 };
 
-  // Técnica 2: Cobertura (prioriza o que sobrou e evita sobrepor Técnica 1)
-  const g2 = gerarCandidato(r2.length? r2 : restantes, 6, 6, g1, 2200);
-
-  lastTecnicaGames = { g1: g1.slice(), g2: g2.slice() };
-
-  // --- Resumos e UI ---
-  const m1 = metricsDoJogo(g1);
-  const m2 = metricsDoJogo(g2);
-
-  const diff1P = diffCount(g1, principal);
-  const diff1I = invertida.length ? diffCount(g1, invertida) : 0;
-  const diff2P = diffCount(g2, principal);
-  const diff2I = invertida.length ? diffCount(g2, invertida) : 0;
-  const diff12 = diffCount(g2, g1);
-
-  const motivos1 = {
-    "Objetivo": "Tendência + Cobertura (inclui dezenas fora do Principal/Invertida)",
-    "Diferença vs Principal": `${diff1P} dezenas`,
-    "Diferença vs Invertida": invertida.length ? `${diff1I} dezenas` : "—",
-    "Pares/Ímpares": `${m1.pi.pares}/${m1.pi.impares}`,
-    "Altas/Baixas": `${m1.altas}/${m1.baixas}`,
-    "Soma": `${m1.soma}`,
-    "Sequência máx": `${m1.seq.maxLen}`,
-    "Repetidas do último": `${m1.reps}`,
-    "Quentes/Mornas/Frias": `${m1.cls.quentes}/${m1.cls.mornas}/${m1.cls.frias}`
-  };
-
-  const motivos2 = {
-    "Objetivo": "Cobertura Inteligente (evita sobrepor Técnica 1)",
-    "Diferença vs Principal": `${diff2P} dezenas`,
-    "Diferença vs Invertida": invertida.length ? `${diff2I} dezenas` : "—",
-    "Diferença vs Técnica 1": `${diff12} dezenas`,
-    "Pares/Ímpares": `${m2.pi.pares}/${m2.pi.impares}`,
-    "Altas/Baixas": `${m2.altas}/${m2.baixas}`,
-    "Soma": `${m2.soma}`,
-    "Sequência máx": `${m2.seq.maxLen}`,
-    "Repetidas do último": `${m2.reps}`,
-    "Quentes/Mornas/Frias": `${m2.cls.quentes}/${m2.cls.mornas}/${m2.cls.frias}`
-  };
-
-  // garante que a técnica realmente está cobrindo os "restantes"
-  const restTxt = (restantes.length>0) ? restantes.map(n=>format2(n)).join(", ") : "—";
-
-  if(area){
-    area.innerHTML = `
-      <div class="box">
-        <div class="mini" style="opacity:.9">Dezenas fora do Principal+Invertida (para cobrir o que ficou de fora): <b class="mono">${restTxt}</b></div>
-      </div>
-
-      <div class="box" style="margin-top:10px">
-        <b>🏆 Técnica 1 (Cobertura + Tendência)</b>
-        <div class="numbers" style="justify-content:flex-start">${g1.map(n=>`<div class="ball">${format2(n)}</div>`).join("")}</div>
-        <div style="margin-top:10px">${motivosToHtml(motivos1)}</div>
-      </div>
-
-      <div class="box" style="margin-top:10px">
-        <b>🏆 Técnica 2 (Cobertura Inteligente)</b>
-        <div class="numbers" style="justify-content:flex-start">${g2.map(n=>`<div class="ball">${format2(n)}</div>`).join("")}</div>
-        <div style="margin-top:10px">${motivosToHtml(motivos2)}</div>
-      </div>
-    `;
+  function motivosToHtml(motivos){
+    const agrup = {};
+    (motivos||[]).forEach(m=>{
+      const key = (m.texto||"").trim();
+      if(!agrup[key]) agrup[key]=[];
+      if(Number.isFinite(m.dezena)) agrup[key].push(m.dezena);
+    });
+    return Object.entries(agrup).map(([k,arr])=>{
+      const nums = arr.sort((a,b)=>a-b).map(format2).join(" - ");
+      return `<div class="mini">• <b>${k}</b>${nums?`<br><span style="opacity:.9">${nums}</span>`:""}</div>`;
+    }).join("");
   }
+
+  area.innerHTML = `
+    <div class="box">
+      <b>🏆 Técnica 1 (Trava Forte + Ajuste Inteligente)</b>
+      <div class="numbers" style="justify-content:flex-start">${g1.map(n=>`<div class="ball">${format2(n)}</div>`).join("")}</div>
+      <div style="margin-top:10px">${motivosToHtml(motivos1)}</div>
+    </div>
+
+    <div class="box" style="margin-top:12px">
+      <b>🏆 Técnica 2 (Espelho + Diversificação + Ajuste)</b>
+      <div class="numbers" style="justify-content:flex-start">${g2.map(n=>`<div class="ball">${format2(n)}</div>`).join("")}</div>
+      <div style="margin-top:10px">${motivosToHtml(motivos2)}</div>
+    </div>
+  `;
 
   updateCheckButtons();
 }
