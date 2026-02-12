@@ -584,16 +584,18 @@ const functions = firebase.app().functions("us-central1");
         <div class="col">
           <label>Quantidade de concursos para analisar</label>
           <select id="qtdConcursos">
+            <option value="3">3 concursos</option>
+            <option value="4">4 concursos</option>
             <option value="5">5 concursos</option>
-            <option value="10">10 concursos</option>
+            <option value="6">6 concursos</option>
+            <option value="12">12 concursos</option>
+            <option value="15">15 concursos</option>
             <option value="20" selected>20 concursos</option>
             <option value="30">30 concursos</option>
             <option value="50">50 concursos</option>
-            <option value="80">80 concursos</option>
-            <option value="80">120 concursos</option>
-            <option value="80">160 concursos</option>
-            <option value="80">200 concursos</option>
-          </select>
+            <option value="75">75 concursos</option>
+            <option value="100">100 concursos</option>
+           </select>
 
           <div class="mini" style="margin-top:8px">
             Escolha a janela e depois selecione uma das opções abaixo.
@@ -787,15 +789,15 @@ const functions = firebase.app().functions("us-central1");
   <div class="card">
     <label>Conferir últimos concursos</label>
     <select id="savedCheckQtd">
-  <option value="5">Últimos 5</option>
-  <option value="10" selected>Últimos 10</option>
+  <option value="3">Últimos 3</option>
+  <option value="6">Últimos 6</option>
+  <option value="12" selected>Últimos 12</option>
   <option value="20">Últimos 20</option>
   <option value="30">Últimos 30</option>
   <option value="50">Últimos 50</option>
-  <option value="80">Últimos 80</option>
+  <option value="75">Últimos 75</option>
   <option value="100">Últimos 100</option>
-  <option value="150">Últimos 150</option>
-</select>
+  </select>
 
 <div id="savedPacksList" style="margin-top:14px"></div>
 
