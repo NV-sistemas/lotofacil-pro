@@ -1901,6 +1901,13 @@ function gerarTecnicasPremium(){
      k=10 -> +2 Top10 freq (1 mais + 1 menos) +2 (dupla forte) +1 atrasada (mais atrasada)
    - Paridade: segue o padrão dominante da janela (ex: 7 pares / 8 ímpares)
 ========================= */
+
+
+/* ✅ Exporta funções PREMIUM para escopo global (onclick / handlers) */
+window.gerarJogoPrincipalPremium = gerarJogoPrincipalPremium;
+window.gerarInvertidaPremium = gerarInvertidaPremium;
+window.buildGamePremium = buildGamePremium;
+
 function gerarJogoPrincipalPrime(freq, modern, concursos, latestDezenas){
   // Estratégia "FORTE": mistura curto + médio prazo, repetidas, pares/ímpares, moldura e distribuição 5x5.
   // Retorna { jogo:[1..25], motivos:[{dezena, texto}] }
