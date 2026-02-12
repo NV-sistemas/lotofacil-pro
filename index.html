@@ -4352,3 +4352,40 @@ function renderJogosSalvosAoAbrir(){
 
 </body>
 </html>
+
+/* ============================================================
+   🔵 BLOCO NOVO – DIVERSIFICAÇÃO ENTRE LINHAS (ANTI-REPETIÇÃO)
+   Objetivo:
+   - NÃO altera regras 4+1 / 1+4 / 3+2
+   - Atua somente como critério de desempate
+   - Reduz dezenas repetidas entre linhas
+   ============================================================ */
+
+function scoreDiversificacao(candidate, linhasExistentes){
+    let penalidade = 0;
+
+    for(const linha of linhasExistentes){
+        const inter = candidate.filter(n => linha.includes(n)).length;
+        penalidade += inter * 2; // quanto mais repetir, maior penalidade
+    }
+
+    return -penalidade; // maior score = melhor
+}
+
+// usar somente quando força estatística for equivalente
+function escolherMelhorComDiversificacao(opcoes, linhasExistentes){
+    let melhor = opcoes[0];
+    let melhorScore = -Infinity;
+
+    for(const op of opcoes){
+        const score = (op.forca || 0) + scoreDiversificacao(op.dezenas, linhasExistentes);
+        if(score > melhorScore){
+            melhorScore = score;
+            melhor = op;
+        }
+    }
+
+    return melhor;
+}
+
+/* ============================================================ */
