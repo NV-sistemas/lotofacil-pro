@@ -1827,7 +1827,7 @@ function buildGamePremium(opts){
   return { jogo, motivos, resumo };
 }
 
-function gerarJogoPrincipalPremium(freq, modern, concursos, latestDezenas){
+function window.gerarJogoPrincipalPremium(freq, modern, concursos, latestDezenas){
   const molduraSet = new Set([1,2,3,4,5,21,22,23,24,25,6,11,16,10,15,20]);
   const cooc = buildCoocMatrix(concursos||[]);
   const metrics = buildPremiumMetrics(concursos||[], freq||{}, molduraSet);
@@ -1843,7 +1843,7 @@ function gerarJogoPrincipalPremium(freq, modern, concursos, latestDezenas){
   });
 }
 
-function gerarInvertidaPremium(){
+function window.gerarInvertidaPremium(){
   const molduraSet = new Set([1,2,3,4,5,21,22,23,24,25,6,11,16,10,15,20]);
   const conc = (lastPayload?.concursos||[]);
   const latest = (lastPayload?.latest?.dezenas||[]);
@@ -3135,7 +3135,7 @@ async function acaoPrincipal(){
     setStatus(true,"Gerando jogo principal (15 dezenas)…");
     setProgress(80);
 
-    const result = gerarJogoPrincipalPremium(freq, modern, payload.concursos, payload.latest.dezenas);
+    const result = window.gerarJogoPrincipalPremium(freq, modern, payload.concursos, payload.latest.dezenas);
 const jogo = result.jogo;
 
     lastPrincipalGame = jogo.slice();
@@ -3434,7 +3434,7 @@ async function gerarInvertida(silent=false){
   let motivos = [];
 
   if(hasCtx){
-    const built = gerarInvertidaPremium();
+    const built = window.gerarInvertidaPremium();
     inv = built.jogo;
     motivos = built.motivos || [];
   }else{
