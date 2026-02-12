@@ -1018,12 +1018,10 @@ function aplicarAcessos(){
   setCardEnabled(btnAnalise, access.premium, acaoAnalise, "🔒 Gerar análise exige Premium.");
 
   setCardEnabled(btnInvertida, access.premium, ()=>{
-    if(!lastPrincipalGame) return alert("Gere primeiro um Jogo Principal.");
     goView("viewInvertida"); gerarInvertida();
   }, "🔒 Invertida exige Premium.");
 
   setCardEnabled(btnTecnica, access.premium, ()=>{
-    if(!lastPrincipalGame) return alert("Gere primeiro um Jogo Principal.");
     goView("viewTecnica"); gerarTecnicaPremiada();
   }, "🔒 Técnica premiada exige Premium.");
 
@@ -2979,16 +2977,23 @@ function renderCartao(jogo, clsName){
   return html;
 }
 
-function gerarInvertida(silent=false){
+async function gerarInvertida(silent=false){
   if(!access.premium){
     if(!silent) alert("🔒 Invertida exige Premium.");
     return;
   }
 
   const area = document.getElementById("invertidaArea");
-  if(!lastPrincipalGame){
-    if(area) area.innerHTML = `<div class="box"><b>ℹ️</b><div class="mini" style="margin-top:8px">Gere um Jogo Principal primeiro.</div></div>`;
-    if(!silent) alert("Gere primeiro um Jogo Principal.");
+  if(!lastPrincipalGame || !Array.isArray(lastPrincipalGame) || lastPrincipalGame.length !== 15){
+    if(area) area.innerHTML = `<div class="box"><b>⏳</b><div class="mini" style="margin-top:8px">Gerando Jogo Principal…</div></div>`;
+    try{
+      await acaoPrincipal();
+    }catch(e){
+      // mantém mensagem, sem alert
+    }
+  }
+  if(!lastPrincipalGame || !Array.isArray(lastPrincipalGame) || lastPrincipalGame.length !== 15){
+    if(area) area.innerHTML = `<div class="box"><b>ℹ️</b><div class="mini" style="margin-top:8px">Não foi possível gerar o Jogo Principal agora. Volte e tente novamente.</div></div>`;
     return;
   }
 
@@ -3154,16 +3159,23 @@ function gerarInvertida(silent=false){
 }
 
 
-function gerarTecnicaPremiada(silent=false){
+async function gerarTecnicaPremiada(silent=false){
   if(!access.premium){
     if(!silent) alert("🔒 Técnica premiada exige Premium.");
     return;
   }
 
   const area = document.getElementById("tecnicaArea");
-  if(!lastPrincipalGame){
-    if(area) area.innerHTML = `<div class="box"><b>ℹ️</b><div class="mini" style="margin-top:8px">Gere um Jogo Principal primeiro.</div></div>`;
-    if(!silent) alert("Gere primeiro um Jogo Principal.");
+  if(!lastPrincipalGame || !Array.isArray(lastPrincipalGame) || lastPrincipalGame.length !== 15){
+    if(area) area.innerHTML = `<div class="box"><b>⏳</b><div class="mini" style="margin-top:8px">Gerando Jogo Principal…</div></div>`;
+    try{
+      await acaoPrincipal();
+    }catch(e){
+      // mantém mensagem, sem alert
+    }
+  }
+  if(!lastPrincipalGame || !Array.isArray(lastPrincipalGame) || lastPrincipalGame.length !== 15){
+    if(area) area.innerHTML = `<div class="box"><b>ℹ️</b><div class="mini" style="margin-top:8px">Não foi possível gerar o Jogo Principal agora. Volte e tente novamente.</div></div>`;
     return;
   }
 
