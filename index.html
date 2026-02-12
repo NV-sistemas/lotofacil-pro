@@ -4350,9 +4350,8 @@ function renderJogosSalvosAoAbrir(){
 
 </script>
 
-</body>
-</html>
 
+<script>
 /* ============================================================
    🔵 BLOCO NOVO – DIVERSIFICAÇÃO ENTRE LINHAS (ANTI-REPETIÇÃO)
    Objetivo:
@@ -4362,30 +4361,31 @@ function renderJogosSalvosAoAbrir(){
    ============================================================ */
 
 function scoreDiversificacao(candidate, linhasExistentes){
-    let penalidade = 0;
-
-    for(const linha of linhasExistentes){
-        const inter = candidate.filter(n => linha.includes(n)).length;
-        penalidade += inter * 2; // quanto mais repetir, maior penalidade
-    }
-
-    return -penalidade; // maior score = melhor
+  let penalidade = 0;
+  for(const linha of linhasExistentes){
+    const inter = candidate.filter(n => linha.includes(n)).length;
+    penalidade += inter * 2; // quanto mais repetir, maior penalidade
+  }
+  return -penalidade; // maior score = melhor
 }
 
-// usar somente quando força estatística for equivalente
+// Use somente quando a força estatística for equivalente (empate/near-tie)
 function escolherMelhorComDiversificacao(opcoes, linhasExistentes){
-    let melhor = opcoes[0];
-    let melhorScore = -Infinity;
+  let melhor = opcoes[0];
+  let melhorScore = -Infinity;
 
-    for(const op of opcoes){
-        const score = (op.forca || 0) + scoreDiversificacao(op.dezenas, linhasExistentes);
-        if(score > melhorScore){
-            melhorScore = score;
-            melhor = op;
-        }
+  for(const op of opcoes){
+    const score = (op.forca || 0) + scoreDiversificacao(op.dezenas, linhasExistentes);
+    if(score > melhorScore){
+      melhorScore = score;
+      melhor = op;
     }
-
-    return melhor;
+  }
+  return melhor;
 }
-
 /* ============================================================ */
+</script>
+
+</body>
+</html>
+
