@@ -2979,20 +2979,25 @@ function renderCartao(jogo, clsName){
   return html;
 }
 
-function gerarInvertida(silent=false){
+async function gerarInvertida(silent=false){
   if(!access.premium){
     if(!silent) alert("🔒 Invertida exige Premium.");
     return;
   }
 
   const area = document.getElementById("invertidaArea");
-  if(!lastPrincipalGame){
+  
+  // Base garantida: se o Principal ainda não estiver em memória, gera agora pelo fluxo oficial.
+  if(!window.lastPrincipalGame || !Array.isArray(window.lastPrincipalGame) || window.lastPrincipalGame.length!==15){
+    try{ await acaoPrincipal(); }catch(e){}
+  }
+
+  if(!window.lastPrincipalGame || !Array.isArray(window.lastPrincipalGame) || window.lastPrincipalGame.length!==15){
     if(area) area.innerHTML = `<div class="box"><b>ℹ️</b><div class="mini" style="margin-top:8px">Gere um Jogo Principal primeiro.</div></div>`;
     if(!silent) alert("Gere primeiro um Jogo Principal.");
     return;
   }
-
-  // Se não tiver contexto carregado, usa fallback (espelho por colunas)
+// Se não tiver contexto carregado, usa fallback (espelho por colunas)
   const hasCtx = (lastPayload && lastCtx && lastCtx.freq && Array.isArray(lastPayload.concursos));
   const principal = lastPrincipalGame.map(Number).filter(n=>n>=1&&n<=25);
 
@@ -3154,7 +3159,7 @@ function gerarInvertida(silent=false){
 }
 
 
-function gerarTecnicaPremiada(silent=false){
+async function gerarTecnicaPremiada(silent=false){
   if(!access.premium){
     if(!silent) alert("🔒 Técnica premiada exige Premium.");
     return;
@@ -3162,13 +3167,18 @@ function gerarTecnicaPremiada(silent=false){
 
   const area = document.getElementById("tecnicaArea");
 
-  if(!lastPrincipalGame){
+  
+  // Base garantida: se o Principal ainda não estiver em memória, gera agora pelo fluxo oficial.
+  if(!window.lastPrincipalGame || !Array.isArray(window.lastPrincipalGame) || window.lastPrincipalGame.length!==15){
+    try{ await acaoPrincipal(); }catch(e){}
+  }
+
+  if(!window.lastPrincipalGame || !Array.isArray(window.lastPrincipalGame) || window.lastPrincipalGame.length!==15){
     if(area) area.innerHTML = `<div class="box"><b>ℹ️</b><div class="mini" style="margin-top:8px">Gere um Jogo Principal primeiro.</div></div>`;
     if(!silent) alert("Gere primeiro um Jogo Principal.");
     return;
   }
-
-  const principal = lastPrincipalGame.map(Number).filter(n=>n>=1&&n<=25);
+const principal = lastPrincipalGame.map(Number).filter(n=>n>=1&&n<=25);
   const invertida = Array.isArray(lastInvertidaGame) ? lastInvertidaGame.map(Number).filter(n=>n>=1&&n<=25) : [];
 
   const U = new Set([...principal, ...invertida]);
