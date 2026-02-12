@@ -17,6 +17,9 @@
   --accent:#ffc400;
   --shadow:0 10px 30px rgba(0,0,0,.10);
   --radius:14px;
+
+  /* ✅ Corrige seu uso de var(--yellow) */
+  --yellow: var(--accent);
 }
 *{box-sizing:border-box}
 html,body{height:100%}
@@ -50,7 +53,11 @@ h1{font-size: clamp(28px, 4.2vw, 44px); margin:0 0 10px; letter-spacing:-.5px;}
   display:inline-flex; align-items:center; justify-content:center;
   padding:16px 22px; border-radius:12px; text-decoration:none;
   font-weight:800; letter-spacing:.2px; border:1px solid transparent;
+  cursor:pointer;
+  transition: transform .08s ease, filter .15s ease, box-shadow .15s ease;
 }
+.btn:active{transform:translateY(1px)}
+.btn:hover{filter:brightness(.98); box-shadow:0 10px 22px rgba(0,0,0,.10)}
 .btnPrimary{background:var(--accent); color:#111;}
 .btnGhost{background:rgba(255,255,255,.08); border-color:rgba(255,255,255,.14); color:#fff;}
 .smallNote{font-size:13px; color: rgba(255,255,255,.70); margin-top:10px;}
@@ -94,7 +101,36 @@ hr.sep{border:0; height:1px; background:#e9e9e9; margin:22px 0;}
 .list .li{gap:10px}
 .tag{border:1px solid #e7e7e7; background:#f1f1f1; color:#111}
 
-/* Cards e ofertas (para ficar no padrão claro) */
+/* ===========================
+   ✅ NOVO: "Qual plano escolher"
+   =========================== */
+.pickGrid{display:grid; gap:12px; grid-template-columns:repeat(3,1fr);}
+@media (max-width: 900px){ .pickGrid{grid-template-columns:1fr} }
+.pickCard{
+  background:#fff;
+  border-radius:14px;
+  border:1px solid #efefef;
+  box-shadow: var(--shadow);
+  padding:16px;
+}
+.pickCard h3{margin:0 0 6px; font-size:16px;}
+.pickCard .mini{margin:0 0 12px;}
+.pickLine{display:flex; gap:10px; align-items:flex-start; margin:8px 0;}
+.pickIcon{width:24px; flex:0 0 24px;}
+.pickCta{margin-top:12px;}
+.pickCta .btn{width:100%;}
+.pickBest{border:2px solid rgba(255,196,0,.6); background:linear-gradient(180deg,#fffdf4,#fff);}
+.pickBadge{
+  display:inline-flex; gap:8px; align-items:center;
+  padding:8px 10px; border-radius:999px;
+  background:rgba(255,196,0,.20);
+  border:1px solid rgba(255,196,0,.35);
+  font-weight:900; font-size:12px; margin-bottom:10px;
+}
+
+/* ===========================
+   Cards e ofertas
+   =========================== */
 .offersGrid{display:grid; gap:18px; grid-template-columns:repeat(4,1fr);}
 @media (max-width: 980px){ .offersGrid{grid-template-columns:1fr} }
 .offerCard{background:#fff !important; color:#111 !important; border:1px solid #efefef !important; border-radius:14px !important; box-shadow:var(--shadow) !important;}
@@ -104,12 +140,8 @@ hr.sep{border:0; height:1px; background:#e9e9e9; margin:22px 0;}
 .btn.btnGreen{background:#22c55e !important; color:#111 !important;}
 .btn.btnPrimary{background:var(--accent) !important; color:#111 !important;}
 .btn.btnGhost{background:#111 !important; color:#fff !important; border-color:#2a2a2a !important;}
-/* Sticky CTA: manter só no mobile */
-.stickyCta{display:none !important;}
-@media (max-width: 900px){ .stickyCta{display:block !important;} }
 
-
-/* === Ajuste visual das OFERTAS (mais bonito e responsivo) === */
+/* ✅ Ajuste visual das OFERTAS */
 .offersGrid{
   display:grid !important;
   gap:18px !important;
@@ -125,7 +157,6 @@ hr.sep{border:0; height:1px; background:#e9e9e9; margin:22px 0;}
 @media (max-width: 720px){
   .offersGrid{ grid-template-columns: 1fr !important; }
 }
-
 .offerCard{
   display:flex !important;
   flex-direction:column !important;
@@ -139,7 +170,17 @@ hr.sep{border:0; height:1px; background:#e9e9e9; margin:22px 0;}
 .offerItem{display:flex !important; gap:10px !important; align-items:flex-start !important; margin:8px 0 !important;}
 .offerItem .i{width:22px; flex:0 0 22px;}
 .priceWrap{margin:10px 0 12px !important;}
-.priceBox{border-radius:12px !important;}
+.priceBox{
+  border-radius:12px !important;
+  border:1px solid #ededed !important;
+  padding:12px 14px !important;
+  display:flex !important;
+  align-items:baseline !important;
+  gap:10px !important;
+}
+.priceCurrency{font-weight:900; opacity:.7}
+.priceValue{font-weight:1000; font-size:28px; letter-spacing:-.5px}
+.priceNote{margin-top:8px; color:#555}
 .offerCta{margin-top:auto !important; padding-top:10px !important;}
 .offerBtns{
   display:flex !important;
@@ -147,13 +188,11 @@ hr.sep{border:0; height:1px; background:#e9e9e9; margin:22px 0;}
   gap:10px !important;
 }
 .offerBtns .btn{width:100% !important;}
-
 .offerPill{
   font-weight:800 !important;
   border-radius:999px !important;
   padding:8px 12px !important;
 }
-
 .ribbon{
   display:inline-block !important;
   width:fit-content !important;
@@ -168,9 +207,144 @@ hr.sep{border:0; height:1px; background:#e9e9e9; margin:22px 0;}
 }
 /* Evita duplicar o selo no Combo */
 .offerCombo .offerTop{display:none !important;}
+.savePill{
+  display:flex; justify-content:space-between; align-items:center;
+  gap:10px; padding:10px 12px; border-radius:12px;
+  border:1px solid #ececec; background:#f7f7f7;
+}
+.strike{text-decoration:line-through; opacity:.7}
 
-/* Lightbox */
-.lightbox{z-index:9999}
+/* ===========================
+   ✅ NOVO: Prints mais profissionais
+   =========================== */
+.shotWrap{
+  border-radius:14px;
+  overflow:hidden;
+  border:1px solid #ededed;
+  background: #fafafa;
+  box-shadow: 0 10px 22px rgba(0,0,0,.06);
+}
+.shot{
+  width:100%;
+  display:block;
+  cursor:zoom-in;
+  transition: transform .18s ease;
+}
+.shotWrap:hover .shot{transform: scale(1.02)}
+.shotHint{
+  margin-top:10px;
+  font-weight:800;
+  font-size:12px;
+  color:#111;
+  opacity:.75;
+}
+
+/* ===========================
+   ✅ NOVO: Objeções / Details
+   =========================== */
+details{
+  background:#fff;
+  border-radius:14px;
+  border:1px solid #ededed;
+  padding:12px 14px;
+}
+details summary{
+  cursor:pointer;
+  font-weight:900;
+}
+details p{margin:10px 0 0; color:#333}
+.objectionHead{
+  display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px;
+}
+
+/* ===========================
+   ✅ NOVO: Sticky CTA (mobile)
+   =========================== */
+.stickyCta{display:none;}
+@media (max-width: 900px){
+  .stickyCta{
+    display:block;
+    position:fixed;
+    left:0; right:0; bottom:0;
+    padding:10px 12px;
+    background: rgba(17,17,17,.92);
+    backdrop-filter: blur(8px);
+    border-top:1px solid rgba(255,255,255,.10);
+    z-index: 9998;
+  }
+  body{padding-bottom:86px;} /* evita esconder conteúdo atrás do sticky */
+}
+.stickyRow{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+  max-width:1100px;
+  margin:0 auto;
+}
+.stickyRow a{
+  text-decoration:none;
+  border-radius:12px;
+  padding:12px 10px;
+  font-weight:1000;
+  text-align:center;
+  border:1px solid rgba(255,255,255,.14);
+  color:#fff;
+  background: rgba(255,255,255,.08);
+  letter-spacing:.2px;
+  font-size:12px;
+}
+.stickyRow a:hover{filter:brightness(1.02)}
+.btnBlinkGold{
+  background: linear-gradient(180deg,#ffdd57,#ffc400) !important;
+  color:#111 !important;
+  border-color: transparent !important;
+}
+.btnBlinkGreen{
+  background: linear-gradient(180deg,#4ade80,#22c55e) !important;
+  color:#111 !important;
+  border-color: transparent !important;
+}
+
+/* ===========================
+   ✅ NOVO: Lightbox completo
+   =========================== */
+.lightbox{
+  position:fixed;
+  inset:0;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  background: rgba(0,0,0,.78);
+  padding:18px;
+  z-index:9999;
+}
+.lightbox.open{display:flex;}
+.lightboxInner{
+  width:min(1100px, 96vw);
+  max-height: 92vh;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.lightboxClose{
+  align-self:flex-end;
+  border:0;
+  background: rgba(255,255,255,.12);
+  color:#fff;
+  font-weight:900;
+  padding:10px 12px;
+  border-radius:12px;
+  cursor:pointer;
+}
+.lightboxClose:hover{filter:brightness(1.05)}
+.lightboxImg{
+  width:100%;
+  max-height: 82vh;
+  object-fit: contain;
+  border-radius:14px;
+  background:#111;
+  border:1px solid rgba(255,255,255,.10);
+}
 </style>
 
 </head>
@@ -206,6 +380,9 @@ hr.sep{border:0; height:1px; background:#e9e9e9; margin:22px 0;}
         <div class="kpi">⚡ Jogos gerados em segundos</div>
         <div class="kpi">📊 Estatísticas automáticas</div>
       </div>
+      <div style="margin-top:14px">
+        <a class="btn btnPrimary" style="width:100%" href="#oferta">Ver planos e ofertas</a>
+      </div>
     </div>
 
     <aside class="card">
@@ -221,7 +398,7 @@ hr.sep{border:0; height:1px; background:#e9e9e9; margin:22px 0;}
       <hr class="sep" />
       <div class="pill">🎁 Opção FREE + Premium</div>
       <div style="margin-top:14px">
-        <a class="btn btnPrimary" style="width:100%" href="#oferta">Ver planos e ofertas</a>
+        <a class="btn btnPrimary" style="width:100%" href="#pick">Qual plano escolher?</a>
       </div>
     </aside>
   </div>
@@ -245,18 +422,64 @@ hr.sep{border:0; height:1px; background:#e9e9e9; margin:22px 0;}
   </div>
 </section>
 
+<!-- ✅ NOVO: Qual plano escolher -->
+<section id="pick" class="wrap section" style="padding-top:10px">
+  <div class="card">
+    <h2 style="margin:0 0 8px;">✅ Qual plano escolher?</h2>
+    <div class="mini">Escolha rápido sem ficar em dúvida (isso aumenta clique no checkout).</div>
+    <div class="hr"></div>
+
+    <div class="pickGrid">
+      <div class="pickCard">
+        <h3>🟢 Quero só testar</h3>
+        <p class="mini">Ideal se você quer ver o sistema funcionando antes de comprar.</p>
+        <div class="pickLine"><div class="pickIcon">✅</div><div>1 geração grátis do Jogo Principal</div></div>
+        <div class="pickLine"><div class="pickIcon">📩</div><div>Cadastro rápido</div></div>
+        <div class="pickLine"><div class="pickIcon">🔒</div><div>Depois você escolhe Premium/Combo</div></div>
+        <div class="pickCta">
+          <a class="btn btnPrimary" href="https://nv-sistemas.github.io/lotofacil-pro/" target="_blank" rel="noopener">Entrar no FREE</a>
+        </div>
+      </div>
+
+      <div class="pickCard">
+        <h3>👑 Quero o painel completo</h3>
+        <p class="mini">Pra quem quer análises, modos e jogos salvos.</p>
+        <div class="pickLine"><div class="pickIcon">📈</div><div>Análises + Principal/Invertida/Técnica</div></div>
+        <div class="pickLine"><div class="pickIcon">💾</div><div>Jogos salvos + conferência</div></div>
+        <div class="pickLine"><div class="pickIcon">📱</div><div>Uso fácil no celular</div></div>
+        <div class="pickCta">
+          <a class="btn btnPrimary" href="https://pay.hotmart.com/O104148865Y?off=c4m0nezi" target="_blank" rel="noopener">Comprar Premium</a>
+        </div>
+      </div>
+
+      <div class="pickCard pickBest">
+        <div class="pickBadge">🔥 Recomendado: melhor custo-benefício</div>
+        <h3>🚀 Quero tudo liberado</h3>
+        <p class="mini">Premium + Extra 15P juntos (mais barato do que separado).</p>
+        <div class="pickLine"><div class="pickIcon">👑</div><div>Premium completo</div></div>
+        <div class="pickLine"><div class="pickIcon">✨</div><div>Extra 15P completo</div></div>
+        <div class="pickLine"><div class="pickIcon">💰</div><div>Melhor custo-benefício</div></div>
+        <div class="pickCta">
+          <a class="btn btnPrimary" href="https://pay.hotmart.com/S104212403J?off=qbcz91p3" target="_blank" rel="noopener">Quero o Combo Elite</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section class="section highlight">
   <div class="container">
     <h2 style="margin:0 0 14px;">Depoimentos e provas</h2>
     <p class="muted" style="margin:0 0 18px; max-width:80ch">
-      </p>
+      Feedbacks focados em experiência real: organização, tempo e praticidade (sem promessas irreais).
+    </p>
 
     <div class="quote">
-      <div class="testimonial">“Agora eu consigo organizar meus jogos e tomar decisão com mais calma.”<div class="who">— Marcos de São Paulo</div></div>
-      <div class="testimonial">“Bem mais prático do que ficar anotando concurso por concurso.”<div class="who">— Rodrigo do Rio de Janeiro</div></div>
-      <div class="testimonial">“Gostei porque é rápido e funciona no celular.”<div class="who">— Carla de Minas Gerais</div></div>
-      <div class="testimonial">“Obrigado pelo sistema, consigo gerar meus jogos rapidamente agora.”<div class="who">— MAteus do Espirito Santo</div></div>
-      <div class="testimonial">“Com esta automação, consegui acertar 14 pontos já, obrigada”<div class="who">— Bety do Maranhão</div></div>
+      <div class="testimonial">“Agora eu consigo organizar meus jogos e tomar decisão com mais calma.”<div class="who">— Marcos (SP)</div></div>
+      <div class="testimonial">“Bem mais prático do que ficar anotando concurso por concurso.”<div class="who">— Rodrigo (RJ)</div></div>
+      <div class="testimonial">“Gostei porque é rápido e funciona no celular.”<div class="who">— Carla (MG)</div></div>
+      <div class="testimonial">“Obrigado pelo sistema, consigo gerar meus jogos rapidamente agora.”<div class="who">— Mateus (ES)</div></div>
+      <div class="testimonial">“O principal pra mim foi a organização: ficou tudo salvo e mais fácil de comparar.”<div class="who">— Bety (MA)</div></div>
     </div>
 
     <div style="margin-top:18px">
@@ -267,348 +490,309 @@ hr.sep{border:0; height:1px; background:#e9e9e9; margin:22px 0;}
 </section>
 
 <div class="wrap section" id="provas">
-    <div class="card">
-      <h2>🔥 Veja o Prime funcionando na prática</h2>
-      <div class="mini">Enquanto outros prometem, nós mostramos. Toque nas imagens para abrir em tela cheia (zoom).</div>
-      <div class="hr"></div>
+  <div class="card">
+    <h2>🔥 Veja o Prime funcionando na prática</h2>
+    <div class="mini">Toque nas imagens para abrir em tela cheia (zoom).</div>
+    <div class="hr"></div>
 
-      <div class="grid grid3">
-        <div class="card" style="margin:0">
-          <h3>📸 Jogo Principal</h3>
-          <div class="shotWrap"><img class="shot" src="JOGO%20PRINCIPAL.png" alt="Print do Jogo Principal" loading="lazy" /></div>
-          <div class="shotHint">✅ Toque para ampliar</div>
-          <div class="mini" style="margin-top:10px">Tela real do <b>Jogo Principal</b> gerado (15 dezenas + lógica PRIME).</div>
-        </div>
+    <div class="grid grid3">
+      <div class="card" style="margin:0">
+        <h3>📸 Jogo Principal</h3>
+        <div class="shotWrap"><img class="shot" src="JOGO%20PRINCIPAL.png" alt="Print do Jogo Principal" loading="lazy" /></div>
+        <div class="shotHint">✅ Toque para ampliar</div>
+        <div class="mini" style="margin-top:10px">Tela real do <b>Jogo Principal</b> gerado (15 dezenas + lógica PRIME).</div>
+      </div>
 
-        <div class="card" style="margin:0">
-          <h3>📸 Jogos Salvos</h3>
-          <div class="shotWrap"><img class="shot" src="JOGOS%20SALVOS.png" alt="Print de Jogos Salvos" loading="lazy" /></div>
-          <div class="shotHint">✅ Toque para ampliar</div>
-          <div class="mini" style="margin-top:10px">Tela real de <b>Jogos Salvos + Conferência</b> (organização e validação).</div>
-        </div>
+      <div class="card" style="margin:0">
+        <h3>📸 Jogos Salvos</h3>
+        <div class="shotWrap"><img class="shot" src="JOGOS%20SALVOS.png" alt="Print de Jogos Salvos" loading="lazy" /></div>
+        <div class="shotHint">✅ Toque para ampliar</div>
+        <div class="mini" style="margin-top:10px">Tela real de <b>Jogos Salvos + Conferência</b> (organização e validação).</div>
+      </div>
 
-        <div class="card" style="margin:0">
-          <h3>📸 Extra 15 Pontos</h3>
-          <div class="shotWrap"><img class="shot" src="EXTRA%2015%20PONTOS.png" alt="Print do Extra 15 Pontos" loading="lazy" /></div>
-          <div class="shotHint">✅ Toque para ampliar</div>
-          <div class="mini" style="margin-top:10px">Tela real do <b>Extra 15P</b> (estratégia + geração).</div>
-        </div>
+      <div class="card" style="margin:0">
+        <h3>📸 Extra 15 Pontos</h3>
+        <div class="shotWrap"><img class="shot" src="EXTRA%2015%20PONTOS.png" alt="Print do Extra 15 Pontos" loading="lazy" /></div>
+        <div class="shotHint">✅ Toque para ampliar</div>
+        <div class="mini" style="margin-top:10px">Tela real do <b>Extra 15P</b> (estratégia + geração).</div>
       </div>
     </div>
   </div>
-
-  <!-- ✅ OBJEÇÕES (ELITE) / SEM “Pronto pra testar?” -->
-  <div class="wrap section" id="garantia">
-    <div class="card">
-
-      <div class="objectionHead">
-        <h2 style="margin:0">Ainda com dúvida? Vamos eliminar isso agora 👇</h2>
-        <span class="pill">🎯 Direto ao ponto • Sem enrolação</span>
-      </div>
-
-      <div class="mini" style="margin-top:8px">
-        As dúvidas abaixo travam a compra de muita gente. Aqui vai a resposta objetiva:
-      </div>
-
-      <div class="hr"></div>
-
-      <div class="grid" style="gap:10px">
-        <details open>
-          <summary>⏱️ “Eu não tenho tempo para analisar concursos...”</summary>
-          <p>
-            Justamente por isso o Prime existe.
-            Você escolhe o período → clica → recebe análise + jogos prontos.
-            <b>Fluxo rápido e direto.</b>
-          </p>
-        </details>
-
-        <details>
-          <summary>📱 “Sou iniciante, vou conseguir usar?”</summary>
-          <p>
-            Sim. O sistema é feito para celular, com botões grandes e fluxo simples.
-            Nada técnico, nada confuso — é abrir e usar.
-          </p>
-        </details>
-
-        <details>
-          <summary>🎯 “Tem como buscar 15 pontos com estratégia?”</summary>
-          <p>
-            O módulo <b>Extra 15P</b> traz uma estratégia de montagem por linhas e geração de jogos.
-            <b>Não é promessa de premiação</b> (loterias envolvem risco), mas é uma forma estruturada de jogar com método.
-          </p>
-        </details>
-
-        <details>
-          <summary>🎯 “Se não garante prêmio, por que usar o Prime?”</summary>
-          <p>
-            Loterias não têm garantia.
-            O Prime ajuda você a sair do achismo e tomar decisões com <b>dados + estratégia</b>.
-            Você ganha clareza, organização e consistência no processo.
-          </p>
-        </details>
-
-        <details>
-          <summary>🔒 “A compra é segura?”</summary>
-          <p>
-            Sim. O pagamento é feito pela Hotmart (checkout seguro).
-            Você recebe confirmação automática e acessa usando o seu email.
-          </p>
-        </details>
-      </div>
-
-      <div class="hr"></div>
-
-      <div class="grid" style="grid-template-columns:1fr 1fr;gap:10px">
-        <a class="btn btnPrimary" href="#oferta">Ver as ofertas</a>
-        <a class="btn btnGhost" href="#faq">Ver perguntas frequentes</a>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- OFERTAS COM PREÇOS (SEM 12x) -->
-  <div class="wrap section" id="oferta">
-    <div class="card">
-
-      <h2>Escolha seu plano</h2>
-      <div class="mini">Acesso imediato após pagamento • Use o mesmo email para login</div>
-
-      <div class="hr"></div>
-
-      <div class="offersGrid">
-
-  <!-- FREE -->
-  <div class="offerCard offerFree">
-    <div class="offerTop">
-      <span class="offerPill">✅ FREE</span>
-    </div>
-
-    <h3 class="offerTitle">Primeiro acesso (teste real)</h3>
-    <p class="offerSubtitle">
-      Crie login com email + senha e gere <b>1 jogo grátis</b>.
-    </p>
-
-    <div class="priceWrap">
-      <div style="width:100%;max-width:260px;">
-        <div class="priceBox" style="background:rgba(0,0,0,.42)">
-          <span class="priceCurrency">R$</span>
-          <span class="priceValue" style="color:var(--yellow)">0,00</span>
-        </div>
-        <div class="priceNote">Acesso imediato • 1 geração grátis</div>
-      </div>
-    </div>
-
-    <ul class="offerList">
-      <li class="offerItem"><span class="i">📩</span><span>Cadastro rápido (sem burocracia)</span></li>
-      <li class="offerItem"><span class="i">🎯</span><span>1 geração grátis do Jogo Principal</span></li>
-      <li class="offerItem"><span class="i">🔒</span><span>Depois: Premium ou Combo</span></li>
-    </ul>
-
-    <div class="offerCta">
-      <div class="offerBtns">
-        <a class="btn btnGold" href="https://nv-sistemas.github.io/lotofacil-pro/" target="_blank" rel="noopener">
-          Entrar no FREE
-        </a>
-        <a class="btn btnGhost" href="#oferta">
-          Ver planos
-        </a>
-      </div>
-    </div>
-  </div>
-
-  <!-- PREMIUM -->
-  <div class="offerCard offerPremium">
-    <div class="offerTop">
-      <span class="offerPill">👑 PREMIUM</span>
-    </div>
-
-    <h3 class="offerTitle">Painel Premium</h3>
-    <p class="offerSubtitle">Libera as ferramentas principais do Prime.</p>
-
-    <div class="priceWrap">
-      <div style="width:100%;max-width:260px;">
-        <div class="priceBox">
-          <span class="priceCurrency">R$</span>
-          <span class="priceValue">69,90</span>
-        </div>
-        <div class="priceNote">Acesso completo ao painel</div>
-      </div>
-    </div>
-
-    <ul class="offerList">
-      <li class="offerItem"><span class="i">📈</span><span>Gerar Análise</span></li>
-      <li class="offerItem"><span class="i">🔄</span><span>Invertida</span></li>
-      <li class="offerItem"><span class="i">🏆</span><span>Técnica Premiada</span></li>
-      <li class="offerItem"><span class="i">💾</span><span>Jogos Salvos</span></li>
-    </ul>
-
-    <div class="offerCta">
-      <div class="offerBtns">
-        <a class="btn btnPrimary" href="https://pay.hotmart.com/O104148865Y?off=c4m0nezi" target="_blank" rel="noopener">
-          Comprar Premium
-        </a>
-      </div>
-    </div>
-  </div>
-
-  <!-- EXTRA 15P -->
-  <div class="offerCard offerExtra">
-    <div class="offerTop">
-      <span class="offerPill">✨ EXTRA 15P</span>
-    </div>
-
-    <h3 class="offerTitle">Módulo Extra 15P</h3>
-    <p class="offerSubtitle">Estratégia + geração (módulo separado).</p>
-
-    <div class="priceWrap">
-      <div style="width:100%;max-width:260px;">
-        <div class="priceBox">
-          <span class="priceCurrency">R$</span>
-          <span class="priceValue">49,90</span>
-        </div>
-        <div class="priceNote">Módulo adicional</div>
-      </div>
-    </div>
-
-    <ul class="offerList">
-      <li class="offerItem"><span class="i">🧩</span><span>Estratégia (10 jogos)</span></li>
-      <li class="offerItem"><span class="i">📏</span><span>Linhas / montagem</span></li>
-      <li class="offerItem"><span class="i">⚡</span><span>Fluxo exclusivo</span></li>
-    </ul>
-
-    <div class="offerCta">
-      <div class="offerBtns">
-        <a class="btn btnGold" href="https://pay.hotmart.com/Y104149008G?off=eehchnv4" target="_blank" rel="noopener">
-          Comprar Extra 15P
-        </a>
-      </div>
-    </div>
-  </div>
-
-  <!-- COMBO ELITE -->
-  <div class="offerCard offerCombo">
-    <span class="ribbon">🔥 MAIS VENDIDO • COMBO ELITE</span>
-
-    <div class="offerTop">
-      <span class="offerPill">🔥 MAIS VENDIDO • COMBO ELITE</span>
-    </div>
-
-    <h3 class="offerTitle">Acesso Total (Premium + Extra 15P)</h3>
-    <p class="offerSubtitle">Melhor custo-benefício: libera tudo.</p>
-
-    <div class="priceWrap" style="flex-direction:column;gap:10px">
-      <div class="savePill">
-        <span class="strike">de R$ 119,90</span>
-        <span>economize R$ 20,00</span>
-      </div>
-
-      <div style="width:100%;max-width:260px;">
-        <div class="priceBox">
-          <span class="priceCurrency">R$</span>
-          <span class="priceValue">99,90</span>
-        </div>
-        <div class="priceNote">Premium + Extra 15P completos</div>
-      </div>
-    </div>
-
-    <ul class="offerList">
-      <li class="offerItem"><span class="i">👑</span><span>Premium completo (análises + modos)</span></li>
-      <li class="offerItem"><span class="i">✨</span><span>Extra 15P completo (estratégia + fluxo)</span></li>
-      <li class="offerItem"><span class="i">💰</span><span>Mais barato que comprar separado</span></li>
-    </ul>
-
-    <div class="offerCta">
-      <div class="offerBtns">
-        <a class="btn btnGold" href="https://pay.hotmart.com/S104212403J?off=qbcz91p3" target="_blank" rel="noopener">
-          🚀 Quero o Combo Elite
-        </a>
-      </div>
-      <div class="mini" style="margin-top:10px;color:rgba(255,255,255,.78);text-align:center">
-        Recomendado para quem quer o sistema completo.
-      </div>
-    </div>
-  </div>
-
 </div>
 
-  <!-- FAQ -->
-  <div class="wrap section" id="faq">
-    <div class="card">
-      <h2>❓ Perguntas Frequentes (FAQ)</h2>
-      <div class="mini">Aqui estão as dúvidas que mais travam a compra — respondidas de forma clara.</div>
-      <div class="hr"></div>
+<div class="wrap section" id="garantia">
+  <div class="card">
 
-      <div class="grid" style="gap:10px">
-        <details>
-          <summary>Como eu acesso depois da compra?</summary>
-          <p>Após a compra, você acessa com o <b>mesmo email</b> usado no checkout/cadastro.</p>
-        </details>
+    <div class="objectionHead">
+      <h2 style="margin:0">Ainda com dúvida? Vamos eliminar isso agora 👇</h2>
+      <span class="pill">🎯 Direto ao ponto • Sem enrolação</span>
+    </div>
 
-        <details>
-          <summary>Precisa instalar? Funciona no celular?</summary>
-          <p>Não precisa instalar. Você acessa direto pelo navegador (celular ou PC). A interface é otimizada para mobile.</p>
-        </details>
+    <div class="mini" style="margin-top:8px">
+      As dúvidas abaixo travam a compra de muita gente. Aqui vai a resposta objetiva:
+    </div>
 
-        <details>
-          <summary>Como funciona o FREE (1 jogo)?</summary>
-          <p>Você cria login com <b>email + senha</b> e consegue gerar <b>1 Jogo Principal</b>. Depois disso, para continuar gerando e usar o painel completo, é necessário Premium ou Combo.</p>
-        </details>
+    <div class="hr"></div>
 
-        <details>
-          <summary>O Premium libera o quê exatamente?</summary>
-          <p>Libera as ferramentas do painel: análises, Principal/Invertida/Técnica, jogos salvos e conferência (conforme descrito na oferta).</p>
-        </details>
+    <div class="grid" style="gap:10px">
+      <details open>
+        <summary>⏱️ “Eu não tenho tempo para analisar concursos...”</summary>
+        <p>Justamente por isso o Prime existe. Você escolhe o período → clica → recebe análise + jogos prontos. <b>Fluxo rápido e direto.</b></p>
+      </details>
 
-        <details>
-          <summary>O Extra 15P é separado?</summary>
-          <p>Sim. Ele é um módulo separado. Se você quer <b>tudo liberado</b>, o melhor custo-benefício é o <b>Combo Elite</b>.</p>
-        </details>
+      <details>
+        <summary>📱 “Sou iniciante, vou conseguir usar?”</summary>
+        <p>Sim. O sistema é feito para celular, com botões grandes e fluxo simples. Nada técnico, nada confuso — é abrir e usar.</p>
+      </details>
 
-        <details>
-          <summary>Existe garantia de prêmio?</summary>
-          <p>Não. Loterias envolvem risco e não há garantia de premiação. O Prime entrega <b>análise e estratégia</b> para decisões baseadas em dados.</p>
-        </details>
+      <details>
+        <summary>🎯 “Tem como buscar 15 pontos com estratégia?”</summary>
+        <p>O módulo <b>Extra 15P</b> traz uma estratégia de montagem por linhas e geração de jogos. <b>Não é promessa de premiação</b> (loterias envolvem risco), mas é uma forma estruturada de jogar com método.</p>
+      </details>
 
-        <details>
-          <summary>A compra é segura?</summary>
-          <p>O pagamento é feito via checkout (Hotmart). Você recebe confirmação, e o acesso segue conforme o email informado.</p>
-        </details>
+      <details>
+        <summary>🔒 “A compra é segura?”</summary>
+        <p>Sim. O pagamento é feito pela Hotmart (checkout seguro). Você recebe confirmação automática e acessa usando o seu email.</p>
+      </details>
+    </div>
 
-        <details>
-          <summary>Posso usar em mais de um dispositivo?</summary>
-          <p>Sim. Você pode acessar no celular e no computador usando o mesmo login.</p>
-        </details>
+    <div class="hr"></div>
 
-        <details>
-          <summary>Tem suporte?</summary>
-          <p>Sim. Se tiver qualquer problema de acesso ou dúvida do fluxo, entre em contato pelo canal de suporte do seu produto.</p>
-        </details>
+    <div class="grid" style="grid-template-columns:1fr 1fr;gap:10px">
+      <a class="btn btnPrimary" href="#oferta">Ver as ofertas</a>
+      <a class="btn btnGhost" href="#faq">Ver perguntas frequentes</a>
+    </div>
+
+  </div>
+</div>
+
+<div class="wrap section" id="oferta">
+  <div class="card">
+
+    <h2>Escolha seu plano</h2>
+    <div class="mini">Acesso imediato após pagamento • Use o mesmo email para login</div>
+
+    <div class="hr"></div>
+
+    <div class="offersGrid">
+
+      <!-- FREE -->
+      <div class="offerCard offerFree">
+        <div class="offerTop">
+          <span class="offerPill">✅ FREE</span>
+        </div>
+
+        <h3 class="offerTitle">Primeiro acesso (teste real)</h3>
+        <p class="offerSubtitle">
+          Crie login com email + senha e gere <b>1 jogo grátis</b>.
+        </p>
+
+        <div class="priceWrap">
+          <div style="width:100%;max-width:260px;">
+            <div class="priceBox" style="background:rgba(0,0,0,.06)">
+              <span class="priceCurrency">R$</span>
+              <span class="priceValue" style="color:var(--yellow)">0,00</span>
+            </div>
+            <div class="priceNote">Acesso imediato • 1 geração grátis</div>
+          </div>
+        </div>
+
+        <ul class="offerList">
+          <li class="offerItem"><span class="i">📩</span><span>Cadastro rápido (sem burocracia)</span></li>
+          <li class="offerItem"><span class="i">🎯</span><span>1 geração grátis do Jogo Principal</span></li>
+          <li class="offerItem"><span class="i">🔒</span><span>Depois: Premium ou Combo</span></li>
+        </ul>
+
+        <div class="offerCta">
+          <div class="offerBtns">
+            <a class="btn btnGold" href="https://nv-sistemas.github.io/lotofacil-pro/" target="_blank" rel="noopener">
+              Entrar no FREE
+            </a>
+            <a class="btn btnGhost" href="#pick">
+              Qual plano escolher?
+            </a>
+          </div>
+        </div>
       </div>
 
-      <div class="hr"></div>
-      <a class="btn btnGold" href="#oferta">⬇ Ver oferta novamente</a>
-    </div>
-  </div>
+      <!-- PREMIUM -->
+      <div class="offerCard offerPremium">
+        <div class="offerTop">
+          <span class="offerPill">👑 PREMIUM</span>
+        </div>
 
-  
-  <div class="wrap section" id="suporte">
-    <div class="card">
-      <h2>📩 Suporte</h2>
-      <div class="mini">Se tiver dúvida de acesso, pagamento ou uso do sistema, fale com a gente:</div>
-      <div class="hr"></div>
-      <div class="grid" style="gap:12px">
-        <a class="btn btnPrimary" href="mailto:marketingia2026.digital@gmail.com">Email: marketingia2026.digital@gmail.com</a>
-        <a class="btn btnGold" href="https://wa.me/5527988336359" target="_blank" rel="noopener">WhatsApp: (27) 98833-6359</a>
+        <h3 class="offerTitle">Painel Premium</h3>
+        <p class="offerSubtitle">Libera as ferramentas principais do Prime.</p>
+
+        <div class="priceWrap">
+          <div style="width:100%;max-width:260px;">
+            <div class="priceBox">
+              <span class="priceCurrency">R$</span>
+              <span class="priceValue">69,90</span>
+            </div>
+            <div class="priceNote">Acesso completo ao painel</div>
+          </div>
+        </div>
+
+        <ul class="offerList">
+          <li class="offerItem"><span class="i">📈</span><span>Gerar Análise</span></li>
+          <li class="offerItem"><span class="i">🔄</span><span>Invertida</span></li>
+          <li class="offerItem"><span class="i">🏆</span><span>Técnica Premiada</span></li>
+          <li class="offerItem"><span class="i">💾</span><span>Jogos Salvos</span></li>
+        </ul>
+
+        <div class="offerCta">
+          <div class="offerBtns">
+            <a class="btn btnPrimary" href="https://pay.hotmart.com/O104148865Y?off=c4m0nezi" target="_blank" rel="noopener">
+              Comprar Premium
+            </a>
+          </div>
+        </div>
       </div>
+
+      <!-- EXTRA 15P -->
+      <div class="offerCard offerExtra">
+        <div class="offerTop">
+          <span class="offerPill">✨ EXTRA 15P</span>
+        </div>
+
+        <h3 class="offerTitle">Módulo Extra 15P</h3>
+        <p class="offerSubtitle">Estratégia + geração (módulo separado).</p>
+
+        <div class="priceWrap">
+          <div style="width:100%;max-width:260px;">
+            <div class="priceBox">
+              <span class="priceCurrency">R$</span>
+              <span class="priceValue">49,90</span>
+            </div>
+            <div class="priceNote">Módulo adicional</div>
+          </div>
+        </div>
+
+        <ul class="offerList">
+          <li class="offerItem"><span class="i">🧩</span><span>Estratégia (10 jogos)</span></li>
+          <li class="offerItem"><span class="i">📏</span><span>Linhas / montagem</span></li>
+          <li class="offerItem"><span class="i">⚡</span><span>Fluxo exclusivo</span></li>
+        </ul>
+
+        <div class="offerCta">
+          <div class="offerBtns">
+            <a class="btn btnGold" href="https://pay.hotmart.com/Y104149008G?off=eehchnv4" target="_blank" rel="noopener">
+              Comprar Extra 15P
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- COMBO ELITE -->
+      <div class="offerCard offerCombo">
+        <span class="ribbon">🔥 MAIS VENDIDO • COMBO ELITE</span>
+
+        <div class="offerTop">
+          <span class="offerPill">🔥 MAIS VENDIDO • COMBO ELITE</span>
+        </div>
+
+        <h3 class="offerTitle">Acesso Total (Premium + Extra 15P)</h3>
+        <p class="offerSubtitle">Melhor custo-benefício: libera tudo.</p>
+
+        <div class="priceWrap" style="flex-direction:column;gap:10px">
+          <div class="savePill">
+            <span class="strike">de R$ 119,90</span>
+            <span>economize R$ 20,00</span>
+          </div>
+
+          <div style="width:100%;max-width:260px;">
+            <div class="priceBox">
+              <span class="priceCurrency">R$</span>
+              <span class="priceValue">99,90</span>
+            </div>
+            <div class="priceNote">Premium + Extra 15P completos</div>
+          </div>
+        </div>
+
+        <ul class="offerList">
+          <li class="offerItem"><span class="i">👑</span><span>Premium completo (análises + modos)</span></li>
+          <li class="offerItem"><span class="i">✨</span><span>Extra 15P completo (estratégia + fluxo)</span></li>
+          <li class="offerItem"><span class="i">💰</span><span>Mais barato que comprar separado</span></li>
+        </ul>
+
+        <div class="offerCta">
+          <div class="offerBtns">
+            <a class="btn btnGold" href="https://pay.hotmart.com/S104212403J?off=qbcz91p3" target="_blank" rel="noopener">
+              🚀 Quero o Combo Elite
+            </a>
+          </div>
+          <div class="mini" style="margin-top:10px;text-align:center">
+            Recomendado para quem quer o sistema completo.
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
+</div>
 
-<div class="wrap foot">
-    <div>© <span id="year"></span> Lotofácil Prime Analytics • N&V Sistemas</div>
-    <div style="margin-top:6px">Aviso: loterias envolvem risco e não há garantia de premiação.</div>
+<div class="wrap section" id="faq">
+  <div class="card">
+    <h2>❓ Perguntas Frequentes (FAQ)</h2>
+    <div class="mini">Aqui estão as dúvidas que mais travam a compra — respondidas de forma clara.</div>
+    <div class="hr"></div>
+
+    <div class="grid" style="gap:10px">
+      <details>
+        <summary>Como eu acesso depois da compra?</summary>
+        <p>Após a compra, você acessa com o <b>mesmo email</b> usado no checkout/cadastro.</p>
+      </details>
+
+      <details>
+        <summary>Precisa instalar? Funciona no celular?</summary>
+        <p>Não precisa instalar. Você acessa direto pelo navegador (celular ou PC). A interface é otimizada para mobile.</p>
+      </details>
+
+      <details>
+        <summary>Como funciona o FREE (1 jogo)?</summary>
+        <p>Você cria login com <b>email + senha</b> e consegue gerar <b>1 Jogo Principal</b>. Depois disso, para continuar gerando e usar o painel completo, é necessário Premium ou Combo.</p>
+      </details>
+
+      <details>
+        <summary>O Extra 15P é separado?</summary>
+        <p>Sim. Ele é um módulo separado. Se você quer <b>tudo liberado</b>, o melhor custo-benefício é o <b>Combo Elite</b>.</p>
+      </details>
+
+      <details>
+        <summary>Existe garantia de prêmio?</summary>
+        <p>Não. Loterias envolvem risco e não há garantia de premiação. O Prime entrega <b>análise e estratégia</b> para decisões baseadas em dados.</p>
+      </details>
+
+      <details>
+        <summary>A compra é segura?</summary>
+        <p>O pagamento é feito via checkout (Hotmart). Você recebe confirmação, e o acesso segue conforme o email informado.</p>
+      </details>
+    </div>
+
+    <div class="hr"></div>
+    <a class="btn btnGold" href="#oferta">⬇ Ver oferta novamente</a>
   </div>
+</div>
 
-  <div class="stickyCta" aria-hidden="false">
+<div class="wrap section" id="suporte">
+  <div class="card">
+    <h2>📩 Suporte</h2>
+    <div class="mini">Se tiver dúvida de acesso, pagamento ou uso do sistema, fale com a gente:</div>
+    <div class="hr"></div>
+    <div class="grid" style="gap:12px">
+      <a class="btn btnPrimary" href="mailto:marketingia2026.digital@gmail.com">Email: marketingia2026.digital@gmail.com</a>
+      <a class="btn btnGold" href="https://wa.me/5527988336359" target="_blank" rel="noopener">WhatsApp: (27) 98833-6359</a>
+    </div>
+  </div>
+</div>
+
+<div class="wrap foot" style="padding:24px 0; color:#444; text-align:center">
+  <div>© <span id="year"></span> Lotofácil Prime Analytics • N&V Sistemas</div>
+  <div style="margin-top:6px">Aviso: loterias envolvem risco e não há garantia de premiação.</div>
+</div>
+
+<div class="stickyCta" aria-hidden="false">
   <div class="stickyRow">
     <a class="btnFreeSticky btnBlinkGreen" href="https://nv-sistemas.github.io/lotofacil-pro/" target="_blank" rel="noopener">FREE</a>
     <a class="btnPremiumSticky" href="https://pay.hotmart.com/O104148865Y?off=c4m0nezi" target="_blank" rel="noopener">PREMIUM</a>
@@ -617,55 +801,55 @@ hr.sep{border:0; height:1px; background:#e9e9e9; margin:22px 0;}
   </div>
 </div>
 
-  <div class="lightbox" id="lightbox">
-    <div class="lightboxInner" role="dialog" aria-modal="true" aria-label="Imagem ampliada">
-      <button class="lightboxClose" id="lightboxClose">✕ Fechar</button>
-      <img class="lightboxImg" id="lightboxImg" alt="Imagem ampliada" />
-    </div>
+<div class="lightbox" id="lightbox">
+  <div class="lightboxInner" role="dialog" aria-modal="true" aria-label="Imagem ampliada">
+    <button class="lightboxClose" id="lightboxClose">✕ Fechar</button>
+    <img class="lightboxImg" id="lightboxImg" alt="Imagem ampliada" />
   </div>
+</div>
 
-  <script>
-    document.getElementById("year").textContent = new Date().getFullYear();
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
 
-    // Scroll suave
-    document.querySelectorAll('a[href^="#"]').forEach(a=>{
-      a.addEventListener("click", (e)=>{
-        const id = a.getAttribute("href");
-        if(!id || id === "#") return;
-        const el = document.querySelector(id);
-        if(!el) return;
-        e.preventDefault();
-        el.scrollIntoView({ behavior: "smooth", block: "start" });
-      });
+  // Scroll suave
+  document.querySelectorAll('a[href^="#"]').forEach(a=>{
+    a.addEventListener("click", (e)=>{
+      const id = a.getAttribute("href");
+      if(!id || id === "#") return;
+      const el = document.querySelector(id);
+      if(!el) return;
+      e.preventDefault();
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
     });
+  });
 
-    // Lightbox
-    const lb = document.getElementById("lightbox");
-    const lbImg = document.getElementById("lightboxImg");
-    const lbClose = document.getElementById("lightboxClose");
+  // Lightbox
+  const lb = document.getElementById("lightbox");
+  const lbImg = document.getElementById("lightboxImg");
+  const lbClose = document.getElementById("lightboxClose");
 
-    function openLightbox(src, alt){
-      lbImg.src = src;
-      lbImg.alt = alt || "Imagem ampliada";
-      lb.classList.add("open");
-      document.body.style.overflow = "hidden";
-    }
-    function closeLightbox(){
-      lb.classList.remove("open");
-      lbImg.src = "";
-      document.body.style.overflow = "";
-    }
+  function openLightbox(src, alt){
+    lbImg.src = src;
+    lbImg.alt = alt || "Imagem ampliada";
+    lb.classList.add("open");
+    document.body.style.overflow = "hidden";
+  }
+  function closeLightbox(){
+    lb.classList.remove("open");
+    lbImg.src = "";
+    document.body.style.overflow = "";
+  }
 
-    document.querySelectorAll(".shot").forEach(img=>{
-      img.addEventListener("click", ()=>{
-        openLightbox(img.getAttribute("src"), img.getAttribute("alt"));
-      });
+  document.querySelectorAll(".shot").forEach(img=>{
+    img.addEventListener("click", ()=>{
+      openLightbox(img.getAttribute("src"), img.getAttribute("alt"));
     });
+  });
 
-    lbClose.addEventListener("click", closeLightbox);
-    lb.addEventListener("click", (e)=>{ if(e.target === lb) closeLightbox(); });
-    document.addEventListener("keydown", (e)=>{ if(e.key === "Escape") closeLightbox(); });
-  </script>
+  lbClose.addEventListener("click", closeLightbox);
+  lb.addEventListener("click", (e)=>{ if(e.target === lb) closeLightbox(); });
+  document.addEventListener("keydown", (e)=>{ if(e.key === "Escape") closeLightbox(); });
+</script>
 
 </body>
 </html>
