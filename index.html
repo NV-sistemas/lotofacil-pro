@@ -468,6 +468,15 @@ const BUY_LINK_15P = "https://pay.hotmart.com/Y104149008G?off=eehchnv4";
 const ADMIN_EMAIL = "admin@lotofacilprime.com";
 
 /* ✅ Limite Free (1x) por usuário */
+
+// === Helper Set seguro (evita erro .has em undefined) ===
+function ensureSet(v){
+  if(v instanceof Set) return v;
+  if(Array.isArray(v)) return new Set(v.map(Number));
+  if(v==null) return new Set();
+  try { return new Set(Array.from(v).map(Number)); } catch(e){ return new Set(); }
+}
+
 function freeKey(uid){ return `lf_free_used_v1_${uid||"anon"}`; }
 /* =========================
    ✅ NOVA SEQUÊNCIA 8/9/10 (20% / 50% / 30%)
@@ -1476,8 +1485,11 @@ function getDominantEvenOdd(concursos){
    - sem aleatório
 */
 function pickFromListDeterministic(list, needed, set, targetPares, lastSet){
+  set = ensureSet(set);
+  lastSet = ensureSet(lastSet);
+
   const out = [];
-  const last = lastSet || new Set();
+  const last = lastSet;
 
   while(out.length < needed){
     const cur = [...set];
