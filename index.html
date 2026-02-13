@@ -3759,7 +3759,7 @@ async function buildLines15PAdvanced(payloadShort, qtdShort){
     chosen.add(next.n);
   }
 
-  const chosen15Final = sortNum([...chosen]).slice(0,15);
+  let chosen15Final = sortNum([...chosen]).slice(0,15);
 
   // ✅ Ajuste preditivo: evitar "copiar" o último concurso.
   // Mantemos algumas repetidas (natural), mas LIMITAMOS excesso para não gerar linha idêntica ao último sorteio.
@@ -3813,7 +3813,7 @@ async function buildLines15PAdvanced(payloadShort, qtdShort){
     return cur;
   }
 
-  const chosen15Final = rebalanceAgainstLast(chosen15Final);
+  chosen15Final = rebalanceAgainstLast(chosen15Final);
 
   // Agora, montar as 5 linhas:
   // - Linha 1 (pesada): 4 ou 5 da heavyBand
