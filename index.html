@@ -1027,6 +1027,9 @@ function aplicarAcessos(){
 
   setCardEnabled(btnAnalise, access.premium, acaoAnalise, "🔒 Gerar análise exige Premium.");
 
+  // Jogo Principal é liberado (FREE 1x). A própria ação valida uso grátis.
+  setCardEnabled(btnPrincipal, true, ()=>acaoPrincipal(), "");
+
   setCardEnabled(btnInvertida, access.premium, ()=>{
     goView("viewInvertida"); gerarInvertida();
   }, "🔒 Invertida exige Premium.");
@@ -2933,7 +2936,7 @@ function usarManualComoPrincipal(){
 /* =========================
    AÇÃO: JOGO PRINCIPAL (PRIME + MODERNO + MANUAL)
 ========================= */
-async async function acaoPrincipal(){
+async function acaoPrincipal(){
   const qtd = qtdSelecionada();
 
   if(!access.premium && isFreeUsed()){
@@ -3206,7 +3209,7 @@ function renderCartao(jogo, clsName){
   return html;
 }
 
-async async function gerarInvertida(silent=false){
+async function gerarInvertida(silent=false){
   if(!access.premium){
     if(!silent) alert("🔒 Invertida exige Premium.");
     return;
@@ -3271,7 +3274,7 @@ async async function gerarInvertida(silent=false){
 
 
 
-async async function gerarTecnicaPremiada(silent=false){
+async function gerarTecnicaPremiada(silent=false){
   if(!access.premium){
     if(!silent) alert("🔒 Técnica exige Premium.");
     return;
