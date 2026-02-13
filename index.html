@@ -1151,16 +1151,6 @@ auth.onAuthStateChanged(async (user)=>{
 ========================= */
 function format2(n){ return String(n).padStart(2,"0"); }
 
-// === Helper: completa jogo deterministicamente sem quebrar o padrão ===
-function completarAte15(lista){
-  const set = new Set(lista);
-  for(let d=1; d<=25 && set.size<15; d++){
-    if(!set.has(d)) set.add(d);
-  }
-  return Array.from(set).slice(0,15).sort((a,b)=>a-b);
-}
-
-
 /* =========================
    ✅ Trocas por COLUNAS (cartão 5x5) + cards ilustrativos (SVG)
 ========================= */
@@ -1677,15 +1667,16 @@ function buildPack4JogosPreditivo(payload){
   const concursos = payload?.concursos || [];
   const drawsAll = _getDrawArraysFromConcursos(concursos);
 
-  // ✅ Para o padrão comportamental fixo (lags 3..6) precisamos de base mínima
-  const MIN_BASE = 21;   // "treino" ideal
-  const MIN_RECENT = 6;  // para checar overlaps recentes e evitar cópia
-  if(drawsAll.length < MIN_RECENT){
-    return { ok:false, err:`Janela insuficiente: precisa de pelo menos ${MIN_RECENT} concursos válidos.` };
+  // ✅ Padrão comportamental fixo: funciona com qualquer janela.
+  const IDEAL_TREINO = 21; // ideal (quando existir)
+  const RECENT_NORM = 6;   // referência (quando existir)
+  const recentN = Math.min(RECENT_NORM, drawsAll.length);
+  // se a janela for curta (ex.: 3/4/5), seguimos com o que houver, sem bloquear.
+concursos válidos.` };
   }
 
-  const draws = drawsAll.slice(-Math.max(MIN_BASE, MIN_RECENT)); // usa os últimos 21 quando possível
-  const last6 = drawsAll.slice(-MIN_RECENT).map(_setOf);
+  const draws = drawsAll.slice(-Math.max(IDEAL_TREINO, recentN)); // usa os últimos 21 quando possível
+  const last6 = drawsAll.slice(-recentN).map(_setOf);
 
   const LAGS = [3,4,5,6];
 
@@ -1754,7 +1745,7 @@ function buildPack4JogosPreditivo(payload){
 
   // coocorrência recente (últimos 6): pares presentes pelo menos 1x
   const recentPair = new Map();
-  const recentDraws = drawsAll.slice(-MIN_RECENT);
+  const recentDraws = drawsAll.slice(-recentN);
   recentDraws.forEach(d=>{
     combos2(d).forEach(([a,b])=>{
       const k=a<b?`${a}-${b}`:`${b}-${a}`;
@@ -1944,7 +1935,7 @@ function buildPack4JogosPreditivo(payload){
   }
 
   const principal = chosen[0];
-  const invertida = completarAte15(chosen[1]);
+  const invertida = chosen[1];
   const tecnica1  = chosen[2];
   const tecnica2  = chosen[3];
 
@@ -1957,7 +1948,7 @@ function buildPack4JogosPreditivo(payload){
     const mx = maxOverlapRecent(setJ);
     const ps = pairStats(jogo);
     const linhas = [];
-    linhas.push({dezena:jogo[0], texto:`📌 Padrão fixo comportamental (${label}) • Treino: últimos ${Math.min(MIN_BASE, drawsAll.length)} concursos • Lags: 3–6`});
+    linhas.push({dezena:jogo[0], texto:`📌 Padrão fixo comportamental (${label}) • Treino: últimos ${Math.min(IDEAL_TREINO, drawsAll.length)} concursos • Lags: 3–6`});
     linhas.push({dezena:jogo[0], texto:`🧭 Repetição controlada (t-1..t-3): ${rep1}/${rep2}/${rep3} • Máx overlap (últimos 6): ${mx}`});
     linhas.push({dezena:jogo[0], texto:`🧩 Pares “menos óbvios”: coocorrência recente ${(ps.recentRatio*100).toFixed(0)}% • média no treino ${ps.histAvg.toFixed(2)}x`});
     linhas.push({dezena:jogo[0], texto:`⚖️ Sanity: pares=${contarParesImpares(jogo).pares} • soma=${somaDezenas(jogo)} • seq=${contarSequencias(jogo)}`});
@@ -1977,10 +1968,10 @@ function buildPack4JogosPreditivo(payload){
     motivos,
     meta:{
       model:"padrao_fixo_comportamental_v1",
-      treino_usado: Math.min(MIN_BASE, drawsAll.length),
+      treino_usado: Math.min(IDEAL_TREINO, drawsAll.length),
       lags:LAGS,
       targets,
-      last6: drawsAll.slice(-MIN_RECENT)
+      last6: drawsAll.slice(-recentN)
     }
   };
 };
@@ -3438,8 +3429,8 @@ async function gerarTecnicaPremiada(silent=false){
       return;
     }
 
-    const t1 = completarAte15(pack.tecnica1.slice().sort((a,b)=>a-b));
-    const t2 = completarAte15(pack.tecnica2.slice().sort((a,b)=>a-b));
+    const t1 = pack.tecnica1.slice().sort((a,b)=>a-b);
+    const t2 = pack.tecnica2.slice().sort((a,b)=>a-b);
     lastTecnicaGames = { g1: t1.slice(), g2: t2.slice() };
 
     function renderCard(title, nums, motivos){
