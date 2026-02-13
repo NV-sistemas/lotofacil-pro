@@ -3707,7 +3707,7 @@ async function gerarInvertida(silent=false){
       targetRepeatDelta: -1,
       favorNew: true,
       forceDifferentFrom: [lastPrincipalGame || []],
-      avoid: new Set(lastPrincipalGame || [])
+      avoid: new Set()
     });
 
     lastInvertidaGame = res.jogo.slice();
@@ -3787,7 +3787,7 @@ async function gerarTecnicaPremiada(silent=false){
       targetRepeatDelta: 0,
       favorNew: true,
       forceDifferentFrom: [lastPrincipalGame||[], lastInvertidaGame||[], r1.jogo||[]],
-      avoid: new Set(r1.jogo||[])
+      avoid: new Set()
     });
 
     lastTecnicaGames = { g1: r1.jogo.slice(), g2: r2.jogo.slice() };
