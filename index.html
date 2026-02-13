@@ -1561,41 +1561,257 @@ function calcModernMetrics(concursos){
      k=10 -> +2 Top10 freq (1 mais + 1 menos) +2 (dupla forte) +1 atrasada (mais atrasada)
    - Paridade: segue o padrão dominante da janela (ex: 7 pares / 8 ímpares)
 ========================= */
-function gerarJogoPrincipalPrime(freq, modern, concursos, latestDezenas){
-  /*
-    ✅ NOVO MOTOR PREDITIVO (JOGO PRINCIPAL)
-    - NÃO usa "8 do último + 7 fora"
-    - Usa o mesmo motor comportamental do 15P (lookback=5, lags=3..6)
-    - Treina na janela selecionada (concursos) e cria um ranking IN/OUT
-    - PRINCIPAL = Top 15 do ranking IN (mais prováveis de SAIR no próximo concurso)
-  */
-  const payloadShort = { concursos: concursos || [] };
-  const adv = buildLines15PAdvanced(payloadShort, (concursos||[]).length);
+/* =========================
+   ✅ MOTOR COMPORTAMENTAL FIXO (4 JOGOS)
+   Baseado em padrões observados (repetição + gaps), sem "quentes/frias" e sem otimizar por pontuação passada.
 
-  const IN = (adv?.meta?.IN || []).slice(0,15).map(toNum);
-  const OUT = (adv?.meta?.OUT || []).slice(0,10).map(toNum);
-  const probs = adv?.meta?.probs || {};
+   Conceitos (usando os últimos concursos dentro da janela selecionada):
+   - R  = dezenas do último concurso (t-1) selecionadas por persistência (aparecem também em t-2/t-3...)
+   - G2 = dezenas do concurso retrasado (t-2) que NÃO saíram no último (gap 2)
+   - G3 = dezenas do t-3 que não saíram em t-2 e t-1 (gap 3)
+   - G4 = dezenas do t-4 que não saíram em t-3, t-2 e t-1 (gap 4)
 
-  const jogo = IN.slice(0,15).sort((a,b)=>a-b);
+   Padrões (1 por jogo):
+   - Principal:  9R + 4G2 + 2(G3/G4)
+   - Invertida:  8R + 5G2 + 2(G3/G4)
+   - Técnica 1: 10R + 3G2 + 2(G3/G4)
+   - Técnica 2:  9R + 3G2 + 3(G3/G4)
 
-  const motivos = [];
-  jogo.forEach(n=>{
-    const p = (probs[n]!=null) ? Number(probs[n]) : null;
-    motivos.push({
-      dezena:n,
-      texto: (p!=null)
-        ? `🧠 Preditivo: classificado como IN (prob≈${(p*100).toFixed(1)}%)`
-        : "🧠 Preditivo: classificado como IN"
-    });
-  });
+   Regras:
+   - 15 dezenas por jogo
+   - Sem aleatório
+   - Jogos não podem ser idênticos (ajuste determinístico)
+========================= */
 
-  motivos.push({
-    dezena: jogo[0],
-    texto: `📌 Motor Preditivo (Principal): Top 15 IN • Janela: ${(concursos||[]).length} concursos • Lookback: ${adv?.meta?.lookback||5} • Lags: ${(adv?.meta?.lags||[3,4,5,6]).join(",")}`
-  });
-
-  return { jogo, motivos, meta: { IN, OUT, probs } };
+function _normDezenasAny(x){
+  if(Array.isArray(x)) return x.map(toNum).filter(n=>Number.isFinite(n) && n>=1 && n<=25);
+  if(typeof x === "string"){
+    const arr = x.match(/\d{1,2}/g);
+    return (arr||[]).map(v=>Number(v)).filter(n=>Number.isFinite(n) && n>=1 && n<=25);
+  }
+  return [];
 }
+
+function _getDrawArraysFromConcursos(concursos){
+  const arr = (concursos||[])
+    .map(c=>{
+      // tenta chaves comuns
+      const dz = c?.dezenas ?? c?.numeros ?? c?.nums ?? c?.resultado ?? c?.resultadoNumeros ?? c;
+      const a = _normDezenasAny(dz);
+      a.sort((a,b)=>a-b);
+      return a;
+    })
+    .filter(a=>Array.isArray(a) && a.length===15);
+  return arr;
+}
+
+function _setOf(arr){ return new Set(arr||[]); }
+
+function _priorityPersistencia(n, sets){
+  // maior score se a dezena aparece em mais concursos recentes (t-1..t-6)
+  let s=0;
+  for(let i=0;i<sets.length;i++){
+    if(sets[i].has(n)) s += (sets.length - i); // peso maior para mais recente
+  }
+  return s;
+}
+
+function _pickTopUnique(cands, k, usedSet, scoreFn){
+  const scored = (cands||[])
+    .filter(n=>!usedSet.has(n))
+    .map(n=>({n, s: scoreFn ? scoreFn(n) : 0}))
+    .sort((a,b)=> (b.s - a.s) || (a.n - b.n));
+  const out=[];
+  for(const it of scored){
+    if(out.length>=k) break;
+    if(!usedSet.has(it.n)){
+      usedSet.add(it.n);
+      out.push(it.n);
+    }
+  }
+  return out;
+}
+
+function _ensureDiffAndUniq(games, allPool){
+  // garante que jogos não sejam idênticos; ajuste determinístico se necessário
+  const key = g => g.slice().sort((a,b)=>a-b).join(",");
+  const seen = new Set();
+  for(let i=0;i<games.length;i++){
+    let g = games[i].slice();
+    let k = key(g);
+    if(!seen.has(k)){ seen.add(k); games[i]=g; continue; }
+
+    // se repetiu, troca a última dezena por próxima disponível fora do jogo
+    const setG = new Set(g);
+    for(const cand of allPool){
+      if(!setG.has(cand)){
+        // substitui a última
+        setG.delete(g[g.length-1]);
+        g[g.length-1]=cand;
+        setG.add(cand);
+        break;
+      }
+    }
+    games[i]=g.slice().sort((a,b)=>a-b);
+    seen.add(key(games[i]));
+  }
+  return games;
+}
+
+function buildPack4JogosPreditivo(payload){
+  const concursos = payload?.concursos || [];
+  const draws = _getDrawArraysFromConcursos(concursos);
+
+  // precisamos pelo menos de 6 sorteios recentes para ler gaps 2..4 com segurança
+  const need = 6;
+  if(draws.length < need){
+    return { ok:false, err:`Janela insuficiente: precisa de pelo menos ${need} concursos válidos.` };
+  }
+
+  const d1 = draws[draws.length-1]; // t-1
+  const d2 = draws[draws.length-2]; // t-2
+  const d3 = draws[draws.length-3]; // t-3
+  const d4 = draws[draws.length-4]; // t-4
+  const d5 = draws[draws.length-5]; // t-5
+  const d6 = draws[draws.length-6]; // t-6
+
+  const s1=_setOf(d1), s2=_setOf(d2), s3=_setOf(d3), s4=_setOf(d4), s5=_setOf(d5), s6=_setOf(d6);
+  const recentSets = [s1,s2,s3,s4,s5,s6];
+
+  // R candidates = dezenas do último concurso, ordenadas por persistência
+  const R_cands = d1.slice();
+
+  // Gap candidates (exatamente gap2/3/4)
+  const G2_cands = d2.filter(n=>!s1.has(n));                         // saiu em t-2, faltou em t-1
+  const G3_cands = d3.filter(n=>!s1.has(n) && !s2.has(n));           // saiu em t-3, faltou em t-2 e t-1
+  const G4_cands = d4.filter(n=>!s1.has(n) && !s2.has(n) && !s3.has(n)); // saiu em t-4, faltou em t-3,t-2,t-1
+
+  const ALL = [...Array(25)].map((_,i)=>i+1);
+
+  function makeGame(pattern){
+    const used = new Set();
+    const pickedR = _pickTopUnique(
+      R_cands, pattern.R, used,
+      (n)=>_priorityPersistencia(n, recentSets)
+    );
+
+    const pickedG2 = _pickTopUnique(
+      G2_cands, pattern.G2, used,
+      (n)=>_priorityPersistencia(n, [s2,s3,s4,s5,s6]) // preferência em histórico recente (sem t-1)
+    );
+
+    // G3/G4 combinados: primeiro G3 depois G4
+    const needG = pattern.G34;
+    const pickedG3 = _pickTopUnique(
+      G3_cands, needG, used,
+      (n)=>_priorityPersistencia(n, [s3,s4,s5,s6])
+    );
+    const pickedG4 = _pickTopUnique(
+      G4_cands, needG - pickedG3.length, used,
+      (n)=>_priorityPersistencia(n, [s4,s5,s6])
+    );
+
+    let jogo = [...pickedR, ...pickedG2, ...pickedG3, ...pickedG4];
+
+    // se faltar, completa determinístico com "complemento" priorizando dezenas que NÃO estavam no último (diversificação)
+    if(jogo.length < 15){
+      const pool = ALL.filter(n=>!used.has(n))
+                      .sort((a,b)=> (s1.has(a)-s1.has(b)) || a-b); // fora do último primeiro
+      for(const n of pool){
+        if(jogo.length>=15) break;
+        used.add(n); jogo.push(n);
+      }
+    }
+
+    // se passou (não deveria), corta mantendo ordem por categoria já escolhida
+    jogo = jogo.slice(0,15).sort((a,b)=>a-b);
+
+    // motivos
+    const motivos = [];
+    const setR = new Set(pickedR);
+    const setG2 = new Set(pickedG2);
+    const setG3 = new Set(pickedG3);
+    const setG4 = new Set(pickedG4);
+
+    jogo.forEach(n=>{
+      let tag="OUTROS";
+      if(setR.has(n)) tag="R (repetiu do último)";
+      else if(setG2.has(n)) tag="G2 (gap 2: saiu no t-2 e faltou no t-1)";
+      else if(setG3.has(n)) tag="G3 (gap 3: saiu no t-3 e faltou t-2,t-1)";
+      else if(setG4.has(n)) tag="G4 (gap 4: saiu no t-4 e faltou t-3,t-2,t-1)";
+      motivos.push({ dezena:n, texto:`🧭 ${tag}` });
+    });
+
+    return { jogo, motivos, meta:{ pickedR, pickedG2, pickedG3, pickedG4 } };
+  }
+
+  const patterns = {
+    principal: { R:9,  G2:4, G34:2 },
+    invertida: { R:8,  G2:5, G34:2 },
+    tecnica1:  { R:10, G2:3, G34:2 },
+    tecnica2:  { R:9,  G2:3, G34:3 },
+  };
+
+  const g1 = makeGame(patterns.principal);
+  const g2 = makeGame(patterns.invertida);
+  const g3 = makeGame(patterns.tecnica1);
+  const g4 = makeGame(patterns.tecnica2);
+
+  const games = _ensureDiffAndUniq(
+    [g1.jogo, g2.jogo, g3.jogo, g4.jogo],
+    ALL
+  );
+
+  const principal = games[0], invertida = games[1], tecnica1 = games[2], tecnica2 = games[3];
+
+  // IN/OUT para exibição (IN = principal; OUT = complemento)
+  const IN15 = principal.slice().sort((a,b)=>a-b);
+  const OUT10 = ALL.filter(n=>!IN15.includes(n)).sort((a,b)=>a-b);
+
+  const motivos = {
+    principal: g1.motivos.concat([{dezena:IN15[0], texto:`📌 Padrão fixo: 9R + 4G2 + 2(G3/G4) • Janela: ${draws.length} concursos • Base recente: últimos 6 concursos`}]),
+    invertida: g2.motivos.concat([{dezena:invertida[0], texto:`📌 Padrão fixo: 8R + 5G2 + 2(G3/G4) • Janela: ${draws.length} concursos • Base recente: últimos 6 concursos`}]),
+    tecnica1:  g3.motivos.concat([{dezena:tecnica1[0], texto:`📌 Padrão fixo: 10R + 3G2 + 2(G3/G4) • Janela: ${draws.length} concursos • Base recente: últimos 6 concursos`}]),
+    tecnica2:  g4.motivos.concat([{dezena:tecnica2[0], texto:`📌 Padrão fixo: 9R + 3G2 + 3(G3/G4) • Janela: ${draws.length} concursos • Base recente: últimos 6 concursos`}]),
+  };
+
+  return {
+    ok:true,
+    principal, invertida, tecnica1, tecnica2,
+    motivos,
+    meta:{
+      IN: IN15, OUT: OUT10,
+      patterns,
+      last6:{ d1, d2, d3, d4, d5, d6 }
+    }
+  };
+}
+
+/* =========================
+   ✅ JOGO PRINCIPAL (TELA PRINCIPAL)
+   Agora usa o pacote comportamental fixo (buildPack4JogosPreditivo),
+   sem depender do motor antigo e sem gerar sequências falsas.
+========================= */
+function gerarJogoPrincipalPrime(freq, modern, concursos, latestDezenas){
+  const payload = { concursos: concursos || [] };
+  const pack = buildPack4JogosPreditivo(payload);
+
+  if(!pack || pack.ok !== true){
+    return {
+      jogo: [],
+      motivos: [{dezena:1, texto:`⚠️ Não foi possível gerar (padrão fixo). ${pack?.err||""}`.trim()}],
+      meta: {}
+    };
+  }
+
+  const jogo = (pack.principal || []).slice().sort((a,b)=>a-b);
+
+  // motivos do jogo principal
+  const motivos = (pack.motivos?.principal || []).slice();
+
+  return { jogo, motivos, meta: pack.meta };
+}
+
 
 
 /* =========================
@@ -1606,261 +1822,6 @@ function gerarJogoPrincipalPrime(freq, modern, concursos, latestDezenas){
    - Garante que os 4 jogos NÃO sejam idênticos
    - Mistura IN com pequenas "trocas" usando OUT para cobertura/hedge
 ========================= */
-function buildPack4JogosPreditivo(payload){
-  const concursos = (payload?.concursos || []).slice();
-  const metaBase = {
-    windowQ: concursos.length || 0,
-    lookback: 5,
-    lags: [3,4,5,6]
-  };
-
-  // ordena por concurso (segurança)
-  concursos.sort((a,b)=>Number(a?.concurso||0)-Number(b?.concurso||0));
-
-  // garante arrays de dezenas limpos
-  const draws = concursos.map(c=> (c?.dezenas||[]).map(toNum).filter(n=>n>=1&&n<=25));
-
-  const N = 25;
-  const T = draws.length;
-
-  // fallback mínimo (se não tiver dados suficientes, usa último concurso como base IN)
-  const latest = (payload?.latest?.dezenas || (draws[T-1]||[])).map(toNum).filter(n=>n>=1&&n<=25);
-  const latestSet = new Set(latest);
-
-  const ALL = Array.from({length:N}, (_,i)=>i+1);
-
-  // ---------- métricas por dezena ----------
-  const lookback = metaBase.lookback;
-  const lags = metaBase.lags;
-
-  const countTotal = Array(N+1).fill(0);
-  const countRecent = Array(N+1).fill(0);
-  const lastSeenIdx = Array(N+1).fill(-1);
-
-  for(let t=0;t<T;t++){
-    const set = new Set(draws[t]);
-    for(const n of set){
-      countTotal[n] += 1;
-      lastSeenIdx[n] = t;
-    }
-  }
-  for(let t=Math.max(0,T-lookback); t<T; t++){
-    const set = new Set(draws[t]);
-    for(const n of set) countRecent[n] += 1;
-  }
-
-  // gap atual (quantos concursos atrás)
-  const gapNow = Array(N+1).fill(99);
-  for(let n=1;n<=N;n++){
-    gapNow[n] = (lastSeenIdx[n]===-1) ? 99 : (T-1 - lastSeenIdx[n]);
-  }
-
-  // "estágio": quantas vezes a dezena reapareceu após ficar ausente 3-6 concursos
-  const stageHits = Array(N+1).fill(0);
-  const appearCnt = Array(N+1).fill(0);
-  for(let n=1;n<=N;n++){
-    let last = -1;
-    for(let t=0;t<T;t++){
-      if(draws[t].includes(n)){
-        appearCnt[n] += 1;
-        if(last>=0){
-          const gap = t - last - 1;
-          if(gap>=3 && gap<=6) stageHits[n] += 1;
-        }
-        last = t;
-      }
-    }
-  }
-
-  // força de pares (cooc) no lookback (últimos 10 por padrão)
-  const pairWindow = Math.min(10, T);
-  const pairCnt = Array.from({length:N+1}, ()=>Array(N+1).fill(0));
-  for(let t=Math.max(0,T-pairWindow); t<T; t++){
-    const arr = Array.from(new Set(draws[t])).sort((a,b)=>a-b);
-    for(let i=0;i<arr.length;i++){
-      for(let j=i+1;j<arr.length;j++){
-        const a=arr[i], b=arr[j];
-        pairCnt[a][b] += 1; pairCnt[b][a] += 1;
-      }
-    }
-  }
-  const pairScore = Array(N+1).fill(0);
-  for(let n=1;n<=N;n++){
-    let s=0;
-    for(let m=1;m<=N;m++){
-      if(m===n) continue;
-      s += pairCnt[n][m];
-    }
-    pairScore[n]=s;
-  }
-
-  // ---------- score final ----------
-  // normalizações
-  const baseDen = Math.max(1, T);
-  const maxPair = Math.max(1, Math.max(...pairScore.slice(1)));
-
-  const score = {};
-  const detail = {};
-
-  function clamp(x,a,b){ return Math.max(a, Math.min(b,x)); }
-
-  for(let n=1;n<=N;n++){
-    const baseRate   = countTotal[n]/baseDen;           // 0..1
-    const recentRate = (T>0)? (countRecent[n]/Math.max(1, Math.min(lookback,T))) : 0;
-    const stageRate  = (appearCnt[n]>0)? (stageHits[n]/appearCnt[n]) : 0; // 0..1
-    const pairRate   = pairScore[n]/maxPair;            // 0..1
-    const g          = gapNow[n];
-
-    // bônus por gap atual: favorece 3-6, penaliza 0-1 e muito alto
-    let gapBonus = 0;
-    if(g>=3 && g<=6) gapBonus = 1;
-    else if(g<=1) gapBonus = -0.6;
-    else if(g>=10) gapBonus = -0.4;
-    else gapBonus = 0.15; // neutro-leve
-
-    // score combinado (determinístico)
-    const s =
-      0.36*recentRate +
-      0.26*baseRate +
-      0.18*stageRate +
-      0.12*pairRate +
-      0.08*( (gapBonus+1)/2 ); // normaliza -0.6..1 pra 0..1 aproximadamente
-
-    score[n]=s;
-
-    detail[n]={
-      baseRate, recentRate, stageRate, pairRate, gap: g,
-      gapBonus
-    };
-  }
-
-  // ranking geral
-  const ranked = ALL.slice().sort((a,b)=>{
-    const da = score[a], db=score[b];
-    if(db!==da) return db-da;
-    // desempate: menor gap (mais "na boca") + maior cooc
-    if(gapNow[a]!==gapNow[b]) return gapNow[a]-gapNow[b];
-    return pairScore[b]-pairScore[a];
-  });
-
-  // se dados muito curtos, usa um IN baseado no último concurso com complemento por ranking
-  let IN15 = ranked.slice(0,15);
-  let OUT10 = ranked.slice(15).slice(-10); // últimos 10 do ranking (prediz NÃO sair)
-
-  if(T < 12 && latest.length===15){
-    // dá mais peso ao comportamento real quando janela pequena
-    const base = latest.slice();
-    const rest = ranked.filter(n=>!base.includes(n));
-    IN15 = base.slice(0,10).concat(rest.slice(0,5)).sort((a,b)=>a-b);
-    OUT10 = ALL.filter(n=>!IN15.includes(n)).sort((a,b)=>score[a]-score[b]).slice(0,10);
-  }else{
-    // OUT10 = piores 10 scores (não do complemento de IN15 necessariamente)
-    OUT10 = ALL.slice().sort((a,b)=>score[a]-score[b]).slice(0,10);
-    // garante disjunção IN/OUT (se houver interseção por empate extremo)
-    OUT10 = OUT10.filter(n=>!IN15.includes(n));
-    if(OUT10.length<10){
-      const extra = ALL.filter(n=>!IN15.includes(n) && !OUT10.includes(n))
-                       .sort((a,b)=>score[a]-score[b]);
-      OUT10 = OUT10.concat(extra.slice(0,10-OUT10.length));
-    }
-  }
-
-  // helpers para montar jogos (troca as piores IN por melhores OUT)
-  const INsortedWeak = IN15.slice().sort((a,b)=>score[a]-score[b]);    // mais fracas primeiro
-  const OUTsortedStrong = OUT10.slice().sort((a,b)=>score[b]-score[a]); // mais fortes do OUT primeiro
-
-  function buildGame(swapCount, outStart){
-    const base = IN15.slice();
-    // remove as swapCount piores do IN (a partir de outStart para variar)
-    const rm = INsortedWeak.slice(outStart, outStart+swapCount);
-    const keep = base.filter(n=>!rm.includes(n));
-    const add = OUTsortedStrong.slice(outStart, outStart+swapCount);
-    const game = keep.concat(add).filter((v,i,arr)=>arr.indexOf(v)===i);
-    // completa determinístico até 15 (caso colisão rara)
-    if(game.length<15){
-      for(const n of ranked){
-        if(game.length>=15) break;
-        if(!game.includes(n) && !OUT10.includes(n)) game.push(n);
-      }
-    }
-    return game.slice(0,15).sort((a,b)=>a-b);
-  }
-
-  const principal = IN15.slice().sort((a,b)=>a-b);
-  let invertida = buildGame(3, 0);
-  let tecnica1  = buildGame(4, 2);
-  let tecnica2  = buildGame(5, 4);
-
-  // garante que os 4 jogos não sejam idênticos e tenham diferença mínima
-  function key(a){ return a.join(","); }
-  function diffCount(a,b){
-    const sa=new Set(a);
-    let same=0;
-    for(const n of b) if(sa.has(n)) same++;
-    return 15 - same;
-  }
-  const games = [principal, invertida, tecnica1, tecnica2];
-
-  const minDiff = [0,3,4,5]; // vs principal
-  for(let i=1;i<games.length;i++){
-    let tries=0;
-    while(key(games[i])===key(principal) || diffCount(games[i], principal) < minDiff[i]){
-      tries++;
-      if(tries>8) break;
-      games[i] = buildGame(minDiff[i], tries); // varia offset
-    }
-  }
-
-  invertida = games[1];
-  tecnica1  = games[2];
-  tecnica2  = games[3];
-
-  // ---------- motivos ----------
-  function pct(x){ return (x*100).toFixed(0)+"%"; }
-  function motivoDez(n, tag){
-    const d = detail[n] || {};
-    const s = score[n];
-    const st = (d.stageRate!=null)? pct(d.stageRate) : "-";
-    return {
-      dezena: n,
-      texto: `🧠 ${tag} • score ${(s||0).toFixed(3)} • freq ${pct(d.baseRate||0)} • rec ${pct(d.recentRate||0)} • gap ${d.gap} • estágio ${st}`
-    };
-  }
-
-  function motivosDoJogo(nome, jogo){
-    const arr = [];
-    for(const n of jogo){
-      const tag = IN15.includes(n) ? "IN" : (OUT10.includes(n) ? "OUT" : "—");
-      arr.push(motivoDez(n, `${nome}: ${tag}`));
-    }
-    // 1 linha-resumo no topo
-    const inCount = jogo.filter(n=>IN15.includes(n)).length;
-    const outCount = jogo.filter(n=>OUT10.includes(n)).length;
-    arr.push({
-      dezena: jogo[0],
-      texto: `📌 ${nome}: ${inCount} IN + ${outCount} OUT • Janela ${T} • Lookback ${lookback} • Lags ${lags.join(",")}`
-    });
-    return arr;
-  }
-
-  const motivos = {
-    principal: motivosDoJogo("Principal", principal),
-    invertida: motivosDoJogo("Invertida", invertida),
-    tecnica1: motivosDoJogo("Técnica 1", tecnica1),
-    tecnica2: motivosDoJogo("Técnica 2", tecnica2),
-  };
-
-  return {
-    principal, invertida, tecnica1, tecnica2,
-    motivos,
-    meta: {
-      ...metaBase,
-      IN: IN15.slice(),
-      OUT: OUT10.slice(),
-      scores: score
-    }
-  };
-}
 
 
 
@@ -3187,27 +3148,22 @@ async function gerarInvertida(silent=false){
   try{
     const qtd = qtdSelecionada();
     await prepararContextoBase(qtd);
+
     const payload = lastPayload;
+    const pack = buildPack4JogosPreditivo(payload);
+    lastPredPack = pack;
 
-    // sempre gera/usa o pacote do motor preditivo DA JANELA ATUAL
-    const needRebuild =
-      !lastPredPack ||
-      !lastPredPack.meta ||
-      Number(lastPredPack.meta.windowQ||0) !== Number((payload?.concursos||[]).length||0);
+    if(!pack || pack.ok !== true || !Array.isArray(pack.invertida) || pack.invertida.length !== 15){
+      if(area) area.innerHTML = `<div class="box"><b>⚠️</b><div class="mini" style="margin-top:8px">Não foi possível montar a Invertida (15 dezenas). ${(pack&&pack.err)?pack.err:""}</div></div>`;
+      return;
+    }
 
-    if(needRebuild) lastPredPack = buildPack4JogosPreditivo(payload);
-
-    const pack = lastPredPack;
-    const inv = (pack?.invertida || []).slice().map(toNum).filter(n=>n>=1&&n<=25).sort((a,b)=>a-b);
-
-    if(inv.length !== 15) throw new Error("Pacote preditivo inválido: Invertida não tem 15 dezenas.");
-
+    const inv = pack.invertida.slice().sort((a,b)=>a-b);
     lastInvertidaGame = inv.slice();
 
     const motivos = pack?.motivos?.invertida || [];
     const balls = inv.map(n=>`<div class="ball">${format2(n)}</div>`).join("");
 
-    // agrupa motivos iguais
     const motivosAgrupados = {};
     (motivos||[]).forEach(m=>{
       const key = (m.texto||"").trim();
@@ -3222,17 +3178,25 @@ async function gerarInvertida(silent=false){
     if(area){
       area.innerHTML = `
         <div class="box">
-          <b>🔄 Invertida (Motor Preditivo) • Jogo 2</b>
-          <div class="mini" style="margin-top:6px">Gerada pelo ranking <b>IN/OUT</b> do motor comportamental (mesma janela do Principal).</div>
-          <div class="numbers" style="justify-content:flex-start">${balls}</div>
-          <div style="margin-top:10px">${motivosHtml}</div>
+          <div class="titleRow">
+            <div class="title">🔄 Invertida gerada (15 dezenas)</div>
+            <div class="mini">Janela: ${labelJanela()}</div>
+          </div>
+
+          <div class="balls">${balls}</div>
+
+          <div class="sep"></div>
+          <div class="mini"><b>Por que essas dezenas?</b></div>
+          <div class="mini" style="opacity:.88">Padrão fixo comportamental (repetição + gaps 2/3/4) • sem quentes/frias.</div>
+          <div class="mini" style="margin-top:8px">${motivosHtml || "—"}</div>
         </div>
       `;
     }
 
     updateCheckButtons();
-  }catch(e){
-    if(area) area.innerHTML = `<div class="box"><b>⚠️ Erro</b><div class="mini" style="margin-top:8px">${String(e?.message||e)}</div></div>`;
+  }catch(err){
+    console.error(err);
+    if(area) area.innerHTML = `<div class="box"><b>⚠️</b><div class="mini" style="margin-top:8px">Erro ao gerar Invertida.</div></div>`;
   }
 }
 
@@ -3240,7 +3204,7 @@ async function gerarInvertida(silent=false){
 
 async function gerarTecnicaPremiada(silent=false){
   if(!access.premium){
-    if(!silent) alert("🔒 Técnica premiada exige Premium.");
+    if(!silent) alert("🔒 Técnica exige Premium.");
     return;
   }
 
@@ -3249,26 +3213,25 @@ async function gerarTecnicaPremiada(silent=false){
   try{
     const qtd = qtdSelecionada();
     await prepararContextoBase(qtd);
+
     const payload = lastPayload;
+    const pack = buildPack4JogosPreditivo(payload);
+    lastPredPack = pack;
 
-    const needRebuild =
-      !lastPredPack ||
-      !lastPredPack.meta ||
-      Number(lastPredPack.meta.windowQ||0) !== Number((payload?.concursos||[]).length||0);
+    const t1ok = pack && pack.ok===true && Array.isArray(pack.tecnica1) && pack.tecnica1.length===15;
+    const t2ok = pack && pack.ok===true && Array.isArray(pack.tecnica2) && pack.tecnica2.length===15;
 
-    if(needRebuild) lastPredPack = buildPack4JogosPreditivo(payload);
+    if(!t1ok || !t2ok){
+      if(area) area.innerHTML = `<div class="box"><b>⚠️</b><div class="mini" style="margin-top:8px">Não foi possível montar a Técnica (2 jogos de 15 dezenas). ${(pack&&pack.err)?pack.err:""}</div></div>`;
+      return;
+    }
 
-    const pack = lastPredPack;
+    const t1 = pack.tecnica1.slice().sort((a,b)=>a-b);
+    const t2 = pack.tecnica2.slice().sort((a,b)=>a-b);
+    lastTecnicaGames = [t1.slice(), t2.slice()];
 
-    const g1 = (pack?.tecnica1 || []).slice().map(toNum).filter(n=>n>=1&&n<=25).sort((a,b)=>a-b);
-    const g2 = (pack?.tecnica2 || []).slice().map(toNum).filter(n=>n>=1&&n<=25).sort((a,b)=>a-b);
-
-    if(g1.length !== 15 || g2.length !== 15) throw new Error("Pacote preditivo inválido: Técnica não tem 2 jogos completos (15 dezenas).");
-
-    lastTecnicaGames = { g1: g1.slice(), g2: g2.slice() };
-
-    const renderBox = (titulo, jogo, motivos)=> {
-      const balls = jogo.map(n=>`<div class="ball">${format2(n)}</div>`).join("");
+    function renderCard(title, nums, motivos){
+      const balls = nums.map(n=>`<div class="ball">${format2(n)}</div>`).join("");
       const motivosAgrupados = {};
       (motivos||[]).forEach(m=>{
         const key = (m.texto||"").trim();
@@ -3276,36 +3239,36 @@ async function gerarTecnicaPremiada(silent=false){
         if(Number.isFinite(Number(m.dezena))) motivosAgrupados[key].push(Number(m.dezena));
       });
       const motivosHtml = Object.entries(motivosAgrupados).map(([k,arr])=>{
-        const nums = arr.sort((a,b)=>a-b).map(format2).join(" - ");
-        return `<div class="mini">• <b>${k}</b>${nums?`<br><span style="opacity:.9">${nums}</span>`:""}</div>`;
+        const numsTxt = arr.sort((a,b)=>a-b).map(format2).join(" - ");
+        return `<div class="mini">• <b>${k}</b>${numsTxt?`<br><span style="opacity:.9">${numsTxt}</span>`:""}</div>`;
       }).join("");
 
       return `
-        <div class="box" style="margin-top:12px">
-          <b>${titulo}</b>
-          <div class="numbers" style="justify-content:flex-start">${balls}</div>
-          <div style="margin-top:10px">${motivosHtml}</div>
-        </div>
-      `;
-    };
-
-    if(area){
-      area.innerHTML = `
-        <div class="box">
-          <b>🏆 Técnica premiada (Motor Preditivo) • Jogos 3 e 4</b>
-          <div class="mini" style="margin-top:6px">
-            2 jogos extras gerados pelo ranking <b>IN/OUT</b> do motor comportamental (mesma janela do Principal).
-            Regra: trocas controladas (sem aleatório) para diversificar cobertura.
+        <div class="box" style="margin-bottom:12px">
+          <div class="titleRow">
+            <div class="title">${title}</div>
+            <div class="mini">Janela: ${labelJanela()}</div>
           </div>
-          ${renderBox("🏆 Técnica 1 (Jogo 3)", g1, pack?.motivos?.tecnica1 || [])}
-          ${renderBox("🏆 Técnica 2 (Jogo 4)", g2, pack?.motivos?.tecnica2 || [])}
+          <div class="balls">${balls}</div>
+          <div class="sep"></div>
+          <div class="mini"><b>Por que essas dezenas?</b></div>
+          <div class="mini" style="opacity:.88">Padrão fixo comportamental (repetição + gaps 2/3/4) • sem quentes/frias.</div>
+          <div class="mini" style="margin-top:8px">${motivosHtml || "—"}</div>
         </div>
       `;
     }
 
+    const html = `
+      ${renderCard("🏆 Técnica 1 gerada (15 dezenas)", t1, pack?.motivos?.tecnica1 || [])}
+      ${renderCard("🏆 Técnica 2 gerada (15 dezenas)", t2, pack?.motivos?.tecnica2 || [])}
+    `;
+
+    if(area) area.innerHTML = html;
+
     updateCheckButtons();
-  }catch(e){
-    if(area) area.innerHTML = `<div class="box"><b>⚠️ Erro</b><div class="mini" style="margin-top:8px">${String(e?.message||e)}</div></div>`;
+  }catch(err){
+    console.error(err);
+    if(area) area.innerHTML = `<div class="box"><b>⚠️</b><div class="mini" style="margin-top:8px">Erro ao gerar Técnica.</div></div>`;
   }
 }
 
