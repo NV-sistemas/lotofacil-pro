@@ -3215,7 +3215,7 @@ function montarTelaCheck(){
 
 <script>
 /* =========================
-   15P (mais forte + editor manual)
+   15P (preditivo IN/OUT + editor manual)
 ========================= */
 function salvar15P(){
   if(!linesSystem15 || !Array.isArray(linesSystem15) || linesSystem15.length !== 5){
@@ -3608,121 +3608,6 @@ function countsInConcursos(concursos){
   return cnt;
 }
 
-
-/* =========================
-   ✅ 15P PREDITIVO (NOVO MOTOR)
-   Ideia: aprender, dentro da janela escolhida, como cada dezena "se comporta" nos 3 concursos anteriores
-   antes de SAIR (y=1) ou NÃO SAIR (y=0) no concurso seguinte.
-   - Features (lookback=3):
-     * pres3: quantas vezes apareceu nos últimos 3 (0..3)
-     * rep: se repetiu do último concurso (0/1)
-     * gap3: "atraso" dentro da janela (0..4, onde 4 = não apareceu nos 3)
-   Modelo leve (sem ML pesado): Naive Bayes em log-odds com suavização.
-========================= */
-const LOOKBACK_15P = 3;
-let behavior15p = null; // cache do último modelo/estado (para explicar as linhas)
-
-function _sigmoid(x){ return 1/(1+Math.exp(-x)); }
-function _key3(a,b,c){ return `${a}|${b}|${c}`; }
-
-function buildBehaviorModel(concursos, lookback=LOOKBACK_15P){
-  const N = concursos.length;
-  const pos = { total:0, pres: Array(lookback+1).fill(0), rep:[0,0], gap: Array(5).fill(0) };
-  const neg = { total:0, pres: Array(lookback+1).fill(0), rep:[0,0], gap: Array(5).fill(0) };
-
-  function feat(n, prev){
-    // prev: array de concursos (t-lookback ... t-1) em ordem
-    let pres3 = 0;
-    let rep = 0;
-    let lastSeen = -1; // índice 0..lookback-1 (mais recente = lookback-1)
-    for(let k=0;k<prev.length;k++){
-      const setK = new Set((prev[k].dezenas||[]).map(toNum));
-      if(setK.has(n)){
-        pres3++;
-        lastSeen = k;
-      }
-    }
-    const lastSet = new Set((prev[prev.length-1].dezenas||[]).map(toNum));
-    rep = lastSet.has(n) ? 1 : 0;
-
-    // gap dentro do lookback: 0 se saiu no último, 1 se saiu no penúltimo, 2 se saiu no antepenúltimo, 4 se não saiu
-    let gap3 = 4;
-    if(lastSeen>=0){
-      gap3 = (prev.length-1) - lastSeen; // 0..lookback-1
-      gap3 = Math.min(4, gap3);
-    }
-    return { pres3, rep, gap3 };
-  }
-
-  for(let t=lookback;t<N;t++){
-    const prev = concursos.slice(t-lookback, t);
-    const curSet = new Set((concursos[t].dezenas||[]).map(toNum));
-    for(let n=1;n<=25;n++){
-      const f = feat(n, prev);
-      const y = curSet.has(n) ? 1 : 0;
-      const bucket = y ? pos : neg;
-      bucket.total++;
-      bucket.pres[f.pres3]++; bucket.rep[f.rep]++; bucket.gap[f.gap3]++;
-    }
-  }
-
-  // converte para log-odds por feature com suavização
-  const baseLogOdds = Math.log((pos.total + 1) / (neg.total + 1));
-
-  function makeLogOddsTable(arrPos, arrNeg){
-    const out = [];
-    for(let i=0;i<arrPos.length;i++){
-      const lp = Math.log((arrPos[i] + 1) / (pos.total + arrPos.length));
-      const ln = Math.log((arrNeg[i] + 1) / (neg.total + arrNeg.length));
-      // contribuição relativa ao base (evita explosão)
-      out.push((lp - ln) - baseLogOdds*0.0);
-    }
-    return out;
-  }
-
-  return {
-    lookback,
-    baseLogOdds,
-    logOddsPres: makeLogOddsTable(pos.pres, neg.pres),
-    logOddsRep:  makeLogOddsTable(pos.rep,  neg.rep),
-    logOddsGap:  makeLogOddsTable(pos.gap,  neg.gap),
-    // para debug/explicação:
-    _raw:{pos,neg}
-  };
-}
-
-function predictNextProbs(concursos, model){
-  const lookback = model.lookback || LOOKBACK_15P;
-  const prev = concursos.slice(concursos.length - lookback);
-  const feats = {};
-  const probs = {};
-  for(let n=1;n<=25;n++){
-    // features iguais às do treino
-    let pres3=0, rep=0, lastSeen=-1;
-    for(let k=0;k<prev.length;k++){
-      const setK = new Set((prev[k].dezenas||[]).map(toNum));
-      if(setK.has(n)){ pres3++; lastSeen=k; }
-    }
-    const lastSet = new Set((prev[prev.length-1].dezenas||[]).map(toNum));
-    rep = lastSet.has(n) ? 1 : 0;
-    let gap3 = 4;
-    if(lastSeen>=0){
-      gap3 = Math.min(4, (prev.length-1)-lastSeen);
-    }
-
-    const score =
-      model.baseLogOdds +
-      (model.logOddsPres[pres3] || 0) +
-      (model.logOddsRep[rep] || 0) +
-      (model.logOddsGap[gap3] || 0);
-
-    const p = _sigmoid(score);
-    feats[n] = { pres3, rep, gap3, score, p };
-    probs[n] = p;
-  }
-  return { probs, feats };
-}
-
 async function getMediumPayloadFor15P(medN){
   try{
     const p = await getOnlineConcursos(medN);
@@ -3734,96 +3619,185 @@ async function getMediumPayloadFor15P(medN){
 }
 
 async function buildLines15PAdvanced(payloadShort, qtdShort){
-  const shortConc = payloadShort.concursos.slice().sort((a,b)=>a.concurso-b.concurso);
-  const ultimo = shortConc[shortConc.length-1];
+  /*
+    ✅ NOVO MOTOR 15P (PREDITIVO COMPORTAMENTAL)
+    - Treina em cima da janela escolhida (payloadShort.concursos)
+    - Observa comportamento nos ÚLTIMOS 5 concursos (lookback=5)
+    - Considera estágios 3–6 concursos antes (lags 3..6)
+    - Prediz IN (15 dezenas que podem sair) e OUT (10 dezenas que podem não sair)
+    - Monta 5 linhas SEM REPETIÇÃO: 3 linhas IN + 2 linhas OUT (25 dezenas únicas)
+    - Sem "linha forte/fraca": linhas são classe predita (IN/OUT)
+  */
+  const concursos = (payloadShort?.concursos || []).slice().sort((a,b)=>a.concurso-b.concurso);
+  const LOOKBACK = 5;
+  const LAGS = [3,4,5,6];
+  const maxLag = Math.max.apply(null, LAGS);
 
-  // --- pools do último concurso (para manter a lógica 15/10 na explicação e na Linha 3/4)
-  const saiuUlt = new Set((ultimo.dezenas||[]).map(toNum));
-  const naoSaiuUlt = [];
-  for(let i=1;i<=25;i++) if(!saiuUlt.has(i)) naoSaiuUlt.push(i);
-
-  // stats curto (para força/cooc/lift e também para explicar)
-  const sShort = calcCoocAndStats(shortConc);
-  sShort.concursosRef = shortConc;
-
-  // stats médio (regularização): busca 20 (ou 30 se usuário já usa maior)
-  const MED = Math.max(20, Math.min(30, qtdShort*5));
-  const medPayload = await getMediumPayloadFor15P(MED);
-  let sMed = null;
-  if(medPayload && medPayload.concursos?.length){
-    sMed = calcCoocAndStats(medPayload.concursos);
-    sMed.concursosRef = medPayload.concursos;
+  if(concursos.length < (LOOKBACK + maxLag + 2)){
+    // fallback mínimo: usa frequência simples por recência, mas ainda respeita IN/OUT e 25 únicas
+    const freq = Array(26).fill(0);
+    concursos.forEach((c,idx)=>{
+      const w = 1 + (idx/(concursos.length||1)); // leve recência
+      (c.dezenas||[]).map(toNum).forEach(n=>{ if(n>=1&&n<=25) freq[n]+=w; });
+    });
+    const ranked = [...Array(25)].map((_,i)=>i+1).sort((a,b)=>freq[b]-freq[a] || a-b);
+    const IN = ranked.slice(0,15);
+    const OUT = ranked.slice(15);
+    const lines = [[],[],[],[],[]];
+    IN.forEach((n,i)=>lines[i%3].push(n));
+    OUT.forEach((n,i)=>lines[3+(i%2)].push(n));
+    return { lines: lines.map(l=>sortNum(l)), meta:{ mode:"fallback", IN, OUT } };
   }
 
-  // --- ✅ NOVO: modelo comportamental (lookback=3)
-  const model = buildBehaviorModel(shortConc, LOOKBACK_15P);
-  const pred = predictNextProbs(shortConc, model);
+  function sigmoid(z){
+    if(z>35) return 1;
+    if(z<-35) return 0;
+    return 1/(1+Math.exp(-z));
+  }
+  function dot(w,x){
+    let s=0;
+    for(let i=0;i<w.length;i++) s += w[i]*x[i];
+    return s;
+  }
 
-  // cache para explicar as linhas na UI
-  behavior15p = {
-    lookback: model.lookback,
-    feats: pred.feats,
-    window: { inicio: shortConc[0]?.concurso, ultimo: ultimo?.concurso, n: shortConc.length }
+  // Features por (i, n): estado do n nos últimos 5 concursos + marcadores 3..6 antes
+  function featuresAt(indexI, n){
+    const x = [];
+    x.push(1); // bias
+
+    // sets dos últimos 5
+    const win = [];
+    for(let k=indexI-LOOKBACK;k<indexI;k++){
+      win.push(new Set((concursos[k].dezenas||[]).map(toNum)));
+    }
+
+    let count5 = 0;
+    for(let k=0;k<LOOKBACK;k++) if(win[k].has(n)) count5++;
+
+    const was1 = win[LOOKBACK-1].has(n) ? 1 : 0;
+    const was2 = win[LOOKBACK-2].has(n) ? 1 : 0;
+
+    // gap (1..LOOKBACK+maxLag+1)
+    let gap = LOOKBACK + maxLag + 1;
+    for(let back=1; back<=LOOKBACK+maxLag; back++){
+      const setB = new Set((concursos[indexI-back].dezenas||[]).map(toNum));
+      if(setB.has(n)){ gap = back; break; }
+    }
+
+    // streak nos últimos concursos (consecutivos até i-1)
+    let streak = 0;
+    for(let back=1; back<=LOOKBACK; back++){
+      const setB = win[LOOKBACK-back];
+      if(setB.has(n)) streak++;
+      else break;
+    }
+
+    // lags 3..6 (se estava presente exatos L concursos antes)
+    const lagFlags = LAGS.map(L=>{
+      const setL = new Set((concursos[indexI-L].dezenas||[]).map(toNum));
+      return setL.has(n) ? 1 : 0;
+    });
+
+    // normalizações simples
+    x.push(count5/LOOKBACK);                 // 0..1
+    x.push(was1);                            // 0/1
+    x.push(was2);                            // 0/1
+    x.push(Math.min(gap, 12)/12);            // 0..1 (cap)
+    x.push(streak/LOOKBACK);                 // 0..1
+    lagFlags.forEach(v=>x.push(v));          // 4 dims
+
+    return x;
+  }
+
+  // monta dataset (samples) usando a própria janela curta como treino (walk-forward implícito)
+  const samples = [];
+  const startI = LOOKBACK + maxLag;
+  for(let i=startI; i<concursos.length; i++){
+    const ySet = new Set((concursos[i].dezenas||[]).map(toNum));
+    for(let n=1;n<=25;n++){
+      samples.push({ x: featuresAt(i,n), y: ySet.has(n) ? 1 : 0 });
+    }
+  }
+
+  // Treino logística (batch GD) - leve e determinístico
+  const dim = samples[0].x.length;
+  let w = Array(dim).fill(0);
+  const lr = 0.35;
+  const iters = 220;
+  const reg = 0.002; // L2
+
+  for(let it=0; it<iters; it++){
+    const grad = Array(dim).fill(0);
+    let m = samples.length;
+
+    for(const s of samples){
+      const p = sigmoid(dot(w, s.x));
+      const err = (p - s.y);
+      for(let j=0;j<dim;j++) grad[j] += err * s.x[j];
+    }
+
+    for(let j=0;j<dim;j++){
+      grad[j] = grad[j]/m + reg*w[j];
+      w[j] -= lr*grad[j];
+    }
+  }
+
+  // Predição para o próximo concurso (baseado no último índice = concursos.length)
+  const nextI = concursos.length;
+  // para extrair features do "próximo", vamos usar indexI = concursos.length (sem acessar concursos[nextI])
+  // logo, em featuresAt usamos concursos[indexI-back], que existe.
+  function featuresNext(n){
+    // reutiliza featuresAt com indexI = concursos.length (sem y)
+    // featuresAt exige concursos[k] para k < indexI, então ok.
+    // (não usamos concursos[indexI] em nenhum lugar)
+    return featuresAt(nextI, n);
+  }
+
+  const probs = [];
+  for(let n=1;n<=25;n++){
+    const p = sigmoid(dot(w, featuresNext(n)));
+    probs.push({ n, p });
+  }
+  probs.sort((a,b)=> (b.p-a.p) || (a.n-b.n));
+
+  const IN = probs.slice(0,15).map(o=>o.n);
+  const OUT = probs.slice(15).map(o=>o.n);
+
+  // Montagem de linhas (25 únicas, 3 IN + 2 OUT, sem repetição)
+  const lines = [[],[],[],[],[]];
+
+  // distribui IN em 3 linhas sem "força": round-robin pela ordem do ranking
+  IN.forEach((n,i)=>{ lines[i%3].push(n); });
+
+  // distribui OUT em 2 linhas
+  OUT.forEach((n,i)=>{ lines[3+(i%2)].push(n); });
+
+  // segurança: garantir 5 dezenas por linha e 25 únicas
+  const flat = lines.flat();
+  const uniq = new Set(flat);
+  if(flat.length!==25 || uniq.size!==25 || !lines.every(l=>l.length===5)){
+    // fallback seguro: usa apenas o ranking e fatia (ainda IN/OUT + 25 únicas)
+    const ranked = probs.map(o=>o.n);
+    const IN2 = ranked.slice(0,15);
+    const OUT2 = ranked.slice(15);
+    const L = [[],[],[],[],[]];
+    IN2.forEach((n,i)=>L[i%3].push(n));
+    OUT2.forEach((n,i)=>L[3+(i%2)].push(n));
+    return { lines: L.map(l=>sortNum(l)), meta:{ mode:"predictive-fallback", IN:IN2, OUT:OUT2, weights:w } };
+  }
+
+  return {
+    lines: lines.map(l=>sortNum(l)),
+    meta: {
+      mode: "predictive",
+      lookback: LOOKBACK,
+      lags: LAGS,
+      IN,
+      OUT,
+      weights: w,
+      probs: probs // útil para debug interno
+    }
   };
-
-  // ordena por probabilidade de SAIR (top) e de NÃO SAIR (bottom)
-  const nums = [];
-  for(let i=1;i<=25;i++) nums.push(i);
-
-  const rankedIn = nums.slice().sort((a,b)=> (pred.probs[b]-pred.probs[a]) || (a-b));
-  const rankedOut = nums.slice().sort((a,b)=> (pred.probs[a]-pred.probs[b]) || (a-b));
-
-  // pools principais (limitados p/ não explodir combinações)
-  const poolInTop = rankedIn.slice(0, 18);
-  const poolOutTop = rankedOut.slice(0, 18);
-
-  const lines = [];
-
-  // Linha 1 (FORTE): 5 dezenas com maior chance de SAIR juntas (força + cooc/lift)
-  const L1 = bestKFromPool(poolInTop, 5, sShort, sMed, []);
-  lines.push(sortNum(L1 || rankedIn.slice(0,5)));
-
-  // Linha 2 (FORTE): próxima melhor 5, evitando repetir com L1
-  const used = new Set(lines[0]);
-  const poolIn2 = poolInTop.filter(n=>!used.has(n));
-  const L2 = bestKFromPool(poolIn2.length>=5?poolIn2:rankedIn.filter(n=>!used.has(n)), 5, sShort, sMed, lines, used);
-  lines.push(sortNum(L2 || rankedIn.filter(n=>!used.has(n)).slice(0,5)));
-  lines[1].forEach(n=>used.add(n));
-
-  // Linha 3 (TRANSIÇÃO): 4 do "SAIU" no último concurso com alta prob + 1 do "NÃO SAIU" com alta prob (padrão de virada)
-  const saiuRank = Array.from(saiuUlt).sort((a,b)=> (pred.probs[b]-pred.probs[a]) || (a-b));
-  const naoRank = naoSaiuUlt.slice().sort((a,b)=> (pred.probs[b]-pred.probs[a]) || (a-b));
-  const base3 = saiuRank.slice(0, 8); // candidatos do "saiu"
-  const comp3 = naoRank.slice(0, 8);  // candidatos do "não saiu"
-  let L3 = null;
-
-  // tenta montar 4+1 com qualidade
-  const q3 = bestKFromPool(base3, 4, sShort, sMed, lines);
-  if(q3){
-    const c3 = bestComplement(q3, comp3, sShort, sMed, lines);
-    if(c3!=null) L3 = sortNum([...q3, c3]);
-  }
-  if(!L3){
-    L3 = sortNum([...base3.slice(0,4), comp3[0]]);
-  }
-  lines.push(L3);
-  L3.forEach(n=>used.add(n));
-
-  // Linha 4 (DIVERSA - "NÃO SAIR"): 5 dezenas com maior chance de NÃO SAIR juntas (cooc/lift dentro do poolOut)
-  const poolOut4 = poolOutTop.filter(n=>!used.has(n));
-  const L4 = bestKFromPool(poolOut4.length>=5?poolOut4:poolOutTop, 5, sShort, sMed, lines);
-  lines.push(sortNum(L4 || rankedOut.slice(0,5)));
-  lines[3].forEach(n=>used.add(n));
-
-  // Linha 5 (COBERTURA): completa o mix com as melhores sobras (evita repetição e tenta balancear paridade/blocos)
-  const leftover = rankedIn.concat(rankedOut).filter((n,idx,self)=>self.indexOf(n)===idx).filter(n=>!used.has(n));
-  const pool5 = leftover.slice(0, 20);
-  const L5 = bestKFromPool(pool5.length>=5?pool5:leftover, 5, sShort, sMed, lines);
-  lines.push(sortNum(L5 || leftover.slice(0,5)));
-
-  // garante 5 linhas x 5 dezenas
-  const finalLines = lines.slice(0,5).map(l=>sortNum(l).slice(0,5));
-  return { lines: finalLines, sShort, sMed, model15p: model, ultimoConcurso: ultimo.concurso };
 }
 function combos3de5(){
   const r=[];
@@ -3899,23 +3873,6 @@ function explainLine(lineIdx, line, stats, kind){
   const odd = line.filter(n=>n%2===1).length;
   const even = 5 - odd;
 
-  // ✅ Padrão comportamental (lookback=3) — como as dezenas estavam nos 3 concursos anteriores
-  let behText = "";
-  try{
-    if(behavior15p && behavior15p.feats){
-      let repCt=0, presSum=0, gap0=0, gap4=0;
-      for(const n of line){
-        const f = behavior15p.feats[n];
-        if(!f) continue;
-        presSum += (f.pres3||0);
-        if(f.rep) repCt++;
-        if(f.gap3===0) gap0++;
-        if(f.gap3===4) gap4++;
-      }
-      behText = ` • comportamento(3): repetidas=${repCt}/5 • presenças_ult3=${presSum}/15 • gap0=${gap0} • gap4=${gap4}`;
-    }
-  }catch(e){}
-
   const c5 = countGroupTogether(line, concursosRef);
   const b4 = bestSubgroupTogether(line, 4, concursosRef);
   const b3 = bestSubgroupTogether(line, 3, concursosRef);
@@ -3932,9 +3889,9 @@ function explainLine(lineIdx, line, stats, kind){
     ? `✅ As 5 dezenas já saíram juntas <b>${c5}x</b> nessa janela.`
     : `ℹ️ As 5 juntas é raro (0x), então olhe principalmente as melhores 4/3/2 que mais se repetem.`;
 
-  const pairs = (kind==="forte") ? topPairsInGroup(line, stats, 3) : worstPairsInGroup(line, stats, 3);
+  const pairs = (String(kind).includes("IN")) ? topPairsInGroup(line, stats, 3) : worstPairsInGroup(line, stats, 3);
   const pairsTxt = pairs.map(p=>{
-  const isStrong = (kind==="forte");
+  const isStrong = (String(kind).includes("IN"));
   const icon = isStrong ? "✅" : "⚠️";
   const label = isStrong ? "apareceu junto" : "sem sair juntas";
   return `<span class="chip" style="padding:7px 10px;font-size:12px">
@@ -3942,17 +3899,16 @@ function explainLine(lineIdx, line, stats, kind){
   </span>`;
 }).join(" ");
 
-  const resumoBase = (kind==="forte")
-  ? `Linha montada com base em <b>frequência + recência</b> e combinações de dezenas que costumam aparecer juntas.`
-  : `Linha montada para ser <b>mais diferente</b>, evitando ficar “presa” nas mesmas combinações e mantendo um mix mais equilibrado.`;
-  const resumo = resumoBase + (behText ? `<br/><b>📍 Padrão preditivo:</b>${behText}` : "");
+  const resumo = (String(kind).includes("IN"))
+  ? `Linha montada pelo <b>modelo preditivo</b> (comportamento nos últimos 5 concursos + estágios 3–6 antes) indicando tendência de <b>SAIR</b>.`
+  : `Linha montada pelo <b>modelo preditivo</b> (comportamento nos últimos 5 concursos + estágios 3–6 antes) indicando tendência de <b>NÃO SAIR</b>.`;
 
   return `
     <div class="box">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
-        <b>${kind==="forte" ? "🔥 Linha " + lineIdx + " (FORTE)" : "🧊 Linha " + lineIdx + " (DIVERSA)"}</b>
+        <b>${String(kind).includes("IN") ? "🟦 Linha " + lineIdx + " ("+kind+")" : "🟥 Linha " + lineIdx + " ("+kind+")"}</b>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <span class="chip" style="padding:7px 10px;font-size:12px">Força: <b>${gs.sum.toFixed(1)}</b></span>
+          <span class="chip" style="padding:7px 10px;font-size:12px">Score: <b>${gs.sum.toFixed(1)}</b></span>
           <span class="chip" style="padding:7px 10px;font-size:12px">Lift médio: <b>${lf.avg.toFixed(2)}</b></span>
           <span class="chip" style="padding:7px 10px;font-size:12px">Co médio: <b>${co.avg.toFixed(2)}</b></span>
           <span class="chip" style="padding:7px 10px;font-size:12px">Soma freq: <b>${fs}</b></span>
@@ -3971,7 +3927,7 @@ function explainLine(lineIdx, line, stats, kind){
       </div>
 
       <div class="mini" style="margin-top:10px">
-        <b>${kind==="forte" ? "Combinações mais fortes (2 dezenas)" : "Combinações menos comuns (2 dezenas)"}:</b>
+        <b>${String(kind).includes("IN") ? "Combinações mais fortes (2 dezenas)" : "Combinações menos comuns (2 dezenas)"}:</b>
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">${pairsTxt}</div>
       </div>
     </div>
@@ -4195,7 +4151,7 @@ async function gerar15P(){
 
     const lineMeta = lines.map((l,idx)=>({
       idx: idx+1,
-      kind: (idx<3) ? "forte" : "diversa",
+      kind: (idx<3) ? "PREDIZ SAIR (IN)" : "PREDIZ NÃO SAIR (OUT)",
       strength: groupStrength(l,stats).sum,
       coAvg: groupCoSum(l,stats).avg,
       liftAvg: groupLiftAvg(l,stats).avg,
@@ -4259,7 +4215,7 @@ async function gerar15P(){
               ${lineMeta.map(m=>`
                 <tr>
                   <td><b>${m.idx}</b></td>
-                  <td>${m.kind==="forte" ? "FORTE" : "DIVERSA"}</td>
+                  <td>${String(m.kind).includes("IN") ? "PREDIZ SAIR (IN)" : "PREDIZ NÃO SAIR (OUT)"}</td>
                   <td class="mono">${m.line.map(format2).join(" - ")}</td>
                   <td><b>${m.strength.toFixed(1)}</b></td>
                   <td>${m.coAvg.toFixed(2)}</td>
@@ -4492,7 +4448,7 @@ function checkSavedGames(){
 
         if(Array.isArray(lines) && lines.length === 5){
           const lineRows = lines.map((l,idx)=>{
-            const kind = (idx < 3) ? "FORTE" : "DIVERSA";
+            const kind = (idx < 3) ? "PREDIZ SAIR (IN)" : "PREDIZ NÃO SAIR (OUT)";
             const dezenas = (l||[]).slice().map(Number).sort((a,b)=>a-b).map(format2).join(" - ");
             return `
               <tr>
