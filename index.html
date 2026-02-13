@@ -1672,7 +1672,8 @@ function buildPack4JogosPreditivo(payload){
   const RECENT_NORM = 6;   // referência (quando existir)
   const recentN = Math.min(RECENT_NORM, drawsAll.length);
   // se a janela for curta (ex.: 3/4/5), seguimos com o que houver, sem bloquear.
-concursos válidos.` };
+  if(!drawsAll.length){
+    return { ok:false, msg: "Nenhum concurso válido encontrado para montar o pacote." };
   }
 
   const draws = drawsAll.slice(-Math.max(IDEAL_TREINO, recentN)); // usa os últimos 21 quando possível
@@ -4944,6 +4945,15 @@ function renderJogosSalvosAoAbrir(){
   });
 
   box.innerHTML = html;
+}
+
+
+function completarAte15(lista){
+  const set = new Set((lista||[]).map(Number));
+  for(let d=1; d<=25 && set.size<15; d++){
+    if(!set.has(d)) set.add(d);
+  }
+  return Array.from(set).slice(0,15).sort((a,b)=>a-b);
 }
 
 </script>
