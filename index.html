@@ -1677,7 +1677,7 @@ function buildPack4JogosPreditivo(payload){
       motivos.push({ dezena:n, texto: (p!=null) ? `🧠 ${nome}: ${tag} (prob≈${(p*100).toFixed(1)}%)` : `🧠 ${nome}: ${tag}` });
     });
     motivos.push({
-      dezena: game[0],
+      dezena: (game.find(n=>Number.isFinite(Number(n))) ?? 1),
       texto: `📌 ${nome}: ${inCount} IN + ${outCount} OUT (${outOffsetDesc}) • Janela: ${concursos.length} concursos • Lookback: ${adv?.meta?.lookback||5} • Lags: ${(adv?.meta?.lags||[3,4,5,6]).join(",")}`
     });
     return motivos;
@@ -2796,7 +2796,7 @@ const motivosAgrupados = {};
 (result?.motivos || []).forEach(m=>{
   const key = (m.texto || "").trim();
   if(!motivosAgrupados[key]) motivosAgrupados[key] = [];
-  motivosAgrupados[key].push(m.dezena);
+  if(Number.isFinite(Number(m.dezena))) motivosAgrupados[key].push(Number(m.dezena));
 });
 
 const motivosHtml = Object.entries(motivosAgrupados)
@@ -2847,7 +2847,7 @@ const motivosHtml = Object.entries(motivosAgrupados)
 <div class="box" style="margin-top:12px">
   <b>🧾 Por que essas dezenas foram escolhidas?</b>
   <div class="mini" style="margin-top:8px">
-    Explicação simples (repetição do último + mix de quentes/mornas/frias + recência).
+    Explicação preditiva (comportamento nos últimos 5 concursos + estágios 3–6 antes • IN/OUT).
   </div>
   <div style="margin-top:10px;border:1px solid rgba(255,255,255,.10);border-radius:14px;overflow:hidden">
     ${motivosHtml}
@@ -3052,7 +3052,7 @@ async function gerarInvertida(silent=false){
     (motivos||[]).forEach(m=>{
       const key = (m.texto||"").trim();
       if(!motivosAgrupados[key]) motivosAgrupados[key]=[];
-      if(Number.isFinite(m.dezena)) motivosAgrupados[key].push(m.dezena);
+      if(Number.isFinite(m.dezena)) if(Number.isFinite(Number(m.dezena))) motivosAgrupados[key].push(Number(m.dezena));
     });
     const motivosHtml = Object.entries(motivosAgrupados).map(([k,arr])=>{
       const nums = arr.sort((a,b)=>a-b).map(format2).join(" - ");
@@ -3112,7 +3112,7 @@ async function gerarTecnicaPremiada(silent=false){
       (motivos||[]).forEach(m=>{
         const key = (m.texto||"").trim();
         if(!motivosAgrupados[key]) motivosAgrupados[key]=[];
-        if(Number.isFinite(m.dezena)) motivosAgrupados[key].push(m.dezena);
+        if(Number.isFinite(m.dezena)) if(Number.isFinite(Number(m.dezena))) motivosAgrupados[key].push(Number(m.dezena));
       });
       const motivosHtml = Object.entries(motivosAgrupados).map(([k,arr])=>{
         const nums = arr.sort((a,b)=>a-b).map(format2).join(" - ");
@@ -3688,12 +3688,22 @@ async function buildLines15PAdvanced(payloadShort, qtdShort){
   const LAGS = [3,4,5,6];
   const maxLag = Math.max.apply(null, LAGS);
 
+  function getDezenas(c){
+    const d = c && c.dezenas;
+    if(Array.isArray(d)) return d;
+    if(typeof d === "string"){
+      const nums = d.match(/\d{1,2}/g) || [];
+      return nums.map(x=>Number(x));
+    }
+    return [];
+  }
+
   if(concursos.length < (LOOKBACK + maxLag + 2)){
     // fallback mínimo: usa frequência simples por recência, mas ainda respeita IN/OUT e 25 únicas
     const freq = Array(26).fill(0);
     concursos.forEach((c,idx)=>{
       const w = 1 + (idx/(concursos.length||1)); // leve recência
-      (c.dezenas||[]).map(toNum).forEach(n=>{ if(n>=1&&n<=25) freq[n]+=w; });
+      (getDezenas(c)||[]).map(toNum).forEach(n=>{ if(n>=1&&n<=25) freq[n]+=w; });
     });
     const ranked = [...Array(25)].map((_,i)=>i+1).sort((a,b)=>freq[b]-freq[a] || a-b);
     const IN = ranked.slice(0,15);
