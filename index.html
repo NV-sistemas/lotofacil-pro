@@ -2468,7 +2468,8 @@ function verConcursos(){
 async function acaoAnalise(){
   if(!access.premium){ alert("🔒 Gerar análise exige Premium."); return; }
 
-  const qtd = qtdSelecionada();
+  const qtdUser = qtdSelecionada();
+  const qtd = Math.max(4, qtdUser);
   try{
     await prepararContextoBase(qtd);
     const payload = lastPayload;
@@ -3618,7 +3619,7 @@ async function getMediumPayloadFor15P(medN){
   }
 }
 
-async /* =========================
+/* =========================
    ✅ NOVA LÓGICA 15P (DNA FIXO por LETRAS A–H)
    - Letras = padrão de presença nos ÚLTIMOS 3 concursos (bitmask 3)
    - Padrão (DNA) é FIXO (aprendido no treino dos 21 concursos)
@@ -3636,8 +3637,142 @@ const LF_15P_PATTERN_TO_LETTER = {
 /* ✅ DNA FIXO (derivado do treino em 21 concursos – com janela de 3 anteriores)
    - Winners (15 sorteadas) e Losers (10 não sorteadas) em média:
 */
-const LF_15P_DNA_WIN = { A:4, B:2, C:2, D:2, E:1, F:1, G:2, H:1 }; // soma 15
-const LF_15P_DNA_LOSE_TARGET = { A:2, B:1, C:2, D:1, E:1, F:1, G:1, H:1 }; // soma 10 (alvo – melhor esforço)
+const LF_15P_TRAIN_CONCURSOS = [
+  { concurso: 3592, dezenas: [1,4,5,6,7,9,12,13,17,18,20,21,22,23,25] },
+  { concurso: 3593, dezenas: [1,3,4,6,7,8,9,10,12,15,18,19,23,24,25] },
+  { concurso: 3594, dezenas: [1,2,4,5,7,8,9,11,14,15,18,20,21,23,24] },
+  { concurso: 3595, dezenas: [1,2,4,5,6,8,10,12,13,15,16,20,21,22,25] },
+  { concurso: 3596, dezenas: [1,2,3,4,5,6,7,8,14,15,16,18,20,21,22] },
+  { concurso: 3597, dezenas: [1,4,5,7,10,11,13,14,15,16,19,20,21,23,25] },
+  { concurso: 3598, dezenas: [1,3,4,5,6,7,8,9,11,16,18,21,22,23,24] },
+  { concurso: 3599, dezenas: [1,4,6,7,8,9,11,12,13,16,19,20,21,23,24] },
+  { concurso: 3600, dezenas: [3,4,5,6,7,8,9,11,12,16,17,20,21,22,25] },
+  { concurso: 3601, dezenas: [2,3,4,6,7,8,9,11,16,17,20,21,23,24,25] },
+  { concurso: 3602, dezenas: [1,2,3,4,5,6,8,9,15,18,19,20,22,23,24] },
+  { concurso: 3603, dezenas: [2,4,5,9,10,11,12,14,15,17,19,20,21,22,24] },
+  { concurso: 3604, dezenas: [1,2,3,6,7,8,11,13,15,16,19,21,22,23,24] },
+  { concurso: 3605, dezenas: [1,3,4,7,10,12,13,14,19,20,21,22,23,24,25] },
+  { concurso: 3606, dezenas: [2,3,6,7,9,11,12,14,15,17,19,20,21,23,24] },
+  { concurso: 3607, dezenas: [1,2,4,5,6,8,9,13,14,15,16,18,19,20,23] },
+  { concurso: 3608, dezenas: [2,5,6,8,9,11,14,16,17,18,19,20,22,23,25] },
+  { concurso: 3609, dezenas: [2,5,6,8,9,10,11,12,13,17,19,20,22,24,25] },
+  { concurso: 3610, dezenas: [1,3,5,7,8,10,13,14,17,20,21,22,23,24,25] },
+  { concurso: 3611, dezenas: [1,2,3,4,5,6,10,11,12,14,15,17,18,19,25] },
+  { concurso: 3612, dezenas: [4,6,8,9,11,14,15,16,17,18,19,20,21,22,25] }
+];
+
+let LF_15P_DNA_WIN = null;
+let LF_15P_DNA_LOSE_TARGET = null;
+
+// ✅ Treino: calcula DNA fixo (WIN=15 sorteadas, LOSE=10 não sorteadas) usando janela de 3 concursos anteriores
+function lf15pComputeDNAFromTrain(){
+  // Garante dependências
+  if(typeof lf15pLetter !== "function") throw new Error("lf15pLetter() não carregou");
+  const order = ["A","B","C","D","E","F","G","H"];
+
+  const winCounts = Object.fromEntries(order.map(L=>[L,0]));
+  const loseCounts = Object.fromEntries(order.map(L=>[L,0]));
+  let cases = 0;
+
+  // usa cada concurso como "alvo", com prev3 = t-3..t-1
+  for(let i=3;i<LF_15P_TRAIN_CONCURSOS.length;i++){
+    const prev3 = [
+      new Set(LF_15P_TRAIN_CONCURSOS[i-3].dezenas),
+      new Set(LF_15P_TRAIN_CONCURSOS[i-2].dezenas),
+      new Set(LF_15P_TRAIN_CONCURSOS[i-1].dezenas),
+    ];
+    const winSet = new Set(LF_15P_TRAIN_CONCURSOS[i].dezenas);
+    // winners (15)
+    for(const n of winSet){
+      const L = lf15pLetter(n, prev3);
+      winCounts[L] = (winCounts[L]||0) + 1;
+    }
+    // losers (10) = complement
+    for(let n=1;n<=25;n++){
+      if(winSet.has(n)) continue;
+      const L = lf15pLetter(n, prev3);
+      loseCounts[L] = (loseCounts[L]||0) + 1;
+    }
+    cases++;
+  }
+
+  function toFixedTarget(counts, targetTotal, perCaseTotal){
+    // média por caso
+    const avg = {};
+    const frac = {};
+    let sumFloor = 0;
+
+    for(const L of order){
+      const v = (counts[L]||0) / Math.max(1,cases); // média
+      avg[L] = v;
+      const ideal = v; // já é média por caso (deve somar ~ perCaseTotal)
+      const fl = Math.floor(ideal);
+      frac[L] = ideal - fl;
+      avg[L] = fl;
+      sumFloor += fl;
+    }
+
+    // Ajusta para bater exatamente o targetTotal (15 ou 10)
+    let remaining = targetTotal - sumFloor;
+
+    // Se faltou, distribui pelos maiores restos; se sobrou (negativo), tira dos menores restos (com limite 0)
+    if(remaining > 0){
+      const letters = order.slice().sort((a,b)=> frac[b]-frac[a] || (a<b?-1:1));
+      let k=0;
+      while(remaining>0){
+        const L = letters[k % letters.length];
+        avg[L] += 1;
+        remaining--;
+        k++;
+      }
+    }else if(remaining < 0){
+      const letters = order.slice().sort((a,b)=> frac[a]-frac[b] || (a<b?-1:1));
+      let k=0;
+      while(remaining<0){
+        const L = letters[k % letters.length];
+        if(avg[L] > 0){
+          avg[L] -= 1;
+          remaining++;
+        }
+        k++;
+        if(k>2000) break;
+      }
+    }
+
+    // garantia determinística e soma exata
+    const sum = order.reduce((s,L)=>s+(avg[L]||0),0);
+    if(sum !== targetTotal){
+      // fallback simples: ajusta na ordem
+      let diff = targetTotal - sum;
+      for(const L of order){
+        if(diff===0) break;
+        const canDec = diff<0 ? Math.min(avg[L], -diff) : 0;
+        if(canDec){
+          avg[L]-=canDec; diff+=canDec;
+        }
+      }
+      for(const L of order){
+        if(diff===0) break;
+        if(diff>0){ avg[L]+=1; diff-=1; }
+      }
+    }
+    return avg;
+  }
+
+  // Por caso, winners = 15, losers = 10
+  const winDNA = toFixedTarget(winCounts, 15, 15);
+  const loseDNA = toFixedTarget(loseCounts, 10, 10);
+
+  return { winDNA, loseDNA, cases, winCounts, loseCounts };
+}
+
+// ✅ Inicializa DNA 1x, de forma segura
+function lf15pInitDNA(){
+  if(LF_15P_DNA_WIN && LF_15P_DNA_LOSE_TARGET) return;
+  const r = lf15pComputeDNAFromTrain();
+  LF_15P_DNA_WIN = r.winDNA;
+  LF_15P_DNA_LOSE_TARGET = r.loseDNA;
+}
 
 /* Helpers p/ 15P */
 function lf15pPresencePattern(num, prev3){
@@ -3858,7 +3993,9 @@ function lf15pBuild10GamesFrom5Lines(lines5){
 
 /* ✅ Constrói saída final do 15P (5 linhas + 10 jogos + resumo letras) */
 function buildLines15PAdvanced(concursos){
-  // concursos: lista em ordem crescente; precisa ter pelo menos 4 (último + 3 anteriores)
+  
+  lf15pInitDNA();
+// concursos: lista em ordem crescente; precisa ter pelo menos 4 (último + 3 anteriores)
   if(!concursos || concursos.length < 4){
     return { ok:false, msg:"Preciso de pelo menos 4 concursos (último + 3 anteriores) para montar o padrão 15P." };
   }
