@@ -1894,7 +1894,16 @@ function renderListaConcursos(concursos){
   }).join("");
   return `
     <table class="table">
-      <thead><tr><th>Concurso</th><th>Data</th><th>Dezenas</th></tr></thead>
+      <thead>
+              <tr>
+                <th>Linha</th>
+                <th>Tipo</th>
+                <th>Dezenas</th>
+                <th>Letras (A–H)</th>
+                <th>Perfil</th>
+                <th>Estrutura</th>
+              </tr>
+            </thead>
       <tbody>${rows}</tbody>
     </table>
   `;
@@ -3919,72 +3928,91 @@ function bestSubgroupTogether(line, k, concursos){
   return best;
 }
 
-function explainLine(lineIdx, line, stats, kind){
-  const gs = groupStrength(line, stats);
-  const co = groupCoSum(line, stats);
-  const lf = groupLiftAvg(line, stats);
-  const fs = groupFreqSum(line, stats);
-    // ✅ Resumo real: 5/4/3/2 juntas na janela
-  const concursosRef = stats.concursosRef || [];
-  const odd = line.filter(n=>n%2===1).length;
+function maxRunSorted(arr){
+  if(!arr.length) return 0;
+  let best=1, cur=1;
+  for(let i=1;i<arr.length;i++){
+    if(arr[i]===arr[i-1]+1){ cur++; best=Math.max(best,cur); }
+    else cur=1;
+  }
+  return best;
+}
+function primesCount(arr){
+  const primes = new Set([2,3,5,7,11,13,17,19,23]);
+  let c=0; for(const n of arr) if(primes.has(n)) c++;
+  return c;
+}
+function bandCounts(arr){
+  const counts = Array(5).fill(0);
+  for(const n of arr){
+    const b = Math.floor((n-1)/5); // 0..4
+    counts[b]++;
+  }
+  return counts;
+}
+function majorityBand(arr){
+  const bc = bandCounts(arr);
+  let best=0;
+  for(let i=1;i<5;i++) if(bc[i]>bc[best]) best=i;
+  return best+1; // 1..5
+}
+function profileBuckets(arr, lettersMap){
+  const buckets = {hot:0, med:0, low:0, zero:0};
+  const letters = arr.map(n => lettersMap?.[n] || "?");
+  for(const L of letters){
+    if(L==="A"||L==="B") buckets.hot++;
+    else if(L==="C"||L==="D") buckets.med++;
+    else if(L==="E"||L==="F"||L==="G") buckets.low++;
+    else if(L==="H") buckets.zero++;
+  }
+  return {buckets, letters};
+}
+
+function explainLine(lineIdx, line, ctx, kind){
+  const arr = line.slice().map(Number).sort((a,b)=>a-b);
+  const odd = arr.filter(n=>n%2===1).length;
   const even = 5 - odd;
+  const primes = primesCount(arr);
+  const maxRun = maxRunSorted(arr);
+  const band = majorityBand(arr);
+  const heavyBand = ctx?.heavyBand || null;
 
-  const c5 = countGroupTogether(line, concursosRef);
-  const b4 = bestSubgroupTogether(line, 4, concursosRef);
-  const b3 = bestSubgroupTogether(line, 3, concursosRef);
-  const b2 = bestSubgroupTogether(line, 2, concursosRef);
+  const {buckets, letters} = profileBuckets(arr, ctx?.lettersMap || {});
+  const lettersTxt = letters.join(" ");
+  const bucketTxt = `Quentes(A/B): <b>${buckets.hot}</b> • Médias(C/D): <b>${buckets.med}</b> • Baixas(E/F/G): <b>${buckets.low}</b> • Adormecidas(H): <b>${buckets.zero}</b>`;
 
-  const txtParidade =
-    (odd>even)
-      ? `${odd} ímpares / ${even} pares (mais comum na Lotofácil)`
-      : (even>odd)
-        ? `${odd} ímpares / ${even} pares (um pouco mais “par”, mas ok)`
-        : `${odd} ímpares / ${even} pares (equilibrado)`;
-
-  const realMsg = (c5>0)
-    ? `✅ As 5 dezenas já saíram juntas <b>${c5}x</b> nessa janela.`
-    : `ℹ️ As 5 juntas é raro (0x), então olhe principalmente as melhores 4/3/2 que mais se repetem.`;
-
-  const pairs = (kind==="forte") ? topPairsInGroup(line, stats, 3) : worstPairsInGroup(line, stats, 3);
-  const pairsTxt = pairs.map(p=>{
-  const isStrong = (kind==="forte");
-  const icon = isStrong ? "✅" : "⚠️";
-  const label = isStrong ? "apareceu junto" : "sem sair juntas";
-  return `<span class="chip" style="padding:7px 10px;font-size:12px">
-    ${icon} <b>${format2(p.a)}-${format2(p.b)}</b> • ${label}: <b>${p.co}x</b>
-  </span>`;
-}).join(" ");
+  const estrut = [];
+  if(maxRun>=4) estrut.push(`sequência <b>${maxRun}</b>`);
+  else estrut.push(`sequência <b>${maxRun}</b>`);
+  estrut.push(`paridade <b>${odd}I/${even}P</b>`);
+  estrut.push(`primos <b>${primes}</b>`);
+  estrut.push(`linha-base <b>${band}</b>${heavyBand===band ? " (pesada)" : ""}`);
 
   const resumo = (kind==="forte")
-  ? `Linha montada com base em <b>frequência + recência</b> e combinações de dezenas que costumam aparecer juntas.`
-  : `Linha montada para ser <b>mais diferente</b>, evitando ficar “presa” nas mesmas combinações e mantendo um mix mais equilibrado.`;
+    ? `Linha construída pelo <b>PADRÃO FIXO</b>: mistura de comportamentos (letras A–H) típica antes de concursos fortes, com foco em <b>estrutura</b> (linha pesada/seq/paridade/primos). <b>Não</b> usa frequência, recência ou “pontuação” do passado para escolher dezenas.`
+    : `Linha de <b>contrapadrão</b>: perfil típico de dezenas que <b>podem ficar fora</b>. Mistura médias e quentes também, pois “estar quente” não garante sorteio. Essa linha existe para completar o método 15P (3 linhas entre 5).`;
+
+  const tag = (kind==="forte") ? "🔥" : "🧊";
+  const title = `${tag} Linha ${lineIdx} (${kind==="forte" ? "FORTE" : "DIVERSA"})`;
 
   return `
     <div class="box">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
-        <b>${kind==="forte" ? "🔥 Linha " + lineIdx + " (FORTE)" : "🧊 Linha " + lineIdx + " (DIVERSA)"}</b>
+        <b>${title}</b>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <span class="chip" style="padding:7px 10px;font-size:12px">Força: <b>${gs.sum.toFixed(1)}</b></span>
-          <span class="chip" style="padding:7px 10px;font-size:12px">Lift médio: <b>${lf.avg.toFixed(2)}</b></span>
-          <span class="chip" style="padding:7px 10px;font-size:12px">Co médio: <b>${co.avg.toFixed(2)}</b></span>
-          <span class="chip" style="padding:7px 10px;font-size:12px">Soma freq: <b>${fs}</b></span>
+          <span class="chip" style="padding:7px 10px;font-size:12px">Letras: <b>${lettersTxt}</b></span>
+          <span class="chip" style="padding:7px 10px;font-size:12px">${estrut.join(" • ")}</span>
         </div>
       </div>
 
-      <div class="numbers" style="justify-content:flex-start;margin-top:10px">${renderBallsInline(line)}</div>
+      <div class="numbers" style="justify-content:flex-start;margin-top:10px">${renderBallsInline(arr)}</div>
+
       <div class="mini"><b>Por que se juntaram:</b> ${resumo}</div>
-            <div class="mini" style="margin-top:10px">
-        <b>📌 Resumo real (juntas na janela):</b><br/>
-        <b>5 juntas:</b> <span class="mono">${line.map(format2).join("-")}</span> • <b>${c5}x</b><br/>
-        <b>4 juntas:</b> <span class="mono">${(b4.group||[]).map(format2).join("-")}</span> • <b>${b4.count}x</b><br/>
-        <b>3 juntas:</b> <span class="mono">${(b3.group||[]).map(format2).join("-")}</span> • <b>${b3.count}x</b><br/>
-        <b>2 juntas:</b> <span class="mono">${(b2.group||[]).map(format2).join("-")}</span> • <b>${b2.count}x</b><br/>
-        <div style="margin-top:8px">${realMsg}</div>
-      </div>
 
       <div class="mini" style="margin-top:10px">
-        <b>${kind==="forte" ? "Combinações mais fortes (2 dezenas)" : "Combinações menos comuns (2 dezenas)"}:</b>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">${pairsTxt}</div>
+        <b>📌 Resumo comportamental (letras A–H):</b><br/>
+        ${bucketTxt}<br/>
+        <div style="margin-top:8px"><b>Estrutura aplicada:</b> ${estrut.join(" • ")}</div>
       </div>
     </div>
   `;
@@ -4205,15 +4233,66 @@ async function gerar15P(){
 
     initUserLines15FromSystem(lines);
 
-    const lineMeta = lines.map((l,idx)=>({
-      idx: idx+1,
-      kind: (idx<3) ? "forte" : "diversa",
-      strength: groupStrength(l,stats).sum,
-      coAvg: groupCoSum(l,stats).avg,
-      liftAvg: groupLiftAvg(l,stats).avg,
-      freqSum: groupFreqSum(l,stats),
-      line: l
-    }));
+    const explainCtx = { lettersMap: adv.lettersMap || {}, heavyBand: adv.heavyBand || null };
+
+    function maxRunSortedLocal(arr){
+      if(!arr.length) return 0;
+      let best=1, cur=1;
+      for(let i=1;i<arr.length;i++){
+        if(arr[i]===arr[i-1]+1){ cur++; best=Math.max(best,cur); } else cur=1;
+      }
+      return best;
+    }
+    function primesCountLocal(arr){
+      const primes = new Set([2,3,5,7,11,13,17,19,23]);
+      let c=0; for(const n of arr) if(primes.has(n)) c++;
+      return c;
+    }
+    function profileShort(line){
+      const letters = line.map(n => explainCtx.lettersMap[n] || "?");
+      let hot=0, med=0, low=0, zero=0;
+      for(const L of letters){
+        if(L==="A"||L==="B") hot++;
+        else if(L==="C"||L==="D") med++;
+        else if(L==="E"||L==="F"||L==="G") low++;
+        else if(L==="H") zero++;
+      }
+      return { letters, hot, med, low, zero };
+    }
+    function majorityBandLocal(line){
+      const bc = [0,0,0,0,0];
+      for(const n of line){
+        const b = Math.floor((n-1)/5);
+        bc[b] += 1;
+      }
+      let best=0;
+      for(let i=1;i<5;i++) if(bc[i]>bc[best]) best=i;
+      return best+1;
+    }
+
+    const lineMeta = lines.map((l,idx)=> {
+      const line = l.slice().map(Number).sort((a,b)=>a-b);
+      const odd = line.filter(n=>n%2===1).length;
+      const even = 5 - odd;
+      const primes = primesCountLocal(line);
+      const run = maxRunSortedLocal(line);
+      const band = majorityBandLocal(line);
+      const p = profileShort(line);
+      const struct = [
+        `seq ${run}`,
+        `${odd}I/${even}P`,
+        `primos ${primes}`,
+        `linha ${band}${(explainCtx.heavyBand===band) ? " (pesada)" : ""}`
+      ];
+      return {
+        idx: idx+1,
+        kind: (idx<3) ? "forte" : "diversa",
+        lettersTxt: p.letters.join(" "),
+        profileTxt: `AB:${p.hot} CD:${p.med} EFG:${p.low} H:${p.zero}`,
+        structureTxt: struct.join(" • "),
+        line
+      };
+    });
 
     const jogosHtml = jogos.map((j, idx)=>{
       return `
@@ -4244,7 +4323,7 @@ async function gerar15P(){
       <div class="box" style="margin-top:12px">
         <b>📌 Linhas 1 a 5 (geradas pelo sistema)</b>
         <div class="mini" style="margin-top:6px">
-          O sistema usa um <b>PADRÃO FIXO</b> (aprendido no treino) + <b>classificação por letras (A–H)</b> na janela escolhida, com estrutura (linha pesada, sequência, paridade, primos).
+          O sistema usa um <b>PADRÃO FIXO</b> aprendido no treino. Em cada geração, ele <b>classifica as dezenas por comportamento (letras A–H)</b> na janela escolhida e aplica a estrutura vencedora (linha pesada, sequência, paridade e oscilação de primos). <b>Não</b> usa frequência, recência ou pontuação do passado para escolher dezenas.
         </div>
         <div style="margin-top:12px;overflow:auto">
           <table class="table">
@@ -4253,18 +4332,9 @@ async function gerar15P(){
                 <th>Linha</th>
                 <th>Tipo</th>
                 <th>Dezenas</th>
-                <th>Força</th>
-                <th>
-                  <span class="tip" data-tip="Co médio = média de vezes que os pares da linha aparecem juntos nos concursos da janela. Quanto maior, mais ‘andam juntos’.">
-                    Co médio <span class="q">ⓘ</span>
-                  </span>
-                </th>
-                <th>
-                  <span class="tip" data-tip="Lift médio = quão acima do esperado (pelo acaso) os pares aparecem juntos. >1 indica associação positiva; quanto maior, mais forte a relação.">
-                    Lift médio <span class="q">ⓘ</span>
-                  </span>
-                </th>
-                <th>Soma freq</th>
+                <th>Letras (A–H)</th>
+                <th>Perfil</th>
+                <th>Estrutura</th>
               </tr>
             </thead>
             <tbody>
@@ -4273,10 +4343,9 @@ async function gerar15P(){
                   <td><b>${m.idx}</b></td>
                   <td>${m.kind==="forte" ? "FORTE" : "DIVERSA"}</td>
                   <td class="mono">${m.line.map(format2).join(" - ")}</td>
-                  <td><b>${m.strength.toFixed(1)}</b></td>
-                  <td>${m.coAvg.toFixed(2)}</td>
-                  <td>${m.liftAvg.toFixed(2)}</td>
-                  <td>${m.freqSum}</td>
+                  <td class="mono">${m.lettersTxt}</td>
+                  <td class="mono">${m.profileTxt}</td>
+                  <td>${m.structureTxt}</td>
                 </tr>
               `).join("")}
             </tbody>
