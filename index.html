@@ -468,15 +468,6 @@ const BUY_LINK_15P = "https://pay.hotmart.com/Y104149008G?off=eehchnv4";
 const ADMIN_EMAIL = "admin@lotofacilprime.com";
 
 /* ✅ Limite Free (1x) por usuário */
-
-// === Helper Set seguro (evita erro .has em undefined) ===
-function ensureSet(v){
-  if(v instanceof Set) return v;
-  if(Array.isArray(v)) return new Set(v.map(Number));
-  if(v==null) return new Set();
-  try { return new Set(Array.from(v).map(Number)); } catch(e){ return new Set(); }
-}
-
 function freeKey(uid){ return `lf_free_used_v1_${uid||"anon"}`; }
 /* =========================
    ✅ NOVA SEQUÊNCIA 8/9/10 (20% / 50% / 30%)
@@ -1174,7 +1165,7 @@ function inverterJogoPorColPerm(jogo, colMap){
     const col = ((num-1)%5) + 1;       // 1..5
     const newCol = colMap[col-1];      // 1..5
     const newNum = row*5 + newCol;     // 1..25
-    if(!set.has(newNum)){ set.add(newNum); out.push(newNum); }
+    if(!safeHas(set,newNum)){ set.add(newNum); out.push(newNum); }
   }
   // mantém ordenado para exibição padrão
   out.sort((a,b)=>a-b);
@@ -1216,7 +1207,7 @@ function buildCardSVG(selectedNums, title){
       const n = r*5 + (c+1);
       const x = startX + c*(cell+gap);
       const y = startY + r*(cell+gap);
-      const on = sel.has(n);
+      const on = safeHas(sel,n);
       const stroke = on ? "rgba(250,204,21,0.70)" : "rgba(255,255,255,0.16)";
       const fill = "rgba(0,0,0,0.70)";
       const numColor = on ? "#facc15" : "#ffffff";
@@ -1296,7 +1287,7 @@ function distribuicaoBlocos(jogo){
 }
 function repetidasDoUltimo(jogo, ultimoDezenas){
   const setUlt = new Set((ultimoDezenas||[]).map(toNum));
-  return sortNum(jogo.filter(n=>setUlt.has(n)));
+  return sortNum(jogo.filter(n=>safeHas(setUlt,n)));
 }
 
 /* 🔥/🌡️/🧊 Classificação por ranking (janela) */
@@ -1331,7 +1322,7 @@ function countGroupTogetherInWindow(group, concursos){
     const setC = new Set((c.dezenas||[]).map(toNum));
     let ok = true;
     for(const n of gset){
-      if(!setC.has(n)){ ok=false; break; }
+      if(!safeHas(setC,n)){ ok=false; break; }
     }
     if(ok) count++;
   }
@@ -1408,7 +1399,7 @@ function bestSubsetFromPool(pool, k, concursos, freq, modern, avoidSet){
 
   for(const g of all){
     const together = countGroupTogetherInWindow(g, concursos);
-    const overlap  = g.reduce((s,n)=>s + (avoid.has(n)?1:0), 0);
+    const overlap  = g.reduce((s,n)=>s + (safeHas(avoid,n)?1:0), 0);
     const sumFreq  = g.reduce((a,n)=>a + (freq?.[n]||0), 0);
     const sumGap   = g.reduce((a,n)=>a + Number(modern?.gap?.[n]||0), 0);
     const key      = g.map(format2).join("-");
@@ -1434,7 +1425,7 @@ function splitInOutByLatest(game, latestDezenas){
   const inLast = [];
   const outLast = [];
   (game||[]).map(toNum).forEach(n=>{
-    if(latestSet.has(n)) inLast.push(n);
+    if(safeHas(latestSet,n)) inLast.push(n);
     else outLast.push(n);
   });
   inLast.sort((a,b)=>a-b);
@@ -1485,11 +1476,8 @@ function getDominantEvenOdd(concursos){
    - sem aleatório
 */
 function pickFromListDeterministic(list, needed, set, targetPares, lastSet){
-  set = ensureSet(set);
-  lastSet = ensureSet(lastSet);
-
   const out = [];
-  const last = lastSet;
+  const last = lastSet || new Set();
 
   while(out.length < needed){
     const cur = [...set];
@@ -1500,8 +1488,8 @@ function pickFromListDeterministic(list, needed, set, targetPares, lastSet){
 
     // 1) tenta pegar número com paridade “necessária” + não repetida do último
     for(const n of list){
-      if(set.has(n)) continue;
-      if(last.has(n)) continue;
+      if(safeHas(set,n)) continue;
+      if(safeHas(last,n)) continue;
 
       if(needMoreEven && (n%2===0)) { picked = n; break; }
       if(!needMoreEven && (n%2===1)) { picked = n; break; }
@@ -1510,8 +1498,8 @@ function pickFromListDeterministic(list, needed, set, targetPares, lastSet){
     // 2) se não achou por paridade, pega o primeiro disponível (não repetida do último)
     if(picked === null){
       for(const n of list){
-        if(set.has(n)) continue;
-        if(last.has(n)) continue;
+        if(safeHas(set,n)) continue;
+        if(safeHas(last,n)) continue;
         picked = n; break;
       }
     }
@@ -1622,6 +1610,12 @@ function _getDrawArraysFromConcursos(concursos){
   return arr;
 }
 
+
+// === SAFE HAS (evita crash quando algum Set estiver undefined) ===
+function safeHas(s, v){
+  return !!(s && typeof s.has === 'function' && Set.prototype.has.call(s, v));
+}
+
 function _setOf(arr){ return new Set(arr||[]); }
 
 function _priorityPersistencia(n, sets){
@@ -1635,13 +1629,13 @@ function _priorityPersistencia(n, sets){
 
 function _pickTopUnique(cands, k, usedSet, scoreFn){
   const scored = (cands||[])
-    .filter(n=>!usedSet.has(n))
+    .filter(n=>!safeHas(usedSet,n))
     .map(n=>({n, s: scoreFn ? scoreFn(n) : 0}))
     .sort((a,b)=> (b.s - a.s) || (a.n - b.n));
   const out=[];
   for(const it of scored){
     if(out.length>=k) break;
-    if(!usedSet.has(it.n)){
+    if(!safeHas(usedSet,it.n)){
       usedSet.add(it.n);
       out.push(it.n);
     }
@@ -1656,12 +1650,12 @@ function _ensureDiffAndUniq(games, allPool){
   for(let i=0;i<games.length;i++){
     let g = games[i].slice();
     let k = key(g);
-    if(!seen.has(k)){ seen.add(k); games[i]=g; continue; }
+    if(!safeHas(seen,k)){ seen.add(k); games[i]=g; continue; }
 
     // se repetiu, troca a última dezena por próxima disponível fora do jogo
     const setG = new Set(g);
     for(const cand of allPool){
-      if(!setG.has(cand)){
+      if(!safeHas(setG,cand)){
         // substitui a última
         setG.delete(g[g.length-1]);
         g[g.length-1]=cand;
@@ -1679,17 +1673,15 @@ function buildPack4JogosPreditivo(payload){
   const concursos = payload?.concursos || [];
   const drawsAll = _getDrawArraysFromConcursos(concursos);
 
-  // ✅ Padrão comportamental fixo: funciona com qualquer janela.
-  const IDEAL_TREINO = 21; // ideal (quando existir)
-  const RECENT_NORM = 6;   // referência (quando existir)
-  const recentN = Math.min(RECENT_NORM, drawsAll.length);
-  // se a janela for curta (ex.: 3/4/5), seguimos com o que houver, sem bloquear.
-  if(!drawsAll.length){
-    return { ok:false, msg: "Nenhum concurso válido encontrado para montar o pacote." };
+  // ✅ Para o padrão comportamental fixo (lags 3..6) precisamos de base mínima
+  const MIN_BASE = 21;   // "treino" ideal
+  const MIN_RECENT = 6;  // para checar overlaps recentes e evitar cópia
+  if(drawsAll.length < MIN_RECENT){
+    return { ok:false, err:`Janela insuficiente: precisa de pelo menos ${MIN_RECENT} concursos válidos.` };
   }
 
-  const draws = drawsAll.slice(-Math.max(IDEAL_TREINO, recentN)); // usa os últimos 21 quando possível
-  const last6 = drawsAll.slice(-recentN).map(_setOf);
+  const draws = drawsAll.slice(-Math.max(MIN_BASE, MIN_RECENT)); // usa os últimos 21 quando possível
+  const last6 = drawsAll.slice(-MIN_RECENT).map(_setOf);
 
   const LAGS = [3,4,5,6];
 
@@ -1706,7 +1698,7 @@ function buildPack4JogosPreditivo(payload){
     return Math.sqrt(v||0);
   }
   function interSize(aSet, bSet){
-    let c=0; aSet.forEach(v=>{ if(bSet.has(v)) c++; });
+    let c=0; aSet.forEach(v=>{ if(safeHas(bSet,v)) c++; });
     return c;
   }
   function asSet(arr){ return new Set(arr.map(Number)); }
@@ -1758,7 +1750,7 @@ function buildPack4JogosPreditivo(payload){
 
   // coocorrência recente (últimos 6): pares presentes pelo menos 1x
   const recentPair = new Map();
-  const recentDraws = drawsAll.slice(-recentN);
+  const recentDraws = drawsAll.slice(-MIN_RECENT);
   recentDraws.forEach(d=>{
     combos2(d).forEach(([a,b])=>{
       const k=a<b?`${a}-${b}`:`${b}-${a}`;
@@ -1879,7 +1871,7 @@ function buildPack4JogosPreditivo(payload){
       const setCur = new Set(cur);
       let inVal = randChoice(ALL);
       let guard=0;
-      while(setCur.has(inVal) && guard++<50) inVal = randChoice(ALL);
+      while(safeHas(setCur,inVal) && guard++<50) inVal = randChoice(ALL);
       cur[outIdx]=inVal;
       cur.sort((a,b)=>a-b);
       const s = scoreCandidate(cur, variant);
@@ -1961,7 +1953,7 @@ function buildPack4JogosPreditivo(payload){
     const mx = maxOverlapRecent(setJ);
     const ps = pairStats(jogo);
     const linhas = [];
-    linhas.push({dezena:jogo[0], texto:`📌 Padrão fixo comportamental (${label}) • Treino: últimos ${Math.min(IDEAL_TREINO, drawsAll.length)} concursos • Lags: 3–6`});
+    linhas.push({dezena:jogo[0], texto:`📌 Padrão fixo comportamental (${label}) • Treino: últimos ${Math.min(MIN_BASE, drawsAll.length)} concursos • Lags: 3–6`});
     linhas.push({dezena:jogo[0], texto:`🧭 Repetição controlada (t-1..t-3): ${rep1}/${rep2}/${rep3} • Máx overlap (últimos 6): ${mx}`});
     linhas.push({dezena:jogo[0], texto:`🧩 Pares “menos óbvios”: coocorrência recente ${(ps.recentRatio*100).toFixed(0)}% • média no treino ${ps.histAvg.toFixed(2)}x`});
     linhas.push({dezena:jogo[0], texto:`⚖️ Sanity: pares=${contarParesImpares(jogo).pares} • soma=${somaDezenas(jogo)} • seq=${contarSequencias(jogo)}`});
@@ -1981,10 +1973,10 @@ function buildPack4JogosPreditivo(payload){
     motivos,
     meta:{
       model:"padrao_fixo_comportamental_v1",
-      treino_usado: Math.min(IDEAL_TREINO, drawsAll.length),
+      treino_usado: Math.min(MIN_BASE, drawsAll.length),
       lags:LAGS,
       targets,
-      last6: drawsAll.slice(-recentN)
+      last6: drawsAll.slice(-MIN_RECENT)
     }
   };
 };
@@ -2043,15 +2035,15 @@ function buildMotivosPrime(jogo, picks, domEvenOdd, modern, freq, concursos){
     const parts = [];
 
     // Origem (categoria)
-    if(baseSet.has(n)) parts.push(`🔁 veio do último concurso (núcleo ${picks.k})`);
-    if(freqSet.has(n)){
+    if(safeHas(baseSet,n)) parts.push(`🔁 veio do último concurso (núcleo ${picks.k})`);
+    if(safeHas(freqSet,n)){
       const idx = top10freq.indexOf(n);
       if(idx === 0) parts.push("📊 é a MAIS frequente do Top10");
       else if(idx === top10freq.length-1) parts.push("📊 é a MENOS frequente do Top10");
       else parts.push("📊 faz parte do Top10 frequentes");
     }
-    if(pairSet.has(n)) parts.push("🔗 pertence à DUPLA forte (mais saem juntas na janela)");
-    if(atrSet.has(n)){
+    if(safeHas(pairSet,n)) parts.push("🔗 pertence à DUPLA forte (mais saem juntas na janela)");
+    if(safeHas(atrSet,n)){
       const idx = top10atr.indexOf(n);
       if(idx === 0) parts.push("⏳ é a MAIS atrasada do Top10");
       else if(idx === top10atr.length-1) parts.push("⏳ é a MENOS atrasada do Top10");
@@ -2070,7 +2062,7 @@ function buildMotivosPrime(jogo, picks, domEvenOdd, modern, freq, concursos){
     const uniq = [];
     const seen = new Set();
     for(const p of parts){
-      if(!seen.has(p)){ seen.add(p); uniq.push(p); }
+      if(!safeHas(seen,p)){ seen.add(p); uniq.push(p); }
     }
 
     return uniq.join(" • ");
@@ -2091,7 +2083,7 @@ function gerarJogoComRegrasUltimo(freq, metrics, dezenasUltimo){
   // 10 dezenas que NÃO saíram no último
   const naoSaiu = [];
   for(let n=1;n<=25;n++){
-    if(!setUlt.has(n)) naoSaiu.push(n);
+    if(!safeHas(setUlt,n)) naoSaiu.push(n);
   }
 
   function scoreJogo(jogo){
@@ -2172,11 +2164,11 @@ function pickRWeighted(){
     const jogo = sortNum([...set]);
 
     // garante que a quantidade de repetidas do último está entre 6 e 11
-    const reps = jogo.filter(n=>setUlt.has(n));
+    const reps = jogo.filter(n=>safeHas(setUlt,n));
     if(reps.length < 4 || reps.length > 11) continue;
 
     // garante que veio uma quantidade boa do grupo "não saiu"
-    const doNaoSaiu = jogo.filter(n=>!setUlt.has(n));
+    const doNaoSaiu = jogo.filter(n=>!safeHas(setUlt,n));
     // você falou que costuma sair de 4 a 10 dessas 10
     if(doNaoSaiu.length < 4 || doNaoSaiu.length > 10) continue;
 
@@ -2206,7 +2198,7 @@ function buildMotivos(jogo, dezenasUltimoNums, freq, metrics){
   ord.forEach((x,i)=>rank[x.dez]=i+1);
 
   return jogo.map(n=>{
-    const isRep = setUlt.has(n);
+    const isRep = safeHas(setUlt,n);
     const r = rank[n] || 999;
     
     const gap = metrics?.gap?.[n];
@@ -2981,8 +2973,8 @@ async function acaoAnalise(){
 function renderPickGrid(selectedSet, lockedSet){
   let html = `<div class="pickGrid" id="pickGridPrincipal">`;
   for(let n=1;n<=25;n++){
-    const sel = selectedSet.has(n) ? " sel" : "";
-    const lock = lockedSet && lockedSet.has(n) ? " lock" : "";
+    const sel = safeHas(selectedSet,n) ? " sel" : "";
+    const lock = lockedSet && safeHas(lockedSet,n) ? " lock" : "";
     html += `<div class="pickCell${sel}${lock}" data-n="${n}">${format2(n)}</div>`;
   }
   html += `</div>`;
@@ -3040,7 +3032,7 @@ function renderManualPrincipalUI(){
   `;
 
   bindPickGrid("pickGridPrincipal", (n)=>{
-    if(manualPrincipalSet.has(n)) manualPrincipalSet.delete(n);
+    if(safeHas(manualPrincipalSet,n)) manualPrincipalSet.delete(n);
     else{
       if(manualPrincipalSet.size>=15) return alert("Você já marcou 15 dezenas.");
       manualPrincipalSet.add(n);
@@ -3346,7 +3338,7 @@ function renderCartao(jogo, clsName){
   const set = new Set(jogo.map(Number));
   let html = `<div class="cartao">`;
   for(let n=1;n<=25;n++){
-    const active = set.has(n) ? ` ${clsName}` : "";
+    const active = safeHas(set,n) ? ` ${clsName}` : "";
     html += `<div class="cel${active}">${String(n).padStart(2,"0")}</div>`;
   }
   html += `</div>`;
@@ -3529,7 +3521,7 @@ async function conferirGerados(){
 
   function hits(gameNums){
     const setR=new Set(resultNums);
-    const h = sortNum(gameNums.filter(n=>setR.has(Number(n))).map(Number));
+    const h = sortNum(gameNums.filter(n=>safeHas(setR,Number(n))).map(Number));
     return {count:h.length, hits:h};
   }
 
@@ -3946,7 +3938,7 @@ function lineQualityScore(line, sShort, sMed){
 function overlapCount(a,b){
   const sb=new Set(b);
   let k=0;
-  for(const x of a) if(sb.has(x)) k++;
+  for(const x of a) if(safeHas(sb,x)) k++;
   return k;
 }
 
@@ -3974,7 +3966,7 @@ function buildCombinations(arr, k){
 }
 
 function bestKFromPool(pool, k, sShort, sMed, existingLines=[], hardExclude=new Set()){
-  const arr = pool.filter(n=>!hardExclude.has(n));
+  const arr = pool.filter(n=>!safeHas(hardExclude,n));
   if(arr.length<k) return null;
   const combs = buildCombinations(arr, k);
   let best=null, bestScore=-Infinity;
@@ -4086,21 +4078,21 @@ async function buildLines15PAdvanced(payloadShort, qtdShort){
     let gap = LOOKBACK + maxLag + 1;
     for(let back=1; back<=LOOKBACK+maxLag; back++){
       const setB = new Set((concursos[indexI-back].dezenas||[]).map(toNum));
-      if(setB.has(n)){ gap = back; break; }
+      if(safeHas(setB,n)){ gap = back; break; }
     }
 
     // streak nos últimos concursos (consecutivos até i-1)
     let streak = 0;
     for(let back=1; back<=LOOKBACK; back++){
       const setB = win[LOOKBACK-back];
-      if(setB.has(n)) streak++;
+      if(safeHas(setB,n)) streak++;
       else break;
     }
 
     // lags 3..6 (se estava presente exatos L concursos antes)
     const lagFlags = LAGS.map(L=>{
       const setL = new Set((concursos[indexI-L].dezenas||[]).map(toNum));
-      return setL.has(n) ? 1 : 0;
+      return safeHas(setL,n) ? 1 : 0;
     });
 
     // normalizações simples
@@ -4120,7 +4112,7 @@ async function buildLines15PAdvanced(payloadShort, qtdShort){
   for(let i=startI; i<concursos.length; i++){
     const ySet = new Set((concursos[i].dezenas||[]).map(toNum));
     for(let n=1;n<=25;n++){
-      samples.push({ x: featuresAt(i,n), y: ySet.has(n) ? 1 : 0 });
+      samples.push({ x: featuresAt(i,n), y: safeHas(ySet,n) ? 1 : 0 });
     }
   }
 
@@ -4236,7 +4228,7 @@ function countGroupTogether(group, concursos){
     const setC = new Set((c.dezenas||[]).map(toNum));
     let ok = true;
     for(const n of gset){
-      if(!setC.has(n)){ ok = false; break; }
+      if(!safeHas(setC,n)){ ok = false; break; }
     }
     if(ok) count++;
   }
@@ -4387,7 +4379,7 @@ function render15Editor(){
         ${[...Array(25)].map((_,i)=>{
           const n=i+1;
           const sel = current.includes(n) ? " sel" : "";
-          const lock = used.has(n) ? " lock" : "";
+          const lock = safeHas(used,n) ? " lock" : "";
           return `<div class="pickCell${sel}${lock}" data-n="${n}">${format2(n)}</div>`;
         }).join("")}
       </div>
@@ -4417,7 +4409,7 @@ function render15Editor(){
   `;
 
   bindPickGrid("pickGrid15", (n)=>{
-    if(used.has(n)) return;
+    if(safeHas(used,n)) return;
     const line = linesUser15[activeLine15];
     const idx = line.indexOf(n);
     if(idx>=0) line.splice(idx,1);
@@ -4774,7 +4766,7 @@ function checkSavedGames(){
 
       function hitsCount(gameNums, concursoDezenas){
         const set = new Set((concursoDezenas || []).map(toNum));
-        return (gameNums || []).filter(n => set.has(Number(n))).length;
+        return (gameNums || []).filter(n => safeHas(set,Number(n))).length;
       }
 
       let html = `
@@ -4957,15 +4949,6 @@ function renderJogosSalvosAoAbrir(){
   });
 
   box.innerHTML = html;
-}
-
-
-function completarAte15(lista){
-  const set = new Set((lista||[]).map(Number));
-  for(let d=1; d<=25 && set.size<15; d++){
-    if(!set.has(d)) set.add(d);
-  }
-  return Array.from(set).slice(0,15).sort((a,b)=>a-b);
 }
 
 </script>
