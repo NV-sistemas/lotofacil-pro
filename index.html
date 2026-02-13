@@ -259,6 +259,8 @@
     color:var(--accent);font-weight:1000;letter-spacing:.4px;
     box-shadow:0 14px 34px rgba(0,0,0,.35);
   }
+  .balls{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+
   .hr{height:1px;background:rgba(255,255,255,.10);margin:12px 0;border-radius:999px}
 
   /* Painel “verificar jogos gerados” */
@@ -595,7 +597,6 @@ const functions = firebase.app().functions("us-central1");
             <option value="60">60 concursos</option>
             <option value="80">80 concursos</option>
             </select>
-
           <div class="mini" style="margin-top:8px">
             Escolha a janela e depois selecione uma das opções abaixo.
           </div>
@@ -3154,7 +3155,7 @@ function renderCartao(jogo, clsName){
   return html;
 }
 
-async function gerarInvertida(silent=false){
+async async function gerarInvertida(silent=false){
   if(!access.premium){
     if(!silent) alert("🔒 Invertida exige Premium.");
     return;
@@ -3219,7 +3220,7 @@ async function gerarInvertida(silent=false){
 
 
 
-async function gerarTecnicaPremiada(silent=false){
+async async function gerarTecnicaPremiada(silent=false){
   if(!access.premium){
     if(!silent) alert("🔒 Técnica exige Premium.");
     return;
@@ -3245,7 +3246,7 @@ async function gerarTecnicaPremiada(silent=false){
 
     const t1 = pack.tecnica1.slice().sort((a,b)=>a-b);
     const t2 = pack.tecnica2.slice().sort((a,b)=>a-b);
-    lastTecnicaGames = [t1.slice(), t2.slice()];
+    lastTecnicaGames = { g1: t1.slice(), g2: t2.slice() };
 
     function renderCard(title, nums, motivos){
       const balls = nums.map(n=>`<div class="ball">${format2(n)}</div>`).join("");
@@ -3293,7 +3294,7 @@ async function gerarTecnicaPremiada(silent=false){
 
 /* mostra botões de verificação quando tiver Principal + Invertida + Técnica */
 function updateCheckButtons(){
-  const ready = !!(lastPrincipalGame && lastInvertidaGame && lastTecnicaGames?.g1 && lastTecnicaGames?.g2);
+  const ready = !!(lastPrincipalGame && lastInvertidaGame && lastTecnicaGames && lastTecnicaGames.g1 && lastTecnicaGames.g2);
 
   const btnTop = document.getElementById("btnVerificarGeradosFromPrincipal");
   const btnInline = document.getElementById("btnVerificarGeradosInline");
@@ -3314,7 +3315,7 @@ function updateCheckButtons(){
 }
 
 async function conferirGerados(){
-  if(!(lastPrincipalGame && lastInvertidaGame && lastTecnicaGames?.g1 && lastTecnicaGames?.g2)){
+  if(!(lastPrincipalGame && lastInvertidaGame && lastTecnicaGames && lastTecnicaGames.g1 && lastTecnicaGames.g2)){
     alert("Gere Principal + Invertida + Técnica primeiro.");
     return;
   }
