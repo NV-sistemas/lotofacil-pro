@@ -3683,7 +3683,7 @@ async function buildLines15PAdvanced(payloadShort, qtdShort){
     - Monta 5 linhas SEM REPETIÇÃO: 3 linhas IN + 2 linhas OUT (25 dezenas únicas)
     - Sem "linha forte/fraca": linhas são classe predita (IN/OUT)
   */
-  const concursos = (payloadShort?.concursos || []).slice().sort((a,b)=>a.concurso-b.concurso);
+  const concursos = (payloadShort?.concursos || []).slice().map(c=>({ ...c, dezenas: getDezenas(c) })).sort((a,b)=>a.concurso-b.concurso);
   const LOOKBACK = 5;
   const LAGS = [3,4,5,6];
   const maxLag = Math.max.apply(null, LAGS);
