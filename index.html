@@ -4031,7 +4031,10 @@ function gerar15PComMinhasLinhas(){
     return alert("Complete as 5 linhas com 5 dezenas cada.");
   }
 
-  const jogos = gerarJogos15P(linesUser15);
+  // ✅ Torna o MANUAL a referência ativa do 15P (sobrepõe o automático)
+  linesSystem15 = linesUser15.map(l=>l.slice());
+
+  const jogos = gerarJogos15P(linesSystem15);
 
   const jogosHtml = jogos.map((j, idx)=>`
     <div class="box">
@@ -4040,36 +4043,81 @@ function gerar15PComMinhasLinhas(){
     </div>
   `).join("");
 
-  const linesTable = linesUser15.map((l,idx)=>`
+  const linesTable = linesSystem15.map((l,idx)=>`
     <tr>
       <td><b>${idx+1}</b></td>
       <td class="mono">${l.map(format2).join(" - ")}</td>
     </tr>
   `).join("");
 
-  document.getElementById("user15Output").innerHTML = `
-    <div class="box" style="margin-top:12px">
-      <b>📌 Suas linhas (manual)</b>
-      <div style="margin-top:10px;overflow:auto">
-        <table class="table">
-          <thead><tr><th>Linha</th><th>Dezenas</th></tr></thead>
-          <tbody>${linesTable}</tbody>
-        </table>
-      </div>
-    </div>
+  // ✅ Se existir uma saída "manual" antiga, limpa para não duplicar
+  const userOut = document.getElementById("user15Output");
+  if(userOut) userOut.innerHTML = "";
 
-    <div class="box" style="margin-top:12px">
-      <b>🎯 Seus 10 jogos (com suas linhas)</b>
-      <div class="grid" style="margin-top:12px">${jogosHtml}</div>
-      <div class="mini" style="margin-top:10px">
-        Este método cobre todas as combinações de 3 linhas entre 5 (10 jogos).
-<b style="text-transform:uppercase">Acertando 3 linhas completas, você forma 1 dos 10 jogos.</b>
-      </div>
+  // ✅ Procura o box "10 jogos do sistema" e substitui pelo resultado manual
+  const p15 = document.getElementById("p15Area") || document;
+  const boxes = Array.from(p15.querySelectorAll(".box"));
+  const systemGamesBox = boxes.find(b=>{
+    const bb = b.querySelector("b");
+    return bb && /10 jogos do sistema/i.test(bb.textContent || "");
+  });
+
+  const systemLinesBox = boxes.find(b=>{
+    const bb = b.querySelector("b");
+    return bb && /Linhas 1 a 5/i.test(bb.textContent || "");
+  });
+
+  const manualPackHTML = `
+    <b>🎯 10 jogos (MANUAL — substituiu o automático)</b>
+    <div class="mini" style="margin-top:10px">
+      Você está usando suas <b>5 linhas manuais</b> como base. Este método cobre todas as combinações de 3 linhas entre 5 (10 jogos).
+      <b style="text-transform:uppercase">Acertando 3 linhas completas, você forma 1 dos 10 jogos.</b>
+    </div>
+    <div class="grid" style="margin-top:12px">${jogosHtml}</div>
+  `;
+
+  const manualLinesHTML = `
+    <b>📌 Linhas 1 a 5 (MANUAIS — ativas)</b>
+    <div class="mini" style="margin-top:6px">
+      Estas são as linhas que você montou manualmente e que foram usadas para gerar os 10 jogos abaixo.
+    </div>
+    <div style="margin-top:12px;overflow:auto">
+      <table class="table">
+        <thead><tr><th>Linha</th><th>Dezenas</th></tr></thead>
+        <tbody>${linesTable}</tbody>
+      </table>
     </div>
   `;
 
-  alert("✅ 10 jogos gerados com suas linhas!");
+  if(systemGamesBox){
+    systemGamesBox.innerHTML = manualPackHTML;
+  }else{
+    // Fallback: se não achar, mostra no user15Output (sem quebrar nada)
+    if(userOut){
+      userOut.innerHTML = `
+        <div class="box" style="margin-top:12px">${manualLinesHTML}</div>
+        <div class="box" style="margin-top:12px">${manualPackHTML}</div>
+      `;
+    }
+  }
+
+  // Também atualiza o box das linhas, se existir
+  if(systemLinesBox){
+    systemLinesBox.innerHTML = manualLinesHTML + `
+      <div class="row" style="margin-top:10px">
+        <div class="col">
+          <button class="btn btnBlue" type="button" onclick="render15Editor()">✍️ Editar minhas linhas (manual)</button>
+        </div>
+        <div class="col">
+          <button class="btn btnGhost" type="button" onclick="initUserLines15FromSystem(linesSystem15);render15Editor();">Continuar com estas linhas</button>
+        </div>
+      </div>
+    `;
+  }
+
+  alert("✅ Manual substituiu o automático!");
 }
+
 
 async function gerar15P(){
   const can15p = ((access.premium && access.addon15) || access.isAdmin);
