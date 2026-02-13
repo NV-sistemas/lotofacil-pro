@@ -1567,37 +1567,145 @@ function calcModernMetrics(concursos){
    - Paridade: segue o padrão dominante da janela (ex: 7 pares / 8 ímpares)
 ========================= */
 function gerarJogoPrincipalPrime(freq, modern, concursos, latestDezenas){
-  // ✅ NOVA REGRA (Premium):
-  // PRINCIPAL = 8 dezenas que saíram no concurso anterior + 7 dezenas que NÃO saíram,
-  // escolhidas pelos grupos que "mais saem juntos" dentro da janela selecionada.
+  /*
+    ✅ NOVO MOTOR PREDITIVO (JOGO PRINCIPAL)
+    - NÃO usa "8 do último + 7 fora"
+    - Usa o mesmo motor comportamental do 15P (lookback=5, lags=3..6)
+    - Treina na janela selecionada (concursos) e cria um ranking IN/OUT
+    - PRINCIPAL = Top 15 do ranking IN (mais prováveis de SAIR no próximo concurso)
+  */
+  const payloadShort = { concursos: concursos || [] };
+  const adv = buildLines15PAdvanced(payloadShort, (concursos||[]).length);
 
-  const latest = (latestDezenas||[]).map(toNum).filter(n=>n>=1&&n<=25).sort((a,b)=>a-b);
-  const latestSet = new Set(latest);
+  const IN = (adv?.meta?.IN || []).slice(0,15).map(toNum);
+  const OUT = (adv?.meta?.OUT || []).slice(0,10).map(toNum);
+  const probs = adv?.meta?.probs || {};
 
-  const all = Array.from({length:25},(_,i)=>i+1);
-  const outPool = all.filter(n=>!latestSet.has(n));
+  const jogo = IN.slice(0,15).sort((a,b)=>a-b);
 
-  // Evitar repetição entre os 4 jogos: no PRINCIPAL não evitamos nada (primeiro da sequência)
-  const inBest  = bestSubsetFromPool(latest, 8, concursos, freq, modern, null);
-  const outBest = bestSubsetFromPool(outPool, 7, concursos, freq, modern, null);
-
-  const jogo = [...inBest, ...outBest].sort((a,b)=>a-b);
-
-  // Motivos (agrupados no UI)
   const motivos = [];
-  inBest.forEach(n=>motivos.push({ dezena:n, texto:"♻️ Veio do último concurso (grupo forte na janela)" }));
-  outBest.forEach(n=>motivos.push({ dezena:n, texto:"🆕 Não veio no último concurso (grupo forte na janela)" }));
-
-  const togetherIn  = countGroupTogetherInWindow(inBest, concursos);
-  const togetherOut = countGroupTogetherInWindow(outBest, concursos);
+  jogo.forEach(n=>{
+    const p = (probs[n]!=null) ? Number(probs[n]) : null;
+    motivos.push({
+      dezena:n,
+      texto: (p!=null)
+        ? `🧠 Preditivo: classificado como IN (prob≈${(p*100).toFixed(1)}%)`
+        : "🧠 Preditivo: classificado como IN"
+    });
+  });
 
   motivos.push({
     dezena: jogo[0],
-    texto: `📌 Regra PREMIUM: 8 do último + 7 fora • Janela: ${concursos?.length||0} concursos • 'Juntos' (8): ${togetherIn} • 'Juntos' (7): ${togetherOut}`
+    texto: `📌 Motor Preditivo (Principal): Top 15 IN • Janela: ${(concursos||[]).length} concursos • Lookback: ${adv?.meta?.lookback||5} • Lags: ${(adv?.meta?.lags||[3,4,5,6]).join(",")}`
   });
 
-  return { jogo, motivos };
+  return { jogo, motivos, meta: { IN, OUT, probs } };
 }
+
+
+/* =========================
+   ✅ MOTOR PREDITIVO (PACOTE 4 JOGOS)
+   - Usa ranking IN/OUT do motor comportamental (mesmo do 15P)
+   - Gera 4 jogos de 15 dezenas (Principal/Invertida/Técnica 1/Técnica 2)
+   - Sem aleatório
+   - Garante que os 4 jogos NÃO sejam idênticos
+   - Mistura IN com pequenas "trocas" usando OUT para cobertura/hedge
+========================= */
+function buildPack4JogosPreditivo(payload){
+  const concursos = payload?.concursos || [];
+  const adv = buildLines15PAdvanced({ concursos }, concursos.length);
+  const IN = (adv?.meta?.IN || []).map(toNum);
+  const OUT = (adv?.meta?.OUT || []).map(toNum);
+  const probs = adv?.meta?.probs || {};
+
+  const base = IN.slice(0,15);
+
+  function makeSwapGame(swapCount, outOffset, removeFromEndOffset){
+    const g = base.slice();
+    // remove swapCount dezenas do final (com deslocamento determinístico)
+    const rmStart = Math.max(0, g.length - swapCount - (removeFromEndOffset||0));
+    const removed = g.splice(rmStart, swapCount);
+    const add = OUT.slice(outOffset, outOffset + swapCount);
+    // evita duplicar dentro do jogo
+    add.forEach(n=>{
+      n = toNum(n);
+      if(!g.includes(n)) g.push(n);
+    });
+    // se faltou completar 15 (por duplicação), completa com IN seguindo ranking
+    for(const n of IN){
+      if(g.length>=15) break;
+      const nn = toNum(n);
+      if(!g.includes(nn)) g.push(nn);
+    }
+    // se ainda faltou, completa com OUT seguindo ranking
+    for(const n of OUT){
+      if(g.length>=15) break;
+      const nn = toNum(n);
+      if(!g.includes(nn)) g.push(nn);
+    }
+    return g.slice(0,15).sort((a,b)=>a-b);
+  }
+
+  const principal = base.slice().sort((a,b)=>a-b);
+  const invertida = makeSwapGame(3, 0, 0);     // 12 IN + 3 OUT (mais prováveis do OUT)
+  const tecnica1  = makeSwapGame(4, 3, 0);     // 11 IN + 4 OUT (próximas do OUT)
+  const tecnica2  = makeSwapGame(5, 7, 0);     // 10 IN + 5 OUT (OUT mais "alternativo")
+
+  // garante não-idênticos (fallback determinístico)
+  function key(a){ return (a||[]).slice().sort((x,y)=>x-y).join(","); }
+  const seen = new Set([key(principal)]);
+  function ensureUnique(game, swapCount, outOffset){
+    let g = game;
+    let tries = 0;
+    while(seen.has(key(g)) && tries<6){
+      tries++;
+      g = makeSwapGame(swapCount, outOffset + tries, tries); // muda offsets
+    }
+    seen.add(key(g));
+    return g;
+  }
+
+  const inv2 = ensureUnique(invertida, 3, 0);
+  const t1   = ensureUnique(tecnica1, 4, 3);
+  const t2   = ensureUnique(tecnica2, 5, 7);
+
+  const mkMotivoPack = (nome, game, inCount, outCount, outOffsetDesc)=>{
+    const motivos = [];
+    game.forEach(n=>{
+      const p = (probs[n]!=null) ? Number(probs[n]) : null;
+      const tag = (IN.slice(0,15).includes(n)) ? "IN" : (OUT.includes(n) ? "OUT" : "—");
+      motivos.push({ dezena:n, texto: (p!=null) ? `🧠 ${nome}: ${tag} (prob≈${(p*100).toFixed(1)}%)` : `🧠 ${nome}: ${tag}` });
+    });
+    motivos.push({
+      dezena: game[0],
+      texto: `📌 ${nome}: ${inCount} IN + ${outCount} OUT (${outOffsetDesc}) • Janela: ${concursos.length} concursos • Lookback: ${adv?.meta?.lookback||5} • Lags: ${(adv?.meta?.lags||[3,4,5,6]).join(",")}`
+    });
+    return motivos;
+  };
+
+  return {
+    principal,
+    invertida: inv2,
+    tecnica1: t1,
+    tecnica2: t2,
+    meta: {
+      mode: adv?.meta?.mode || "predictive",
+      lookback: adv?.meta?.lookback || 5,
+      lags: adv?.meta?.lags || [3,4,5,6],
+      IN: IN.slice(0,15),
+      OUT: OUT.slice(0,10),
+      probs
+    },
+    motivos: {
+      principal: mkMotivoPack("Principal", principal, 15, 0, "—"),
+      invertida: mkMotivoPack("Invertida", inv2, 12, 3, "Top OUT"),
+      tecnica1:  mkMotivoPack("Técnica 1", t1, 11, 4, "OUT intermediário"),
+      tecnica2:  mkMotivoPack("Técnica 2", t2, 10, 5, "OUT alternativo")
+    }
+  };
+}
+
+
 
 
 /* ✅ Motivos por grupo (igual ao padrão do print, agrupável) */
@@ -2365,6 +2473,8 @@ let lastPrincipalMeta=null;
 let lastInvertidaGame=null;
 let lastTecnicaGames=null;
 
+
+let lastPredPack=null;
 /* ✅ MANUAL (Principal) */
 let manualPrincipalSet = new Set();
 
@@ -2655,8 +2765,12 @@ async function acaoPrincipal(){
     setStatus(true,"Gerando jogo principal (15 dezenas)…");
     setProgress(80);
 
-    const result = gerarJogoPrincipalPrime(freq, modern, payload.concursos, payload.latest.dezenas);
-const jogo = result.jogo;
+    const pack = buildPack4JogosPreditivo(payload);
+    const result = { jogo: pack.principal, motivos: pack.motivos.principal, meta: pack.meta };
+    const jogo = result.jogo;
+
+    // ✅ guarda o pacote preditivo para Invertida/Técnica usarem a MESMA base
+    lastPredPack = pack;
 
     lastPrincipalGame = jogo.slice();
     lastInvertidaGame = null;
@@ -2905,7 +3019,7 @@ function renderCartao(jogo, clsName){
   return html;
 }
 
-async function gerarInvertida(silent=false){
+async async function gerarInvertida(silent=false){
   if(!access.premium){
     if(!silent) alert("🔒 Invertida exige Premium.");
     return;
@@ -2914,53 +3028,24 @@ async function gerarInvertida(silent=false){
   const area = document.getElementById("invertidaArea");
 
   try{
-    // garante contexto carregado (usa a janela selecionada)
     const qtd = qtdSelecionada();
     await prepararContextoBase(qtd);
 
     const payload = lastPayload;
-    const {freq, modern} = lastCtx;
 
-    const latest = (payload?.latest?.dezenas || []).map(toNum).filter(n=>n>=1&&n<=25).sort((a,b)=>a-b);
-    if(latest.length !== 15){
-      if(area) area.innerHTML = `<div class="box"><b>⚠️</b><div class="mini" style="margin-top:8px">Não foi possível obter o último concurso (15 dezenas).</div></div>`;
+    // ✅ usa o pacote preditivo (mesma base do Principal)
+    const pack = lastPredPack && lastPredPack.meta && lastPredPack.meta.IN ? lastPredPack : buildPack4JogosPreditivo(payload);
+    lastPredPack = pack;
+
+    const inv = (pack.invertida || []).slice().sort((a,b)=>a-b);
+    if(inv.length !== 15){
+      if(area) area.innerHTML = `<div class="box"><b>⚠️</b><div class="mini" style="margin-top:8px">Não foi possível montar a Invertida (15 dezenas).</div></div>`;
       return;
     }
 
-    const latestSet = new Set(latest);
-    const all = Array.from({length:25},(_,i)=>i+1);
-    const outPool = all.filter(n=>!latestSet.has(n));
-    const concursos = payload.concursos || [];
-
-    // Evita repetir MUITO do Principal (se existir)
-    let avoidIn = new Set();
-    let avoidOut = new Set();
-    if(Array.isArray(lastPrincipalGame) && lastPrincipalGame.length===15){
-      const sp = splitInOutByLatest(lastPrincipalGame, latest);
-      avoidIn = new Set(sp.inLast);
-      avoidOut = new Set(sp.outLast);
-    }
-
-    // ✅ NOVA REGRA:
-    // INVERTIDA = 9 do último + 6 fora (grupos que mais saem juntos),
-    // com desempate para diversificar do Principal.
-    const inBest  = bestSubsetFromPool(latest, 9, concursos, freq, modern, avoidIn);
-    const outBest = bestSubsetFromPool(outPool, 6, concursos, freq, modern, avoidOut);
-
-    const inv = [...inBest, ...outBest].sort((a,b)=>a-b);
     lastInvertidaGame = inv.slice();
 
-    const motivos = [];
-    inBest.forEach(n=>motivos.push({ dezena:n, texto:"♻️ Veio do último concurso (grupo forte)" }));
-    outBest.forEach(n=>motivos.push({ dezena:n, texto:"🆕 Não veio no último concurso (grupo forte)" }));
-
-    const togetherIn  = countGroupTogetherInWindow(inBest, concursos);
-    const togetherOut = countGroupTogetherInWindow(outBest, concursos);
-    motivos.push({
-      dezena: inv[0],
-      texto: `📌 Regra PREMIUM: 9 do último + 6 fora • Janela: ${concursos?.length||0} concursos • 'Juntos' (9): ${togetherIn} • 'Juntos' (6): ${togetherOut}`
-    });
-
+    const motivos = pack?.motivos?.invertida || [];
     const balls = inv.map(n=>`<div class="ball">${format2(n)}</div>`).join("");
 
     const motivosAgrupados = {};
@@ -2977,7 +3062,8 @@ async function gerarInvertida(silent=false){
     if(area){
       area.innerHTML = `
         <div class="box">
-          <b>🔄 Invertida PREMIUM (9 do último + 6 fora)</b>
+          <b>🔄 Invertida (Motor Preditivo) • Jogo 2</b>
+          <div class="mini" style="margin-top:6px">Gerado pelo ranking <b>IN/OUT</b> do motor comportamental (mesma janela do Principal).</div>
           <div class="numbers" style="justify-content:flex-start">${balls}</div>
           <div style="margin-top:10px">${motivosHtml}</div>
         </div>
@@ -2991,7 +3077,8 @@ async function gerarInvertida(silent=false){
 }
 
 
-async function gerarTecnicaPremiada(silent=false){
+
+async async function gerarTecnicaPremiada(silent=false){
   if(!access.premium){
     if(!silent) alert("🔒 Técnica premiada exige Premium.");
     return;
@@ -3004,76 +3091,36 @@ async function gerarTecnicaPremiada(silent=false){
     await prepararContextoBase(qtd);
 
     const payload = lastPayload;
-    const {freq, modern} = lastCtx;
 
-    const latest = (payload?.latest?.dezenas || []).map(toNum).filter(n=>n>=1&&n<=25).sort((a,b)=>a-b);
-    if(latest.length !== 15){
-      if(area) area.innerHTML = `<div class="box"><b>⚠️</b><div class="mini" style="margin-top:8px">Não foi possível obter o último concurso (15 dezenas).</div></div>`;
+    // ✅ usa o pacote preditivo (mesma base do Principal)
+    const pack = lastPredPack && lastPredPack.meta && lastPredPack.meta.IN ? lastPredPack : buildPack4JogosPreditivo(payload);
+    lastPredPack = pack;
+
+    const g1 = (pack.tecnica1 || []).slice().sort((a,b)=>a-b);
+    const g2 = (pack.tecnica2 || []).slice().sort((a,b)=>a-b);
+
+    if(g1.length !== 15 || g2.length !== 15){
+      if(area) area.innerHTML = `<div class="box"><b>⚠️</b><div class="mini" style="margin-top:8px">Não foi possível montar a Técnica (2 jogos de 15 dezenas).</div></div>`;
       return;
     }
 
-    const latestSet = new Set(latest);
-    const all = Array.from({length:25},(_,i)=>i+1);
-    const outPool = all.filter(n=>!latestSet.has(n));
-    const concursos = payload.concursos || [];
-
-    // Evita repetir entre os 4 jogos (desempate)
-    const avoidAll = new Set();
-    const addAll = (arr)=>{ (arr||[]).forEach(n=>avoidAll.add(toNum(n))); };
-
-    // Se o usuário definiu Principal manualmente, respeitamos ele como "jogo 1" para diversificação
-    addAll(lastPrincipalGame);
-    addAll(lastInvertidaGame);
-
-    // ===== TÉCNICA JOGO 1: 10 do último + 5 fora =====
-    const avoidIn1 = new Set([...avoidAll].filter(n=>latestSet.has(n)));
-    const avoidOut1 = new Set([...avoidAll].filter(n=>!latestSet.has(n)));
-
-    const in1  = bestSubsetFromPool(latest, 10, concursos, freq, modern, avoidIn1);
-    const out1 = bestSubsetFromPool(outPool, 5, concursos, freq, modern, avoidOut1);
-    const g1 = [...in1, ...out1].sort((a,b)=>a-b);
-
-    // Atualiza avoid para o jogo 2 não "colar" no jogo 1
-    addAll(g1);
-
-    // ===== TÉCNICA JOGO 2: 9 do último + 6 fora =====
-    const avoidIn2 = new Set([...avoidAll].filter(n=>latestSet.has(n)));
-    const avoidOut2 = new Set([...avoidAll].filter(n=>!latestSet.has(n)));
-
-    const in2  = bestSubsetFromPool(latest, 9, concursos, freq, modern, avoidIn2);
-    const out2 = bestSubsetFromPool(outPool, 6, concursos, freq, modern, avoidOut2);
-    const g2 = [...in2, ...out2].sort((a,b)=>a-b);
-
     lastTecnicaGames = { g1: g1.slice(), g2: g2.slice() };
 
-    const makeMotivos = (inBest, outBest, label)=>{
-      const m = [];
-      inBest.forEach(n=>m.push({ dezena:n, texto:"♻️ Veio do último concurso (grupo forte)" }));
-      outBest.forEach(n=>m.push({ dezena:n, texto:"🆕 Não veio no último concurso (grupo forte)" }));
-      const tIn  = countGroupTogetherInWindow(inBest, concursos);
-      const tOut = countGroupTogetherInWindow(outBest, concursos);
-      m.push({ dezena: (inBest[0]||outBest[0]||1), texto: `📌 ${label} • Janela: ${concursos?.length||0} concursos • 'Juntos': ${tIn} / ${tOut}` });
-      return m;
-    };
-
-    const motivos1 = makeMotivos(in1, out1, "TÉCNICA 1 = 10 do último + 5 fora");
-    const motivos2 = makeMotivos(in2, out2, "TÉCNICA 2 = 9 do último + 6 fora");
-
-    const renderBox = (titulo, jogo, motivos)=>{
+    const renderBox = (titulo, jogo, motivos)=> {
       const balls = jogo.map(n=>`<div class="ball">${format2(n)}</div>`).join("");
-      const agrup = {};
+      const motivosAgrupados = {};
       (motivos||[]).forEach(m=>{
-        const key=(m.texto||"").trim();
-        if(!agrup[key]) agrup[key]=[];
-        if(Number.isFinite(m.dezena)) agrup[key].push(m.dezena);
+        const key = (m.texto||"").trim();
+        if(!motivosAgrupados[key]) motivosAgrupados[key]=[];
+        if(Number.isFinite(m.dezena)) motivosAgrupados[key].push(m.dezena);
       });
-      const motivosHtml = Object.entries(agrup).map(([k,arr])=>{
+      const motivosHtml = Object.entries(motivosAgrupados).map(([k,arr])=>{
         const nums = arr.sort((a,b)=>a-b).map(format2).join(" - ");
         return `<div class="mini">• <b>${k}</b>${nums?`<br><span style="opacity:.9">${nums}</span>`:""}</div>`;
       }).join("");
 
       return `
-        <div class="box" style="margin-bottom:12px">
+        <div class="box" style="margin-top:12px">
           <b>${titulo}</b>
           <div class="numbers" style="justify-content:flex-start">${balls}</div>
           <div style="margin-top:10px">${motivosHtml}</div>
@@ -3083,8 +3130,15 @@ async function gerarTecnicaPremiada(silent=false){
 
     if(area){
       area.innerHTML = `
-        ${renderBox("🏆 Técnica Jogo 1 (10 do último + 5 fora)", g1, motivos1)}
-        ${renderBox("🏆 Técnica Jogo 2 (9 do último + 6 fora)", g2, motivos2)}
+        <div class="box">
+          <b>🏆 Técnica premiada (Motor Preditivo) • Jogos 3 e 4</b>
+          <div class="mini" style="margin-top:6px">
+            2 jogos extras gerados pelo ranking <b>IN/OUT</b> do motor comportamental (mesma janela do Principal).
+            Regra: trocas controladas (sem aleatório) para diversificar cobertura.
+          </div>
+          ${renderBox("🏆 Técnica 1 (Jogo 3)", g1, pack?.motivos?.tecnica1 || [])}
+          ${renderBox("🏆 Técnica 2 (Jogo 4)", g2, pack?.motivos?.tecnica2 || [])}
+        </div>
       `;
     }
 
@@ -3093,6 +3147,7 @@ async function gerarTecnicaPremiada(silent=false){
     if(area) area.innerHTML = `<div class="box"><b>⚠️ Erro</b><div class="mini" style="margin-top:8px">${String(e?.message||e)}</div></div>`;
   }
 }
+
 
 
 /* mostra botões de verificação quando tiver Principal + Invertida + Técnica */
