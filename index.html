@@ -1567,40 +1567,369 @@ function calcModernMetrics(concursos){
      k=10 -> +2 Top10 freq (1 mais + 1 menos) +2 (dupla forte) +1 atrasada (mais atrasada)
    - Paridade: segue o padrão dominante da janela (ex: 7 pares / 8 ímpares)
 ========================= */
+
 function gerarJogoPrincipalPrime(freq, modern, concursos, latestDezenas){
-  // ✅ NOVA REGRA (Premium):
-  // PRINCIPAL = 8 dezenas que saíram no concurso anterior + 7 dezenas que NÃO saíram,
-  // escolhidas pelos grupos que "mais saem juntos" dentro da janela selecionada.
+  /* =========================
+     ✅ MOTOR PREDITIVO FIXO (JOGO PRINCIPAL)
+     Objetivo: prever o próximo concurso aplicando um MÉTODO FIXO aprendido no treino,
+     SEM buscar “jogo salvo bom” nem pontuar passado.
+
+     Como funciona:
+     1) Usa a janela N (concursos selecionados) para CLASSIFICAR dezenas por comportamento (letras A–H),
+        igual ao padrão do 15P.
+     2) Aplica um TEMPLATE FIXO do PRINCIPAL (quotas por letras + alvo de repetidas + paridade dominante).
+     3) Retorna { jogo, motivos } para explicar ao usuário.
+  ========================= */
+
+  const conc = (concursos||[]).slice().sort((a,b)=> (a.concurso||0) - (b.concurso||0));
+  const N = Math.max(3, conc.length || 3);
+  const window = conc.slice(Math.max(0, conc.length - N));
+  const ultimo = window[window.length-1] || null;
 
   const latest = (latestDezenas||[]).map(toNum).filter(n=>n>=1&&n<=25).sort((a,b)=>a-b);
-  const latestSet = new Set(latest);
+  const lastSet = new Set(latest);
 
-  const all = Array.from({length:25},(_,i)=>i+1);
-  const outPool = all.filter(n=>!latestSet.has(n));
+  // bits de presença (mais antigo -> mais recente)
+  const pres = {};
+  for(let n=1;n<=25;n++) pres[n] = Array(window.length).fill(0);
+  for(let i=0;i<window.length;i++){
+    const set = new Set((window[i]?.dezenas||[]).map(toNum));
+    for(let n=1;n<=25;n++){
+      if(set.has(n)) pres[n][i]=1;
+    }
+  }
 
-  // Evitar repetição entre os 4 jogos: no PRINCIPAL não evitamos nada (primeiro da sequência)
-  const inBest  = bestSubsetFromPool(latest, 8, concursos, freq, modern, null);
-  const outBest = bestSubsetFromPool(outPool, 7, concursos, freq, modern, null);
+  function lastSeenIdx(bits){
+    for(let i=bits.length-1;i>=0;i--) if(bits[i]===1) return (bits.length-1-i); // 0=saiu no último
+    return 999;
+  }
+  function countOn(bits){ return bits.reduce((a,b)=>a+b,0); }
 
-  const jogo = [...inBest, ...outBest].sort((a,b)=>a-b);
+  // Letras A–H (fixas para qualquer N)
+  function letterOf(n){
+    const bits = pres[n];
+    const c = countOn(bits);
+    if(c===0) return "H";
+    const recent = (bits[bits.length-1]===1);
 
-  // Motivos (agrupados no UI)
-  const motivos = [];
-  inBest.forEach(n=>motivos.push({ dezena:n, texto:"♻️ Veio do último concurso (grupo forte na janela)" }));
-  outBest.forEach(n=>motivos.push({ dezena:n, texto:"🆕 Não veio no último concurso (grupo forte na janela)" }));
+    const high = Math.ceil(bits.length*0.75);
+    const med  = Math.ceil(bits.length*0.50);
 
-  const togetherIn  = countGroupTogetherInWindow(inBest, concursos);
-  const togetherOut = countGroupTogetherInWindow(outBest, concursos);
+    if(c>=high) return recent ? "A" : "B";
+    if(c>=med)  return recent ? "C" : "D";
 
-  motivos.push({
-    dezena: jogo[0],
-    texto: `📌 Regra PREMIUM: 8 do último + 7 fora • Janela: ${concursos?.length||0} concursos • 'Juntos' (8): ${togetherIn} • 'Juntos' (7): ${togetherOut}`
-  });
+    const ls = lastSeenIdx(bits);
+    if(recent) return "E";
+    if(ls<=2)  return "F";
+    return "G";
+  }
+  function bucket(L){
+    if(L==="A"||L==="B") return "hot";
+    if(L==="C"||L==="D") return "med";
+    if(L==="E"||L==="F"||L==="G") return "low";
+    return "zero";
+  }
+
+  // ranking estrutural (desempate determinístico; NÃO é “pontuação do passado”)
+  function rankScore(n){
+    const bits = pres[n];
+    const c = countOn(bits);
+    const ls = lastSeenIdx(bits);
+    // presença pesa mais, recência desempata, e leve preferência ao que saiu no último (para respeitar repetição alvo)
+    return (c*100) + (Math.max(0, 25-ls)*3) + (lastSet.has(n)?2:0);
+  }
+
+  // Dominante pares/ímpares na janela
+  const domEvenOdd = getDominantEvenOdd(window);
+  // Alvo de repetidas do último (padrão do treino): 9 (aceita 8..10)
+  const repTarget = 9;
+  const repMin = 8, repMax = 10;
+
+  // ✅ TEMPLATE FIXO do PRINCIPAL (quotas por “famílias”)
+  // (padrão aderente ao período treinado: muita repetição + núcleo quente + complemento)
+  const quotas = { hot: 9, med: 5, low: 1, zero: 0 }; // soma 15
+
+  // monta pools por bucket
+  const pools = { hot:[], med:[], low:[], zero:[] };
+  for(let n=1;n<=25;n++){
+    const L = letterOf(n);
+    pools[bucket(L)].push(n);
+  }
+  // ordena determinístico (melhor rankScore primeiro)
+  for(const k of Object.keys(pools)){
+    pools[k].sort((a,b)=> rankScore(b)-rankScore(a) || a-b);
+  }
+
+  // Seleção com controle de repetidas do último
+  const chosen = new Set();
+
+  function canPick(n){
+    return n>=1 && n<=25 && !chosen.has(n);
+  }
+  function curRepCount(){
+    let c=0; for(const n of chosen) if(lastSet.has(n)) c++;
+    return c;
+  }
+  function curCountWhere(pred){
+    let c=0; for(const n of chosen) if(pred(n)) c++;
+    return c;
+  }
+
+  // escolhe k itens de um bucket com preferência (inLast ou outLast) para bater repTarget
+  function pickFromBucket(bucketName, k, preferInLast){
+    const pool = pools[bucketName] || [];
+    for(const n of pool){
+      if(chosen.size>=15) break;
+      if(k<=0) break;
+      if(!canPick(n)) continue;
+
+      const inLast = lastSet.has(n);
+      if(preferInLast === true && !inLast) continue;
+      if(preferInLast === false && inLast) continue;
+
+      chosen.add(n);
+      k--;
+    }
+    return k;
+  }
+
+  // estratégia:
+  // 1) garantir uma base de repetidas (núcleo) usando HOT+MED que saíram no último
+  let needRep = repTarget;
+  needRep = pickFromBucket("hot", Math.min(quotas.hot, needRep), true) + Math.max(0, needRep - Math.min(quotas.hot, needRep)); // placeholder
+  // acima ficou “estranho” por causa do retorno; refazemos abaixo de forma clara:
+  chosen.clear();
+
+  // (A) pega repetidas primeiro (hot/med preferindo inLast)
+  let hotLeft = quotas.hot;
+  let medLeft = quotas.med;
+  let lowLeft = quotas.low;
+  let zeroLeft = quotas.zero;
+
+  // repetidas: distribui entre hot/med/low conforme disponibilidade
+  let repLeft = repTarget;
+
+  // hot repetidas
+  for(const n of pools.hot){
+    if(repLeft<=0 || hotLeft<=0) break;
+    if(!canPick(n)) continue;
+    if(!lastSet.has(n)) continue;
+    chosen.add(n); repLeft--; hotLeft--;
+  }
+  // med repetidas
+  for(const n of pools.med){
+    if(repLeft<=0 || medLeft<=0) break;
+    if(!canPick(n)) continue;
+    if(!lastSet.has(n)) continue;
+    chosen.add(n); repLeft--; medLeft--;
+  }
+  // low repetidas (só se necessário)
+  for(const n of pools.low){
+    if(repLeft<=0 || lowLeft<=0) break;
+    if(!canPick(n)) continue;
+    if(!lastSet.has(n)) continue;
+    chosen.add(n); repLeft--; lowLeft--;
+  }
+
+  // (B) completa com “fora do último” (para fechar 15 e garantir diversidade)
+  // hot fora
+  for(const n of pools.hot){
+    if(chosen.size>=15 || hotLeft<=0) break;
+    if(!canPick(n)) continue;
+    if(lastSet.has(n)) continue;
+    chosen.add(n); hotLeft--;
+  }
+  // med fora
+  for(const n of pools.med){
+    if(chosen.size>=15 || medLeft<=0) break;
+    if(!canPick(n)) continue;
+    if(lastSet.has(n)) continue;
+    chosen.add(n); medLeft--;
+  }
+  // low fora
+  for(const n of pools.low){
+    if(chosen.size>=15 || lowLeft<=0) break;
+    if(!canPick(n)) continue;
+    if(lastSet.has(n)) continue;
+    chosen.add(n); lowLeft--;
+  }
+  // zero fora (normalmente 0 no PRINCIPAL)
+  for(const n of pools.zero){
+    if(chosen.size>=15 || zeroLeft<=0) break;
+    if(!canPick(n)) continue;
+    if(lastSet.has(n)) continue;
+    chosen.add(n); zeroLeft--;
+  }
+
+  // (C) se ainda faltou completar 15 (caso raro), completa determinístico pela ordem geral (evitando H)
+  if(chosen.size<15){
+    const all = [];
+    for(let n=1;n<=25;n++) all.push(n);
+    all.sort((a,b)=> rankScore(b)-rankScore(a) || a-b);
+    for(const n of all){
+      if(chosen.size>=15) break;
+      if(!canPick(n)) continue;
+      // evita H no principal (só entra se for inevitável)
+      if(letterOf(n)==="H") continue;
+      chosen.add(n);
+    }
+  }
+  // se MESMO assim faltou (ultra raro), aceita qualquer
+  if(chosen.size<15){
+    for(let n=1;n<=25 && chosen.size<15;n++){
+      if(canPick(n)) chosen.add(n);
+    }
+  }
+
+  // Ajusta repetidas para ficar no intervalo 8..10
+  function adjustReps(){
+    let reps = curRepCount();
+    const chosenArr = [...chosen].sort((a,b)=>a-b);
+
+    // se tem repetidas demais, troca repetidas por fora do último mantendo letra “próxima”
+    if(reps > repMax){
+      // candidatos para remover: repetidas de menor rank
+      const remove = chosenArr.filter(n=>lastSet.has(n))
+        .sort((a,b)=> rankScore(a)-rankScore(b) || a-b);
+
+      // candidatos para entrar: fora do último com maior rank, evitando H
+      const addPool = [];
+      for(let n=1;n<=25;n++){
+        if(chosen.has(n)) continue;
+        if(lastSet.has(n)) continue;
+        if(letterOf(n)==="H") continue;
+        addPool.push(n);
+      }
+      addPool.sort((a,b)=> rankScore(b)-rankScore(a) || a-b);
+
+      let ai=0;
+      for(const r of remove){
+        if(reps<=repMax || ai>=addPool.length) break;
+        chosen.delete(r);
+        chosen.add(addPool[ai++]);
+        reps = curRepCount();
+      }
+    }
+
+    // se tem repetidas de menos, troca fora do último por repetida forte
+    reps = curRepCount();
+    if(reps < repMin){
+      const remove = chosenArr.filter(n=>!lastSet.has(n))
+        .sort((a,b)=> rankScore(a)-rankScore(b) || a-b);
+
+      const addPool = latest.filter(n=>!chosen.has(n))
+        .sort((a,b)=> rankScore(b)-rankScore(a) || a-b);
+
+      let ai=0;
+      for(const r of remove){
+        if(reps>=repMin || ai>=addPool.length) break;
+        chosen.delete(r);
+        chosen.add(addPool[ai++]);
+        reps = curRepCount();
+      }
+    }
+  }
+  adjustReps();
+
+  // Ajusta paridade para o dominante (pares alvo)
+  function adjustParity(){
+    const targetPares = domEvenOdd.pares;
+    function countEven(set){ let c=0; for(const n of set) if(n%2===0) c++; return c; }
+    let curEven = countEven(chosen);
+    const needMoreEven = () => curEven < targetPares;
+    const needLessEven = () => curEven > targetPares;
+
+    // pools de troca
+    const allCandidates = [];
+    for(let n=1;n<=25;n++){
+      if(chosen.has(n)) continue;
+      allCandidates.push(n);
+    }
+    allCandidates.sort((a,b)=> rankScore(b)-rankScore(a) || a-b);
+
+    let guard=0;
+    while((needMoreEven() || needLessEven()) && guard++ < 60){
+      if(needMoreEven()){
+        // remove um ímpar mais fraco e coloca um par forte fora do conjunto
+        const rem = [...chosen].filter(n=>n%2===1).sort((a,b)=> rankScore(a)-rankScore(b) || a-b)[0];
+        const add = allCandidates.find(n=>n%2===0);
+        if(rem==null || add==null) break;
+        chosen.delete(rem);
+        chosen.add(add);
+      }else if(needLessEven()){
+        const rem = [...chosen].filter(n=>n%2===0).sort((a,b)=> rankScore(a)-rankScore(b) || a-b)[0];
+        const add = allCandidates.find(n=>n%2===1);
+        if(rem==null || add==null) break;
+        chosen.delete(rem);
+        chosen.add(add);
+      }
+      curEven = countEven(chosen);
+      // mantém repetidas dentro da faixa
+      adjustReps();
+    }
+  }
+  adjustParity();
+
+  const jogo = [...chosen].map(Number).sort((a,b)=>a-b);
+
+  // ✅ Motivos (por dezena + resumo do método)
+  const motivos = buildMotivosPrincipalPreditivo(jogo, window, latest, { letterOf, bucket, domEvenOdd, quotas, repTarget, repMin, repMax });
 
   return { jogo, motivos };
 }
 
+function buildMotivosPrincipalPreditivo(jogo, window, latest, ctx){
+  const lastSet = new Set((latest||[]).map(toNum));
+  const N = (window||[]).length || 0;
 
+  function gapOf(n){
+    // tenta usar ctx.letterOf (que já usa bits), mas para mostrar “gap” simples:
+    // procura do fim para o começo
+    const w = (window||[]);
+    for(let i=w.length-1;i>=0;i--){
+      const set = new Set((w[i]?.dezenas||[]).map(toNum));
+      if(set.has(n)) return (w.length-1-i);
+    }
+    return 999;
+  }
+
+  const linhas = [];
+  const chosenSet = new Set(jogo.map(Number));
+
+  for(const n of jogo){
+    const L = ctx?.letterOf ? ctx.letterOf(Number(n)) : "?";
+    const b = ctx?.bucket ? ctx.bucket(L) : "?";
+    const g = gapOf(Number(n));
+    const inLast = lastSet.has(Number(n));
+
+    const bucketTxt = (b==="hot") ? "Quente (A/B)"
+                    : (b==="med") ? "Média (C/D)"
+                    : (b==="low") ? "Baixa (E/F/G)"
+                    : "Adormecida (H)";
+
+    const parts = [];
+    parts.push(`🧩 Letra <b>${L}</b> • ${bucketTxt} na janela`);
+    parts.push(inLast ? "🔁 repetiu do último concurso" : "🆕 veio de fora do último");
+    if(g===0) parts.push("⚡ saiu no último (recência máxima)");
+    else if(g<=2) parts.push(`⚡ recência forte (há ${g} concurso[s])`);
+    else if(g<999) parts.push(`⏳ estava há ${g} concursos sem sair`);
+    else parts.push("⏳ não saiu na janela");
+
+    // Paridade/estrutura (informativo, não muda regra)
+    parts.push(`⚖️ método mira ${ctx?.domEvenOdd?.pares ?? 7} pares / ${ctx?.domEvenOdd?.impares ?? 8} ímpares`);
+
+    linhas.push({ dezena: Number(n), texto: parts.join(" • ") });
+  }
+
+  // resumo do método (vai ser agrupado no UI)
+  const reps = jogo.filter(n=>lastSet.has(Number(n))).length;
+  linhas.push({
+    dezena: jogo[0],
+    texto: `📌 PADRÃO PREDITIVO FIXO (Principal): quotas Quentes ${ctx?.quotas?.hot ?? 9}, Médias ${ctx?.quotas?.med ?? 5}, Baixas ${ctx?.quotas?.low ?? 1}, Adormecidas ${ctx?.quotas?.zero ?? 0} • Repetidas alvo ${ctx?.repTarget ?? 9} (aceita ${ctx?.repMin ?? 8}–${ctx?.repMax ?? 10}) • Janela N=${N} • Repetidas no jogo: ${reps}`
+  });
+
+  return linhas;
+}
 /* ✅ Motivos por grupo (igual ao padrão do print, agrupável) */
 function buildMotivosPrime(jogo, picks, domEvenOdd, modern, freq, concursos){
   const baseSet = new Set((picks.base||[]).map(Number));
@@ -2743,7 +3072,7 @@ const motivosHtml = Object.entries(motivosAgrupados)
 <div class="box" style="margin-top:12px">
   <b>🧾 Por que essas dezenas foram escolhidas?</b>
   <div class="mini" style="margin-top:8px">
-    Explicação simples (repetição do último + mix de quentes/mornas/frias + recência).
+    Explicação do método: o sistema classifica dezenas por comportamento (letras A–H) na janela N e aplica um TEMPLATE FIXO do Principal (quotas + repetidas alvo + paridade dominante) para prever o próximo concurso.
   </div>
   <div style="margin-top:10px;border:1px solid rgba(255,255,255,.10);border-radius:14px;overflow:hidden">
     ${motivosHtml}
