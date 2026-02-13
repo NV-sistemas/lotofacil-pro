@@ -3760,6 +3760,8 @@ async function buildLines15PAdvanced(payloadShort, qtdShort){
   }
 
   let chosen15Final = sortNum([...chosen]).slice(0,15);
+  // ✅ Alias de compatibilidade: algumas rotinas usam chosen15
+const chosen15 = Array.isArray(chosen15Final) ? chosen15Final : [];
 
   // ✅ Ajuste preditivo: evitar "copiar" o último concurso.
   // Mantemos algumas repetidas (natural), mas LIMITAMOS excesso para não gerar linha idêntica ao último sorteio.
