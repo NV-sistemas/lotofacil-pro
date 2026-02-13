@@ -96,6 +96,7 @@
   #app .card{max-width:none}
 
   .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:12px}
+  .gridExplain{grid-template-columns:repeat(auto-fit,minmax(320px,1fr));}
   .box{
     background: var(--surface);
     border:1px solid var(--stroke);
@@ -2751,7 +2752,7 @@ const motivosHtml = Object.entries(motivosAgrupados)
 
       <div class="box" style="margin-top:12px">
         <b>🧾 Resumo PRIME (detalhado)</b>
-        <div class="grid" style="margin-top:12px">
+        <div class="grid gridExplain" style="margin-top:12px">
           
           <div class="box">
             <b>🔁 Repetidas do último</b>
@@ -4368,11 +4369,11 @@ async function gerar15P(){
       <div class="box" style="margin-top:12px">
         <b>🔍 Explicação detalhada das linhas</b>
         <div class="grid" style="margin-top:12px">
-          ${explainLine(1, lines[0], stats, "forte")}
-          ${explainLine(2, lines[1], stats, "forte")}
-          ${explainLine(3, lines[2], stats, "forte")}
-          ${explainLine(4, lines[3], stats, "diversa")}
-          ${explainLine(5, lines[4], stats, "diversa")}
+          ${explainLine(1, lines[0], explainCtx, "forte")}
+          ${explainLine(2, lines[1], explainCtx, "forte")}
+          ${explainLine(3, lines[2], explainCtx, "forte")}
+          ${explainLine(4, lines[3], explainCtx, "diversa")}
+          ${explainLine(5, lines[4], explainCtx, "diversa")}
         </div>
       </div>
 
