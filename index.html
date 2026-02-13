@@ -1570,21 +1570,25 @@ function calcModernMetrics(concursos){
 
 function gerarJogoPrincipalPrime(freq, modern, concursos, latestDezenas){
   /* =========================
-     ✅ MOTOR PREDITIVO FIXO (JOGO PRINCIPAL)
-     Objetivo: prever o próximo concurso aplicando um MÉTODO FIXO aprendido no treino,
-     SEM buscar “jogo salvo bom” nem pontuar passado.
+     ✅ MOTOR PREDITIVO POR CICLOS (JOGO PRINCIPAL)
+     Objetivo: prever o próximo concurso pelo COMPORTAMENTO (ciclos), e NÃO por “frequência/quentes”,
+     e NÃO por “pontuação passada”.
 
-     Como funciona:
-     1) Usa a janela N (concursos selecionados) para CLASSIFICAR dezenas por comportamento (letras A–H),
-        igual ao padrão do 15P.
-     2) Aplica um TEMPLATE FIXO do PRINCIPAL (quotas por letras + alvo de repetidas + paridade dominante).
-     3) Retorna { jogo, motivos } para explicar ao usuário.
+     O método é FIXO. O que muda é a janela N (quantidade de concursos analisados).
+     - Para cada dezena: calcula GAP (atraso), OSCILAÇÃO e INSTABILIDADE na janela N.
+     - Aplica TEMPLATE FIXO do Principal (convergência de ciclos):
+         2 âncoras (gap=0) +
+         5 ciclo curto (gap 1–2) +
+         5 ciclo médio (gap 2–3) +
+         3 ciclo fechando (gap 3–4)
+     - Força 2 pares “sincronizados” (mais coocorrência na janela) dentro do jogo.
+     - Ajusta paridade para o padrão dominante (7/8 ou 8/7) na janela.
+     - 100% determinístico (SEM Math.random).
   ========================= */
 
   const conc = (concursos||[]).slice().sort((a,b)=> (a.concurso||0) - (b.concurso||0));
   const N = Math.max(3, conc.length || 3);
   const window = conc.slice(Math.max(0, conc.length - N));
-  const ultimo = window[window.length-1] || null;
 
   const latest = (latestDezenas||[]).map(toNum).filter(n=>n>=1&&n<=25).sort((a,b)=>a-b);
   const lastSet = new Set(latest);
@@ -1599,273 +1603,196 @@ function gerarJogoPrincipalPrime(freq, modern, concursos, latestDezenas){
     }
   }
 
-  function lastSeenIdx(bits){
-    for(let i=bits.length-1;i>=0;i--) if(bits[i]===1) return (bits.length-1-i); // 0=saiu no último
+  function gapOf(n){
+    const bits = pres[n] || [];
+    for(let i=bits.length-1;i>=0;i--) if(bits[i]===1) return (bits.length-1-i); // 0 = saiu no último
     return 999;
   }
-  function countOn(bits){ return bits.reduce((a,b)=>a+b,0); }
-
-  // Letras A–H (fixas para qualquer N)
-  function letterOf(n){
-    const bits = pres[n];
-    const c = countOn(bits);
-    if(c===0) return "H";
-    const recent = (bits[bits.length-1]===1);
-
-    const high = Math.ceil(bits.length*0.75);
-    const med  = Math.ceil(bits.length*0.50);
-
-    if(c>=high) return recent ? "A" : "B";
-    if(c>=med)  return recent ? "C" : "D";
-
-    const ls = lastSeenIdx(bits);
-    if(recent) return "E";
-    if(ls<=2)  return "F";
-    return "G";
+  function countOn(n){
+    const bits = pres[n] || [];
+    return bits.reduce((a,b)=>a+b,0);
   }
-  function bucket(L){
-    if(L==="A"||L==="B") return "hot";
-    if(L==="C"||L==="D") return "med";
-    if(L==="E"||L==="F"||L==="G") return "low";
-    return "zero";
+  function instabilityOf(n){
+    const bits = pres[n] || [];
+    const L = bits.length;
+    const span = Math.min(6, L);
+    let flips=0;
+    for(let i=L-span+1;i<L;i++){
+      if(i<=0) continue;
+      if(bits[i] !== bits[i-1]) flips++;
+    }
+    return flips; // 0..(span-1)
   }
-
-  // ranking estrutural (desempate determinístico; NÃO é “pontuação do passado”)
-  function rankScore(n){
-    const bits = pres[n];
-    const c = countOn(bits);
-    const ls = lastSeenIdx(bits);
-    // presença pesa mais, recência desempata, e leve preferência ao que saiu no último (para respeitar repetição alvo)
-    return (c*100) + (Math.max(0, 25-ls)*3) + (lastSet.has(n)?2:0);
+  function oscPattern(n){
+    const bits = pres[n] || [];
+    const L = bits.length;
+    const span = Math.min(6, L);
+    return bits.slice(L-span).join("");
   }
 
   // Dominante pares/ímpares na janela
   const domEvenOdd = getDominantEvenOdd(window);
-  // Alvo de repetidas do último (padrão do treino): 9 (aceita 8..10)
-  const repTarget = 9;
-  const repMin = 8, repMax = 10;
+  const targetPares = domEvenOdd?.pares ?? 7;
 
-  // ✅ TEMPLATE FIXO do PRINCIPAL (quotas por “famílias”)
-  // (padrão aderente ao período treinado: muita repetição + núcleo quente + complemento)
-  const quotas = { hot: 9, med: 5, low: 1, zero: 0 }; // soma 15
+  // Coocorrência simples de pares (janela inteira) para “sincronia”
+  const pairScore = {}; // "a-b" -> count
+  for(const c of window){
+    const dz = (c?.dezenas||[]).map(toNum).filter(x=>x>=1&&x<=25).sort((a,b)=>a-b);
+    for(let i=0;i<dz.length;i++){
+      for(let j=i+1;j<dz.length;j++){
+        const a=dz[i], b=dz[j];
+        const key = a<b ? `${a}-${b}` : `${b}-${a}`;
+        pairScore[key] = (pairScore[key]||0) + 1;
+      }
+    }
+  }
 
-  // monta pools por bucket
-  const pools = { hot:[], med:[], low:[], zero:[] };
+  // score determinístico por dezena baseado em CICLO (não frequência)
+  function cycleScore(n){
+    const g = gapOf(n);
+    const inst = instabilityOf(n);
+    const on = countOn(n); // só como desempate leve (não é “quente”; é estabilidade na janela)
+    // preferências:
+    // - gap 1–4 é “zona ativa” (ciclo curto/médio/fechando)
+    // - instabilidade alta sugere alternância (muito comum antes de sincronizar)
+    // - leve bônus por estar fora do último para não grudar só no passado
+    let score = 0;
+
+    if(g===0) score += 8;           // âncora
+    else if(g<=2) score += 14;      // ciclo curto
+    else if(g===3) score += 13;     // ciclo médio
+    else if(g===4) score += 12;     // ciclo fechando
+    else if(g<999) score += Math.max(0, 10 - Math.min(6, g)); // mais atrasado, menos prioridade
+    else score += 0;
+
+    score += inst * 3;              // alternância
+    score += Math.min(6, on);       // desempate suave
+    if(!lastSet.has(n)) score += 2; // favorece parte “fora do último”
+
+    return score;
+  }
+
+  // Pools por faixa de GAP
+  const pools = {
+    g0: [],      // gap 0
+    g12: [],     // gap 1-2
+    g23: [],     // gap 2-3 (inclui 2 e 3)
+    g34: [],     // gap 3-4 (inclui 3 e 4)
+    other: []    // resto
+  };
+
   for(let n=1;n<=25;n++){
-    const L = letterOf(n);
-    pools[bucket(L)].push(n);
-  }
-  // ordena determinístico (melhor rankScore primeiro)
-  for(const k of Object.keys(pools)){
-    pools[k].sort((a,b)=> rankScore(b)-rankScore(a) || a-b);
+    const g = gapOf(n);
+    if(g===0) pools.g0.push(n);
+    else if(g===1 || g===2) pools.g12.push(n);
+    else if(g===2 || g===3) pools.g23.push(n);
+    else if(g===3 || g===4) pools.g34.push(n);
+    else pools.other.push(n);
   }
 
-  // Seleção com controle de repetidas do último
+  function sortPool(arr){
+    arr.sort((a,b)=> cycleScore(b)-cycleScore(a) || a-b);
+    return arr;
+  }
+  sortPool(pools.g0); sortPool(pools.g12); sortPool(pools.g23); sortPool(pools.g34); sortPool(pools.other);
+
   const chosen = new Set();
-
-  function canPick(n){
-    return n>=1 && n<=25 && !chosen.has(n);
-  }
-  function curRepCount(){
-    let c=0; for(const n of chosen) if(lastSet.has(n)) c++;
-    return c;
-  }
-  function curCountWhere(pred){
-    let c=0; for(const n of chosen) if(pred(n)) c++;
-    return c;
-  }
-
-  // escolhe k itens de um bucket com preferência (inLast ou outLast) para bater repTarget
-  function pickFromBucket(bucketName, k, preferInLast){
-    const pool = pools[bucketName] || [];
+  function addFrom(pool, k){
     for(const n of pool){
-      if(chosen.size>=15) break;
-      if(k<=0) break;
-      if(!canPick(n)) continue;
-
-      const inLast = lastSet.has(n);
-      if(preferInLast === true && !inLast) continue;
-      if(preferInLast === false && inLast) continue;
-
-      chosen.add(n);
-      k--;
+      if(chosen.size>=15 || k<=0) break;
+      if(chosen.has(n)) continue;
+      chosen.add(n); k--;
     }
     return k;
   }
 
-  // estratégia:
-  // 1) garantir uma base de repetidas (núcleo) usando HOT+MED que saíram no último
-  let needRep = repTarget;
-  needRep = pickFromBucket("hot", Math.min(quotas.hot, needRep), true) + Math.max(0, needRep - Math.min(quotas.hot, needRep)); // placeholder
-  // acima ficou “estranho” por causa do retorno; refazemos abaixo de forma clara:
-  chosen.clear();
+  // ✅ TEMPLATE FIXO (convergência de ciclos)
+  let need = { g0:2, g12:5, g23:5, g34:3 };
 
-  // (A) pega repetidas primeiro (hot/med preferindo inLast)
-  let hotLeft = quotas.hot;
-  let medLeft = quotas.med;
-  let lowLeft = quotas.low;
-  let zeroLeft = quotas.zero;
+  need.g0 = addFrom(pools.g0, need.g0);
+  need.g12 = addFrom(pools.g12, need.g12);
+  need.g23 = addFrom(pools.g23, need.g23);
+  need.g34 = addFrom(pools.g34, need.g34);
 
-  // repetidas: distribui entre hot/med/low conforme disponibilidade
-  let repLeft = repTarget;
-
-  // hot repetidas
-  for(const n of pools.hot){
-    if(repLeft<=0 || hotLeft<=0) break;
-    if(!canPick(n)) continue;
-    if(!lastSet.has(n)) continue;
-    chosen.add(n); repLeft--; hotLeft--;
-  }
-  // med repetidas
-  for(const n of pools.med){
-    if(repLeft<=0 || medLeft<=0) break;
-    if(!canPick(n)) continue;
-    if(!lastSet.has(n)) continue;
-    chosen.add(n); repLeft--; medLeft--;
-  }
-  // low repetidas (só se necessário)
-  for(const n of pools.low){
-    if(repLeft<=0 || lowLeft<=0) break;
-    if(!canPick(n)) continue;
-    if(!lastSet.has(n)) continue;
-    chosen.add(n); repLeft--; lowLeft--;
+  // Preenche faltas (caso pool insuficiente) sem quebrar o método:
+  // prioridade: g12 -> g23 -> g34 -> g0 -> other
+  const fillOrder = [pools.g12, pools.g23, pools.g34, pools.g0, pools.other];
+  for(const pool of fillOrder){
+    if(chosen.size>=15) break;
+    addFrom(pool, 15 - chosen.size);
   }
 
-  // (B) completa com “fora do último” (para fechar 15 e garantir diversidade)
-  // hot fora
-  for(const n of pools.hot){
-    if(chosen.size>=15 || hotLeft<=0) break;
-    if(!canPick(n)) continue;
-    if(lastSet.has(n)) continue;
-    chosen.add(n); hotLeft--;
+  // Força 2 pares sincronizados (se ainda não tiver)
+  function topPairs(){
+    const entries = Object.entries(pairScore).sort((a,b)=> (b[1]-a[1]) || (a[0].localeCompare(b[0])));
+    return entries.slice(0, 10).map(([k,v])=>({k,v, a:+k.split("-")[0], b:+k.split("-")[1]}));
   }
-  // med fora
-  for(const n of pools.med){
-    if(chosen.size>=15 || medLeft<=0) break;
-    if(!canPick(n)) continue;
-    if(lastSet.has(n)) continue;
-    chosen.add(n); medLeft--;
-  }
-  // low fora
-  for(const n of pools.low){
-    if(chosen.size>=15 || lowLeft<=0) break;
-    if(!canPick(n)) continue;
-    if(lastSet.has(n)) continue;
-    chosen.add(n); lowLeft--;
-  }
-  // zero fora (normalmente 0 no PRINCIPAL)
-  for(const n of pools.zero){
-    if(chosen.size>=15 || zeroLeft<=0) break;
-    if(!canPick(n)) continue;
-    if(lastSet.has(n)) continue;
-    chosen.add(n); zeroLeft--;
-  }
-
-  // (C) se ainda faltou completar 15 (caso raro), completa determinístico pela ordem geral (evitando H)
-  if(chosen.size<15){
-    const all = [];
-    for(let n=1;n<=25;n++) all.push(n);
-    all.sort((a,b)=> rankScore(b)-rankScore(a) || a-b);
-    for(const n of all){
-      if(chosen.size>=15) break;
-      if(!canPick(n)) continue;
-      // evita H no principal (só entra se for inevitável)
-      if(letterOf(n)==="H") continue;
-      chosen.add(n);
+  const pairs = topPairs();
+  function ensurePairs(minPairs){
+    let have=0;
+    for(const p of pairs){
+      if(chosen.has(p.a) && chosen.has(p.b)) have++;
     }
-  }
-  // se MESMO assim faltou (ultra raro), aceita qualquer
-  if(chosen.size<15){
-    for(let n=1;n<=25 && chosen.size<15;n++){
-      if(canPick(n)) chosen.add(n);
-    }
-  }
+    if(have>=minPairs) return;
 
-  // Ajusta repetidas para ficar no intervalo 8..10
-  function adjustReps(){
-    let reps = curRepCount();
-    const chosenArr = [...chosen].sort((a,b)=>a-b);
+    for(const p of pairs){
+      if(have>=minPairs) break;
 
-    // se tem repetidas demais, troca repetidas por fora do último mantendo letra “próxima”
-    if(reps > repMax){
-      // candidatos para remover: repetidas de menor rank
-      const remove = chosenArr.filter(n=>lastSet.has(n))
-        .sort((a,b)=> rankScore(a)-rankScore(b) || a-b);
+      // tenta inserir a e b
+      const needA = !chosen.has(p.a);
+      const needB = !chosen.has(p.b);
 
-      // candidatos para entrar: fora do último com maior rank, evitando H
-      const addPool = [];
-      for(let n=1;n<=25;n++){
-        if(chosen.has(n)) continue;
-        if(lastSet.has(n)) continue;
-        if(letterOf(n)==="H") continue;
-        addPool.push(n);
+      // se já tem um, tenta inserir o outro trocando o mais fraco
+      if(needA || needB){
+        const candAdd = [];
+        if(needA) candAdd.push(p.a);
+        if(needB) candAdd.push(p.b);
+
+        for(const addN of candAdd){
+          if(chosen.has(addN)) continue;
+
+          // escolhe remoção: o “mais fraco” pelo cycleScore, evitando remover âncoras se possível
+          const removable = [...chosen].sort((x,y)=> cycleScore(x)-cycleScore(y) || x-y);
+          let rem = removable.find(x=> gapOf(x)!==0) ?? removable[0];
+          if(rem==null) continue;
+
+          chosen.delete(rem);
+          chosen.add(addN);
+        }
       }
-      addPool.sort((a,b)=> rankScore(b)-rankScore(a) || a-b);
 
-      let ai=0;
-      for(const r of remove){
-        if(reps<=repMax || ai>=addPool.length) break;
-        chosen.delete(r);
-        chosen.add(addPool[ai++]);
-        reps = curRepCount();
-      }
-    }
-
-    // se tem repetidas de menos, troca fora do último por repetida forte
-    reps = curRepCount();
-    if(reps < repMin){
-      const remove = chosenArr.filter(n=>!lastSet.has(n))
-        .sort((a,b)=> rankScore(a)-rankScore(b) || a-b);
-
-      const addPool = latest.filter(n=>!chosen.has(n))
-        .sort((a,b)=> rankScore(b)-rankScore(a) || a-b);
-
-      let ai=0;
-      for(const r of remove){
-        if(reps>=repMin || ai>=addPool.length) break;
-        chosen.delete(r);
-        chosen.add(addPool[ai++]);
-        reps = curRepCount();
+      // recalcula
+      have=0;
+      for(const q of pairs){
+        if(chosen.has(q.a) && chosen.has(q.b)) have++;
       }
     }
   }
-  adjustReps();
+  ensurePairs(2);
 
-  // Ajusta paridade para o dominante (pares alvo)
+  // Ajusta paridade para dominante (mantém determinístico)
+  function countEven(set){
+    let c=0; for(const n of set) if(n%2===0) c++;
+    return c;
+  }
   function adjustParity(){
-    const targetPares = domEvenOdd.pares;
-    function countEven(set){ let c=0; for(const n of set) if(n%2===0) c++; return c; }
     let curEven = countEven(chosen);
-    const needMoreEven = () => curEven < targetPares;
-    const needLessEven = () => curEven > targetPares;
-
-    // pools de troca
-    const allCandidates = [];
-    for(let n=1;n<=25;n++){
-      if(chosen.has(n)) continue;
-      allCandidates.push(n);
-    }
-    allCandidates.sort((a,b)=> rankScore(b)-rankScore(a) || a-b);
-
     let guard=0;
-    while((needMoreEven() || needLessEven()) && guard++ < 60){
-      if(needMoreEven()){
-        // remove um ímpar mais fraco e coloca um par forte fora do conjunto
-        const rem = [...chosen].filter(n=>n%2===1).sort((a,b)=> rankScore(a)-rankScore(b) || a-b)[0];
-        const add = allCandidates.find(n=>n%2===0);
+    while(curEven !== targetPares && guard++<80){
+      if(curEven < targetPares){
+        // precisamos de mais pares: troca um ímpar fraco por par forte fora
+        const rem = [...chosen].filter(n=>n%2===1).sort((a,b)=> cycleScore(a)-cycleScore(b) || a-b)[0];
+        const add = [...Array(25)].map((_,i)=>i+1).filter(n=>!chosen.has(n) && n%2===0).sort((a,b)=> cycleScore(b)-cycleScore(a) || a-b)[0];
         if(rem==null || add==null) break;
-        chosen.delete(rem);
-        chosen.add(add);
-      }else if(needLessEven()){
-        const rem = [...chosen].filter(n=>n%2===0).sort((a,b)=> rankScore(a)-rankScore(b) || a-b)[0];
-        const add = allCandidates.find(n=>n%2===1);
+        chosen.delete(rem); chosen.add(add);
+      }else{
+        const rem = [...chosen].filter(n=>n%2===0).sort((a,b)=> cycleScore(a)-cycleScore(b) || a-b)[0];
+        const add = [...Array(25)].map((_,i)=>i+1).filter(n=>!chosen.has(n) && n%2===1).sort((a,b)=> cycleScore(b)-cycleScore(a) || a-b)[0];
         if(rem==null || add==null) break;
-        chosen.delete(rem);
-        chosen.add(add);
+        chosen.delete(rem); chosen.add(add);
       }
       curEven = countEven(chosen);
-      // mantém repetidas dentro da faixa
-      adjustReps();
+      ensurePairs(2);
     }
   }
   adjustParity();
@@ -1873,7 +1800,14 @@ function gerarJogoPrincipalPrime(freq, modern, concursos, latestDezenas){
   const jogo = [...chosen].map(Number).sort((a,b)=>a-b);
 
   // ✅ Motivos (por dezena + resumo do método)
-  const motivos = buildMotivosPrincipalPreditivo(jogo, window, latest, { letterOf, bucket, domEvenOdd, quotas, repTarget, repMin, repMax });
+  const motivos = buildMotivosPrincipalPreditivo(jogo, window, latest, {
+    domEvenOdd,
+    targetPares,
+    gapOf,
+    instabilityOf,
+    oscPattern,
+    pairTop: pairs
+  });
 
   return { jogo, motivos };
 }
@@ -1882,55 +1816,50 @@ function buildMotivosPrincipalPreditivo(jogo, window, latest, ctx){
   const lastSet = new Set((latest||[]).map(toNum));
   const N = (window||[]).length || 0;
 
-  function gapOf(n){
-    // tenta usar ctx.letterOf (que já usa bits), mas para mostrar “gap” simples:
-    // procura do fim para o começo
-    const w = (window||[]);
-    for(let i=w.length-1;i>=0;i--){
-      const set = new Set((w[i]?.dezenas||[]).map(toNum));
-      if(set.has(n)) return (w.length-1-i);
-    }
-    return 999;
-  }
-
   const linhas = [];
-  const chosenSet = new Set(jogo.map(Number));
 
-  for(const n of jogo){
-    const L = ctx?.letterOf ? ctx.letterOf(Number(n)) : "?";
-    const b = ctx?.bucket ? ctx.bucket(L) : "?";
-    const g = gapOf(Number(n));
-    const inLast = lastSet.has(Number(n));
+  for(const n0 of jogo){
+    const n = Number(n0);
+    const g = ctx?.gapOf ? ctx.gapOf(n) : 999;
+    const inst = ctx?.instabilityOf ? ctx.instabilityOf(n) : 0;
+    const pat = ctx?.oscPattern ? ctx.oscPattern(n) : "";
 
-    const bucketTxt = (b==="hot") ? "Quente (A/B)"
-                    : (b==="med") ? "Média (C/D)"
-                    : (b==="low") ? "Baixa (E/F/G)"
-                    : "Adormecida (H)";
+    const inLast = lastSet.has(n);
+
+    const cicloTxt =
+      (g===0) ? "Âncora (gap 0)"
+    : (g<=2) ? "Ciclo curto (gap 1–2)"
+    : (g===3) ? "Ciclo médio (gap 3)"
+    : (g===4) ? "Ciclo fechando (gap 4)"
+    : (g<999) ? `Atrasada (gap ${g})`
+    : "Fora da janela";
 
     const parts = [];
-    parts.push(`🧩 Letra <b>${L}</b> • ${bucketTxt} na janela`);
-    parts.push(inLast ? "🔁 repetiu do último concurso" : "🆕 veio de fora do último");
-    if(g===0) parts.push("⚡ saiu no último (recência máxima)");
-    else if(g<=2) parts.push(`⚡ recência forte (há ${g} concurso[s])`);
-    else if(g<999) parts.push(`⏳ estava há ${g} concursos sem sair`);
-    else parts.push("⏳ não saiu na janela");
+    parts.push(`🧠 Ciclo: <b>${cicloTxt}</b>`);
+    parts.push(inLast ? "🔁 saiu no último concurso (âncora/recência)" : "🆕 não saiu no último (tende a entrar na convergência)");
+    if(g===0) parts.push("⚡ recência máxima");
+    else if(g<999) parts.push(`⏳ gap: ${g}`);
+    else parts.push("⏳ sem ocorrência na janela");
 
-    // Paridade/estrutura (informativo, não muda regra)
-    parts.push(`⚖️ método mira ${ctx?.domEvenOdd?.pares ?? 7} pares / ${ctx?.domEvenOdd?.impares ?? 8} ímpares`);
+    parts.push(`🔄 instabilidade: ${inst} (alternâncias recentes)`);
+    if(pat) parts.push(`📎 padrão recente: ${pat}`);
 
-    linhas.push({ dezena: Number(n), texto: parts.join(" • ") });
+    parts.push(`⚖️ mira ${ctx?.targetPares ?? 7} pares / ${(15-(ctx?.targetPares ?? 7))} ímpares (dominante da janela)`);
+    linhas.push({ dezena: n, texto: parts.join(" • ") });
   }
 
-  // resumo do método (vai ser agrupado no UI)
+  // resumo do método (aparece no final)
   const reps = jogo.filter(n=>lastSet.has(Number(n))).length;
+  const havePairs = (ctx?.pairTop||[]).filter(p=> jogo.includes(p.a) && jogo.includes(p.b)).slice(0,3);
+  const pairsTxt = havePairs.length ? havePairs.map(p=>`${format2(p.a)}-${format2(p.b)}(${p.v})`).join(", ") : "—";
+
   linhas.push({
     dezena: jogo[0],
-    texto: `📌 PADRÃO PREDITIVO FIXO (Principal): quotas Quentes ${ctx?.quotas?.hot ?? 9}, Médias ${ctx?.quotas?.med ?? 5}, Baixas ${ctx?.quotas?.low ?? 1}, Adormecidas ${ctx?.quotas?.zero ?? 0} • Repetidas alvo ${ctx?.repTarget ?? 9} (aceita ${ctx?.repMin ?? 8}–${ctx?.repMax ?? 10}) • Janela N=${N} • Repetidas no jogo: ${reps}`
+    texto: `📌 PADRÃO PREDITIVO FIXO (Principal por CICLOS): 2 âncoras (gap 0) + 5 gap(1–2) + 5 gap(2–3) + 3 gap(3–4) • Janela N=${N} • Repetidas no jogo: ${reps} • Pares sincronizados: ${pairsTxt}`
   });
 
   return linhas;
-}
-/* ✅ Motivos por grupo (igual ao padrão do print, agrupável) */
+}/* ✅ Motivos por grupo (igual ao padrão do print, agrupável) */
 function buildMotivosPrime(jogo, picks, domEvenOdd, modern, freq, concursos){
   const baseSet = new Set((picks.base||[]).map(Number));
   const freqSet = new Set((picks.freq||[]).map(Number));
