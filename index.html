@@ -585,10 +585,10 @@ const functions = firebase.app().functions("us-central1");
       <div class="row">
         <div class="col">
           <label>Quantidade de concursos para analisar</label>
-          <select id="qtdConcursos" value="6">
-            
-            
-            
+          <select id="qtdConcursos">
+            <option value="3">3 concursos</option>
+            <option value="4">4 concursos</option>
+            <option value="5">5 concursos (recomendado)</option>
             <option value="6">6 concursos</option>
             <option value="12">12 concursos</option>
             <option value="15">15 concursos</option>
@@ -1150,6 +1150,16 @@ auth.onAuthStateChanged(async (user)=>{
    MOTOR BASE
 ========================= */
 function format2(n){ return String(n).padStart(2,"0"); }
+
+// === Helper: completa jogo deterministicamente sem quebrar o padrão ===
+function completarAte15(lista){
+  const set = new Set(lista);
+  for(let d=1; d<=25 && set.size<15; d++){
+    if(!set.has(d)) set.add(d);
+  }
+  return Array.from(set).slice(0,15).sort((a,b)=>a-b);
+}
+
 
 /* =========================
    ✅ Trocas por COLUNAS (cartão 5x5) + cards ilustrativos (SVG)
@@ -1934,7 +1944,7 @@ function buildPack4JogosPreditivo(payload){
   }
 
   const principal = chosen[0];
-  const invertida = chosen[1];
+  const invertida = completarAte15(chosen[1]);
   const tecnica1  = chosen[2];
   const tecnica2  = chosen[3];
 
@@ -3428,8 +3438,8 @@ async function gerarTecnicaPremiada(silent=false){
       return;
     }
 
-    const t1 = pack.tecnica1.slice().sort((a,b)=>a-b);
-    const t2 = pack.tecnica2.slice().sort((a,b)=>a-b);
+    const t1 = completarAte15(pack.tecnica1.slice().sort((a,b)=>a-b));
+    const t2 = completarAte15(pack.tecnica2.slice().sort((a,b)=>a-b));
     lastTecnicaGames = { g1: t1.slice(), g2: t2.slice() };
 
     function renderCard(title, nums, motivos){
