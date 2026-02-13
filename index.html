@@ -3758,7 +3758,61 @@ async function buildLines15PAdvanced(payloadShort, qtdShort){
     chosen.add(next.n);
   }
 
-  const chosen15 = sortNum([...chosen]).slice(0,15);
+  const chosen15Final = sortNum([...chosen]).slice(0,15);
+
+  // ✅ Ajuste preditivo: evitar "copiar" o último concurso.
+  // Mantemos algumas repetidas (natural), mas LIMITAMOS excesso para não gerar linha idêntica ao último sorteio.
+  const ultimoSet = new Set((ultimo?.dezenas||[]).map(toNum));
+  function overlapCount(arr, setRef){
+    let c=0; for(const n of arr) if(setRef.has(n)) c++;
+    return c;
+  }
+  const MAX_REPETIDAS_15 = 6;     // total de repetidas (entre as 15 escolhidas) vs último concurso
+  const MAX_REPETIDAS_LINHA = 2;  // repetidas por linha (FORTE) vs último concurso
+
+  function rebalanceAgainstLast(list15){
+    let cur = list15.slice();
+    let ov = overlapCount(cur, ultimoSet);
+    if(ov <= MAX_REPETIDAS_15) return cur;
+
+    // Candidatos fora do último concurso (prioriza buckets hot->med->low->zero)
+    const order = {hot:0,med:1,low:2,zero:3};
+    const outside = nums
+      .filter(x=>!ultimoSet.has(x.n))
+      .sort((a,b)=>{
+        if(order[a.b]!==order[b.b]) return order[a.b]-order[b.b];
+        const pref = (x)=> (x.band===heavyBand?1:0) + (["B","D","F","G"].includes(x.L)?0.5:0);
+        const pa=pref(a), pb=pref(b);
+        if(pb!==pa) return pb-pa;
+        return a.n-b.n;
+      })
+      .map(x=>x.n);
+
+    while(ov > MAX_REPETIDAS_15){
+      let removeIdx = -1;
+      let replacement = null;
+
+      // remove uma repetida e tenta repor por um número fora do último (idealmente do mesmo bucket)
+      for(let i=0;i<cur.length;i++){
+        const n = cur[i];
+        if(!ultimoSet.has(n)) continue;
+        const bn = bucket(letterOf(n));
+        const sameBucket = outside.find(x=>!cur.includes(x) && bucket(letterOf(x))===bn);
+        const any = outside.find(x=>!cur.includes(x));
+        replacement = sameBucket || any;
+        removeIdx = i;
+        if(replacement!=null) break;
+      }
+      if(removeIdx===-1 || replacement==null) break;
+
+      cur[removeIdx] = replacement;
+      cur = sortNum(cur).slice(0,15);
+      ov = overlapCount(cur, ultimoSet);
+    }
+    return cur;
+  }
+
+  const chosen15Final = rebalanceAgainstLast(chosen15Final);
 
   // Agora, montar as 5 linhas:
   // - Linha 1 (pesada): 4 ou 5 da heavyBand
@@ -3783,7 +3837,7 @@ async function buildLines15PAdvanced(payloadShort, qtdShort){
     return sortNum(line);
   }
 
-  const chosenMeta = chosen15.map(n=>{
+  const chosenMeta = chosen15Final.map(n=>{
     const x = nums.find(z=>z.n===n);
     return x;
   });
@@ -3798,11 +3852,39 @@ async function buildLines15PAdvanced(payloadShort, qtdShort){
     L1 = sortNum([...L1, ...outBand.slice(0,need)]);
   }
 
+  // ✅ Evita linha 1 idêntica ao último concurso: limita repetidas e troca por alternativas
+  function fixLineAgainstLast(line, poolPreferred){
+    let ln = line.slice();
+    // se veio "copiada" (4+ repetidas), substitui por números fora do último
+    while(overlapCount(ln, ultimoSet) > MAX_REPETIDAS_LINHA){
+      // troca um número repetido por outro fora do último (preferindo mesma band)
+      let changed = false;
+      for(let i=0;i<ln.length;i++){
+        const n = ln[i];
+        if(!ultimoSet.has(n)) continue;
+        // tenta reposição fora do último e não usada
+        const repl = (poolPreferred||[]).find(x=>!ln.includes(x) && !ultimoSet.has(x))
+                  || nums.map(z=>z.n).find(x=>!ln.includes(x) && !ultimoSet.has(x));
+        if(repl!=null){
+          ln[i]=repl;
+          ln = sortNum(ln).slice(0,5);
+          changed = true;
+          break;
+        }
+      }
+      if(!changed) break;
+    }
+    return sortNum(ln).slice(0,5);
+  }
+  // pool preferido: ainda tenta manter a região pesada, mas fora do último
+  const preferPool = nums.filter(x=>x.band===heavyBand).map(x=>x.n).concat(outBand);
+  L1 = fixLineAgainstLast(L1, preferPool);
+
   // Remove usados de chosen15
   const used = new Set(L1);
 
   // tenta achar a maior sequência dentro dos restantes para estruturar L2/L3
-  const rest = chosen15.filter(n=>!used.has(n)).sort((a,b)=>a-b);
+  const rest = chosen15Final.filter(n=>!used.has(n)).sort((a,b)=>a-b);
   function longestRun(arr){
     let best=[], cur=[];
     for(let i=0;i<arr.length;i++){
@@ -3822,18 +3904,18 @@ async function buildLines15PAdvanced(payloadShort, qtdShort){
     L2 = run.slice(0,3);
   }
   L2.forEach(n=>used.add(n));
-  const rest2 = chosen15.filter(n=>!used.has(n)).sort((a,b)=>a-b);
+  const rest2 = chosen15Final.filter(n=>!used.has(n)).sort((a,b)=>a-b);
   while(L2.length<5 && rest2.length){
     const n = rest2.shift();
     L2.push(n); used.add(n);
   }
-  L2 = balanceParity(sortNum(L2), chosen15);
+  L2 = balanceParity(sortNum(L2), chosen15Final);
 
   // Linha 3: completa com o que sobrou das 15
-  const rest3 = chosen15.filter(n=>!used.has(n)).sort((a,b)=>a-b);
+  const rest3 = chosen15Final.filter(n=>!used.has(n)).sort((a,b)=>a-b);
   let L3 = rest3.slice(0,5);
   L3.forEach(n=>used.add(n));
-  L3 = balanceParity(sortNum(L3), chosen15);
+  L3 = balanceParity(sortNum(L3), chosen15Final);
 
   // Agora as 10 restantes (fora das 15 escolhidas)
   const remaining10 = [];
