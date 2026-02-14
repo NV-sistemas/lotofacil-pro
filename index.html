@@ -836,9 +836,8 @@ const functions = firebase.app().functions("us-central1");
     </div>
   </div>
 </div>
-function renderExplicacao15p(pack){
 
- <script>
+<script>
 /* =========================
    UI Helpers
 ========================= */
@@ -2337,6 +2336,9 @@ async function acaoAnalise(){
   try{
     await prepararContextoBase(qtd);
     const payload = lastPayload;
+
+    // ✅ contexto para explicação R/G2/G3/G4 (somente UI)
+    window._p15ExplainCtx = buildP15ExplainCtx(payload);
     const {freq, modern} = lastCtx;
 
     setStatus(true,"Montando resumo PRIME…");
@@ -2515,6 +2517,9 @@ async function acaoPrincipal(){
   try{
     await prepararContextoBase(qtd);
     const payload = lastPayload;
+
+    // ✅ contexto para explicação R/G2/G3/G4 (somente UI)
+    window._p15ExplainCtx = buildP15ExplainCtx(payload);
     const {freq, modern} = lastCtx;
 
     setStatus(true,"Gerando jogo principal (15 dezenas)…");
@@ -2781,6 +2786,9 @@ async function gerarInvertida(silent=false){
     await prepararContextoBase(qtd);
 
     const payload = lastPayload;
+
+    // ✅ contexto para explicação R/G2/G3/G4 (somente UI)
+    window._p15ExplainCtx = buildP15ExplainCtx(payload);
     const pack = buildPack4JogosPreditivo(payload);
     lastPredPack = pack;
 
@@ -2846,6 +2854,9 @@ async function gerarTecnicaPremiada(silent=false){
     await prepararContextoBase(qtd);
 
     const payload = lastPayload;
+
+    // ✅ contexto para explicação R/G2/G3/G4 (somente UI)
+    window._p15ExplainCtx = buildP15ExplainCtx(payload);
     const pack = buildPack4JogosPreditivo(payload);
     lastPredPack = pack;
 
@@ -3816,10 +3827,105 @@ function gerar15PComMinhasLinhas(){
     `;
   }
 
+
+  // ✅ Atualiza também a explicação por linha (R/G2/G3/G4) para o MANUAL
+  const explainBox = document.getElementById("p15ExplainBox");
+  if(explainBox){
+    explainBox.innerHTML = renderExplainBoxInner(linesSystem15);
+  }
+
   alert("✅ Manual substituiu o automático!");
 }
 
 
+
+/* =========================
+   ✅ 15P — EXPLICAÇÃO POR LINHA (camada visual)
+   - Mostra R / G2 / G3 / G4 por linha
+   - Contador automático
+   - NÃO altera o motor (somente UI)
+========================= */
+function buildP15ExplainCtx(payload){
+  try{
+    const arr = (payload && Array.isArray(payload.concursos)) ? payload.concursos : [];
+    // pega últimos 4 concursos (t-1..t-4)
+    const last = arr.slice(-4);
+    const toSet = (c)=> new Set((c?.dezenas||c?.nums||c?.numeros||[]).map(toNum));
+    const s1 = toSet(last[3] || last[last.length-1]); // último
+    const s2 = toSet(last[2] || last[last.length-2]);
+    const s3 = toSet(last[1] || last[last.length-3]);
+    const s4 = toSet(last[0] || last[last.length-4]);
+    return { s1, s2, s3, s4, ok:true };
+  }catch(e){
+    return { ok:false, err:String(e?.message||e) };
+  }
+}
+function classifyRG(ctx, n){
+  const s1=ctx?.s1, s2=ctx?.s2, s3=ctx?.s3, s4=ctx?.s4;
+  if(s1 && s1.has(n)) return "R";
+  if(s2 && s2.has(n) && (!s1 || !s1.has(n))) return "G2";
+  if(s3 && s3.has(n) && (!s2 || !s2.has(n)) && (!s1 || !s1.has(n))) return "G3";
+  if(s4 && s4.has(n) && (!s3 || !s3.has(n)) && (!s2 || !s2.has(n)) && (!s1 || !s1.has(n))) return "G4";
+  return "OUTROS";
+}
+function buildExplainRowsHTML(lines){
+  const ctx = window._p15ExplainCtx;
+  if(!ctx || !ctx.ok){
+    return `<div class="mini" style="margin-top:8px">⚠️ Não foi possível montar a explicação (contexto insuficiente).</div>`;
+  }
+  const row = (arr)=> (arr && arr.length) ? arr.map(format2).join(" - ") : "—";
+  return `
+    <div style="margin-top:12px;overflow:auto">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Linha</th>
+            <th>Contador</th>
+            <th>R</th>
+            <th>G2</th>
+            <th>G3</th>
+            <th>G4</th>
+            <th>Outros</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${lines.map((l,idx)=>{
+            const r=[],g2=[],g3=[],g4=[],o=[];
+            (l||[]).forEach(n=>{
+              const c = classifyRG(ctx, n);
+              if(c==="R") r.push(n);
+              else if(c==="G2") g2.push(n);
+              else if(c==="G3") g3.push(n);
+              else if(c==="G4") g4.push(n);
+              else o.push(n);
+            });
+            return `
+              <tr>
+                <td><b>${idx+1}</b></td>
+                <td class="mono">R:${r.length} • G2:${g2.length} • G3:${g3.length} • G4:${g4.length}</td>
+                <td class="mono">${row(r)}</td>
+                <td class="mono">${row(g2)}</td>
+                <td class="mono">${row(g3)}</td>
+                <td class="mono">${row(g4)}</td>
+                <td class="mono">${row(o)}</td>
+              </tr>
+            `;
+          }).join("")}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+function renderExplainBoxInner(lines){
+  return `
+    <b>✅ Explicação por linha (R / G2 / G3 / G4)</b>
+    <div class="mini" style="margin-top:8px">
+      <b>R</b>=repetiu do último • <b>G2</b>=saiu no t-2 e faltou no t-1 • <b>G3</b>=saiu no t-3 e faltou t-2,t-1 • <b>G4</b>=saiu no t-4 e faltou t-3,t-2,t-1.
+      <br/>Abaixo você vê <b>exatamente quais dezenas</b> caíram em cada categoria + <b>contador automático por linha</b>.
+    </div>
+    ${buildExplainRowsHTML(lines||[])}
+  `;
+}
 async function gerar15P(){
   const can15p = ((access.premium && access.addon15) || access.isAdmin);
   if(!can15p) return alert("🔒 O recurso '15 pontos garantido' é um EXTRA comprado separadamente (libera via claims).");
@@ -3828,6 +3934,9 @@ async function gerar15P(){
   try{
     await prepararContextoBase(qtd);
     const payload = lastPayload;
+
+    // ✅ contexto para explicação R/G2/G3/G4 (somente UI)
+    window._p15ExplainCtx = buildP15ExplainCtx(payload);
 
     setStatus(true,"15P: analisando e montando 5 linhas…");
     setProgress(82);
@@ -3936,60 +4045,12 @@ async function gerar15P(){
 
       </div>
 
-      <div class="box" style="margin-top:12px">
-      <!-- =========================
-     EXPLICAÇÃO POR LINHA (15P)
-========================= -->
-<div id="explicacaoLinhas15p" class="box" style="margin-top:14px; display:none">
-  <b style="color:var(--yellow)">🧠 Explicação estratégica das linhas</b>
-  <div id="linhasExplicacaoConteudo" class="mini" style="margin-top:10px"></div>
-</div>
+      
+      <div class="box" id="p15ExplainBox" style="margin-top:12px">
+        ${renderExplainBoxInner(lines)}
+      </div>
 
-  <b style="color:var(--yellow)">🧠 Explicação estratégica das linhas escolhidas</b>
-
-  <div class="mini" style="margin-top:8px; line-height:1.6">
-
-    <div style="margin-bottom:8px">
-      <b>Linha 1:</b> Combinação priorizando dezenas com comportamento de 
-      <span class="tip" data-tip="Dezenas que repetiram no último concurso ou apresentaram forte persistência recente.">
-        repetição (R) <span class="q">?</span>
-      </span>
-      e equilíbrio entre pares/ímpares.
-    </div>
-
-    <div style="margin-bottom:8px">
-      <b>Linha 2:</b> Estratégia focada em 
-      <span class="tip" data-tip="Dezenas que saíram no concurso retrasado e ficaram ausentes no último (Gap 2).">
-        G2 (Gap 2) <span class="q">?</span>
-      </span>
-      buscando retorno estatístico imediato.
-    </div>
-
-    <div style="margin-bottom:8px">
-      <b>Linha 3:</b> Inclui padrões de 
-      <span class="tip" data-tip="Dezenas com 3 concursos de ausência após última aparição.">
-        G3 <span class="q">?</span>
-      </span>
-      para explorar retomadas comportamentais.
-    </div>
-
-    <div style="margin-bottom:8px">
-      <b>Linha 4:</b> Aplicação combinada de persistência + lacunas médias,
-      mantendo estrutura equilibrada por blocos A–E.
-    </div>
-
-    <div>
-      <b>Linha 5:</b> Estratégia de compensação com dezenas em 
-      <span class="tip" data-tip="Dezenas com 4 concursos consecutivos de ausência.">
-        G4 <span class="q">?</span>
-      </span>
-      para diversificação do pacote.
-    </div>
-
-  </div>
-
-</div>
-
+<div class="box" style="margin-top:12px">
         <b>🎯 10 jogos do sistema</b>
         <div class="grid" style="margin-top:12px">${jogosHtml}</div>
         <div class="mini" style="margin-top:10px">
@@ -4562,56 +4623,6 @@ function renderJogosSalvosAoAbrir(){
   try{ buildPack4JogosPreditivo = window.buildPack4JogosPreditivo; }catch(_){}
 
 })();
-  function renderExplicacao15p(pack){
-
-  if(!pack || !pack.principal){
-    document.getElementById("explicacaoLinhas15p").style.display = "none";
-    return;
-  }
-
-  const area = document.getElementById("linhasExplicacaoConteudo");
-  const box  = document.getElementById("explicacaoLinhas15p");
-
-  area.innerHTML = "";
-  box.style.display = "block";
-
-  const jogos = [
-    {nome:"Linha 1 (Principal)", meta: pack.principal.meta},
-    {nome:"Linha 2 (Invertida)", meta: pack.invertida.meta},
-    {nome:"Linha 3 (Técnica 1)", meta: pack.tecnica1.meta},
-    {nome:"Linha 4 (Técnica 2)", meta: pack.tecnica2.meta}
-  ];
-
-  jogos.forEach(j => {
-
-    if(!j.meta) return;
-
-    const R   = j.meta.pickedR || [];
-    const G2  = j.meta.pickedG2 || [];
-    const G3  = j.meta.pickedG3 || [];
-    const G4  = j.meta.pickedG4 || [];
-
-    const html = `
-      <div style="margin-bottom:14px">
-        <b style="color:var(--accent)">${j.nome}</b><br>
-        R: ${R.map(format2).join(" - ") || "-"}<br>
-        G2: ${G2.map(format2).join(" - ") || "-"}<br>
-        G3: ${G3.map(format2).join(" - ") || "-"}<br>
-        G4: ${G4.map(format2).join(" - ") || "-"}<br>
-        <span style="opacity:.8">
-          Total → R(${R.length}) G2(${G2.length}) G3(${G3.length}) G4(${G4.length})
-        </span>
-      </div>
-    `;
-
-    area.innerHTML += html;
-  });
-}
-renderExplicacao15p(pack);
-}
-
-</script>
-
 </script>
 
 </body>
