@@ -448,116 +448,943 @@
 
 
 /* =========================
-   ✅ LAYOUT EXPLICAÇÃO 15P (ULTRA COMPACTO / APP MODERNO)
-   - vertical, estreito, mobile-first
+   ✅ LAYOUT EXPLICAÇÃO 15P (PADRÃO PRINT)
 ========================= */
-
 .p15-card{
-  background: linear-gradient(180deg, rgba(0,0,0,.88), rgba(0,0,0,.72));
-  border:1px solid rgba(250,204,21,.22);
-  border-radius:16px;
-  padding:12px;
-  margin:12px auto;
-  max-width:360px;              /* ✅ mais estreito (vertical) */
-  box-shadow: 0 0 0 1px rgba(250,204,21,.10), 0 14px 44px rgba(0,0,0,.62);
+  background: rgba(0,0,0,.75);
+  border:1px solid rgba(250,204,21,.25);
+  border-radius:18px;
+  padding:16px;
+  margin-top:14px;
+  box-shadow: 0 18px 55px rgba(0,0,0,.55);
 }
-
 .p15-title{
   font-weight:1000;
-  font-size:13px;
+  font-size:15px;
   color:var(--accent);
-  margin:0 0 8px 0;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
+  margin-bottom:8px;
 }
-
-.p15-title .tag{
-  font-size:10px;
-  font-weight:1000;
-  padding:4px 8px;
-  border-radius:999px;
-  border:1px solid rgba(255,255,255,.12);
-  background: rgba(0,0,0,.70);
-  color: rgba(255,255,255,.86);
-}
-
-/* ✅ Métricas ultra compactas (2 colunas, altura baixa) */
 .p15-metrics{
-  display:grid;
-  grid-template-columns: 1fr 1fr;
-  gap:6px;
-  margin:0 0 10px 0;
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-bottom:10px;
 }
-
 .p15-chip{
-  background: rgba(0,0,0,.78);
-  border:1px solid rgba(255,255,255,.10);
-  padding:6px 8px;
-  border-radius:12px;
-  font-size:10.5px;
-  font-weight:1000;
-  text-align:center;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
+  background:rgba(0,0,0,.85);
+  border:1px solid rgba(255,255,255,.15);
+  padding:6px 10px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:900;
 }
-
-/* ✅ Bolinhas menores e centralizadas */
 .p15-numbers{
   display:flex;
-  gap:6px;
+  gap:8px;
   flex-wrap:wrap;
-  justify-content:center;
-  margin: 6px 0 10px 0;
+  margin:8px 0 12px 0;
 }
-
 .p15-ball{
-  width:30px;
-  height:30px;
+  width:38px;
+  height:38px;
   border-radius:999px;
   display:flex;
   align-items:center;
   justify-content:center;
-  background: rgba(0,0,0,.86);
-  border:1px solid rgba(250,204,21,.42);
-  color: var(--accent);
+  background:rgba(0,0,0,.85);
+  border:1px solid rgba(250,204,21,.35);
+  color:var(--accent);
   font-weight:1000;
-  font-size:11px;
-  letter-spacing:.2px;
 }
-
-/* ✅ Texto compacto */
 .p15-section{
-  font-size:11.5px;
-  line-height:1.35;
-  margin:0 0 10px 0;
-  color: rgba(255,255,255,.90);
+  font-size:13px;
+  line-height:1.45;
+  margin-bottom:10px;
 }
-
-.p15-section b{
-  color: rgba(255,255,255,.96);
-}
-
 .p15-warning{
-  background: rgba(0,0,0,.60);
-  border:1px solid rgba(255,255,255,.10);
-  padding:8px 10px;
+  background:rgba(0,0,0,.65);
+  border:1px solid rgba(255,255,255,.12);
+  padding:10px;
   border-radius:12px;
-  font-size:11.5px;
-  line-height:1.35;
-  margin-top:2px;
+  margin-top:8px;
 }
 
-/* ✅ Mobile ainda mais compacto */
-@media (max-width: 420px){
-  .p15-card{ max-width: 92vw; padding:11px; }
-  .p15-ball{ width:28px; height:28px; font-size:10.5px; }
-  .p15-chip{ font-size:10px; padding:6px 6px; }
+</style>
+</head>
+
+<body>
+
+<!-- ================= FIREBASE SDKs (HTML PURO) ================= -->
+<script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-functions-compat.js"></script>
+
+<script>
+/* =========================
+   CONFIG
+========================= */
+const APP_NAME = "LOTOFÁCIL PRIME ANALYTICS";
+const BUY_LINK = "https://pay.hotmart.com/O104148865Y?off=c4m0nezi";
+const BUY_LINK_15P = "https://pay.hotmart.com/Y104149008G?off=eehchnv4";
+
+/* ✅ Admin sempre com tudo (no front só para UI; o correto é garantir via claims no backend) */
+const ADMIN_EMAIL = "admin@lotofacilprime.com";
+
+/* ✅ Limite Free (1x) por usuário */
+function freeKey(uid){ return `lf_free_used_v1_${uid||"anon"}`; }
+/* =========================
+   ✅ NOVA SEQUÊNCIA 8/9/10 (20% / 50% / 30%)
+   A cada 10 jogos: 2 serão de 8, 5 serão de 9, 3 serão de 10.
+   (sequência fixa, sem aleatório)
+========================= */
+const PRINCIPAL_SEQ_KEY = "lf_principal_seq_v1";
+
+/* Sequência fixa (10 posições) -> 2x8, 5x9, 3x10 */
+const PRINCIPAL_SEQ = [9, 8, 9, 10, 9, 8, 9, 10, 9, 10];
+
+
+
+</script>
+
+<script>
+/* ================= FIREBASE CONFIG (SEU) ================= */
+const firebaseConfig = {
+  apiKey: "AIzaSyCodYgkQG0TUaqCk1i-0QcSB8GIt0iWp8c",
+  authDomain: "lotofacil-prime.firebaseapp.com",
+  projectId: "lotofacil-prime",
+  storageBucket: "lotofacil-prime.firebasestorage.app",
+  messagingSenderId: "385524602679",
+  appId: "1:385524602679:web:9760aeb30dcb835a962cb2"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const functions = firebase.app().functions("us-central1");
+</script>
+
+<!-- LOGIN -->
+<div class="center" id="loginWrap">
+  <div class="card">
+    <div style="text-align:center">
+      <div class="title" style="margin:0">🎯 <span id="appName1"></span></div>
+      <div class="mini" style="margin-top:6px">
+        Entre para acessar o painel. Premium libera as ferramentas principais.
+      </div>
+    </div>
+
+    <div style="margin-top:12px" class="row">
+      <div class="col">
+        <label>Email</label>
+        <input id="email" type="email" placeholder="seuemail@gmail.com" />
+      </div>
+      <div class="col">
+        <label>Senha</label>
+        <input id="senha" type="password" placeholder="sua senha" />
+      </div>
+    </div>
+
+    <button id="btnEntrar" class="btn btnPrimary" type="button">Entrar / Criar conta</button>
+
+    <button id="btnForgot" class="btn" type="button" style="margin-top:10px;background: rgba(0,0,0,.72);border:1px solid rgba(255,255,255,.14);color:var(--text);box-shadow:none">
+      Esqueci minha senha
+    </button>
+
+    <div id="msgOk" class="status" style="display:none"></div>
+    <div id="msgErr" class="status" style="display:none;background:rgba(251,113,133,.12);border:1px solid rgba(251,113,133,.28);color:#ffe7ec"></div>
+
+    <div class="footerNote">Dica: use o mesmo email utilizado na compra Hotmart.</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="wrap" id="app" style="display:none">
+  <div class="header">
+    <div class="title">🎯 <span id="appName2"></span></div>
+  </div>
+
+  <!-- PREMIUM GATE -->
+  <div class="card" id="premiumGate" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+      <div>
+        <div style="font-weight:1000;font-size:16px">🔒 Área Premium</div>
+        <div class="mini">
+          No modo Free você pode gerar <b>1 vez</b> apenas no <b>Jogo Principal</b>.
+          Para liberar <b>Análise</b>, <b>Invertida</b> e <b>Técnica Premiada</b>, ative o Premium.
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btnDanger" id="btnComprar" type="button">Comprar Premium</button>
+        <button class="btn btnGhost" id="btnJaComprei" type="button">Já comprei</button>
+        <button class="btn btnGhost" id="btnSair" type="button">Sair</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXTRA 15P UPSELL -->
+  <div class="card" id="addon15Card" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+      <div>
+        <div style="font-weight:1000;font-size:16px">✨ Recurso Extra: 15 pontos garantido</div>
+        <div class="mini">
+          Esse recurso é um <b>EXTRA comprado separadamente</b> e abre uma tela própria.
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+        <button class="btn btnDanger" id="btnComprar15p" type="button">Comprar 15 pontos</button>
+        <button class="btn btnGhost" id="btnAtivar15p" type="button">Já comprei</button>
+      </div>
+    </div>
+  </div>
+
+      <!-- ===== TELAS ===== -->
+  <div class="view on" id="viewHome">
+    <div class="card">
+
+      <!-- Linha superior: seletor + progresso -->
+      <div class="row">
+        <div class="col">
+          <label>Quantidade de concursos para analisar</label>
+          <select id="qtdConcursos">
+            <option value="3">3 concursos</option>
+            <option value="5">5 concursos</option>
+            <option value="7">7 concursos(recomendado para 15P)</option>
+            <option value="12">12 concursos(recomendado para PRINCIPAL)</option>
+            <option value="15">15 concursos</option>
+            <option value="20">20 concursos</option>
+            <option value="30">30 concursos</option>
+            <option value="50">50 concursos</option>
+            <option value="75">75 concursos</option>
+            <option value="100">100 concursos</option>
+            </select>
+          <div class="mini" style="margin-top:8px">
+            Escolha a janela e depois selecione uma das opções abaixo.
+          </div>
+        </div>
+
+        <div class="col">
+          <label>Progresso</label>
+
+          <div id="status" class="status">
+            <div id="statusText">Carregando…</div>
+            <div class="bar"><div id="barFill"></div></div>
+          </div>
+
+          <div class="mini">
+            Se a análise estiver pesada, use 10 ou 20 concursos.
+          </div>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <!-- Cards de ações -->
+      <div class="actionGrid">
+        <!-- FREE -->
+        <div class="actionCard" id="btnHomePrincipal" role="button" tabindex="0">
+          <span class="badge free">FREE 1x</span>
+          <p class="actionTitle">🎯 Jogo principal</p>
+          <p class="actionDesc">Gera 15 dezenas + resumo PRIME. Você também pode montar o seu jogo manualmente.</p>
+        </div>
+
+        <!-- PREMIUM -->
+        <div class="actionCard" id="btnHomeAnalise" role="button" tabindex="0">
+          <span class="badge premium">PREMIUM</span>
+          <p class="actionTitle">📈 Gerar análise</p>
+          <p class="actionDesc">Resumo PRIME do período selecionado (sem jogo) com tendências e probabilidades.</p>
+        </div>
+
+        <div class="actionCard" id="btnHomeInvertida" role="button" tabindex="0">
+          <span class="badge premium">PREMIUM</span>
+          <p class="actionTitle">🔄 Gerar invertida</p>
+          <p class="actionDesc">Usa o Jogo Principal (automático ou manual) e inverte por blocos no cartão 5×5.</p>
+        </div>
+
+        <div class="actionCard" id="btnHomeTecnica" role="button" tabindex="0">
+          <span class="badge premium">PREMIUM</span>
+          <p class="actionTitle">🏆 Técnica premiada</p>
+          <p class="actionDesc">Gera 2 jogos extras a partir do Principal (reordenação por blocos).</p>
+        </div>
+
+        <!-- ✅ JOGOS SALVOS (ANTES DO EXTRA) -->
+        <div class="actionCard" id="btnHomeSaved" role="button" tabindex="0">
+          <span class="badge premium">PREMIUM</span>
+          <p class="actionTitle">💾 Jogos salvos</p>
+          <p class="actionDesc">
+            Confira seus jogos salvos e veja quantos pontos faria nos últimos 5, 10, 20 ou 30 concursos.
+          </p>
+        </div>
+
+        <!-- EXTRA (SEMPRE POR ÚLTIMO) -->
+        <div class="actionCard extraCard" id="btnHome15p" role="button" tabindex="0">
+          <span class="extraBadge">EXTRA</span>
+          <div class="extraHeadline">
+            <p class="actionTitle" style="margin:0">✅ 15 pontos garantido</p>
+            <span class="extraHighlight">ESTRATÉGIA (10 JOGOS)</span>
+          </div>
+          <p class="actionDesc">Tela separada: 5 linhas + análise avançada e 10 jogos. Você também pode criar suas próprias linhas.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" id="resultadoHome">
+      <div class="footerNote">Selecione a janela e escolha uma opção acima.</div>
+    </div>
+
+    <div class="appFooter">
+      <div class="chip" id="chipUser">
+        <span class="dot"></span>
+        <span id="chipText">—</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TELA: ANÁLISE -->
+  <div class="view" id="viewAnalise">
+    <div class="topNav">
+      <div class="left">
+        <button class="btn btnGhost" type="button" onclick="goView('viewHome')">⬅ Voltar</button>
+      </div>
+      <div class="right">
+        <button class="btn btnGhost" type="button" onclick="verConcursos()">📅 Ver concursos</button>
+      </div>
+    </div>
+
+    <div class="card" id="analiseArea">
+      <div class="footerNote">Clique em “Gerar análise” na tela principal.</div>
+    </div>
+  </div>
+
+  <!-- TELA: JOGO PRINCIPAL -->
+  <div class="view" id="viewPrincipal">
+    <div class="topNav">
+      <div class="left">
+        <button class="btn btnGhost" type="button" onclick="goView('viewHome')">⬅ Voltar</button>
+      </div>
+      <div class="right">
+        <button class="btn btnBlue" type="button" onclick="goView('viewInvertida'); gerarInvertida()">🔄 Invertida</button>
+        <button class="btn btnPurple" type="button" onclick="goView('viewTecnica'); gerarTecnicaPremiada()">🏆 Técnica</button>
+        <button class="btn btnGhost" id="btnVerificarGeradosFromPrincipal" type="button" style="display:none" onclick="goView('viewCheck')">✅ Verificar jogos gerados</button>
+      </div>
+    </div>
+
+    <div class="card" id="principalArea">
+      <div class="footerNote">Clique em “Jogo Principal” na tela principal.</div>
+    </div>
+  </div>
+
+  <!-- TELA: INVERTIDA -->
+  <div class="view" id="viewInvertida">
+    <div class="topNav">
+      <div class="left">
+        <button class="btn btnGhost" type="button" onclick="goView('viewPrincipal')">⬅ Voltar</button>
+      </div>
+      <div class="right">
+        <button class="btn btnPurple" type="button" onclick="goView('viewTecnica'); gerarTecnicaPremiada()">🏆 Ir para Técnica</button>
+      </div>
+    </div>
+
+    <div class="card" id="invertidaArea">
+      <div class="footerNote">Gere um Jogo Principal primeiro.</div>
+    </div>
+  </div>
+
+  <!-- TELA: TÉCNICA PREMIADA -->
+  <div class="view" id="viewTecnica">
+    <div class="topNav">
+      <div class="left">
+        <button class="btn btnGhost" type="button" onclick="goView('viewPrincipal')">⬅ Voltar</button>
+      </div>
+      <div class="right">
+        <button class="btn btnBlue" type="button" onclick="goView('viewInvertida'); gerarInvertida()">🔄 Ir para Invertida</button>
+      </div>
+    </div>
+
+    <div class="card" id="tecnicaArea">
+      <div class="footerNote">Gere um Jogo Principal primeiro.</div>
+    </div>
+  </div>
+
+  <!-- TELA: CHECK -->
+  <div class="view" id="viewCheck">
+    <div class="topNav">
+      <div class="left">
+        <button class="btn btnGhost" type="button" onclick="goView('viewPrincipal')">⬅ Voltar</button>
+      </div>
+      <div class="right">
+        <button class="btn btnGhost" type="button" onclick="conferirGerados()">Conferir com último concurso</button>
+      </div>
+    </div>
+
+    <div class="card" id="checkArea">
+      <div class="footerNote">Gere Principal + Invertida + Técnica para liberar esta tela.</div>
+    </div>
+  </div>
+
+  <!-- TELA: 15 PONTOS -->
+  <div class="view" id="view15p">
+    <div class="topNav">
+      <div class="left">
+        <button class="btn btnGhost" type="button" onclick="goView('viewHome')">⬅ Voltar</button>
+      </div>
+      <div class="right">
+        <button class="btn btnPrimary" type="button" onclick="gerar15P()">Gerar análise 15P</button>
+      </div>
+    </div>
+
+    <div class="card" id="p15Area">
+      <div class="footerNote">Clique em “Gerar análise 15P”. Essa tela exige o EXTRA ativado (via claims).</div>
+    </div>
+  </div>
+<!-- =========================
+   TELA: JOGOS SALVOS
+========================= -->
+<div class="view" id="viewSavedGames" onshow="renderJogosSalvosAoAbrir()">
+  <div class="topNav">
+    <div class="left">
+      <button class="btn btnGhost" type="button" onclick="goView('viewHome')">⬅ Voltar</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <label>Conferir últimos concursos</label>
+    <select id="savedCheckQtd">
+  <option value="3">Últimos 3</option>
+  <option value="6">Últimos 6</option>
+  <option value="12" selected>Últimos 12</option>
+  <option value="20">Últimos 20</option>
+  <option value="30">Últimos 30</option>
+  <option value="50">Últimos 50</option>
+  <option value="75">Últimos 75</option>
+  <option value="100">Últimos 100</option>
+  </select>
+
+<div id="savedPacksList" style="margin-top:14px"></div>
+
+<button class="btn btnPrimary" style="margin-top:10px" onclick="checkSavedGames()">
+  Conferir jogos
+</button>
+
+<div id="savedGamesResult" style="margin-top:14px"></div>
+  </div>
+</div>
+
+  <div class="footerNote">Aviso: análise estatística não garante premiação. Jogo responsável ✅</div>
+</div>
+
+<!-- MODAL LISTA CONCURSOS -->
+<div id="modalBack" class="modalBack">
+  <div class="modal">
+    <div class="modalHeader">
+      <b>📌 Concursos analisados (datas + dezenas)</b>
+      <button class="closeBtn" onclick="fecharModal()">Fechar</button>
+    </div>
+    <div class="modalBody">
+      <div id="listaConcursos"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL GRAFICO BLOCOS -->
+<div id="modalBlocosBack" class="modalBack">
+  <div class="modal" style="max-width:560px">
+    <div class="modalHeader">
+      <b>📊 Gráfico de Blocos A–E</b>
+      <button class="closeBtn" onclick="fecharGraficoBlocos()">Fechar</button>
+    </div>
+    <div class="modalBody">
+      <div id="graficoBlocosArea"></div>
+      <div class="mini" style="margin-top:10px">
+        Blocos: A(01–05), B(06–10), C(11–15), D(16–20), E(21–25).
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =========================
+   UI Helpers
+========================= */
+document.getElementById("appName1").textContent = APP_NAME;
+document.getElementById("appName2").textContent = APP_NAME;
+
+function bindCardKey(el){
+  el.addEventListener("keydown", (e)=>{
+    if(e.key === "Enter" || e.key === " "){
+      e.preventDefault();
+      el.click();
+    }
+  });
 }
 
+function showOk(t){
+  const a=document.getElementById("msgOk");
+  a.style.display="block";
+  a.textContent=t;
+  document.getElementById("msgErr").style.display="none";
+}
+function showErr(t){
+  const a=document.getElementById("msgErr");
+  a.style.display="block";
+  a.textContent=t;
+  document.getElementById("msgOk").style.display="none";
+}
 
+function setStatus(on, text){
+  const st=document.getElementById("status");
+  document.getElementById("statusText").textContent = text || "";
+  st.style.display = on ? "block" : "none";
+  toggleProgressCol(); // ✅ garante alinhamento no mobile
+}
+function toggleProgressCol(){
+  const st = document.getElementById("status");
+  if(!st) return;
+
+  const col = st.closest(".col");
+  if(!col) return;
+
+  const isMobile = window.innerWidth <= 520;
+  const statusVisible = (getComputedStyle(st).display !== "none");
+
+  if(isMobile && !statusVisible){
+    col.style.display = "none";
+  }else{
+    col.style.display = "block";
+  }
+}
+
+window.addEventListener("resize", toggleProgressCol);
+document.addEventListener("DOMContentLoaded", toggleProgressCol);
+
+function setProgress(p){
+  document.getElementById("barFill").style.width = Math.max(0, Math.min(100, p)) + "%";
+}
+
+function abrirModal(){ document.getElementById("modalBack").style.display="flex"; }
+function fecharModal(){ document.getElementById("modalBack").style.display="none"; }
+function fecharGraficoBlocos(){ document.getElementById("modalBlocosBack").style.display="none"; }
+
+function goView(id){
+  document.querySelectorAll('.view').forEach(v => v.style.display='none');
+  document.getElementById(id).style.display='block';
+
+  // ✅ Ao abrir "JOGOS SALVOS"
+  if(id === 'viewSavedGames'){
+    renderJogosSalvosAoAbrir();
+    return;
+  }
+
+  // ✅ Auto-ação ao abrir as telas (sem "remendos")
+  // - Principal: se ainda não existe, gera automaticamente (respeita Free/Premium pela própria acaoPrincipal)
+  // - Invertida/Técnica: se existe Principal, gera automaticamente ao entrar na tela (Premium)
+  if(id === 'viewPrincipal'){
+    const el = document.getElementById("principalArea");
+    const temMsg = el && /Gere um Jogo Principal/i.test(el.textContent||"");
+
+    if(!lastPrincipalGame){
+      if(!window.__autoGenLock){
+        window.__autoGenLock = true;
+        Promise.resolve().then(()=>acaoPrincipal()).finally(()=>{ window.__autoGenLock = false; });
+      }
+      return;
+    }
+
+    // Se já existe jogo mas a tela ainda está com a mensagem, renderiza algo mínimo imediatamente
+    if(temMsg){
+      const balls = lastPrincipalGame.map(n=>`<div class="ball">${format2(n)}</div>`).join("");
+      el.innerHTML = `
+        <div class="box">
+          <b>🎯 Jogo Principal</b>
+          <div class="numbers" style="justify-content:flex-start">${balls}</div>
+        </div>
+      `;
+    }
+    return;
+  }
+
+  if(id === 'viewInvertida'){
+    if(access?.premium && lastPrincipalGame){
+      gerarInvertida(true);
+    }
+    return;
+  }
+
+  if(id === 'viewTecnica'){
+    if(access?.premium && lastPrincipalGame){
+      gerarTecnicaPremiada(true);
+    }
+    return;
+  }
+}
+</script>
+
+<script>
+/* =========================
+   AUTH + CLAIMS (Premium/15P)
+========================= */
+let access = {
+  email: "",
+  uid: "",
+  premium: false,
+  addon15: false,
+  isAdmin: false
+};
+
+async function refreshClaims(force=false){
+  const u = auth.currentUser;
+  if(!u) return access;
+
+  const token = await u.getIdTokenResult(!!force);
+  const email = (u.email || "").toLowerCase();
+  const isAdmin = email === String(ADMIN_EMAIL).toLowerCase();
+
+  const premium = !!token.claims.premium || isAdmin;
+  const addon15 = !!token.claims.addon15 || isAdmin;
+
+  access = { email, uid: u.uid, premium, addon15, isAdmin };
+  updateChip();
+  aplicarAcessos();
+  return access;
+}
+
+function updateChip(){
+  const plan = access.isAdmin ? "🛡️ Admin" : (access.premium ? "👑 Premium" : "👤 Free");
+  const extra = (access.addon15 || access.isAdmin) ? " • ✅ 15P" : "";
+  const chipTextEl = document.getElementById("chipText");
+  if(chipTextEl) chipTextEl.textContent = `${plan} • ${access.email || "—"}${extra}`;
+}
+
+/* ✅ Free 1x (localStorage por UID) */
+function isFreeUsed(){
+  if(!access.uid) return false;
+  return localStorage.getItem(freeKey(access.uid)) === "1";
+}
+function markFreeUsed(){
+  if(!access.uid) return;
+  localStorage.setItem(freeKey(access.uid), "1");
+}
+
+function setCardEnabled(el, enabled, onClick, msg){
+  if(!el) return;
+  el.classList.toggle("disabled", !enabled);
+  el.onclick = enabled ? onClick : ()=>alert(msg);
+}
+
+function aplicarAcessos(){
+  const can15p = ((access.premium && access.addon15) || access.isAdmin);
+
+  const premiumGate = document.getElementById("premiumGate");
+  if(premiumGate) premiumGate.style.display = access.premium ? "none" : "block";
+
+  const addon15Card = document.getElementById("addon15Card");
+  if(addon15Card) addon15Card.style.display = (!access.isAdmin && !can15p) ? "block" : "none";
+
+  const btnAnalise  = document.getElementById("btnHomeAnalise");
+  const btnPrincipal= document.getElementById("btnHomePrincipal");
+  const btnInvertida= document.getElementById("btnHomeInvertida");
+  const btnTecnica  = document.getElementById("btnHomeTecnica");
+  const btn15       = document.getElementById("btnHome15p");
+
+  setCardEnabled(btnAnalise, access.premium, acaoAnalise, "🔒 Gerar análise exige Premium.");
+
+  setCardEnabled(btnInvertida, access.premium, ()=>{
+    goView("viewInvertida"); gerarInvertida();
+  }, "🔒 Invertida exige Premium.");
+
+  setCardEnabled(btnTecnica, access.premium, ()=>{
+    goView("viewTecnica"); gerarTecnicaPremiada();
+  }, "🔒 Técnica premiada exige Premium.");
+
+  if(!access.premium && isFreeUsed()){
+    btnPrincipal?.classList.add("disabled");
+    if(btnPrincipal) btnPrincipal.onclick = ()=>alert("🔒 Você já usou a geração grátis. Para liberar, ative o Premium.");
+  }else{
+    btnPrincipal?.classList.remove("disabled");
+    if(btnPrincipal) btnPrincipal.onclick = ()=>acaoPrincipal();
+  }
+
+  if(!can15p){
+    btn15?.classList.add("disabled");
+    if(btn15) btn15.onclick = ()=>alert("🔒 O recurso '15 pontos garantido' é um EXTRA comprado separadamente (libera via claims).");
+  }else{
+    btn15?.classList.remove("disabled");
+    if(btn15) btn15.onclick = ()=>{ goView("view15p"); };
+  }
+}
+
+function abrirApp(){
+  document.getElementById("loginWrap").style.display="none";
+  document.getElementById("app").style.display="block";
+  goView("viewHome");
+}
+
+function fecharApp(){
+  document.getElementById("loginWrap").style.display="flex";
+  document.getElementById("app").style.display="none";
+}
+
+/* ===== LOGIN / CRIAR CONTA ===== */
+async function entrar(){
+  const e=(document.getElementById("email").value||"").trim().toLowerCase();
+  const s=(document.getElementById("senha").value||"");
+  if(!e || !s){ showErr("Digite email e senha."); return; }
+
+  const btn = document.getElementById("btnEntrar");
+  btn.disabled = true;
+
+  try{
+    await auth.signInWithEmailAndPassword(e,s);
+    showOk("Bem-vindo! Carregando seu acesso…");
+  }catch(err){
+    try{
+      await auth.createUserWithEmailAndPassword(e,s);
+      showOk("Conta criada ✅ Carregando seu acesso…");
+    }catch(e2){
+      showErr(e2?.message || "Falha no login.");
+    }
+  }finally{
+    btn.disabled = false;
+  }
+}
+
+async function forgotPassword(){
+  const e=(document.getElementById("email").value||"").trim().toLowerCase();
+  if(!e) return showErr("Digite seu email para recuperar a senha.");
+  try{
+    await auth.sendPasswordResetEmail(e);
+    showOk("✅ Email de recuperação enviado. Verifique sua caixa de entrada.");
+  }catch(err){
+    showErr(err?.message || "Não foi possível enviar o email de recuperação.");
+  }
+}
+
+function sair(){ auth.signOut(); }
+
+function comprarPremium(){ window.open(BUY_LINK, "_blank"); }
+function comprar15p(){ window.open(BUY_LINK_15P, "_blank"); }
+
+/* ===== ATIVAÇÃO POR CÓDIGO (Cloud Function redeemCode) ===== */
+async function ativarComCodigo(){
+  try{
+    if(!auth.currentUser){
+      alert("Você precisa estar logado.");
+      return;
+    }
+    const code = prompt("Cole aqui seu CÓDIGO de ativação (ex: PRIME-0001):");
+    if(!code) return;
+
+    showOk("Ativando código…");
+    const redeemCode = functions.httpsCallable("redeemCode");
+    await redeemCode({ code: code.trim() });
+
+    await refreshClaims(true);
+
+    if(access.premium || access.addon15 || access.isAdmin){
+      showOk("✅ Código ativado! Seus acessos foram atualizados.");
+    }else{
+      showOk("✅ Código enviado! Se não liberar na hora, saia e entre novamente.");
+    }
+  }catch(err){
+    console.log(err);
+    showErr("❌ Erro ao ativar: " + (err?.message || err));
+  }
+}
+
+async function jaComprei(){ await ativarComCodigo(); }
+async function jaComprei15p(){ await ativarComCodigo(); }
+
+/* ===== AUTOSTATE ===== */
+auth.onAuthStateChanged(async (user)=>{
+  if(!user){
+    access = { email:"", uid:"", premium:false, addon15:false, isAdmin:false };
+    fecharApp();
+    return;
+  }
+  abrirApp();
+  await refreshClaims(true);
+});
+</script>
+
+<script>
+/* =========================
+   MOTOR BASE
+========================= */
+function format2(n){ return String(n).padStart(2,"0"); }
+
+/* =========================
+   ✅ Trocas por COLUNAS (cartão 5x5) + cards ilustrativos (SVG)
+========================= */
+
+
+
+
+
+
+
+
+
+
+function toNum(d){ return Number(String(d).replace(/^0+/,"")) || Number(d); }
+function sortNum(arr){ return arr.slice().sort((a,b)=>a-b); }
+
+
+/* ✅ Normaliza dezenas do concurso (suporta {dezenas:[..]} ou strings "01", etc.) */
+function getDezenas(c){
+  const arr = (c && (c.dezenas || c.numeros || c.dezenasSorteadas)) || [];
+  return (arr || []).map(toNum).filter(n=>n>=1 && n<=25);
+}
+
+function calcularFrequencias(concursos){
+  const freq={}; for(let i=1;i<=25;i++) freq[i]=0;
+  concursos.forEach(c=>{
+    (c.dezenas||[]).forEach(d=>{
+      const n=toNum(d);
+      if(n>=1 && n<=25) freq[n]+=1;
+    });
+  });
+  return freq;
+}
+function ordenarPorFreq(freq){
+  return Object.entries(freq).map(([k,v])=>({dez:Number(k), f:v})).sort((a,b)=>b.f-a.f);
+}
+function contarParesImpares(jogo){
+  const pares = jogo.filter(n=>n%2===0).length;
+  return {pares, impares: jogo.length - pares};
+}
+function somaDezenas(jogo){ return jogo.reduce((a,b)=>a+b,0); }
+function contarSequencias(jogo){
+  let maxLen=1, curLen=0, prev=null;
+  const sorted = sortNum(jogo);
+  for(const n of sorted){
+    if(prev!==null && n===prev+1){ curLen++; }
+    else { curLen=1; }
+    if(curLen>maxLen) maxLen=curLen;
+    prev=n;
+  }
+  return { temSequencia: maxLen>=2, maxLen };
+}
+function distribuicaoBlocos(jogo){
+  const b={A:0,B:0,C:0,D:0,E:0};
+  jogo.forEach(n=>{
+    if(n>=1 && n<=5) b.A++;
+    else if(n>=6 && n<=10) b.B++;
+    else if(n>=11 && n<=15) b.C++;
+    else if(n>=16 && n<=20) b.D++;
+    else if(n>=21 && n<=25) b.E++;
+  });
+  return b;
+}
+function repetidasDoUltimo(jogo, ultimoDezenas){
+  const setUlt = new Set((ultimoDezenas||[]).map(toNum));
+  return sortNum(jogo.filter(n=>setUlt.has(n)));
+}
+
+/* 🔥/🌡️/🧊 Classificação por ranking (janela) */
+
+
+function classificarDezenas(freq, jogo){
+  const ord = ordenarPorFreq(freq);
+  const rank={}; ord.forEach((x,i)=>rank[x.dez]=i+1);
+  const hot=[], warm=[], cold=[];
+  jogo.forEach(n=>{
+    const r=rank[n]||999;
+    if(r<=8) hot.push(n);
+    else if(r<=17) warm.push(n);
+    else cold.push(n);
+  });
+  return {hot:sortNum(hot), warm:sortNum(warm), cold:sortNum(cold), rank};
+}
+/* =========================
+   ✅ HELPERS NOVA LÓGICA (SEM ALEATÓRIO)
+========================= */
+
+/* Conta quantas vezes um grupo aparece inteiro em um concurso */
+function countGroupTogetherInWindow(group, concursos){
+  const gset = new Set(group.map(Number));
+  let count = 0;
+  for(const c of (concursos || [])){
+    const setC = new Set((c.dezenas||[]).map(toNum));
+    let ok = true;
+    for(const n of gset){
+      if(!setC.has(n)){ ok=false; break; }
+    }
+    if(ok) count++;
+  }
+  return count;
+}
+
+/* Gera todas combinações k de um array ordenado */
+function combosK(arr, k){
+  const res = [];
+  function rec(start, path){
+    if(path.length === k){ res.push(path.slice()); return; }
+    for(let i=start;i<arr.length;i++){
+      path.push(arr[i]);
+      rec(i+1, path);
+      path.pop();
+    }
+  }
+  rec(0, []);
+  return res;
+}
+
+/* Escolhe o melhor subconjunto (k) DENTRO do último concurso:
+   "os que mais aparecem juntos na janela"
+   Critérios determinísticos:
+   1) maior "juntos" (countGroupTogether)
+   2) empate -> maior soma de frequência (freq)
+   3) empate -> menor soma de gap (menos extremo)
+   4) empate -> ordem lexicográfica
+*/
+
+
+
+/* ✅ NOVA SELEÇÃO PREMIUM (grupo "que mais sai junto" na janela)
+   - pool: lista de dezenas candidatas (ex: as 15 do último concurso, ou as 10 que NÃO saíram)
+   - k: tamanho do grupo
+   - avoidSet: (opcional) números para evitar repetir entre os 4 jogos (desempate)
+   Critérios determinísticos (ordem):
+   1) maior "juntos" (quantas vezes o grupo aparece inteiro na janela)
+   2) menor overlap com avoidSet (para diversificar os 4 jogos)
+   3) maior soma de frequência (freq)
+   4) menor soma de gap (menos extremo)
+   5) ordem lexicográfica
+*/
+
+
+
+/* Divide um jogo em (veio no último) e (não veio no último) */
+
+
+
+
+/* Top10 frequentes (ordenado desc) */
+function getTop10FreqList(freq){
+  return ordenarPorFreq(freq).slice(0,10).map(x=>x.dez);
+}
+
+/* Top10 atrasadas (ordenado por maior gap) */
+function getTop10AtrasadasList(modern){
+  const arr = [];
+  for(let d=1; d<=25; d++){
+    arr.push({ dez:d, gap:Number(modern?.gap?.[d] ?? 0) });
+  }
+  arr.sort((a,b)=>b.gap-a.gap);
+  return arr.slice(0,10).map(x=>x.dez);
+}
+
+/* Dupla mais forte da janela (coocorrência real)
+   - usa calcTopPairsCooc que você já tem na Análise Prime
+*/
+
+
+
+/* Padrão dominante de pares/ímpares na janela */
+
+
+
+/* Seleciona X itens de uma lista, sem repetir e com preferência por paridade
+   - sem aleatório
+*/
 
 
 
