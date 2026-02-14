@@ -43,6 +43,22 @@
     --purple:#facc15; --purple2:#ffe27a;
   }
 
+  /* ===== TIPOGRAFIA (padrão Print 1/2/3) ===== */
+  *{ -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+  body{
+    font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif !important;
+    font-size: 15.5px;
+    line-height: 1.35;
+  }
+  h1,h2,h3{ letter-spacing:.2px; }
+  .title{
+    font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif !important;
+    font-weight: 1000;
+    letter-spacing: .6px;
+  }
+  .sub, .subtitle, .mini, .hint{ color: var(--muted2); }
+
+
   /* ===== BOTÕES (padrão unificado PRIME) ===== */
   button, .btn, .btnGhost, .btnPrimary, .btnBlue, .btnGreen, .btnRed, .btnYellow, .btnOrange{
     border-radius:18px !important;
@@ -171,10 +187,14 @@
     max-width:100%;
     padding:14px 14px;
     border-radius:18px;
-    border:1px solid rgba(255,255,255,.12);
-    background: rgba(0,0,0,.72);
+    border:1px solid rgba(255,255,255,.14);
+    background: rgba(0,0,0,.70);
     color:var(--text);
     outline:none;
+  }
+  input:focus, select:focus{
+    border-color: rgba(250,204,21,.28);
+    box-shadow: 0 0 0 3px rgba(250,204,21,.10);
   }
   input::placeholder{color:rgba(203,213,225,.65)}
   select{cursor:pointer}
@@ -198,10 +218,10 @@
   .btnPurple{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#111111;box-shadow: var(--glowGold);border:1px solid rgba(255,255,255,.28)}
   .btnDanger{background:linear-gradient(135deg,var(--red),var(--red2));color:#2b0b0b;box-shadow: 0 0 0 1px rgba(251,113,133,.18), 0 12px 40px rgba(251,113,133,.12)}
   .btnGhost{
-    background: rgba(0,0,0,.60);
-    border:1px solid rgba(255,255,255,.12);
-    color:var(--text);
-    box-shadow:none;
+    background: rgba(255,255,255,.06) !important;
+    border:1px solid rgba(255,255,255,.14) !important;
+    color: rgba(255,255,255,.92) !important;
+    box-shadow: 0 14px 40px rgba(0,0,0,.26);
     width:auto;
   }
 
@@ -225,23 +245,26 @@
   .actionCard{
     text-align:left;
     border:1px solid rgba(255,255,255,.12);
-    background: linear-gradient(180deg, rgba(12,10,7,.74), rgba(12,10,7,.52));
+    background:
+      radial-gradient(700px 260px at 22% 0%, rgba(250,204,21,.10), transparent 60%),
+      radial-gradient(700px 260px at 78% 0%, rgba(251,146,60,.08), transparent 62%),
+      linear-gradient(180deg, rgba(12,10,7,.78), rgba(12,10,7,.50));
     border-radius:26px;
-    padding:20px 20px;
+    padding:20px 22px;
     cursor:pointer;
     transition:.15s;
     position:relative;
-    min-height:140px;
+    min-height:150px;
     box-shadow: 0 18px 55px rgba(0,0,0,.42);
     overflow:hidden;
   }
   .actionCard:hover{transform:translateY(-2px);background: var(--surface2);}
   .actionTitle{
     font-weight:1000;
-    font-size:16px;
-    margin:0 0 8px;
+    font-size:18px;
+    margin:0 0 10px;
     color: var(--accent);
-    letter-spacing:.2px;
+    letter-spacing:.25px;
   }
   .badge.premium{border-color:rgba(56,189,248,.30);background:rgba(56,189,248,.14);color:#e6f8ff}
   .badge.free{border-color:rgba(250,204,21,.35);background:rgba(250,204,21,.14);color:#fff2b0}
@@ -631,6 +654,52 @@
     box-shadow: 0 12px 30px rgba(0,0,0,.25);
   }
   .iconBox svg, .iconWrap svg{ filter: drop-shadow(0 6px 12px rgba(0,0,0,.35)); }
+
+
+  /* ===== BADGES reais do menu (FREE/PREMIUM/EXTRA) ===== */
+  .badge{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:7px 12px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:1000;
+    letter-spacing:.35px;
+    border:1px solid rgba(255,255,255,.12);
+    background: rgba(0,0,0,.48);
+    color: rgba(255,255,255,.92);
+    backdrop-filter: blur(8px);
+  }
+  .badge.free{
+    background: rgba(250,204,21,.16);
+    border-color: rgba(250,204,21,.32);
+    color: var(--accent2);
+  }
+  .badge.premium{
+    background: rgba(255,255,255,.06);
+    border-color: rgba(255,255,255,.14);
+    color: rgba(255,255,255,.88);
+  }
+  .extraBadge{
+    display:inline-flex;
+    align-items:center;
+    padding:7px 12px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:1000;
+    letter-spacing:.35px;
+    background: rgba(251,146,60,.14);
+    border:1px solid rgba(251,146,60,.30);
+    color: rgba(255,255,255,.92);
+  }
+
+
+  .actionDesc{
+    color: rgba(255,255,255,.80);
+    font-size:14.5px;
+    line-height:1.35;
+  }
 </style>
 </head>
 
