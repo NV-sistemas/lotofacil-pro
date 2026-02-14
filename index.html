@@ -3820,77 +3820,192 @@ function gerar15PComMinhasLinhas(){
 
 
 async function gerar15P(){
+  const can15p = ((access.premium && access.addon15) || access.isAdmin);
+  if(!can15p) return alert("🔒 O recurso '15 pontos garantido' é um EXTRA comprado separadamente (libera via claims).");
+
+  const qtd = qtdSelecionada();
   try{
-    setStatus(true,"Gerando análise 15P...");
-    setProgress(30);
+    await prepararContextoBase(qtd);
+    const payload = lastPayload;
 
-    const qtd = Number(document.getElementById("qtdConcursos").value || 12);
-    const concursos = await buscarConcursos(qtd);
-    if(!concursos || concursos.length < 6){
-      document.getElementById("p15Area").innerHTML =
-        `<div class="mini">Janela insuficiente para análise 15P.</div>`;
-      return;
-    }
+    setStatus(true,"15P: analisando e montando 5 linhas…");
+    setProgress(82);
 
-    const payload = { concursos };
-    const pack = buildPack4JogosPreditivo(payload);
+    // ✅ NOVO 15P: linhas por "saiu / não saiu" + regularização curto+médio + cobertura
+    const adv = buildLines15PFixedPattern(payload, qtd);
+    const lines = adv.lines;
 
-    if(!pack.ok){
-      document.getElementById("p15Area").innerHTML =
-        `<div class="mini">${pack.err}</div>`;
-      return;
-    }
+    const jogos = gerarJogos15P(lines);
+    const sourceInfo = { source: payload.source, mode: payload.mode };
 
-    setProgress(70);
+    setStatus(false,"");
+    setProgress(0);
 
-    const jogos = [
-      {nome:"🎯 Principal 15P", dados: pack.principal},
-      {nome:"🔄 Invertida 15P", dados: pack.invertida},
-      {nome:"🏆 Técnica 1 - 15P", dados: pack.tecnica1},
-      {nome:"🏆 Técnica 2 - 15P", dados: pack.tecnica2}
-    ];
-
-    let html = "";
-
-    jogos.forEach(j=>{
-      const dezenasHTML = j.dados.jogo
-        .map(n=>`<div class="ball">${format2(n)}</div>`)
-        .join("");
-
-      const explicacoes = j.dados.motivos
-        .map(m=>`
-          <div style="margin-bottom:6px">
-            <b>${format2(m.dezena)}</b> → ${m.texto}
-          </div>
-        `).join("");
-
-      html += `
-        <div class="box" style="margin-bottom:14px">
-          <b>${j.nome}</b>
-
-          <div class="numbers" style="margin-top:8px">
-            ${dezenasHTML}
-          </div>
-
-          <div class="mini" style="margin-top:12px">
-            <b>🧠 Por que essas dezenas foram escolhidas?</b>
-            <div style="margin-top:8px">
-              ${explicacoes}
-            </div>
-          </div>
-        </div>
-      `;
+    initUserLines15FromSystem(lines);
+    const lineMeta = lines.map((l,idx)=>{
+      const kind = ([0,2,4].includes(idx)) ? "PREDIZ SAIR (IN)" : "PREDIZ NÃO SAIR (OUT)";
+      const odds = l.filter(n=>n%2===1).length;
+      const primes = l.filter(isPrime).length;
+      const blocks = {A:0,B:0,C:0,D:0,E:0};
+      l.forEach(n=>{ blocks[blockOf(n)] = (blocks[blockOf(n)]||0)+1; });
+      return { idx: idx+1, kind, line:l, odds, primes, blocks };
     });
 
-    document.getElementById("p15Area").innerHTML = html;
+    const letterMap = adv.map || [];
+    const letterHtml = letterMap
+      .slice()
+      .sort((a,b)=> a.letter.localeCompare(b.letter))
+      .map(o=>`<tr>
+        <td class="mono"><b>${o.letter}</b></td>
+        <td class="mono">${format2(o.num)}</td>
+        <td>${o.kind==="IN" ? "IN (sair)" : "OUT (não sair)"}</td>
+        <td class="mini">L${rowOf(o.num)} C${colOf(o.num)} Bloco ${blockOf(o.num)} • ${o.num%2===0?"Par":"Ímpar"}${isPrime(o.num)?" • Primo":""}</td>
+      </tr>`).join("");
 
-    setProgress(100);
-    setTimeout(()=>setStatus(false),600);
+    const jogosHtml = jogos.map((j, idx)=>{
+      return `
+        <div class="box">
+          <b>Jogo ${idx+1}</b>
+          <div class="numbers" style="justify-content:flex-start;margin-top:10px">${renderBallsInline(j)}</div>
+        </div>
+      `;
+    }).join("");
 
+    document.getElementById("p15Area").innerHTML = `
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
+        <div>
+          <div style="font-weight:1000;font-size:16px">✅ 15 Pontos (Estratégia) • 10 jogos</div>
+          <div class="mini">Janela: <b>${payload.inicio}</b> a <b>${payload.ultimo}</b> (${payload.concursos.length} concursos)</div>
+          <div class="mini" style="margin-top:8px">
+            📌 Regra do método: cobrimos todas as combinações de <b>3 linhas entre 5</b> (10 jogos).
+<b style="text-transform:uppercase">Se você acertar as 3 linhas completas, você fecha 1 dos 10 jogos.</b>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+  <button class="btn btnGhost" type="button" onclick="verConcursos()">📅 Ver concursos</button>
+  <button class="btn btnBlue" type="button" onclick="salvar15P()">💾 Salvar 15P</button>
+  <button class="btn btnGhost" type="button" onclick="carregar15P()">📂 Carregar 15P salvo</button>
+</div>
+      </div>
+
+      <div class="box" style="margin-top:12px">
+        <b>📌 Linhas 1 a 5 (geradas pelo sistema)</b>
+        <div class="mini" style="margin-top:6px">
+          O sistema usa: <b>frequência + recência + coocorrência + lift</b>, com controle de paridade e blocos.
+        </div>
+        <div style="margin-top:12px;overflow:auto">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Linha</th>
+                <th>Tipo</th>
+                <th>Dezenas</th>
+                <th>Ímpares</th>
+                <th>Primos</th>
+                <th>Blocos (A–E)</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${lineMeta.map(m=>`
+                <tr>
+                  <td><b>${m.idx}</b></td>
+                  <td>${String(m.kind).includes("IN") ? "PREDIZ SAIR (IN)" : "PREDIZ NÃO SAIR (OUT)"}</td>
+                  <td class="mono">${m.line.map(format2).join(" - ")}</td>
+                  <td><b>${m.odds}</b></td>
+                  <td>${m.primes}</td>
+                  <td class="mono">A${m.blocks.A}-B${m.blocks.B}-C${m.blocks.C}-D${m.blocks.D}-E${m.blocks.E}</td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="row" style="margin-top:10px">
+          <div class="col">
+            <button class="btn btnBlue" type="button" onclick="render15Editor()">✍️ Criar minhas linhas (manual)</button>
+          </div>
+          <div class="col">
+            <button class="btn btnGhost" type="button" onclick="document.getElementById('user15Output').innerHTML=''">Limpar resultado manual</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="editor15Area"></div>
+      <div id="user15Output"></div>
+
+      </div>
+
+      <div class="box" style="margin-top:12px">
+      <!-- =========================
+     EXPLICAÇÃO POR LINHA (15P)
+========================= -->
+<div id="explicacaoLinhas15p" class="box" style="margin-top:14px">
+
+  <b style="color:var(--yellow)">🧠 Explicação estratégica das linhas escolhidas</b>
+
+  <div class="mini" style="margin-top:8px; line-height:1.6">
+
+    <div style="margin-bottom:8px">
+      <b>Linha 1:</b> Combinação priorizando dezenas com comportamento de 
+      <span class="tip" data-tip="Dezenas que repetiram no último concurso ou apresentaram forte persistência recente.">
+        repetição (R) <span class="q">?</span>
+      </span>
+      e equilíbrio entre pares/ímpares.
+    </div>
+
+    <div style="margin-bottom:8px">
+      <b>Linha 2:</b> Estratégia focada em 
+      <span class="tip" data-tip="Dezenas que saíram no concurso retrasado e ficaram ausentes no último (Gap 2).">
+        G2 (Gap 2) <span class="q">?</span>
+      </span>
+      buscando retorno estatístico imediato.
+    </div>
+
+    <div style="margin-bottom:8px">
+      <b>Linha 3:</b> Inclui padrões de 
+      <span class="tip" data-tip="Dezenas com 3 concursos de ausência após última aparição.">
+        G3 <span class="q">?</span>
+      </span>
+      para explorar retomadas comportamentais.
+    </div>
+
+    <div style="margin-bottom:8px">
+      <b>Linha 4:</b> Aplicação combinada de persistência + lacunas médias,
+      mantendo estrutura equilibrada por blocos A–E.
+    </div>
+
+    <div>
+      <b>Linha 5:</b> Estratégia de compensação com dezenas em 
+      <span class="tip" data-tip="Dezenas com 4 concursos consecutivos de ausência.">
+        G4 <span class="q">?</span>
+      </span>
+      para diversificação do pacote.
+    </div>
+
+  </div>
+
+</div>
+
+        <b>🎯 10 jogos do sistema</b>
+        <div class="grid" style="margin-top:12px">${jogosHtml}</div>
+        <div class="mini" style="margin-top:10px">
+          Estratégia estatística com base na janela selecionada. <b>Não há garantia de acerto</b>.
+        </div>
+      </div>
+
+      <div class="tinyFoot">Fonte: ${sourceInfo.source || "—"} • Modo: ${String(sourceInfo.mode||"—").toUpperCase()}</div>
+    `;
+
+    goView("view15p");
   }catch(e){
-    console.error(e);
-    document.getElementById("p15Area").innerHTML =
-      `<div class="mini">Erro ao gerar análise 15P.</div>`;
+    setStatus(false,""); setProgress(0);
+    document.getElementById("p15Area").innerHTML = `
+      <div class="box">
+        <b>⚠️ Erro</b>
+        <div class="mini" style="margin-top:8px">${String(e?.message || e)}</div>
+      </div>
+    `;
+    goView("view15p");
   }
 }
 </script>
@@ -3978,8 +4093,6 @@ function checkSavedGames(){
       if(!lastPayload || !lastPayload.concursos){
         const qtdBase = qtdSelecionada();
         await prepararContextoBase(qtdBase);
-        const stats = calcCoocAndStats(payload.concursos || []);
-stats.concursosRef = (payload.concursos || []);
       }
 
       const concursos = (lastPayload.concursos || []).slice(-qtd);
