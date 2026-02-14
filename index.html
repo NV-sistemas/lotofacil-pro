@@ -464,6 +464,27 @@
     0 18px 55px rgba(0,0,0,.65);
 }
 
+/* ✅ DESKTOP: 3+ cards por linha (mantém mobile 1 por linha) */
+.p15CardsGrid{
+  display:grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap:14px;
+  align-items:start;
+  margin-top:12px;
+}
+.p15CardsGrid .p15-card{
+  max-width:none; /* libera no desktop */
+  width:100%;
+  margin:0;       /* grid controla espaçamento */
+}
+@media (max-width: 1100px){
+  .p15CardsGrid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 720px){
+  .p15CardsGrid{ grid-template-columns: 1fr; }
+  .p15CardsGrid .p15-card{ max-width: 420px; margin: 0 auto; } /* volta vertical bonito no mobile */
+}
+
 .p15-title{
   font-weight:1000;
   font-size:14px;
@@ -4124,9 +4145,9 @@ function buildExplainRowsHTML(lines){
   function justificativa(idx, line){
     // Mantém o texto no estilo do print (sem mexer no motor)
     if(idx===4){
-      return `Linha montada para ser mais diferente, evitando ficar “presa” nas mesmas combinações e mantendo um mix mais equilibrado.`;
+      return `Linha montada para ser mais diferente (hedge), encaixando o padrão fixo em posições com menor correlação e evitando repetir as mesmas combinações das linhas 1–3.`;
     }
-    return `Linha montada para reforçar os agrupamentos mais recorrentes na janela, mantendo pares fortes e boa consistência.`;
+    return `Linha montada por encaixe no padrão fixo (R/G2/G3/G4 + paridade + blocos/colunas), mantendo consistência e evitando repetir estrutura entre as linhas (sem aleatório).`;
   }
 
   function metrics(line){
@@ -4146,7 +4167,7 @@ function buildExplainRowsHTML(lines){
     };
   }
 
-  return (lines||[]).map((line,idx)=>{
+  return `<div class="p15CardsGrid">` + (lines||[]).map((line,idx)=>{
     const m = metrics(line||[]);
     const tag = (idx===4) ? "DIVERSA" : "PADRÃO";
 
@@ -4181,7 +4202,7 @@ function buildExplainRowsHTML(lines){
         </div>
       </div>
     `;
-  }).join("");
+  }).join("") + `</div>`;
 }
 
 function renderExplainBoxInner(lines){
@@ -4268,7 +4289,7 @@ async function gerar15P(){
       <div class="box" style="margin-top:12px">
         <b>📌 Linhas 1 a 5 (geradas pelo sistema)</b>
         <div class="mini" style="margin-top:6px">
-          O sistema usa: <b>frequência + recência + coocorrência + lift</b>, com controle de paridade e blocos.
+          Motor atual: <b>SISTEMA PREDITIVO FIXO (treinado)</b>. A janela escolhida só atualiza os <b>dados do momento</b>; o padrão não muda. As 5 linhas são montadas por <b>encaixe determinístico</b> (R/G2/G3/G4, paridade, blocos/colunas) para manter consistência e diversidade — <b>sem aleatório</b>.
         </div>
         <div style="margin-top:12px;overflow:auto">
           <table class="table">
