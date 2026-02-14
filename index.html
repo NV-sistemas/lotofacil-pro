@@ -3553,13 +3553,39 @@ function buildLines15PFixedPattern(payloadShort, qtdShort){
 }
 
 
+// ✅ NOVO GERADOR 15P (sem combos3de5, sem motor antigo)
+// Gera os 10 jogos fixos combinando 3 linhas entre 5
 function gerarJogos15P(linhas){
-  const comb = combos3de5();
-  return comb.map((idxs)=>{
+
+  if(!Array.isArray(linhas) || linhas.length !== 5){
+    return [];
+  }
+
+  const jogos = [];
+
+  // Combinações fixas de 3 linhas entre 5 (10 jogos)
+  const combinacoes = [
+    [0,1,2],
+    [0,1,3],
+    [0,1,4],
+    [0,2,3],
+    [0,2,4],
+    [0,3,4],
+    [1,2,3],
+    [1,2,4],
+    [1,3,4],
+    [2,3,4]
+  ];
+
+  combinacoes.forEach(combo=>{
     const set = new Set();
-    idxs.forEach(i=> linhas[i-1].forEach(n=>set.add(n)) );
-    return sortNum([...set]);
+    combo.forEach(idx=>{
+      linhas[idx].forEach(n=>set.add(Number(n)));
+    });
+    jogos.push([...set].sort((a,b)=>a-b));
   });
+
+  return jogos;
 }
 
 function renderBallsInline(nums){
