@@ -562,6 +562,565 @@
   .p15-chip{ font-size:10px; padding:6px; }
 }
 
+/* =========================
+   THEME PREVIEW (APLICADO) 
+   (Somente CSS / layout)
+========================= */
+:root{
+    /* ✅ PADRÃO PRETO + AMARELO (igual ao sistema de vendas) */
+    --bg1:#000000; --bg2:#000000;
+
+    /* Cards / superfícies (sempre preto) */
+    --card:#000000;
+
+    /* Preto fosco (cards/botões) */
+    --surface: rgba(255,255,255,.06);
+    --surface2: rgba(255,255,255,.08); 
+    --text:#ffffff;
+    --muted: rgba(255,255,255,.82);
+    --muted2: rgba(255,255,255,.70);
+
+    /* Cor destaque (amarelo) */
+    --accent:#facc15;
+    --accent2:#ffd84d;
+
+    /* Mantém variáveis antigas por compatibilidade, mas SEM VERDE */
+    --green:#facc15; --green2:#ffd84d;
+    --blue:#facc15; --blue2:#ffd84d;
+    --purple:#facc15; --purple2:#ffd84d;
+    --yellow:#facc15; --orange:#fb923c;
+    --red:#fb7185; --red2:#ef4444;
+
+    --stroke: rgba(255,255,255,.35);
+    --stroke2: rgba(255,255,255,.28);
+    --shadow: 0 22px 70px rgba(0,0,0,.65);
+
+    /* Glows (sem verde) */
+    --glowBlue: 0 0 0 1px rgba(250,204,21,.22), 0 12px 40px rgba(250,204,21,.12);
+    --glowGreen: 0 0 0 1px rgba(250,204,21,.22), 0 12px 40px rgba(250,204,21,.12);
+    --glowGold: 0 0 0 1px rgba(250,204,21,.22), 0 18px 60px rgba(250,204,21,.18);
+  }
+
+*{box-sizing:border-box;font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif}
+  html,body{height:100%}
+  body{
+    margin:0;color:var(--text);
+    background:
+      radial-gradient(900px 650px at 15% 10%, rgba(250,204,21,.10), transparent 58%),
+      radial-gradient(900px 650px at 85% 15%, rgba(251,146,60,.06), transparent 60%),
+      linear-gradient(180deg,var(--bg1),var(--bg2));
+    min-height:100dvh;
+    overflow-x:hidden; /* ✅ evita "torto" no mobile */
+  }
+
+  .center{
+    display:flex;align-items:center;justify-content:center;
+    min-height:100dvh;padding:16px;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:18px}
+
+  /* Header */
+  .header{display:flex;justify-content:center;align-items:center;margin-bottom:14px}
+  .title{
+    font-size: clamp(20px, 5.6vw, 28px);
+    font-weight:1000;margin:0;letter-spacing:.2px;text-align:center;
+    line-height:1.15;
+    color: var(--accent);
+  }
+
+  /* Chip (status) */
+  .chip{
+    display:inline-flex;align-items:center;gap:8px;padding:10px 12px;border-radius:999px;
+    background: rgba(0,0,0,.72);
+    border:1px solid var(--stroke);
+    color:var(--text);
+    font-size:12px;font-weight:900;
+    box-shadow: 0 10px 30px rgba(0,0,0,.25);
+    white-space:nowrap;
+  }
+  .chip .dot{width:7px;height:7px;border-radius:999px;background:rgba(250,204,21,.95);display:inline-block}
+
+  .card{
+    background: var(--surface);
+    border:1px solid var(--stroke);
+    border-radius:20px;padding:16px;
+    box-shadow:var(--shadow);
+    margin-bottom:14px;
+    backdrop-filter: blur(10px);
+    width:100%;
+    max-width: 520px; /* ✅ login alinhado no celular */
+    margin-left:auto;margin-right:auto;
+  }
+
+  /* Cards do APP (não limitar largura) */
+  #app .card{max-width:none}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:12px}
+  .box{
+    background: var(--surface);
+    border:1px solid var(--stroke);
+    border-radius:16px;padding:12px;
+  }
+  
+  /* ✅ JOGOS SALVOS: item selecionado no padrão AMARELO (igual Print 1) */
+  .savedPack.on{
+    background: rgba(250,204,21,.18) !important;
+    border-color: rgba(250,204,21,.75) !important;
+    color:#0b0b0b !important;
+  }
+  .savedPack.on b{ color:#0b0b0b !important; }
+  .savedPack.on .mini{ color: rgba(0,0,0,.72) !important; }
+
+.box p{margin:0;color:var(--text);font-size:13px;line-height:1.5}
+  .mini{color:var(--muted);font-size:12px;margin-top:8px;line-height:1.45}
+  .mini strong{color:var(--text)}
+
+  .row{display:flex;gap:12px;flex-wrap:wrap;align-items:stretch}
+  .col{flex:1 1 240px;min-width:0} /* ✅ evita “torto” */
+
+  label{display:block;font-size:12px;color:var(--accent);font-weight:950;margin-bottom:6px;text-align:left}
+  input, select{
+    width:100%;max-width:100%;
+    padding:13px 12px;border-radius:14px;border:1px solid var(--stroke2);
+    background: rgba(0,0,0,.78);
+    color:var(--text);outline:none;
+  }
+  input::placeholder{color:rgba(203,213,225,.65)}
+  select{cursor:pointer}
+
+  .btn{
+    padding:12px 14px;
+    border:1px solid var(--stroke);
+    border-radius:14px;
+    background: var(--surface);
+    color: var(--text);
+    font-weight:1000;
+    cursor:pointer;
+    transition:.15s;
+    box-shadow: 0 18px 45px rgba(0,0,0,.35);
+    width:100%;
+  }
+  .btn:hover{filter:brightness(1.05);transform:translateY(-1px)}
+  .btn:active{transform:translateY(0px);filter:brightness(.98)}
+  .btn:disabled{opacity:.55;cursor:not-allowed;transform:none;box-shadow:none}
+  .btnPrimary{background:linear-gradient(135deg,var(--yellow),var(--yellow2));box-shadow: var(--glowGold);color:#111111;border:1px solid rgba(250,204,21,.55)}
+  .btnBlue{background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow: var(--glowGold);color:#111111;border:1px solid rgba(255,255,255,.28)}
+  .btnPurple{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#111111;box-shadow: var(--glowGold);border:1px solid rgba(255,255,255,.28)}
+  .btnDanger{background:linear-gradient(135deg,var(--red),var(--red2));color:#2b0b0b;box-shadow: 0 0 0 1px rgba(251,113,133,.18), 0 12px 40px rgba(251,113,133,.12)}
+  .btnGhost{
+    background: rgba(0,0,0,.70);
+    border:1px solid rgba(255,255,255,.14);
+    color:var(--text);
+    box-shadow:none;
+    width:auto;
+  }
+
+  .status{display:none;margin-top:10px;padding:12px;border-radius:14px;background:rgba(56,189,248,.10);
+          border:1px solid rgba(56,189,248,.22);color:#e6f8ff;font-size:13px;font-weight:950;}
+  .bar{height:10px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.08);margin-top:10px}
+  .bar>div{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--orange));transition:width .2s ease}
+
+  /* Views */
+  .view{display:none}
+  .view.on{display:block}
+  .topNav{
+    display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;
+    margin-bottom:10px;
+  }
+  .topNav .left{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .topNav .right{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+
+  /* Opções */
+  .actionGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-top:12px}
+  .actionCard{
+    text-align:left;border:1px solid var(--stroke);
+    background: var(--surface);
+    border-radius:20px;padding:18px 18px;
+    cursor:pointer;transition:.15s;
+    position:relative;min-height:126px;
+    box-shadow: 0 18px 55px rgba(0,0,0,.38);
+  }
+  .actionCard:hover{transform:translateY(-2px);background: var(--surface2);}
+  .actionTitle{font-weight:1000;font-size:16px;margin:0 0 8px;color: var(--yellow);}
+  .actionDesc{margin:0;color: rgba(255,255,255,.88);font-size:13px;line-height:1.55}
+  /* ✅ Título amarelo dentro dos cards (padrão vendas) */
+  .actionCard b, .actionCard strong{color: var(--yellow)}
+
+
+  .badge{
+    position:absolute;top:14px;right:14px;
+    font-size:11px;font-weight:1000;
+    padding:6px 10px;border-radius:999px;
+    border:1px solid rgba(255,255,255,.14);
+    background: rgba(0,0,0,.72);
+    color:var(--text);
+  }
+  .badge.premium{border-color:rgba(56,189,248,.30);background:rgba(56,189,248,.14);color:#e6f8ff}
+  .badge.free{border-color:rgba(250,204,21,.35);background:rgba(250,204,21,.14);color:#fff2b0}
+
+  /* EXTRA mega chamativo */
+  .extraCard{
+    border:1px solid rgba(250,204,21,.35);
+    background: radial-gradient(900px 240px at 30% 20%, rgba(250,204,21,.14), transparent 60%),
+                radial-gradient(900px 240px at 70% 20%, rgba(251,146,60,.10), transparent 60%),
+                rgba(0,0,0,.82);
+    box-shadow: var(--glowGold), 0 22px 70px rgba(0,0,0,.45);
+    transform: translateZ(0);
+  }
+  .extraBadge{
+    position:absolute;top:14px;right:14px;
+    font-size:11px;font-weight:1000;
+    padding:6px 10px;border-radius:999px;
+    border:1px solid rgba(250,204,21,.35);
+    background:rgba(250,204,21,.18);
+    color:#fff2b0;
+  }
+  .extraHeadline{
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+    margin-bottom:6px
+  }
+  .extraHighlight{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:6px 10px;border-radius:999px;
+    border:1px solid rgba(250,204,21,.35);
+    background:rgba(250,204,21,.14);
+    color:#fff2b0;
+    font-weight:1000;font-size:12px;
+  }
+
+  /* Cartão Lotofácil (5x5) */
+  .cartaoWrap{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
+  /* ✅ MOBILE: ajustes extras (apenas no celular) */
+@media (max-width: 520px){
+  .actionGrid{ grid-template-columns: 1fr; }
+  .header{ margin-bottom: 10px; }
+}
+
+  .cartao{
+    display:grid;grid-template-columns: repeat(5, 44px);
+    gap:8px;justify-content:center;margin:10px 0 0;
+  }
+  .cel{
+    width:44px;height:44px;border-radius:12px;
+    display:flex;align-items:center;justify-content:center;
+    border:1px solid rgba(255,255,255,.14);
+    background: rgba(0,0,0,.70);
+    color:var(--text);font-weight:1000;
+  }
+  .cel.on{background:rgba(0,0,0,.72);border:1px solid rgba(250,204,21,.38);color:var(--accent);box-shadow:0 12px 30px rgba(0,0,0,.25)}
+  .cel.inv{background:rgba(0,0,0,.72);border:1px solid rgba(250,204,21,.28);color:var(--accent2);box-shadow:0 12px 30px rgba(0,0,0,.25)}
+  .cel.tech{background:rgba(250,204,21,.14);border:1px solid rgba(250,204,21,.30);color:#fff2b0;box-shadow:0 12px 30px rgba(0,0,0,.25)}
+
+  .numbers{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0 6px}
+  .ball{
+    width:44px;height:44px;border-radius:999px;display:flex;align-items:center;justify-content:center;
+    background:rgba(0,0,0,.72);
+    border:1px solid rgba(250,204,21,.28);
+    color:var(--accent);font-weight:1000;letter-spacing:.4px;
+    box-shadow:0 14px 34px rgba(0,0,0,.35);
+  }
+  .balls{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+
+  .hr{height:1px;background:rgba(255,255,255,.10);margin:12px 0;border-radius:999px}
+
+  /* Painel “verificar jogos gerados” */
+  .panelCheck{
+    margin-top:12px;
+    border:1px solid var(--stroke);
+    background: var(--surface);
+    border-radius:18px;
+    padding:14px;
+  }
+  .panelCheck b{font-size:13px}
+
+  /* Modal */
+  .modalBack{display:none;position:fixed;inset:0;background:rgba(0,0,0,.62);backdrop-filter: blur(7px);
+             align-items:center;justify-content:center;padding:16px;z-index:999}
+  .modal{width:100%;max-width:980px;background:linear-gradient(180deg,var(--card),rgba(255,255,255,.03));
+         border:1px solid rgba(255,255,255,.12);border-radius:20px;box-shadow:0 40px 120px rgba(0,0,0,.70);
+         overflow:hidden}
+  .modalHeader{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.10)}
+  .modalHeader b{font-size:14px}
+  .closeBtn{padding:9px 11px;border-radius:12px;background: rgba(0,0,0,.70);border:1px solid rgba(255,255,255,.14);
+            color:var(--text);cursor:pointer;font-weight:900}
+  .modalBody{padding:14px 16px}
+
+  .table{width:100%;border-collapse:collapse;font-size:13px}
+  .table th,.table td{padding:10px 8px;border-bottom:1px solid rgba(255,255,255,.10);text-align:left;vertical-align:top}
+  .table th{color:var(--muted);font-weight:1000;font-size:12px}
+  .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
+  .footerNote{text-align:center;color:var(--muted2);font-size:11px;margin-top:10px}
+
+  /* Rodapé do app (chip centralizado) */
+  .appFooter{margin-top:8px;display:flex;justify-content:center;}
+
+  /* Rodapé da tela 15p (fonte + modo) */
+  .tinyFoot{margin-top:12px;text-align:center;color:rgba(203,213,225,.75);font-size:11px;}
+
+  /* ✅ Tooltip */
+  .tip{
+    position:relative;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    cursor:help;
+    border-bottom:1px dashed rgba(203,213,225,.45);
+  }
+  .tip::after{
+    content: attr(data-tip);
+    position:absolute;
+    left:0;
+    top: calc(100% + 8px);
+    min-width: 220px;
+    max-width: 360px;
+    padding:10px 12px;
+    border-radius:12px;
+    background:rgba(2,6,23,.92);
+    border:1px solid rgba(255,255,255,.14);
+    color:rgba(248,250,252,.95);
+    box-shadow: 0 18px 55px rgba(0,0,0,.55);
+    opacity:0;
+    pointer-events:none;
+    transform: translateY(-4px);
+    transition: .12s ease;
+    z-index: 9999;
+    font-size: 12px;
+    line-height: 1.35;
+    white-space: normal;
+  }
+  .tip:hover::after{ opacity:1; transform: translateY(0); }
+  .tip .q{opacity:.8}
+
+  /* ✅ Fix mobile geral */
+  /* ✅ FIX ANDROID: remove o "buraco" no login quando vira coluna */
+@media (max-width: 520px){
+  #loginWrap .row{
+    flex-direction: column;
+    gap: 10px;
+  }
+  #loginWrap .col{
+    flex: 1 1 auto !important;
+  }
+}
+
+/* ===== MANUAL PICK (principal + 15P) ===== */
+.pickGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;max-width:460px;margin-top:10px}
+.pickCell{
+  height:44px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  border:1px solid rgba(255,255,255,.14);
+  background: rgba(0,0,0,.70);
+  font-weight:1000;cursor:pointer;user-select:none;
+}
+.pickCell.sel{background:rgba(0,0,0,.72);border-color:rgba(250,204,21,.40);color:var(--accent);box-shadow:0 12px 30px rgba(0,0,0,.25)}
+.pickCell.lock{opacity:.35;cursor:not-allowed}
+/* =========================
+   ✅ Destaque de acertos (Jogos Salvos)
+   11,12,13,14,15 com cor
+========================= */
+.hit-11{ color:#38bdf8; font-weight:900; }  /* azul */
+.hit-12{ color:#a78bfa; font-weight:900; }  /* roxo */
+.hit-13{ color:#facc15; font-weight:1000; } /* amarelo */
+.hit-14{ color:#fb923c; font-weight:1000; } /* laranja */
+.hit-15{ color:#facc15; font-weight:1000; } /* amarelo */
+
+.lineTabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.lineBtn{
+  padding:8px 10px;border-radius:12px;
+  border:1px solid rgba(255,255,255,.14);
+  background: rgba(0,0,0,.70);
+  color:var(--text);font-weight:1000;cursor:pointer
+}
+.lineBtn.on{border-color:rgba(56,189,248,.35);background:rgba(56,189,248,.12);color:#e6f8ff}
+.slotRow{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.slot{
+  min-width:52px;
+  padding:8px 10px;border-radius:12px;
+  border:1px dashed rgba(255,255,255,.18);
+  background: rgba(0,0,0,.66);
+  font-weight:1000;
+}
+
+  /* ✅ BOTÕES: preto fosco + destaque e PRIMARY sempre amarelo (igual Print 1) */
+  .btnPrimary{
+    background: var(--yellow) !important;
+    color:#111111 !important;
+    border:1px solid rgba(250,204,21,.80) !important;
+    box-shadow: var(--glowGold) !important;
+  }
+
+  /* ✅ MOBILE: evita quebra feia das 5 bolas nas linhas 4/5 do 15P */
+  @media (max-width:420px){
+    .ball{ width:38px; height:38px; font-size:13px; }
+    .numbers{ gap:6px; }
+  }
+
+  /* ✅ Ilustração de troca de COLUNAS (Invertida/Técnica) */
+  .swapCard{ margin-top: 10px; }
+  .swapImgs{
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap:12px;
+    margin-top:12px;
+    align-items:start;
+  }
+  .swapImgWrap{
+    border:1px solid rgba(255,255,255,.14);
+    background: rgba(0,0,0,.66);
+    border-radius:16px;
+    padding:12px;
+    text-align:center;
+    overflow:visible;
+  }
+  .swapImgWrap b{ color: var(--yellow); display:block; margin-bottom:8px; }
+  .swapImg{
+    display:block;
+    width:100%;
+    max-width: 520px;
+    height:auto;
+    aspect-ratio: 5 / 6;
+    object-fit: contain;
+    margin: 0 auto;
+    border-radius:14px;
+    border:1px solid rgba(250,204,21,.22);
+    background: rgba(0,0,0,.70);
+    box-shadow: 0 18px 55px rgba(0,0,0,.38);
+  }
+  .swapRow{ display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
+  .swapMini{
+    flex: 1 1 260px;
+    border:1px solid rgba(255,255,255,.14);
+    background: rgba(0,0,0,.66);
+    border-radius:16px;
+    padding:12px;
+  }
+  .swapMini b{ color: var(--yellow); }
+  .swapGamesRow{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:12px;
+    margin-top:12px;
+    align-items:start;
+  }
+  @media (max-width: 900px){
+    .swapGamesRow{ grid-template-columns: 1fr; }
+  }
+
+
+/* =========================
+   ✅ LAYOUT 15P VERTICAL PREMIUM COM GLOW (MOBILE FIRST)
+========================= */
+
+.p15-card{
+  background: linear-gradient(180deg, rgba(0,0,0,.92), rgba(0,0,0,.78));
+  border:1px solid rgba(250,204,21,.35);
+  border-radius:18px;
+  padding:14px;
+  margin:16px auto;
+  max-width:380px; /* ✅ vertical */
+  box-shadow:
+    0 0 0 1px rgba(250,204,21,.15),
+    0 0 25px rgba(250,204,21,.08),
+    0 18px 55px rgba(0,0,0,.65);
+}
+
+/* ✅ DESKTOP: 3+ cards por linha (mantém mobile 1 por linha) */
+.p15CardsGrid{
+  display:grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap:14px;
+  align-items:start;
+  margin-top:12px;
+}
+.p15CardsGrid .p15-card{
+  max-width:none; /* libera no desktop */
+  width:100%;
+  margin:0;       /* grid controla espaçamento */
+}
+@media (max-width: 1100px){
+  .p15CardsGrid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 720px){
+  .p15CardsGrid{ grid-template-columns: 1fr; }
+  .p15CardsGrid .p15-card{ max-width: 420px; margin: 0 auto; } /* volta vertical bonito no mobile */
+}
+
+.p15-title{
+  font-weight:1000;
+  font-size:14px;
+  color:var(--accent);
+  margin-bottom:10px;
+  text-align:center;
+  letter-spacing:.3px;
+}
+
+.p15-metrics{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-bottom:12px;
+}
+
+.p15-chip{
+  background:rgba(0,0,0,.85);
+  border:1px solid rgba(250,204,21,.25);
+  padding:6px 8px;
+  border-radius:14px;
+  font-size:11px;
+  font-weight:900;
+  text-align:center;
+  box-shadow: 0 0 12px rgba(250,204,21,.05);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.p15-numbers{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  justify-content:center;
+  margin:8px 0 12px 0;
+}
+
+.p15-ball{
+  width:32px;
+  height:32px;
+  border-radius:999px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,0,0,.95);
+  border:1px solid rgba(250,204,21,.55);
+  color:var(--accent);
+  font-weight:1000;
+  font-size:11px;
+  box-shadow: 0 0 10px rgba(250,204,21,.15);
+}
+
+.p15-section{
+  font-size:12px;
+  line-height:1.45;
+  margin-bottom:10px;
+  color:rgba(255,255,255,.92);
+}
+
+.p15-warning{
+  background:rgba(0,0,0,.75);
+  border:1px solid rgba(250,204,21,.25);
+  padding:10px;
+  border-radius:14px;
+  font-size:11.5px;
+  line-height:1.4;
+  box-shadow: inset 0 0 12px rgba(250,204,21,.05);
+}
+
+@media (max-width:420px){
+  .p15-card{ max-width:92vw; padding:12px; }
+  .p15-ball{ width:28px; height:28px; font-size:10px; }
+  .p15-chip{ font-size:10px; padding:6px; }
+}
+
 
 
 /* =========================
@@ -2199,6 +2758,12 @@ function renderSumsTop(sums, total){
       <div style="margin-top:10px">${rows || `<div class="mini">—</div>`}</div>
     </div>
   `;
+
+// ✅ Compat: prévia usa renderSums(); mantemos renderSumsTop() como base
+function renderSums(sums, total){
+  return renderSumsTop(sums, total);
+}
+
 }
 
 function renderBlocksPrime(totals, patterns, total){
@@ -2675,7 +3240,7 @@ async function acaoAnalise(){
           </div>
           <div class="hBadge">2/6</div>
         </div>
-        ${renderSums(freq.sums, payload.concursos.length)}
+        ${renderSums(sums, payload.concursos.length)}
       </div>
 
       <div class="primeSection">
