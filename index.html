@@ -1758,6 +1758,17 @@ function renderListaConcursos(concursos){
       <thead><tr><th>Concurso</th><th>Data</th><th>Dezenas</th></tr></thead>
       <tbody>${rows}</tbody>
     </table>
+        <div style="margin-top:14px">
+          <div style="font-weight:900;margin-bottom:6px">🔤 Mapa fixo (treino) de letras → dezenas (A–O = IN / P–Y = OUT)</div>
+          <div class="mini" style="margin-bottom:8px">O padrão é FIXO (treinado). Aqui o sistema só encaixa as dezenas do seu recorte (qtd concursos) nas posições por comportamento.</div>
+          <div style="overflow:auto">
+            <table class="table">
+              <thead><tr><th>Letra</th><th>Dezena</th><th>Grupo</th><th>Perfil</th></tr></thead>
+              <tbody>${letterHtml}</tbody>
+            </table>
+          </div>
+        </div>
+
   `;
 }
 
@@ -3281,250 +3292,256 @@ function lineQualityScore(line, sShort, sMed){
   return st - pen;
 }
 
-function overlapCount(a,b){
-  const sb=new Set(b);
-  let k=0;
-  for(const x of a) if(sb.has(x)) k++;
+
+function isPrime(n){
+  return [2,3,5,7,11,13,17,19,23].includes(n);
+}
+
+function rowOf(n){ return Math.floor((n-1)/5)+1; }   // 1..5
+function colOf(n){ return ((n-1)%5)+1; }            // 1..5
+function blockOf(n){
+  if(n<=5) return "A";
+  if(n<=10) return "B";
+  if(n<=15) return "C";
+  if(n<=20) return "D";
+  return "E";
+}
+
+function countInSet(arr, set){
+  let k=0; for(const x of arr) if(set.has(x)) k++;
   return k;
 }
 
-function diversifyPenalty(candidateLine, existingLines){
-  // penaliza repetição com linhas já formadas
-  let pen=0;
-  for(const l of existingLines){
-    pen += overlapCount(candidateLine, l) * 2.0;
-  }
-  return pen;
-}
+function buildWindowFeatures(concursos){
+  // concursos: array ordenado asc (cada item deve ter dezenas array)
+  const freq = Array(26).fill(0);
+  const lastSeen = Array(26).fill(null); // idx dentro da janela (0..len-1)
+  const streak = Array(26).fill(0);
+  const len = concursos.length;
 
-function buildCombinations(arr, k){
-  const res=[];
-  const a=arr.slice().sort((x,y)=>x-y);
-  const pick=[];
-  function bt(start){
-    if(pick.length===k){ res.push(pick.slice()); return; }
-    for(let i=start;i<a.length;i++){
-      pick.push(a[i]); bt(i+1); pick.pop();
-    }
-  }
-  bt(0);
-  return res;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-async function buildLines15PAdvanced(payloadShort, qtdShort){
-  /*
-    ✅ NOVO MOTOR 15P (PREDITIVO COMPORTAMENTAL)
-    - Treina em cima da janela escolhida (payloadShort.concursos)
-    - Observa comportamento nos ÚLTIMOS 5 concursos (lookback=5)
-    - Considera estágios 3–6 concursos antes (lags 3..6)
-    - Prediz IN (15 dezenas que podem sair) e OUT (10 dezenas que podem não sair)
-    - Monta 5 linhas SEM REPETIÇÃO: 3 linhas IN + 2 linhas OUT (25 dezenas únicas)
-    - Sem "linha forte/fraca": linhas são classe predita (IN/OUT)
-  */
-  const concursos = (payloadShort?.concursos || []).slice().map(c=>({ ...c, dezenas: getDezenas(c) })).sort((a,b)=>a.concurso-b.concurso);
-  const LOOKBACK = 5;
-  const LAGS = [3,4,5,6];
-  const maxLag = Math.max.apply(null, LAGS);
-
-  function getDezenas(c){
-    const d = c && c.dezenas;
-    if(Array.isArray(d)) return d;
-    if(typeof d === "string"){
-      const nums = d.match(/\d{1,2}/g) || [];
-      return nums.map(x=>Number(x));
-    }
-    return [];
-  }
-
-  if(concursos.length < (LOOKBACK + maxLag + 2)){
-    // fallback mínimo: usa frequência simples por recência, mas ainda respeita IN/OUT e 25 únicas
-    const freq = Array(26).fill(0);
-    concursos.forEach((c,idx)=>{
-      const w = 1 + (idx/(concursos.length||1)); // leve recência
-      (getDezenas(c)||[]).map(toNum).forEach(n=>{ if(n>=1&&n<=25) freq[n]+=w; });
-    });
-    const ranked = [...Array(25)].map((_,i)=>i+1).sort((a,b)=>freq[b]-freq[a] || a-b);
-    const IN = ranked.slice(0,15);
-    const OUT = ranked.slice(15);
-    const lines = [[],[],[],[],[]];
-    IN.forEach((n,i)=>lines[i%3].push(n));
-    OUT.forEach((n,i)=>lines[3+(i%2)].push(n));
-    return { lines: lines.map(l=>sortNum(l)), meta:{ mode:"fallback", IN, OUT } };
-  }
-
-  function sigmoid(z){
-    if(z>35) return 1;
-    if(z<-35) return 0;
-    return 1/(1+Math.exp(-z));
-  }
-  function dot(w,x){
-    let s=0;
-    for(let i=0;i<w.length;i++) s += w[i]*x[i];
-    return s;
-  }
-
-  // Features por (i, n): estado do n nos últimos 5 concursos + marcadores 3..6 antes
-  function featuresAt(indexI, n){
-    const x = [];
-    x.push(1); // bias
-
-    // sets dos últimos 5
-    const win = [];
-    for(let k=indexI-LOOKBACK;k<indexI;k++){
-      win.push(new Set((concursos[k].dezenas||[]).map(toNum)));
-    }
-
-    let count5 = 0;
-    for(let k=0;k<LOOKBACK;k++) if(win[k].has(n)) count5++;
-
-    const was1 = win[LOOKBACK-1].has(n) ? 1 : 0;
-    const was2 = win[LOOKBACK-2].has(n) ? 1 : 0;
-
-    // gap (1..LOOKBACK+maxLag+1)
-    let gap = LOOKBACK + maxLag + 1;
-    for(let back=1; back<=LOOKBACK+maxLag; back++){
-      const setB = new Set((concursos[indexI-back].dezenas||[]).map(toNum));
-      if(setB.has(n)){ gap = back; break; }
-    }
-
-    // streak nos últimos concursos (consecutivos até i-1)
-    let streak = 0;
-    for(let back=1; back<=LOOKBACK; back++){
-      const setB = win[LOOKBACK-back];
-      if(setB.has(n)) streak++;
-      else break;
-    }
-
-    // lags 3..6 (se estava presente exatos L concursos antes)
-    const lagFlags = LAGS.map(L=>{
-      const setL = new Set((concursos[indexI-L].dezenas||[]).map(toNum));
-      return setL.has(n) ? 1 : 0;
-    });
-
-    // normalizações simples
-    x.push(count5/LOOKBACK);                 // 0..1
-    x.push(was1);                            // 0/1
-    x.push(was2);                            // 0/1
-    x.push(Math.min(gap, 12)/12);            // 0..1 (cap)
-    x.push(streak/LOOKBACK);                 // 0..1
-    lagFlags.forEach(v=>x.push(v));          // 4 dims
-
-    return x;
-  }
-
-  // monta dataset (samples) usando a própria janela curta como treino (walk-forward implícito)
-  const samples = [];
-  const startI = LOOKBACK + maxLag;
-  for(let i=startI; i<concursos.length; i++){
-    const ySet = new Set((concursos[i].dezenas||[]).map(toNum));
+  for(let i=0;i<len;i++){
+    const set = new Set(getDezenas(concursos[i]));
     for(let n=1;n<=25;n++){
-      samples.push({ x: featuresAt(i,n), y: ySet.has(n) ? 1 : 0 });
-    }
-  }
-
-  // Treino logística (batch GD) - leve e determinístico
-  const dim = samples[0].x.length;
-  let w = Array(dim).fill(0);
-  const lr = 0.35;
-  const iters = 220;
-  const reg = 0.002; // L2
-
-  for(let it=0; it<iters; it++){
-    const grad = Array(dim).fill(0);
-    let m = samples.length;
-
-    for(const s of samples){
-      const p = sigmoid(dot(w, s.x));
-      const err = (p - s.y);
-      for(let j=0;j<dim;j++) grad[j] += err * s.x[j];
-    }
-
-    for(let j=0;j<dim;j++){
-      grad[j] = grad[j]/m + reg*w[j];
-      w[j] -= lr*grad[j];
-    }
-  }
-
-  // Predição para o próximo concurso (baseado no último índice = concursos.length)
-  const nextI = concursos.length;
-  // para extrair features do "próximo", vamos usar indexI = concursos.length (sem acessar concursos[nextI])
-  // logo, em featuresAt usamos concursos[indexI-back], que existe.
-  function featuresNext(n){
-    // reutiliza featuresAt com indexI = concursos.length (sem y)
-    // featuresAt exige concursos[k] para k < indexI, então ok.
-    // (não usamos concursos[indexI] em nenhum lugar)
-    return featuresAt(nextI, n);
-  }
-
-  const probs = [];
-  for(let n=1;n<=25;n++){
-    const p = sigmoid(dot(w, featuresNext(n)));
-    probs.push({ n, p });
-  }
-  probs.sort((a,b)=> (b.p-a.p) || (a.n-b.n));
-
-  const IN = probs.slice(0,15).map(o=>o.n);
-  const OUT = probs.slice(15).map(o=>o.n);
-
-  // Montagem de linhas (25 únicas, 3 IN + 2 OUT, sem repetição)
-  const lines = [[],[],[],[],[]];
-
-  // distribui IN em 3 linhas sem "força": round-robin pela ordem do ranking
-  IN.forEach((n,i)=>{ lines[i%3].push(n); });
-
-  // distribui OUT em 2 linhas
-  OUT.forEach((n,i)=>{ lines[3+(i%2)].push(n); });
-
-  // segurança: garantir 5 dezenas por linha e 25 únicas
-  const flat = lines.flat();
-  const uniq = new Set(flat);
-  if(flat.length!==25 || uniq.size!==25 || !lines.every(l=>l.length===5)){
-    // fallback seguro: usa apenas o ranking e fatia (ainda IN/OUT + 25 únicas)
-    const ranked = probs.map(o=>o.n);
-    const IN2 = ranked.slice(0,15);
-    const OUT2 = ranked.slice(15);
-    const L = [[],[],[],[],[]];
-    IN2.forEach((n,i)=>L[i%3].push(n));
-    OUT2.forEach((n,i)=>L[3+(i%2)].push(n));
-    return { lines: L.map(l=>sortNum(l)), meta:{ mode:"predictive-fallback", IN:IN2, OUT:OUT2, weights:w } };
-  }
-
-  return {
-    lines: lines.map(l=>sortNum(l)),
-    meta: {
-      mode: "predictive",
-      lookback: LOOKBACK,
-      lags: LAGS,
-      IN,
-      OUT,
-      weights: w,
-      probs: probs // útil para debug interno
-    }
-  };
-}
-function combos3de5(){
-  const r=[];
-  for(let a=1;a<=3;a++){
-    for(let b=a+1;b<=4;b++){
-      for(let c=b+1;c<=5;c++){
-        r.push([a,b,c]);
+      if(set.has(n)){
+        freq[n] += 1;
+        lastSeen[n] = i;
       }
     }
   }
-  return r;
+
+  // streaks: conta sequência de presença nos últimos concursos (do fim pra trás)
+  for(let n=1;n<=25;n++){
+    let s=0;
+    for(let i=len-1;i>=0;i--){
+      const set = new Set(getDezenas(concursos[i]));
+      if(set.has(n)) s++; else break;
+    }
+    streak[n]=s;
+  }
+
+  // last3 freq e last presence
+  const last3 = concursos.slice(-3);
+  const freq3 = Array(26).fill(0);
+  const inLast = Array(26).fill(false);
+  for(let i=0;i<last3.length;i++){
+    const set = new Set(getDezenas(last3[i]));
+    for(let n=1;n<=25;n++){
+      if(set.has(n)) freq3[n] += 1;
+    }
+  }
+  if(len>0){
+    const setLast = new Set(getDezenas(concursos[len-1]));
+    for(let n=1;n<=25;n++) inLast[n] = setLast.has(n);
+  }
+
+  return {freq, freq3, inLast, lastSeen, streak, len};
 }
+
+function scoreOUT(n, F){
+  // Treino (3592-3613): OUT tende a ser "saturada" (freq alta + sequência)
+  // Quanto mais saturada, mais vai para linhas 2 e 4 (NÃO SAIR).
+  const par = (n%2===0)?1:0;
+  const prime = isPrime(n)?1:0;
+  const base = (F.freq3[n]*2.2) + (F.inLast[n]?1.4:0) + (F.streak[n]*1.2) + (F.freq[n]*0.25);
+  // leve preferência por pares e contra primos (observação do treino)
+  return base + (par*0.25) - (prime*0.15);
+}
+
+function scoreIN(n, F){
+  // IN tende a ser: mistura de repetição + ativação (freq média) + alguma reativação
+  const par = (n%2===0)?1:0;
+  const prime = isPrime(n)?1:0;
+  const recentlySeen = (F.lastSeen[n] !== null) ? (F.len-1 - F.lastSeen[n]) : 99; // 0 = saiu no último
+  const reactivationBoost = (F.freq3[n]===0 ? 0.9 : (F.freq3[n]===1 ? 0.5 : 0.0));
+  const base = (F.inLast[n]?1.6:0) + (F.freq3[n]*1.1) + (F.freq[n]*0.22) + reactivationBoost;
+  // evita “saturadíssimas” (tendem a ir pra OUT)
+  const satPenalty = (F.freq3[n]===3 ? 0.9 : 0) + (F.streak[n]>=3 ? 0.6 : 0);
+  // preferência leve por ímpar e por primos (equilíbrio)
+  return base - satPenalty + ((1-par)*0.15) + (prime*0.20) - (Math.min(recentlySeen,5)*0.02);
+}
+
+function pickTopByScore(candidates, scoreFn, F, k){
+  const arr = candidates.slice().sort((a,b)=>{
+    const sa = scoreFn(a,F), sb = scoreFn(b,F);
+    if(sb!==sa) return sb-sa;
+    return a-b; // determinístico
+  });
+  return arr.slice(0,k);
+}
+
+function balanceLine(line, targetOdds){
+  const odds = line.filter(n=>n%2===1).length;
+  return {odds, targetOdds};
+}
+
+function distributeIntoLines(nums, linesCount){
+  // distribuição determinística para balancear blocos e paridade
+  const lines = Array.from({length:linesCount}, ()=>[]);
+  const sorted = nums.slice().sort((a,b)=>a-b);
+
+  // prioridade: alterna para espalhar colunas/blocos
+  const buckets = {A:[],B:[],C:[],D:[],E:[]};
+  for(const n of sorted) buckets[blockOf(n)].push(n);
+
+  const orderBlocks = ["C","B","D","A","E"]; // centro primeiro (treino tende equilibrar)
+  let idx=0;
+  for(const bl of orderBlocks){
+    for(const n of buckets[bl]){
+      lines[idx % linesCount].push(n);
+      idx++;
+    }
+  }
+
+  // se alguma linha ficou >5 (pode acontecer com distribuição), reequilibra
+  // aqui queremos exatamente 5 por linha, então fazemos um ajuste simples
+  // (assumindo nums length = linesCount*5)
+  for(let i=0;i<linesCount;i++){
+    lines[i].sort((a,b)=>a-b);
+  }
+  return lines;
+}
+
+function buildLines15PFixedPattern(payloadShort, qtdShort){
+  /*
+    ✅ MOTOR 15P FIXO (TREINADO EM 3592–3613)
+    - NÃO recalcula "padrão" por janela: o padrão é FIXO (saturação -> OUT; mix repetição/ativação -> IN)
+    - Só "encaixa" dezenas na estrutura 5 linhas:
+      Linhas 1/3/5 = IN (15 dezenas)
+      Linhas 2/4   = OUT (10 dezenas)
+    - 25 dezenas únicas, sem repetição entre linhas
+  */
+  const concursos = (payloadShort?.concursos || [])
+    .slice()
+    .map(c=>({ ...c, dezenas: getDezenas(c) }))
+    .sort((a,b)=>a.concurso-b.concurso);
+
+  // janela que o usuário escolheu (sem travas)
+  const window = (qtdShort && concursos.length>qtdShort) ? concursos.slice(-qtdShort) : concursos;
+  const F = buildWindowFeatures(window);
+
+  const all = Array.from({length:25},(_,i)=>i+1);
+
+  // 1) OUT (10) por saturação
+  const out10 = pickTopByScore(all, scoreOUT, F, 10);
+  const outSet = new Set(out10);
+
+  // 2) IN = resto (15)
+  const in15 = all.filter(n=>!outSet.has(n)).sort((a,b)=>a-b);
+  const inSet = new Set(in15);
+
+  // 3) Ajustes finos para manter equilíbrio (odds ~ 8/7, primos 4/5)
+  function countPrimes(arr){ return arr.filter(isPrime).length; }
+  function countOdds(arr){ return arr.filter(n=>n%2===1).length; }
+
+  // tentativas leves de troca IN<->OUT para aproximar perfil dominante
+  const targetOddsIN = 8; // em 15
+  const targetPrimesIN_min = 4;
+  const targetPrimesIN_max = 5;
+
+  let IN = in15.slice();
+  let OUT = out10.slice();
+
+  function trySwap(){
+    const odds = countOdds(IN);
+    const primes = countPrimes(IN);
+
+    const needOdd = odds < targetOddsIN;
+    const needEven = odds > targetOddsIN;
+    const needPrime = primes < targetPrimesIN_min;
+    const tooPrime = primes > targetPrimesIN_max;
+
+    // escolhe candidato em OUT para entrar
+    let candIn = null;
+    if(needOdd){
+      candIn = OUT.filter(n=>n%2===1).sort((a,b)=>scoreIN(b,F)-scoreIN(a,F))[0] || null;
+    }else if(needEven){
+      candIn = OUT.filter(n=>n%2===0).sort((a,b)=>scoreIN(b,F)-scoreIN(a,F))[0] || null;
+    }else if(needPrime){
+      candIn = OUT.filter(isPrime).sort((a,b)=>scoreIN(b,F)-scoreIN(a,F))[0] || null;
+    }else if(tooPrime){
+      candIn = OUT.filter(n=>!isPrime(n)).sort((a,b)=>scoreIN(b,F)-scoreIN(a,F))[0] || null;
+    }
+
+    if(candIn===null) return false;
+
+    // escolhe candidato em IN para sair
+    let candOut = null;
+    if(needOdd){
+      candOut = IN.filter(n=>n%2===0).sort((a,b)=>scoreOUT(b,F)-scoreOUT(a,F))[0] || null;
+    }else if(needEven){
+      candOut = IN.filter(n=>n%2===1).sort((a,b)=>scoreOUT(b,F)-scoreOUT(a,F))[0] || null;
+    }else if(needPrime){
+      candOut = IN.filter(n=>!isPrime(n)).sort((a,b)=>scoreOUT(b,F)-scoreOUT(a,F))[0] || null;
+    }else if(tooPrime){
+      candOut = IN.filter(isPrime).sort((a,b)=>scoreOUT(b,F)-scoreOUT(a,F))[0] || null;
+    }
+
+    if(candOut===null) return false;
+
+    // executa swap
+    IN = IN.filter(n=>n!==candOut); IN.push(candIn);
+    OUT = OUT.filter(n=>n!==candIn); OUT.push(candOut);
+    IN.sort((a,b)=>a-b); OUT.sort((a,b)=>a-b);
+    return true;
+  }
+
+  for(let i=0;i<4;i++) trySwap(); // poucas trocas (determinístico e leve)
+
+  // 4) Distribui em linhas: IN -> 3 linhas (1/3/5), OUT -> 2 linhas (2/4)
+  const inLines = distributeIntoLines(IN, 3);   // 3 linhas de 5
+  const outLines = distributeIntoLines(OUT, 2); // 2 linhas de 5
+
+  const lines = [
+    inLines[0],
+    outLines[0],
+    inLines[1],
+    outLines[1],
+    inLines[2]
+  ].map(l=>l.slice().sort((a,b)=>a-b));
+
+  // 5) Mapeia letras A–O e P–Y (para debug/explicação no resumo)
+  const lettersIN = "ABCDEFGHIJKLMNO".split("");
+  const lettersOUT = "PQRSTUVWXY".split(""); // 10 letras: P..Y
+  const map = [];
+  let idx=0;
+  for(const l of [lines[0],lines[2],lines[4]]){
+    for(const n of l){
+      map.push({letter: lettersIN[idx], num:n, kind:"IN"});
+      idx++;
+    }
+  }
+  idx=0;
+  for(const l of [lines[1],lines[3]]){
+    for(const n of l){
+      map.push({letter: lettersOUT[idx], num:n, kind:"OUT"});
+      idx++;
+    }
+  }
+
+  return { lines, map, F, window };
+}
+
+
 function gerarJogos15P(linhas){
   const comb = combos3de5();
   return comb.map((idxs)=>{
@@ -3848,13 +3865,9 @@ async function gerar15P(){
     setStatus(true,"15P: analisando e montando 5 linhas…");
     setProgress(82);
 
-    const stats = calcCoocAndStats(payload.concursos);
-    stats.concursosRef = payload.concursos; // ✅ usado para calcular 5/4/3/2 juntas
-
     // ✅ NOVO 15P: linhas por "saiu / não saiu" + regularização curto+médio + cobertura
-    const adv = await buildLines15PAdvanced(payload, qtd);
-    let lines = adv.lines;
-
+    const adv = buildLines15PFixedPattern(payload, qtd);
+    const lines = adv.lines;
 
     const jogos = gerarJogos15P(lines);
     const sourceInfo = { source: payload.source, mode: payload.mode };
@@ -3863,16 +3876,25 @@ async function gerar15P(){
     setProgress(0);
 
     initUserLines15FromSystem(lines);
+    const lineMeta = lines.map((l,idx)=>{
+      const kind = ([0,2,4].includes(idx)) ? "PREDIZ SAIR (IN)" : "PREDIZ NÃO SAIR (OUT)";
+      const odds = l.filter(n=>n%2===1).length;
+      const primes = l.filter(isPrime).length;
+      const blocks = {A:0,B:0,C:0,D:0,E:0};
+      l.forEach(n=>{ blocks[blockOf(n)] = (blocks[blockOf(n)]||0)+1; });
+      return { idx: idx+1, kind, line:l, odds, primes, blocks };
+    });
 
-    const lineMeta = lines.map((l,idx)=>({
-      idx: idx+1,
-      kind: (idx<3) ? "PREDIZ SAIR (IN)" : "PREDIZ NÃO SAIR (OUT)",
-      strength: groupStrength(l,stats).sum,
-      coAvg: groupCoSum(l,stats).avg,
-      liftAvg: groupLiftAvg(l,stats).avg,
-      freqSum: groupFreqSum(l,stats),
-      line: l
-    }));
+    const letterMap = adv.map || [];
+    const letterHtml = letterMap
+      .slice()
+      .sort((a,b)=> a.letter.localeCompare(b.letter))
+      .map(o=>`<tr>
+        <td class="mono"><b>${o.letter}</b></td>
+        <td class="mono">${format2(o.num)}</td>
+        <td>${o.kind==="IN" ? "IN (sair)" : "OUT (não sair)"}</td>
+        <td class="mini">L${rowOf(o.num)} C${colOf(o.num)} Bloco ${blockOf(o.num)} • ${o.num%2===0?"Par":"Ímpar"}${isPrime(o.num)?" • Primo":""}</td>
+      </tr>`).join("");
 
     const jogosHtml = jogos.map((j, idx)=>{
       return `
@@ -3912,18 +3934,9 @@ async function gerar15P(){
                 <th>Linha</th>
                 <th>Tipo</th>
                 <th>Dezenas</th>
-                <th>Força</th>
-                <th>
-                  <span class="tip" data-tip="Co médio = média de vezes que os pares da linha aparecem juntos nos concursos da janela. Quanto maior, mais ‘andam juntos’.">
-                    Co médio <span class="q">ⓘ</span>
-                  </span>
-                </th>
-                <th>
-                  <span class="tip" data-tip="Lift médio = quão acima do esperado (pelo acaso) os pares aparecem juntos. >1 indica associação positiva; quanto maior, mais forte a relação.">
-                    Lift médio <span class="q">ⓘ</span>
-                  </span>
-                </th>
-                <th>Soma freq</th>
+                <th>Ímpares</th>
+                <th>Primos</th>
+                <th>Blocos (A–E)</th>
               </tr>
             </thead>
             <tbody>
@@ -3932,10 +3945,9 @@ async function gerar15P(){
                   <td><b>${m.idx}</b></td>
                   <td>${String(m.kind).includes("IN") ? "PREDIZ SAIR (IN)" : "PREDIZ NÃO SAIR (OUT)"}</td>
                   <td class="mono">${m.line.map(format2).join(" - ")}</td>
-                  <td><b>${m.strength.toFixed(1)}</b></td>
-                  <td>${m.coAvg.toFixed(2)}</td>
-                  <td>${m.liftAvg.toFixed(2)}</td>
-                  <td>${m.freqSum}</td>
+                  <td><b>${m.odds}</b></td>
+                  <td>${m.primes}</td>
+                  <td class="mono">A${m.blocks.A}-B${m.blocks.B}-C${m.blocks.C}-D${m.blocks.D}-E${m.blocks.E}</td>
                 </tr>
               `).join("")}
             </tbody>
