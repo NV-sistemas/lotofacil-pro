@@ -8,18 +8,19 @@
 
 <style>
   :root{
-    /* LAYOUT V3 (padrão Print 3) */
-    --bg1:#050505; --bg2:#000000;
-    --card: rgba(0,0,0,.60);
+    /* LAYOUT (padrão Print 2) */
+    --bg1:#070502;
+    --bg2:#000000;
 
-    --surface: rgba(255,255,255,.05);
-    --surface2: rgba(255,255,255,.075);
+    --card: rgba(12,10,7,.72);
+    --surface: rgba(255,255,255,.045);
+    --surface2: rgba(255,255,255,.07);
 
     --text:#ffffff;
     --muted: rgba(255,255,255,.82);
-    --muted2: rgba(255,255,255,.66);
+    --muted2: rgba(255,255,255,.62);
 
-    --accent:#facc15;     /* amarelo PRIME */
+    --accent:#facc15;
     --accent2:#ffe27a;
 
     --yellow:#facc15;
@@ -28,12 +29,11 @@
 
     --red:#fb7185; --red2:#ef4444;
 
-    --stroke: rgba(255,255,255,.14);
-    --stroke2: rgba(255,255,255,.10);
+    --stroke: rgba(255,255,255,.12);
+    --stroke2: rgba(255,255,255,.08);
 
     --shadow: 0 18px 60px rgba(0,0,0,.65);
 
-    /* Glows (amarelo PRIME) */
     --glowGold: 0 0 0 1px rgba(250,204,21,.22), 0 18px 60px rgba(250,204,21,.14);
     --glowSoft: 0 0 0 1px rgba(255,255,255,.06), 0 18px 60px rgba(0,0,0,.55);
 
@@ -49,8 +49,9 @@
     margin:0;
     color:var(--text);
     background:
-      radial-gradient(900px 650px at 18% 10%, rgba(250,204,21,.12), transparent 58%),
-      radial-gradient(900px 650px at 82% 15%, rgba(251,146,60,.08), transparent 60%),
+      radial-gradient(900px 620px at 18% 8%, rgba(250,204,21,.14), transparent 60%),
+      radial-gradient(900px 620px at 82% 12%, rgba(251,146,60,.10), transparent 62%),
+      radial-gradient(1100px 700px at 50% 0%, rgba(255,255,255,.05), transparent 58%),
       linear-gradient(180deg,var(--bg1),var(--bg2));
     min-height:100dvh;
     overflow-x:hidden;
@@ -87,7 +88,7 @@
   }
   .chip .dot{width:7px;height:7px;border-radius:999px;background:rgba(250,204,21,.95);display:inline-block}
   .card{
-    background: linear-gradient(180deg, rgba(0,0,0,.74), rgba(0,0,0,.52));
+    background: linear-gradient(180deg, rgba(12,10,7,.78), rgba(12,10,7,.55));
     border:1px solid var(--stroke);
     border-radius:26px;
     padding:18px;
@@ -95,17 +96,19 @@
     margin-bottom:14px;
     backdrop-filter: blur(10px);
     width:100%;
-    max-width: 520px; /* login */
+    max-width: none;
     margin-left:auto;margin-right:auto;
   }
+
+  #loginWrap .card{max-width:520px}
 
   /* Cards do APP (não limitar largura) */
   #app .card{max-width:none}
 
   .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:12px}
   .box{
-    background: rgba(0,0,0,.46);
-    border:1px solid rgba(255,255,255,.12);
+    background: rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.11);
     border-radius:20px;
     padding:14px;
     box-shadow: var(--glowSoft);
@@ -144,7 +147,7 @@
     padding:12px 16px;
     border:1px solid rgba(255,255,255,.12);
     border-radius:18px;
-    background: rgba(0,0,0,.58);
+    background: rgba(0,0,0,.52);
     color: var(--text);
     font-weight:1000;
     cursor:pointer;
@@ -187,7 +190,7 @@
   .actionCard{
     text-align:left;
     border:1px solid rgba(255,255,255,.12);
-    background: linear-gradient(180deg, rgba(0,0,0,.72), rgba(0,0,0,.52));
+    background: linear-gradient(180deg, rgba(12,10,7,.72), rgba(12,10,7,.50));
     border-radius:26px;
     padding:20px 20px;
     cursor:pointer;
@@ -285,35 +288,14 @@
   /* Modal */
   .modalBack{display:none;position:fixed;inset:0;background:rgba(0,0,0,.62);backdrop-filter: blur(7px);
              align-items:center;justify-content:center;padding:16px;z-index:999}
-  .modal{width:100%;max-width:980px;background:linear-gradient(180deg,var(--card),rgba(255,255,255,.03));
-         border:1px solid rgba(255,255,255,.12);border-radius:20px;box-shadow:0 40px 120px rgba(0,0,0,.70);
-         overflow:hidden}
-  .modalHeader{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.10)}
-  .modalHeader b{font-size:14px}
-  .closeBtn{padding:9px 11px;border-radius:12px;background: rgba(0,0,0,.70);border:1px solid rgba(255,255,255,.14);
-            color:var(--text);cursor:pointer;font-weight:900}
-  .modalBody{padding:14px 16px}
-
-  .table{width:100%;border-collapse:collapse;font-size:13px}
-  .table th,.table td{padding:10px 8px;border-bottom:1px solid rgba(255,255,255,.10);text-align:left;vertical-align:top}
-  .table th{color:var(--muted);font-weight:1000;font-size:12px}
-  .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
-  .footerNote{text-align:center;color:var(--muted2);font-size:11px;margin-top:10px}
-
-  /* Rodapé do app (chip centralizado) */
-  .appFooter{margin-top:8px;display:flex;justify-content:center;}
-
-  /* Rodapé da tela 15p (fonte + modo) */
-  .tinyFoot{margin-top:12px;text-align:center;color:rgba(203,213,225,.75);font-size:11px;}
-
-  /* ✅ Tooltip */
-  .tip{
-    position:relative;
-    display:inline-flex;
-    align-items:center;
-    gap:6px;
-    cursor:help;
-    border-bottom:1px dashed rgba(203,213,225,.45);
+  .modal{
+    width:100%;
+    max-width:980px;
+    background: linear-gradient(180deg, rgba(12,10,7,.86), rgba(12,10,7,.62));
+    border:1px solid rgba(255,255,255,.12);
+    border-radius:20px;
+    box-shadow:0 40px 120px rgba(0,0,0,.70);
+    overflow:hidden;
   }
   .tip::after{
     content: attr(data-tip);
