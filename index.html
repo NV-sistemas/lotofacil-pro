@@ -1,4 +1,4 @@
-<!DOCTYPE html>.
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
@@ -479,12 +479,8 @@ const PRINCIPAL_SEQ_KEY = "lf_principal_seq_v1";
 /* Sequência fixa (10 posições) -> 2x8, 5x9, 3x10 */
 const PRINCIPAL_SEQ = [9, 8, 9, 10, 9, 8, 9, 10, 9, 10];
 
-function getNextPrincipalBaseSize(){
-  let n = Number(localStorage.getItem(PRINCIPAL_SEQ_KEY) || "0");
-  const k = PRINCIPAL_SEQ[n % PRINCIPAL_SEQ.length];
-  localStorage.setItem(PRINCIPAL_SEQ_KEY, String(n + 1));
-  return k; // 8, 9 ou 10
-}
+
+
 </script>
 
 <script>
@@ -1154,92 +1150,14 @@ function format2(n){ return String(n).padStart(2,"0"); }
 /* =========================
    ✅ Trocas por COLUNAS (cartão 5x5) + cards ilustrativos (SVG)
 ========================= */
-function inverterJogoPorColPerm(jogo, colMap){
-  // colMap: array [c1->?, c2->?, c3->?, c4->?, c5->?] (1..5)
-  const out = [];
-  const set = new Set();
-  for(const n of (jogo||[])){
-    const num = Number(n);
-    if(!(num>=1 && num<=25)) continue;
-    const row = Math.floor((num-1)/5); // 0..4
-    const col = ((num-1)%5) + 1;       // 1..5
-    const newCol = colMap[col-1];      // 1..5
-    const newNum = row*5 + newCol;     // 1..25
-    if(!set.has(newNum)){ set.add(newNum); out.push(newNum); }
-  }
-  // mantém ordenado para exibição padrão
-  out.sort((a,b)=>a-b);
-  return out;
-}
 
-function buildCardSVG(selectedNums, title){
-  const sel = new Set((selectedNums||[]).map(Number));
-  const W=520, H=620;
-  const pad=26;
-  const cell=88, gap=12;
-  const gridW = 5*cell + 4*gap;
-  const startX = (W - gridW)/2;
-  const startY = 92;
 
-  const bg = `
-    <defs>
-      <radialGradient id="g1" cx="30%" cy="20%" r="85%">
-        <stop offset="0%" stop-color="rgba(250,204,21,0.14)"/>
-        <stop offset="70%" stop-color="rgba(0,0,0,0)"/>
-      </radialGradient>
-      <linearGradient id="g2" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#000000"/>
-        <stop offset="100%" stop-color="#050505"/>
-      </linearGradient>
-      <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
-        <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="rgba(0,0,0,0.55)"/>
-      </filter>
-    </defs>
-    <rect x="0" y="0" width="${W}" height="${H}" rx="26" fill="url(#g2)"/>
-    <rect x="0" y="0" width="${W}" height="${H}" rx="26" fill="url(#g1)"/>
-    <rect x="${pad}" y="${pad}" width="${W-2*pad}" height="${H-2*pad}" rx="22"
-          fill="rgba(0,0,0,0.55)" stroke="rgba(255,255,255,0.14)"/>
-  `;
 
-  let cells="";
-  for(let r=0;r<5;r++){
-    for(let c=0;c<5;c++){
-      const n = r*5 + (c+1);
-      const x = startX + c*(cell+gap);
-      const y = startY + r*(cell+gap);
-      const on = sel.has(n);
-      const stroke = on ? "rgba(250,204,21,0.70)" : "rgba(255,255,255,0.16)";
-      const fill = "rgba(0,0,0,0.70)";
-      const numColor = on ? "#facc15" : "#ffffff";
-      cells += `
-        <rect x="${x}" y="${y}" width="${cell}" height="${cell}" rx="20"
-              fill="${fill}" stroke="${stroke}" stroke-width="3" filter="url(#shadow)"/>
-        <text x="${x+cell/2}" y="${y+cell/2+10}" text-anchor="middle"
-              font-family="Georgia, 'Times New Roman', serif"
-              font-size="34" font-weight="700" fill="${numColor}">
-          ${String(n).padStart(2,'0')}
-        </text>
-      `;
-    }
-  }
 
-  const t = (title||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-  const titleBlock = `
-    <text x="${W/2}" y="62" text-anchor="middle"
-          font-family="Georgia, 'Times New Roman', serif"
-          font-size="34" font-weight="700" fill="#ffffff">${t}</text>
-  `;
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
-    ${bg}
-    ${titleBlock}
-    ${cells}
-  </svg>`;
-}
 
-function svgToDataUri(svg){
-  return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
-}
+
+
 
 
 function toNum(d){ return Number(String(d).replace(/^0+/,"")) || Number(d); }
@@ -1291,13 +1209,8 @@ function repetidasDoUltimo(jogo, ultimoDezenas){
 }
 
 /* 🔥/🌡️/🧊 Classificação por ranking (janela) */
-function buildHotWarmColdFromFreq(freq){
-  const ord = ordenarPorFreq(freq);
-  const hot = ord.slice(0,8).map(x=>x.dez).sort((a,b)=>a-b);
-  const warm = ord.slice(8,17).map(x=>x.dez).sort((a,b)=>a-b);
-  const cold = ord.slice(17).map(x=>x.dez).sort((a,b)=>a-b);
-  return { hot, warm, cold, ord };
-}
+
+
 function classificarDezenas(freq, jogo){
   const ord = ordenarPorFreq(freq);
   const rank={}; ord.forEach((x,i)=>rank[x.dez]=i+1);
@@ -1352,31 +1265,8 @@ function combosK(arr, k){
    3) empate -> menor soma de gap (menos extremo)
    4) empate -> ordem lexicográfica
 */
-function bestSubsetFromLastDraw(lastNums, k, concursos, freq, modern){
-  const last = lastNums.slice().map(toNum).filter(n=>n>=1 && n<=25).sort((a,b)=>a-b);
-  const all = combosK(last, k);
 
-  let best = null;
 
-  for(const g of all){
-    const together = countGroupTogetherInWindow(g, concursos);
-    const sumFreq = g.reduce((a,n)=>a+(freq?.[n]||0),0);
-    const sumGap  = g.reduce((a,n)=>a+Number(modern?.gap?.[n]||0),0);
-    const key = g.map(format2).join("-");
-
-    const cand = { g, together, sumFreq, sumGap, key };
-
-    if(!best) best = cand;
-    else{
-      if(cand.together > best.together) best = cand;
-      else if(cand.together === best.together && cand.sumFreq > best.sumFreq) best = cand;
-      else if(cand.together === best.together && cand.sumFreq === best.sumFreq && cand.sumGap < best.sumGap) best = cand;
-      else if(cand.together === best.together && cand.sumFreq === best.sumFreq && cand.sumGap === best.sumGap && cand.key < best.key) best = cand;
-    }
-  }
-
-  return best?.g || last.slice(0,k);
-}
 
 /* ✅ NOVA SELEÇÃO PREMIUM (grupo "que mais sai junto" na janela)
    - pool: lista de dezenas candidatas (ex: as 15 do último concurso, ou as 10 que NÃO saíram)
@@ -1389,49 +1279,12 @@ function bestSubsetFromLastDraw(lastNums, k, concursos, freq, modern){
    4) menor soma de gap (menos extremo)
    5) ordem lexicográfica
 */
-function bestSubsetFromPool(pool, k, concursos, freq, modern, avoidSet){
-  const base = (pool||[]).map(toNum).filter(n=>n>=1&&n<=25).sort((a,b)=>a-b);
-  const all = combosK(base, k);
 
-  let best = null;
 
-  const avoid = avoidSet instanceof Set ? avoidSet : new Set((avoidSet||[]).map(toNum));
-
-  for(const g of all){
-    const together = countGroupTogetherInWindow(g, concursos);
-    const overlap  = g.reduce((s,n)=>s + (avoid.has(n)?1:0), 0);
-    const sumFreq  = g.reduce((a,n)=>a + (freq?.[n]||0), 0);
-    const sumGap   = g.reduce((a,n)=>a + Number(modern?.gap?.[n]||0), 0);
-    const key      = g.map(format2).join("-");
-
-    const cand = { g, together, overlap, sumFreq, sumGap, key };
-
-    if(!best) best = cand;
-    else{
-      if(cand.together > best.together) best = cand;
-      else if(cand.together === best.together && cand.overlap < best.overlap) best = cand;
-      else if(cand.together === best.together && cand.overlap === best.overlap && cand.sumFreq > best.sumFreq) best = cand;
-      else if(cand.together === best.together && cand.overlap === best.overlap && cand.sumFreq === best.sumFreq && cand.sumGap < best.sumGap) best = cand;
-      else if(cand.together === best.together && cand.overlap === best.overlap && cand.sumFreq === best.sumFreq && cand.sumGap === best.sumGap && cand.key < best.key) best = cand;
-    }
-  }
-
-  return best?.g || base.slice(0,k);
-}
 
 /* Divide um jogo em (veio no último) e (não veio no último) */
-function splitInOutByLatest(game, latestDezenas){
-  const latestSet = new Set((latestDezenas||[]).map(toNum));
-  const inLast = [];
-  const outLast = [];
-  (game||[]).map(toNum).forEach(n=>{
-    if(latestSet.has(n)) inLast.push(n);
-    else outLast.push(n);
-  });
-  inLast.sort((a,b)=>a-b);
-  outLast.sort((a,b)=>a-b);
-  return { inLast, outLast, latestSet };
-}
+
+
 
 
 /* Top10 frequentes (ordenado desc) */
@@ -1452,67 +1305,18 @@ function getTop10AtrasadasList(modern){
 /* Dupla mais forte da janela (coocorrência real)
    - usa calcTopPairsCooc que você já tem na Análise Prime
 */
-function getStrongPair(concursos){
-  const pairs = calcTopPairsCooc(concursos, 25); // pega mais para ter fallback
-  // primeiro par com count>0
-  for(const p of pairs){
-    if(p.count > 0) return [p.a, p.b];
-  }
-  // fallback determinístico (nunca aleatório)
-  return [1,2];
-}
+
+
 
 /* Padrão dominante de pares/ímpares na janela */
-function getDominantEvenOdd(concursos){
-  const dist = calcEvenOddDistribution(concursos);
-  if(dist && dist.length){
-    return { pares: dist[0].pares, impares: dist[0].impares };
-  }
-  // fallback determinístico (Lotofácil tende ao equilíbrio)
-  return { pares: 7, impares: 8 };
-}
+
+
 
 /* Seleciona X itens de uma lista, sem repetir e com preferência por paridade
    - sem aleatório
 */
-function pickFromListDeterministic(list, needed, set, targetPares, lastSet){
-  const out = [];
-  const last = lastSet || new Set();
 
-  while(out.length < needed){
-    const cur = [...set];
-    const curPares = cur.filter(n=>n%2===0).length;
-    const needMoreEven = (curPares < targetPares);
 
-    let picked = null;
-
-    // 1) tenta pegar número com paridade “necessária” + não repetida do último
-    for(const n of list){
-      if(set.has(n)) continue;
-      if(last.has(n)) continue;
-
-      if(needMoreEven && (n%2===0)) { picked = n; break; }
-      if(!needMoreEven && (n%2===1)) { picked = n; break; }
-    }
-
-    // 2) se não achou por paridade, pega o primeiro disponível (não repetida do último)
-    if(picked === null){
-      for(const n of list){
-        if(set.has(n)) continue;
-        if(last.has(n)) continue;
-        picked = n; break;
-      }
-    }
-
-    // 3) se não tem mais, encerra (não deveria acontecer)
-    if(picked === null) break;
-
-    set.add(picked);
-    out.push(picked);
-  }
-
-  return out;
-}
 
 
 /* ===== MÉTRICAS MODERNAS (tendência/recência/atraso) ===== */
@@ -1797,25 +1601,8 @@ function buildPack4JogosPreditivo(payload){
    Agora usa o pacote comportamental fixo (buildPack4JogosPreditivo),
    sem depender do motor antigo e sem gerar sequências falsas.
 ========================= */
-function gerarJogoPrincipalPrime(freq, modern, concursos, latestDezenas){
-  const payload = { concursos: concursos || [] };
-  const pack = buildPack4JogosPreditivo(payload);
 
-  if(!pack || pack.ok !== true){
-    return {
-      jogo: [],
-      motivos: [{dezena:1, texto:`⚠️ Não foi possível gerar (padrão fixo). ${pack?.err||""}`.trim()}],
-      meta: {}
-    };
-  }
 
-  const jogo = (pack.principal || []).slice().sort((a,b)=>a-b);
-
-  // motivos do jogo principal
-  const motivos = (pack.motivos?.principal || []).slice();
-
-  return { jogo, motivos, meta: pack.meta };
-}
 
 
 
@@ -1832,173 +1619,16 @@ function gerarJogoPrincipalPrime(freq, modern, concursos, latestDezenas){
 
 
 /* ✅ Motivos por grupo (igual ao padrão do print, agrupável) */
-function buildMotivosPrime(jogo, picks, domEvenOdd, modern, freq, concursos){
-  const baseSet = new Set((picks.base||[]).map(Number));
-  const freqSet = new Set((picks.freq||[]).map(Number));
-  const pairSet = new Set((picks.pair||[]).map(Number));
-  const atrSet  = new Set((picks.atrasadas||[]).map(Number));
 
-  const top10freq = getTop10FreqList(freq);
-  const top10atr  = getTop10AtrasadasList(modern);
 
-  function motivoPara(n){
-    const parts = [];
-
-    // Origem (categoria)
-    if(baseSet.has(n)) parts.push(`🔁 veio do último concurso (núcleo ${picks.k})`);
-    if(freqSet.has(n)){
-      const idx = top10freq.indexOf(n);
-      if(idx === 0) parts.push("📊 é a MAIS frequente do Top10");
-      else if(idx === top10freq.length-1) parts.push("📊 é a MENOS frequente do Top10");
-      else parts.push("📊 faz parte do Top10 frequentes");
-    }
-    if(pairSet.has(n)) parts.push("🔗 pertence à DUPLA forte (mais saem juntas na janela)");
-    if(atrSet.has(n)){
-      const idx = top10atr.indexOf(n);
-      if(idx === 0) parts.push("⏳ é a MAIS atrasada do Top10");
-      else if(idx === top10atr.length-1) parts.push("⏳ é a MENOS atrasada do Top10");
-      else parts.push("⏳ faz parte do Top10 atrasadas");
-    }
-
-    // Recência / atraso (info extra, sem mudar regra)
-    const gap = Number(modern?.gap?.[n] ?? 0);
-    if(gap <= 2) parts.push("⚡ apareceu recentemente (recência forte)");
-    if(gap >= 8) parts.push(`⏳ está há ${gap} concursos sem aparecer`);
-
-    // Paridade dominante (info)
-    parts.push(`⚖️ segue padrão dominante: ${domEvenOdd.pares} pares / ${domEvenOdd.impares} ímpares`);
-
-    // Remove duplicatas determinístico
-    const uniq = [];
-    const seen = new Set();
-    for(const p of parts){
-      if(!seen.has(p)){ seen.add(p); uniq.push(p); }
-    }
-
-    return uniq.join(" • ");
-  }
-
-  return jogo.map(n=>({ dezena:n, texto: motivoPara(n) }));
-}
 /* =========================
    ✅ NOVO MOTOR (Jogo Principal por regra do último concurso)
    - Repetição: 6 a 11 dezenas do último
    - Complemento: dentre as 10 que NÃO saíram no último (completa até 15)
    - Retorna { jogo, motivos }
 ========================= */
-function gerarJogoComRegrasUltimo(freq, metrics, dezenasUltimo){
-  const ultimo = (dezenasUltimo||[]).map(toNum).filter(n=>n>=1 && n<=25);
-  const setUlt = new Set(ultimo);
 
-  // 10 dezenas que NÃO saíram no último
-  const naoSaiu = [];
-  for(let n=1;n<=25;n++){
-    if(!setUlt.has(n)) naoSaiu.push(n);
-  }
 
-  function scoreJogo(jogo){
-    const pi = contarParesImpares(jogo);
-    const soma = somaDezenas(jogo);
-    const blocos = distribuicaoBlocos(jogo);
-    const seq = contarSequencias(jogo);
-
-    let score=0;
-
-    // (1) Pares/ímpares: ideal 7/8
-    score += (pi.pares===7 || pi.pares===8) ? 25 : (pi.pares===6 || pi.pares===9) ? 12 : 0;
-
-    // (2) Soma: faixa comum
-    score += (soma>=170 && soma<=230) ? 20 : (soma>=160 && soma<=240) ? 10 : 0;
-
-    // (3) Blocos: evitar concentração
-    const maxBlock = Math.max(blocos.A,blocos.B,blocos.C,blocos.D,blocos.E);
-    score += (maxBlock<=5) ? 20 : (maxBlock===6) ? 10 : 0;
-
-    // (4) Sequência: evitar sequência enorme
-    score += (seq.maxLen<=4) ? 15 : (seq.maxLen===5) ? 6 : 0;
-
-    // (5) Frequência (janela)
-    score += Math.min(20, Math.round(jogo.reduce((a,n)=>a+(freq[n]||0),0)/10));
-
-    // (6) Recência (se tiver metrics)
-    if(metrics){
-      const recScore = jogo.reduce((a,n)=>a+(metrics.decay?.[n]||0),0);
-      score += Math.min(12, recScore);
-    }
-
-    return score;
-  }
-
-  // escolhe uma combinação boa dentro das regras:
-  // repete r (6..11) do último e completa com (15-r) das 10 que não saíram
-  let best=null;
-
-  function pickRandom(arr, k){
-    const a=arr.slice().sort(()=>Math.random()-0.5);
-    return a.slice(0,k);
-  }
-
-  for(let tries=0; tries<1200; tries++){
-    // ✅ repetição com PESO (preferência em 7 e 8)
-function pickRWeighted(){
-  const opts = [
-    { r: 4, w: 1 },
-    { r: 5, w: 2 },
-    { r: 6, w: 3 },
-    { r: 7, w: 7 }, // ⭐ preferido
-    { r: 8, w: 7 }, // ⭐ preferido
-    { r: 9, w: 3 },
-    { r: 10, w: 2 },
-    { r: 11, w: 1 }
-  ];
-  const total = opts.reduce((a,x)=>a+x.w,0);
-  let roll = Math.random() * total;
-  for(const o of opts){
-    roll -= o.w;
-    if(roll <= 0) return o.r;
-  }
-  return 7;
-}
-
-    const r = pickRWeighted(); // 4..11 (com preferência em 7/8)
-    const rep = pickRandom(ultimo, Math.min(r, ultimo.length));
-    const restCount = 15 - rep.length;
-
-    const comp = pickRandom(naoSaiu, restCount);
-
-    const set = new Set([...rep, ...comp]);
-    while(set.size<15){
-      set.add(Math.floor(Math.random()*25)+1);
-    }
-
-    const jogo = sortNum([...set]);
-
-    // garante que a quantidade de repetidas do último está entre 6 e 11
-    const reps = jogo.filter(n=>setUlt.has(n));
-    if(reps.length < 4 || reps.length > 11) continue;
-
-    // garante que veio uma quantidade boa do grupo "não saiu"
-    const doNaoSaiu = jogo.filter(n=>!setUlt.has(n));
-    // você falou que costuma sair de 4 a 10 dessas 10
-    if(doNaoSaiu.length < 4 || doNaoSaiu.length > 10) continue;
-
-    const sc = scoreJogo(jogo);
-    if(!best || sc > best.score){
-      best = { jogo, score: sc, reps, doNaoSaiu };
-    }
-  }
-
-  // fallback: se por algum motivo não achou (raro), usa o antigo
-  if(!best){
-    const fallback = gerarJogoForte(freq, metrics);
-    return { jogo: fallback, motivos: buildMotivos(fallback, ultimo, freq, metrics) };
-  }
-
-  // monta motivos (pra mostrar ao usuário)
-  const motivos = buildMotivos(best.jogo, ultimo, freq, metrics);
-
-  return { jogo: best.jogo, motivos };
-}
 
 /* ✅ Motivos “populares” por dezena */
 function buildMotivos(jogo, dezenasUltimoNums, freq, metrics){
@@ -2460,39 +2090,8 @@ function renderTopSets(setsInfo){
   `;
 }
 
-function renderTopPairs(pairs, total){
-  const rows = pairs.map(p=>{
-    const pct = Math.round((p.count/Math.max(1,total))*100);
-    const type = (p.a%2===0 && p.b%2===0) ? "par-par" : (p.a%2===1 && p.b%2===1) ? "ímpar-ímpar" : "misto";
-    return `
-      <tr>
-        <td class="mono"><b>${format2(p.a)}-${format2(p.b)}</b></td>
-        <td>${type}</td>
-        <td><b>${p.count}</b>x</td>
-        <td>${pct}%</td>
-      </tr>
-    `;
-  }).join("");
 
-  return `
-    <div class="box" style="margin-top:12px">
-      <b>🔗 Dezenas que mais se repetiram juntas (pares mais fortes)</b>
-      <div class="mini" style="margin-top:6px">Pares com maior coocorrência na janela selecionada.</div>
-      <div style="margin-top:10px;overflow:auto">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Par</th><th>Tipo</th><th>Juntos</th><th>% na janela</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${rows || `<tr><td colspan="4" class="mini">—</td></tr>`}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  `;
-}
+
 </script>
 
 <script>
@@ -3141,19 +2740,10 @@ function remapPorPermutacao(n, perm){
   const destB = perm[b-1];
   return mapParaBloco(destB, off);
 }
-function inverterJogoPorPerm(jogo, perm){
-  return jogo.map(n=>remapPorPermutacao(Number(n), perm)).sort((a,b)=>a-b);
-}
-function renderCartao(jogo, clsName){
-  const set = new Set(jogo.map(Number));
-  let html = `<div class="cartao">`;
-  for(let n=1;n<=25;n++){
-    const active = set.has(n) ? ` ${clsName}` : "";
-    html += `<div class="cel${active}">${String(n).padStart(2,"0")}</div>`;
-  }
-  html += `</div>`;
-  return html;
-}
+
+
+
+
 
 async function gerarInvertida(silent=false){
   if(!access.premium){
@@ -3591,23 +3181,8 @@ function worstPairsInGroup(group, stats, topN=3){
 }
 
 /* ✅ NOVO: construção inicial por score (freq + recência + atraso controlado) */
-function buildInitialLines(stats){
-  const order = [];
-  for(let i=1;i<=25;i++){
-    // score: frequência + recência, com bônus leve para atraso (sem exagero)
-    const s = (stats.freq[i]*1.0) + (stats.decay[i]*3.0) + Math.min(6, stats.gap[i]*0.35);
-    order.push({i, s});
-  }
-  order.sort((a,b)=>b.s-a.s);
 
-  const lines = [[],[],[],[],[]];
-  // distribuição round-robin para já evitar concentração
-  for(let k=0;k<order.length;k++){
-    lines[k%5].push(order[k].i);
-  }
-  lines.forEach(l=>l.sort((a,b)=>a-b));
-  return lines;
-}
+
 
 /* ✅ NOVO: penalidades por paridade + bloco + mix de frequências */
 function objective(lines, stats){
@@ -3644,45 +3219,8 @@ function objective(lines, stats){
   return (strong * 1.0) + (diverse * 0.55);
 }
 
-function optimizeLines(lines, stats){
-  let best = lines.map(l=>l.slice());
-  let bestScore = objective(best, stats);
 
-  function clone(x){ return x.map(l=>l.slice()); }
-  const ITER = 5200;
 
-  for(let t=0;t<ITER;t++){
-    const cand = clone(best);
-
-    const i = Math.floor(Math.random()*5);
-    let j = Math.floor(Math.random()*5);
-    if(i===j) j = (j+1)%5;
-
-    const ai = Math.floor(Math.random()*5);
-    const aj = Math.floor(Math.random()*5);
-
-    const tmp = cand[i][ai];
-    cand[i][ai] = cand[j][aj];
-    cand[j][aj] = tmp;
-
-    cand[i].sort((a,b)=>a-b);
-    cand[j].sort((a,b)=>a-b);
-
-    const sc = objective(cand, stats);
-    if(sc > bestScore || Math.random() < 0.02){
-      best = cand; bestScore = sc;
-    }
-  }
-
-  // ordena linhas por força (para explicar)
-  const withScore = best.map((l)=>({l, s: groupStrength(l,stats).sum}));
-  withScore.sort((a,b)=>b.s-a.s);
-
-  const strong = withScore.slice(0,3).map(x=>x.l);
-  const diverse = withScore.slice(3).map(x=>x.l);
-
-  return strong.concat(diverse);
-}
 
 
 
@@ -3694,10 +3232,8 @@ function optimizeLines(lines, stats){
    - L4/L5 montadas em conjunto, com baixa correlação com L1–L3
    ============================================================ */
 
-function numScoreOne(n, stats){
-  // score básico do número: freq + recência (decay) + atraso leve
-  return (stats.freq[n]*1.0) + (stats.decay[n]*3.0) + Math.min(6, stats.gap[n]*0.35);
-}
+
+
 
 function mixPairStrength(a,b, sShort, sMed, wShort, wMed){
   // pairStrength já existe e usa stats (cooc + lift)
@@ -3775,45 +3311,17 @@ function buildCombinations(arr, k){
   return res;
 }
 
-function bestKFromPool(pool, k, sShort, sMed, existingLines=[], hardExclude=new Set()){
-  const arr = pool.filter(n=>!hardExclude.has(n));
-  if(arr.length<k) return null;
-  const combs = buildCombinations(arr, k);
-  let best=null, bestScore=-Infinity;
-  for(const g of combs){
-    const sc = lineQualityScore(g, sShort, sMed) - diversifyPenalty(g, existingLines);
-    if(sc>bestScore){ bestScore=sc; best=g; }
-  }
-  return best;
-}
 
-function bestComplement(quartet, poolNaoSaiu, sShort, sMed, existingLines=[]){
-  let best=null, bestScore=-Infinity;
-  for(const n of poolNaoSaiu){
-    const line = sortNum([...quartet, n]);
-    const sc = lineQualityScore(line, sShort, sMed) - diversifyPenalty(line, existingLines);
-    if(sc>bestScore){ bestScore=sc; best=n; }
-  }
-  return best;
-}
 
-function countsInConcursos(concursos){
-  const cnt=Array(26).fill(0);
-  for(const c of concursos){
-    for(const n of (c.dezenas||[]).map(toNum)) cnt[n]++;
-  }
-  return cnt;
-}
 
-async function getMediumPayloadFor15P(medN){
-  try{
-    const p = await getOnlineConcursos(medN);
-    p.concursos = p.concursos.slice().sort((a,b)=>a.concurso-b.concurso);
-    return p;
-  }catch(e){
-    return null;
-  }
-}
+
+
+
+
+
+
+
+
 
 async function buildLines15PAdvanced(payloadShort, qtdShort){
   /*
