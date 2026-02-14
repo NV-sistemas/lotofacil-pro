@@ -838,51 +838,7 @@ const functions = firebase.app().functions("us-central1");
 </div>
 function renderExplicacao15p(pack){
 
-  if(!pack || !pack.principal){
-    document.getElementById("explicacaoLinhas15p").style.display = "none";
-    return;
-  }
-
-  const area = document.getElementById("linhasExplicacaoConteudo");
-  const box  = document.getElementById("explicacaoLinhas15p");
-
-  area.innerHTML = "";
-  box.style.display = "block";
-
-  const jogos = [
-    {nome:"Linha 1 (Principal)", meta: pack.principal.meta},
-    {nome:"Linha 2 (Invertida)", meta: pack.invertida.meta},
-    {nome:"Linha 3 (Técnica 1)", meta: pack.tecnica1.meta},
-    {nome:"Linha 4 (Técnica 2)", meta: pack.tecnica2.meta}
-  ];
-
-  jogos.forEach(j => {
-
-    if(!j.meta) return;
-
-    const R   = j.meta.pickedR || [];
-    const G2  = j.meta.pickedG2 || [];
-    const G3  = j.meta.pickedG3 || [];
-    const G4  = j.meta.pickedG4 || [];
-
-    const html = `
-      <div style="margin-bottom:14px">
-        <b style="color:var(--accent)">${j.nome}</b><br>
-        R: ${R.map(format2).join(" - ") || "-"}<br>
-        G2: ${G2.map(format2).join(" - ") || "-"}<br>
-        G3: ${G3.map(format2).join(" - ") || "-"}<br>
-        G4: ${G4.map(format2).join(" - ") || "-"}<br>
-        <span style="opacity:.8">
-          Total → R(${R.length}) G2(${G2.length}) G3(${G3.length}) G4(${G4.length})
-        </span>
-      </div>
-    `;
-
-    area.innerHTML += html;
-  });
-}
-
-<script>
+ <script>
 /* =========================
    UI Helpers
 ========================= */
@@ -4606,6 +4562,60 @@ function renderJogosSalvosAoAbrir(){
   try{ buildPack4JogosPreditivo = window.buildPack4JogosPreditivo; }catch(_){}
 
 })();
+  function renderExplicacao15p(pack){
+
+  if(!pack || !pack.principal){
+    document.getElementById("explicacaoLinhas15p").style.display = "none";
+    return;
+  }
+
+  const area = document.getElementById("linhasExplicacaoConteudo");
+  const box  = document.getElementById("explicacaoLinhas15p");
+
+  area.innerHTML = "";
+  box.style.display = "block";
+
+  const jogos = [
+    {nome:"Linha 1 (Principal)", meta: pack.principal.meta},
+    {nome:"Linha 2 (Invertida)", meta: pack.invertida.meta},
+    {nome:"Linha 3 (Técnica 1)", meta: pack.tecnica1.meta},
+    {nome:"Linha 4 (Técnica 2)", meta: pack.tecnica2.meta}
+  ];
+
+  jogos.forEach(j => {
+
+    if(!j.meta) return;
+
+    const R   = j.meta.pickedR || [];
+    const G2  = j.meta.pickedG2 || [];
+    const G3  = j.meta.pickedG3 || [];
+    const G4  = j.meta.pickedG4 || [];
+
+    const html = `
+      <div style="margin-bottom:14px">
+        <b style="color:var(--accent)">${j.nome}</b><br>
+        R: ${R.map(format2).join(" - ") || "-"}<br>
+        G2: ${G2.map(format2).join(" - ") || "-"}<br>
+        G3: ${G3.map(format2).join(" - ") || "-"}<br>
+        G4: ${G4.map(format2).join(" - ") || "-"}<br>
+        <span style="opacity:.8">
+          Total → R(${R.length}) G2(${G2.length}) G3(${G3.length}) G4(${G4.length})
+        </span>
+      </div>
+    `;
+
+    area.innerHTML += html;
+  });
+}
+renderExplicacao15p(pack);
+}
+
+function renderExplicacao15p(pack){
+   ...
+}
+  
+</script>
+
 </script>
 
 </body>
