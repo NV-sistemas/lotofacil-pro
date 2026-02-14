@@ -562,6 +562,37 @@
   .p15-chip{ font-size:10px; padding:6px; }
 }
 
+
+
+/* =========================
+   ✅ ANÁLISE PRIME - LAYOUT NOVO (somente visual)
+========================= */
+#viewAnalise .primeHeader{margin-bottom:14px}
+#viewAnalise .primeTitleRow{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+#viewAnalise .primeTitle{font-weight:1000;font-size:22px;letter-spacing:.2px;color:var(--accent)}
+#viewAnalise .primeSub{margin-top:6px;color:rgba(255,255,255,.82);font-size:13px}
+#viewAnalise .primeActions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+#viewAnalise .primeKpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:12px}
+#viewAnalise .primeKpi{background:rgba(0,0,0,.70);border:1px solid rgba(255,255,255,.14);border-radius:16px;padding:12px 14px;box-shadow:0 14px 34px rgba(0,0,0,.35)}
+#viewAnalise .kpiLbl{font-size:12px;color:rgba(255,255,255,.78);font-weight:900}
+#viewAnalise .kpiVal{margin-top:6px;font-size:18px;font-weight:1000;color:#fff}
+#viewAnalise .kpiMini{margin-top:4px;font-size:12px;color:rgba(255,255,255,.70)}
+#viewAnalise .primeNote{margin-top:10px;color:rgba(255,255,255,.85);font-size:12.5px}
+#viewAnalise .primeSection{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:20px;padding:16px;margin:12px 0;box-shadow:0 18px 55px rgba(0,0,0,.38)}
+#viewAnalise .primeSectionHdr{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;border-bottom:1px solid rgba(255,255,255,.10);padding-bottom:12px;margin-bottom:12px}
+#viewAnalise .hTitle{font-size:15px;font-weight:1000;color:#fff}
+#viewAnalise .hMini{margin-top:4px;color:rgba(255,255,255,.78);font-size:12px;line-height:1.35}
+#viewAnalise .hBadge{padding:8px 10px;border-radius:999px;background:rgba(0,0,0,.70);border:1px solid rgba(250,204,21,.25);color:#fff2b0;font-weight:1000;font-size:12px;white-space:nowrap}
+#viewAnalise .primeDisclaimer{margin-top:12px;color:rgba(255,255,255,.75);font-size:11.5px;line-height:1.45}
+
+@media (max-width: 920px){
+  #viewAnalise .primeKpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width: 520px){
+  #viewAnalise .primeTitle{font-size:18px}
+  #viewAnalise .primeKpis{grid-template-columns:1fr}
+}
+
 </style>
 </head>
 
@@ -2068,64 +2099,6 @@ function calcBlockPatternDistribution(concursos){
     .sort((a,b)=>b.count-a.count);
 }
 
-function calcPrimeCountDistribution(concursos){
-  const primes = new Set([2,3,5,7,11,13,17,19,23]);
-  const dist = {};
-  concursos.forEach(c=>{
-    const nums = (c.dezenas||[]).map(d=>Number(String(d).replace(/^0+/,""))).filter(x=>x>=1 && x<=25);
-    const pc = nums.reduce((acc,n)=>acc+(primes.has(n)?1:0),0);
-    dist[pc] = (dist[pc]||0)+1;
-  });
-  const n = Math.max(1, concursos.length);
-  return Object.keys(dist).map(k=>({
-    k: Number(k),
-    count: dist[k],
-    pct: Math.round((dist[k]/n)*100)
-  })).sort((a,b)=>b.count-a.count || b.k-a.k);
-}
-
-function calcLinesPatternDistribution(concursos){
-  // linhas do volante (5x5): L1=1-5, L2=6-10, L3=11-15, L4=16-20, L5=21-25
-  const dist = {};
-  concursos.forEach(c=>{
-    const nums = (c.dezenas||[]).map(d=>Number(String(d).replace(/^0+/,""))).filter(x=>x>=1 && x<=25);
-    const rows = [0,0,0,0,0];
-    nums.forEach(n=>{
-      const r = Math.floor((n-1)/5); // 0..4
-      rows[r] += 1;
-    });
-    const key = rows.join("-");
-    dist[key] = (dist[key]||0)+1;
-  });
-  const n = Math.max(1, concursos.length);
-  return Object.keys(dist).map(k=>({
-    pattern: k,
-    count: dist[k],
-    pct: Math.round((dist[k]/n)*100)
-  })).sort((a,b)=>b.count-a.count);
-}
-
-function calcColsPatternDistribution(concursos){
-  // colunas do volante (5x5): C1=(1,6,11,16,21) ... C5=(5,10,15,20,25)
-  const dist = {};
-  concursos.forEach(c=>{
-    const nums = (c.dezenas||[]).map(d=>Number(String(d).replace(/^0+/,""))).filter(x=>x>=1 && x<=25);
-    const cols = [0,0,0,0,0];
-    nums.forEach(n=>{
-      const col = (n-1) % 5; // 0..4
-      cols[col] += 1;
-    });
-    const key = cols.join("-");
-    dist[key] = (dist[key]||0)+1;
-  });
-  const n = Math.max(1, concursos.length);
-  return Object.keys(dist).map(k=>({
-    pattern: k,
-    count: dist[k],
-    pct: Math.round((dist[k]/n)*100)
-  })).sort((a,b)=>b.count-a.count);
-}
-
 function calcBlockTotals(concursos){
   const tot = {A:0,B:0,C:0,D:0,E:0};
   concursos.forEach(c=>{
@@ -2225,156 +2198,6 @@ function renderSumsTop(sums, total){
       <div class="mini" style="margin-top:6px">Ajuda a evitar combinações muito fora do padrão.</div>
       <div style="margin-top:10px">${rows || `<div class="mini">—</div>`}</div>
     </div>
-  `;
-}
-
-function renderPrimeCountDist(primeDist, totalConcursos){
-  const top = primeDist.slice(0,6);
-  const max = Math.max(1, ...top.map(x=>x.count));
-  let html = `
-  <div class="box" style="margin-top:12px">
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap">
-      <div>
-        <b>🧮 Números primos (padrão)</b>
-        <div class="mini">Quantos números primos costumam aparecer por concurso na janela analisada.</div>
-      </div>
-      <div class="mini">Base: <b>${totalConcursos}</b> concursos</div>
-    </div>
-    <div style="margin-top:10px">
-  `;
-  top.forEach(row=>{
-    const w = Math.round((row.count/max)*100);
-    html += `
-      <div style="display:grid;grid-template-columns:160px 1fr 60px;gap:10px;align-items:center;margin:10px 0">
-        <div style="font-weight:900">Primos: ${row.k}</div>
-        <div style="height:12px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10)">
-          <div style="height:100%;width:${w}%;background:linear-gradient(90deg,var(--accent),var(--orange));"></div>
-        </div>
-        <div style="text-align:right;font-weight:1000">${row.count}x <span class="mini" style="margin:0">(${row.pct}%)</span></div>
-      </div>
-    `;
-  });
-  const dom = primeDist[0];
-  if(dom){
-    html += `<div class="mini" style="margin-top:6px">🔥 Dominante: <b>${dom.k} primos</b> (${dom.count} ocorrência${dom.count>1?"s":""}).</div>`;
-  }
-  html += `</div></div>`;
-  return html;
-}
-
-function renderLinesPatterns(linesDist, totalConcursos){
-  const top = linesDist.slice(0,6);
-  const max = Math.max(1, ...top.map(x=>x.count));
-  let html = `
-  <div class="box" style="margin-top:12px">
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap">
-      <div>
-        <b>📏 Linhas (L1–L5)</b>
-        <div class="mini">Distribuição de dezenas por linha do volante (5 linhas). Ex: 3-3-3-3-3.</div>
-      </div>
-      <div class="mini">Base: <b>${totalConcursos}</b> concursos</div>
-    </div>
-    <div style="margin-top:10px">
-  `;
-  top.forEach(row=>{
-    const w = Math.round((row.count/max)*100);
-    html += `
-      <div style="display:grid;grid-template-columns:180px 1fr 70px;gap:10px;align-items:center;margin:10px 0">
-        <div style="font-weight:900">${row.pattern}</div>
-        <div style="height:12px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10)">
-          <div style="height:100%;width:${w}%;background:linear-gradient(90deg,var(--accent),var(--orange));"></div>
-        </div>
-        <div style="text-align:right;font-weight:1000">${row.count}x <span class="mini" style="margin:0">(${row.pct}%)</span></div>
-      </div>
-    `;
-  });
-  const dom = linesDist[0];
-  if(dom){
-    html += `<div class="mini" style="margin-top:6px">🔥 Dominante: <b>${dom.pattern}</b> (${dom.count} ocorrência${dom.count>1?"s":""}).</div>`;
-  }
-  html += `</div></div>`;
-  return html;
-}
-
-function renderColsPatterns(colsDist, totalConcursos){
-  const top = colsDist.slice(0,6);
-  const max = Math.max(1, ...top.map(x=>x.count));
-  let html = `
-  <div class="box" style="margin-top:12px">
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap">
-      <div>
-        <b>📐 Colunas (C1–C5)</b>
-        <div class="mini">Distribuição de dezenas por coluna do volante (5 colunas). Ex: 4-2-3-3-3.</div>
-      </div>
-      <div class="mini">Base: <b>${totalConcursos}</b> concursos</div>
-    </div>
-    <div style="margin-top:10px">
-  `;
-  top.forEach(row=>{
-    const w = Math.round((row.count/max)*100);
-    html += `
-      <div style="display:grid;grid-template-columns:180px 1fr 70px;gap:10px;align-items:center;margin:10px 0">
-        <div style="font-weight:900">${row.pattern}</div>
-        <div style="height:12px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10)">
-          <div style="height:100%;width:${w}%;background:linear-gradient(90deg,var(--accent),var(--orange));"></div>
-        </div>
-        <div style="text-align:right;font-weight:1000">${row.count}x <span class="mini" style="margin:0">(${row.pct}%)</span></div>
-      </div>
-    `;
-  });
-  const dom = colsDist[0];
-  if(dom){
-    html += `<div class="mini" style="margin-top:6px">🔥 Dominante: <b>${dom.pattern}</b> (${dom.count} ocorrência${dom.count>1?"s":""}).</div>`;
-  }
-  html += `</div></div>`;
-  return html;
-}
-
-function renderPrimeKpis(payload, evenOdd, primeDist, linesDist, colsDist, blockPatterns){
-  const eoDom = (evenOdd && evenOdd.dist && evenOdd.dist.length) ? evenOdd.dist[0] : null;
-  const primeDom = primeDist && primeDist.length ? primeDist[0] : null;
-  const linesDom = linesDist && linesDist.length ? linesDist[0] : null;
-  const colsDom = colsDist && colsDist.length ? colsDist[0] : null;
-  const blockDom = blockPatterns && blockPatterns.length ? blockPatterns[0] : null;
-
-  return `
-  <div class="box" style="margin-top:12px">
-    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
-      <div>
-        <div style="font-weight:1000;color:var(--accent);letter-spacing:.3px">ANÁLISE PRIME • 7 PONTOS • SISTEMA PREDITIVO</div>
-        <div class="mini">Janela: <b>${payload.inicio}</b> a <b>${payload.ultimo}</b> (${payload.concursos.length} concursos)</div>
-        <div class="mini" style="margin-top:6px">Use estes <b>7 pontos</b> para montar seu <b>Jogo Manual</b> com clareza (padrões reais da janela).</div>
-      </div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <button class="btn btnGhost" type="button" onclick="verConcursos()">📅 Ver concursos</button>
-      </div>
-    </div>
-
-    <div class="grid" style="margin-top:12px">
-      <div class="box">
-        <div class="mini" style="margin:0">Paridade dominante</div>
-        <div style="font-size:18px;font-weight:1000;margin-top:6px">${eoDom ? eoDom.label : "—"}</div>
-        <div class="mini" style="margin-top:6px">${eoDom ? (eoDom.pct + "% na janela") : ""}</div>
-      </div>
-      <div class="box">
-        <div class="mini" style="margin:0">Primos dominantes</div>
-        <div style="font-size:18px;font-weight:1000;margin-top:6px">${primeDom ? (primeDom.k+" primos") : "—"}</div>
-        <div class="mini" style="margin-top:6px">${primeDom ? (primeDom.pct + "% na janela") : ""}</div>
-      </div>
-      <div class="box">
-        <div class="mini" style="margin:0">Padrão de linhas</div>
-        <div style="font-size:18px;font-weight:1000;margin-top:6px">${linesDom ? linesDom.pattern : "—"}</div>
-        <div class="mini" style="margin-top:6px">${linesDom ? (linesDom.pct + "% na janela") : ""}</div>
-      </div>
-      <div class="box">
-        <div class="mini" style="margin:0">Padrão de colunas</div>
-        <div style="font-size:18px;font-weight:1000;margin-top:6px">${colsDom ? colsDom.pattern : "—"}</div>
-        <div class="mini" style="margin-top:6px">${colsDom ? (colsDom.pct + "% na janela") : ""}</div>
-      </div>
-    </div>
-
-    ${blockDom ? `<div class="mini" style="margin-top:10px">📦 Blocos A–E dominante: <b>${blockDom.pattern}</b> (${blockDom.pct}% na janela)</div>` : ``}
-  </div>
   `;
 }
 
@@ -2761,43 +2584,147 @@ async function acaoAnalise(){
     window._p15ExplainCtx = buildP15ExplainCtx(payload);
     const {freq, modern} = lastCtx;
 
-    setStatus(true,"Montando Análise PRIME (7 pontos)…");
+    setStatus(true,"Montando resumo PRIME…");
     setProgress(82);
 
-    // 7 pontos do SISTEMA (padrão real da janela)
-    const evenOdd = calcEvenOddDistribution(payload.concursos);                 // 1) pares/ímpares
-    const primeDist = calcPrimeCountDistribution(payload.concursos);            // 2) primos
-    const linesDist = calcLinesPatternDistribution(payload.concursos);          // 3) linhas
-    const colsDist  = calcColsPatternDistribution(payload.concursos);           // 4) colunas
-    const sums = calcSumDistribution(payload.concursos);                        // 5) soma
-    const blockTotals = calcBlockTotals(payload.concursos);                     // 6) blocos (A–E)
-    const blockPatterns = calcBlockPatternDistribution(payload.concursos);      //    padrão A–E
-    const topSetsInfo = calcTopSetsCooc(payload.concursos, {                    // 7) conjuntos
-      minK: 3,
-      maxK: 9,
-      minCount: 2,
-      limit: 12
-    });
+    const evenOdd = calcEvenOddDistribution(payload.concursos);
+    const sums = calcSumDistribution(payload.concursos);
+    const blockTotals = calcBlockTotals(payload.concursos);
+    const blockPatterns = calcBlockPatternDistribution(payload.concursos);
+    const topSetsInfo = calcTopSetsCooc(payload.concursos, {
+  minK: 3,
+  maxK: 9,
+  minCount: 2,
+  limit: 12
+});
 
     setStatus(false,""); setProgress(0);
 
     document.getElementById("analiseArea").innerHTML = `
-      ${renderPrimeKpis(payload, evenOdd, primeDist, linesDist, colsDist, blockPatterns)}
-
-      ${renderEvenOddDist(evenOdd, payload.concursos.length)}
-      ${renderPrimeCountDist(primeDist, payload.concursos.length)}
-      ${renderLinesPatterns(linesDist, payload.concursos.length)}
-      ${renderColsPatterns(colsDist, payload.concursos.length)}
-      ${renderSumsTop(sums, payload.concursos.length)}
-      ${renderBlocksPrime(blockTotals, blockPatterns, payload.concursos.length)}
-      ${renderTopSets(topSetsInfo)}
-
-      <div class="box" style="margin-top:12px">
-        <b>📌 Nota PRIME</b>
-        <div class="mini" style="margin-top:8px">
-          Estes 7 pontos mostram <b>padrões reais da janela</b> (paridade, primos, linhas, colunas, soma, blocos e conjuntos).
-          Use como guia para montar o jogo manual. <b>Não existe garantia de premiação</b>.
+      <div class="primeHeader">
+        <div class="primeTitleRow">
+          <div>
+            <div class="primeTitle">📈 ANÁLISE PRIME • 6 PONTOS • SISTEMA PREDITIVO</div>
+            <div class="primeSub">Janela: ${payload.concursos[0]?.concurso} a ${payload.concursos[payload.concursos.length-1]?.concurso} (${payload.concursos.length} concursos)</div>
+          </div>
+          <div class="primeActions">
+            <button class="btn btnGhost" type="button" onclick="abrirModalConcursos()">🗓️ Ver concursos</button>
+          </div>
         </div>
+
+        <div class="primeKpis">
+          ${(()=>{ 
+            const tot = payload.concursos.length||1;
+            const domEO = (freq.evenOdd && freq.evenOdd[0]) ? freq.evenOdd[0] : null;
+            const domSum = (freq.sums && freq.sums[0]) ? freq.sums[0] : null;
+            const domAE = (freq.blockPatterns && freq.blockPatterns[0]) ? freq.blockPatterns[0] : null;
+            const gapArr = (modern && modern.gap) ? modern.gap : [];
+            let maxGapN = 0, maxGapV = 0;
+            for(let n=1;n<=25;n++){ const g = gapArr[n]||0; if(g>maxGapV){ maxGapV=g; maxGapN=n; } }
+            const eoText = domEO ? `${domEO.pares}P / ${domEO.impares}I` : "—";
+            const eoPct  = domEO ? Math.round((domEO.count/tot)*100) : 0;
+            const sumText = domSum ? String(domSum.soma) : "—";
+            const sumPct  = domSum ? Math.round((domSum.count/tot)*100) : 0;
+            const aeText = domAE ? domAE.key : "—";
+            const aePct  = domAE ? Math.round((domAE.count/tot)*100) : 0;
+            const atrasoText = maxGapN ? `${String(maxGapN).padStart(2,"0")} (${maxGapV})` : "—";
+            return `
+              <div class="primeKpi">
+                <div class="kpiLbl">Paridade dominante</div>
+                <div class="kpiVal">${eoText}</div>
+                <div class="kpiMini">${eoPct}% na janela</div>
+              </div>
+              <div class="primeKpi">
+                <div class="kpiLbl">Soma dominante</div>
+                <div class="kpiVal">${sumText}</div>
+                <div class="kpiMini">${sumPct}% na janela</div>
+              </div>
+              <div class="primeKpi">
+                <div class="kpiLbl">Padrão A–E</div>
+                <div class="kpiVal">${aeText}</div>
+                <div class="kpiMini">${aePct}% na janela</div>
+              </div>
+              <div class="primeKpi">
+                <div class="kpiLbl">Top atraso</div>
+                <div class="kpiVal">${atrasoText}</div>
+                <div class="kpiMini">maior gap</div>
+              </div>
+            `;
+          })()}
+        </div>
+
+        <div class="primeNote">Análise PRIME com <b>6 pontos diretos na página</b> (sem passar janelas), para você escolher dezenas manualmente com clareza.</div>
+      </div>
+
+      <div class="primeSection">
+        <div class="primeSectionHdr">
+          <div class="hLeft">
+            <div class="hTitle">🧮 Padrões de distribuição (equilíbrio)</div>
+            <div class="hMini">Mostra as distribuições (pares/ímpares) mais recorrentes na janela.</div>
+          </div>
+          <div class="hBadge">1/6</div>
+        </div>
+        ${renderEvenOddDist(freq.evenOdd, payload.concursos.length)}
+      </div>
+
+      <div class="primeSection">
+        <div class="primeSectionHdr">
+          <div class="hLeft">
+            <div class="hTitle">➕ Somas que mais se repetiram</div>
+            <div class="hMini">Ajuda a evitar combinações muito fora do padrão.</div>
+          </div>
+          <div class="hBadge">2/6</div>
+        </div>
+        ${renderSums(freq.sums, payload.concursos.length)}
+      </div>
+
+      <div class="primeSection">
+        <div class="primeSectionHdr">
+          <div class="hLeft">
+            <div class="hTitle">📌 Padrões mais frequentes (A–E por concurso)</div>
+            <div class="hMini">Cada padrão representa quantas dezenas saíram em cada bloco A(01–05), B(06–10), C(11–15), D(16–20), E(21–25).</div>
+          </div>
+          <div class="hBadge">3/6</div>
+        </div>
+        ${renderBlockPatterns(freq.blockPatterns, payload.concursos.length)}
+      </div>
+
+      <div class="primeSection">
+        <div class="primeSectionHdr">
+          <div class="hLeft">
+            <div class="hTitle">📊 Top 10 dezenas mais frequentes</div>
+            <div class="hMini">Barras maiores = dezenas que mais apareceram no período analisado.</div>
+          </div>
+          <div class="hBadge">4/6</div>
+        </div>
+        ${renderTop10Freq(freq.freqList, payload.concursos.length)}
+      </div>
+
+      <div class="primeSection">
+        <div class="primeSectionHdr">
+          <div class="hLeft">
+            <div class="hTitle">⏳ Top 10 dezenas atrasadas</div>
+            <div class="hMini">Barra maior = dezena há mais concursos sem aparecer (atraso).</div>
+          </div>
+          <div class="hBadge">5/6</div>
+        </div>
+        ${renderTop10Atrasadas(modern, payload.concursos.length)}
+      </div>
+
+      <div class="primeSection">
+        <div class="primeSectionHdr">
+          <div class="hLeft">
+            <div class="hTitle">🧩 Dezenas que mais saem juntas (conjuntos repetidos)</div>
+            <div class="hMini">O sistema busca ternos, quadras, quintetos e sextetos que se repetem na janela (não é só par).</div>
+          </div>
+          <div class="hBadge">6/6</div>
+        </div>
+        ${renderConjuntosRepetidos(freq.sets)}
+      </div>
+
+      <div class="primeDisclaimer">
+        Aviso: este painel usa estatística (frequência, recência, tendência, coocorrência e padrões). Ajuda a montar estratégias,
+        mas <b>não existe garantia de premiação</b>.
       </div>
     `;
 
