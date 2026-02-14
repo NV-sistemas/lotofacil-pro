@@ -3829,6 +3829,8 @@ async function gerar15P(){
     const payload = lastPayload;
 
     setStatus(true,"15P: analisando e montando 5 linhas…");
+    const stats = calcCoocAndStats(payload.concursos || []);
+stats.concursosRef = (payload.concursos || []);
     setProgress(82);
 
     // ✅ NOVO 15P: linhas por "saiu / não saiu" + regularização curto+médio + cobertura
@@ -3850,7 +3852,10 @@ async function gerar15P(){
       l.forEach(n=>{ blocks[blockOf(n)] = (blocks[blockOf(n)]||0)+1; });
       return { idx: idx+1, kind, line:l, odds, primes, blocks };
     });
-
+    const lineExplains = lines.map((l, idx)=>{
+  const kind = ([0,2,4].includes(idx)) ? "IN" : "OUT";
+  return explainLine(idx, l, stats, kind);
+});
     const letterMap = adv.map || [];
     const letterHtml = letterMap
       .slice()
@@ -3872,7 +3877,7 @@ async function gerar15P(){
     }).join("");
 
     document.getElementById("p15Area").innerHTML = `
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
         <div>
           <div style="font-weight:1000;font-size:16px">✅ 15 Pontos (Estratégia) • 10 jogos</div>
           <div class="mini">Janela: <b>${payload.inicio}</b> a <b>${payload.ultimo}</b> (${payload.concursos.length} concursos)</div>
@@ -3918,7 +3923,8 @@ async function gerar15P(){
               `).join("")}
             </tbody>
           </table>
-        </div>
+        </div
+        
 
         <div class="row" style="margin-top:10px">
           <div class="col">
@@ -3935,6 +3941,20 @@ async function gerar15P(){
 
       </div>
 
+      const explainsHtml = `
+  <div class="box" style="margin-top:12px">
+    <b>📌 Explicação das linhas (por que foram escolhidas)</b>
+    <div class="mini" style="margin-top:6px">
+      Abaixo estão os motivos e a força das combinações dentro da janela analisada.
+    </div>
+    <div style="margin-top:10px;display:flex;flex-direction:column;gap:10px">
+      ${lineExplains.map(x=>`<div class="box">${x}</div>`).join("")}
+    </div>
+  </div>
+`;
+${explainsHtml}
+
+      
       <div class="box" style="margin-top:12px">
         <b>🎯 10 jogos do sistema</b>
         <div class="grid" style="margin-top:12px">${jogosHtml}</div>
@@ -4043,6 +4063,8 @@ function checkSavedGames(){
       if(!lastPayload || !lastPayload.concursos){
         const qtdBase = qtdSelecionada();
         await prepararContextoBase(qtdBase);
+        const stats = calcCoocAndStats(payload.concursos || []);
+stats.concursosRef = (payload.concursos || []);
       }
 
       const concursos = (lastPayload.concursos || []).slice(-qtd);
