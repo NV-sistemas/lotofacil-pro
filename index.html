@@ -62,7 +62,19 @@
 
 
   /* ===== BOTÕES (padrão unificado PRIME) ===== */
-  button, .btn, .btnGhost, .btnPrimary, .btnBlue, .btnGreen, .btnRed, .btnYellow, .btnOrange{
+  button, .btn, .btnGhost, .btnPrimary, .btnBlue, .btnGreen, .btnRed, .btnYellow, 
+function formatEoLabel(eo){
+  if(!eo) return "—";
+  if(typeof eo.label === "string" && eo.label.trim()) return eo.label;
+  if(Number.isFinite(eo.pares) && Number.isFinite(eo.impares)) return `${eo.pares} P / ${eo.impares} I`;
+  if(typeof eo.key === "string" && eo.key.includes("-")){
+    const [p,i] = eo.key.split("-").map(Number);
+    if(Number.isFinite(p) && Number.isFinite(i)) return `${p} P / ${i} I`;
+  }
+  return "—";
+}
+
+.btnOrange{
     border-radius:18px !important;
     font-weight:1000;
     letter-spacing:.2px;
@@ -78,18 +90,31 @@
   }
 
   .btnPrimary, .btnYellow{
-    background: linear-gradient(180deg, rgba(250,204,21,.98), rgba(250,204,21,.78)) !important;
+    background: linear-gradient(180deg,
+      rgba(245,214,123,.96) 0%,
+      rgba(234,179,8,.86) 60%,
+      rgba(245,214,123,.90) 100%
+    ) !important;
     color:#111 !important;
-    border:1px solid rgba(250,204,21,.35) !important;
-    box-shadow: 0 18px 55px rgba(250,204,21,.18);
+    border:1px solid rgba(234,179,8,.30) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.18),
+      0 18px 55px rgba(234,179,8,.14);
   }
-  .btnPrimary:hover, .btnYellow:hover{ box-shadow: 0 18px 70px rgba(250,204,21,.22); }
+  .btnPrimary:hover, .btnYellow:hover{ box-shadow: inset 0 1px 0 rgba(255,255,255,.22), 0 18px 70px rgba(234,179,8,.18); }
 
-  .btnGhost, .btn, .btnBlue, .btnGreen, .btnOrange{
-    background: rgba(0,0,0,.55) !important;
-    border:1px solid rgba(255,255,255,.12) !important;
+  .btnGhost, .btn, .btnBlue, .btnGreen, .btnOrange, .btnRed{
+    background: linear-gradient(180deg,
+      rgba(255,255,255,.12) 0%,
+      rgba(0,0,0,.66) 55%,
+      rgba(255,255,255,.08) 100%
+    ) !important;
+    border:1px solid rgba(255,255,255,.18) !important;
     color: var(--text) !important;
-    box-shadow: 0 14px 40px rgba(0,0,0,.28);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.10),
+      inset 0 -1px 0 rgba(0,0,0,.55),
+      0 14px 40px rgba(0,0,0,.30);
   }
 
   .btnSmall{ padding:10px 14px !important; border-radius:16px !important; width:auto !important; }
@@ -2625,7 +2650,7 @@ function renderPrimeKpis(payload, evenOdd, primeDist, linesDist, colsDist, block
     <div class="grid" style="margin-top:12px">
       <div class="box">
         <div class="mini" style="margin:0">Paridade dominante</div>
-        <div style="font-size:18px;font-weight:1000;margin-top:6px">${eoDom ? eoDom.label : "—"}</div>
+        <div style="font-size:18px;font-weight:1000;margin-top:6px">${eoDom ? formatEoLabel(eoDom) : "—"}</div>
         <div class="mini" style="margin-top:6px">${eoDom ? ((eoDom.pct ?? Math.round((eoDom.count/Math.max(1,payload.concursos.length))*100)) + "% na janela") : ""}</div>
       </div>
       <div class="box">
