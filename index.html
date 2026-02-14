@@ -1666,123 +1666,200 @@ function _ensureDiffAndUniq(games, allPool){
 }
 
 function buildPack4JogosPreditivo(payload){
-  // Motor NOVO: padrão fixo comportamental (treino 21 concursos) + encaixe por estados (letras).
-  // Não existe mínimo/máximo de janela: gera com o que houver.
+  /*
+    ✅ MOTOR DEFINITIVO (Padrões fixos)
+    - Os 21 concursos foram usados apenas para "aprender" o ranking fixo (embutido abaixo).
+    - A partir daqui, NÃO existe treino nem recalculo de padrão.
+    - O usuário pode escolher 3 ou 30 concursos: isso só muda o "estado atual" (gaps), mas NÃO muda os padrões.
+    - Sem aleatório: 100% determinístico.
+  */
 
-  const concursos = payload?.concursos || [];
-  const drawsAll = _getDrawArraysFromConcursos(concursos);
+  const latestNums = (payload?.latest?.dezenas || []).map(toNum).filter(n=>n>=1&&n<=25).sort((a,b)=>a-b);
+  const latestSet = new Set(latestNums);
 
-  // contexto atual para classificar estados (se não tiver, usa o último do treino)
-  const ctx = (drawsAll && drawsAll.length) ? drawsAll : TRAINING_21;
-  const last = ctx[ctx.length-1];
-  const prev1 = ctx[ctx.length-2] || [];
-  const prev2 = ctx[ctx.length-3] || [];
-  const prev3 = ctx[ctx.length-4] || [];
-  const prev4 = ctx[ctx.length-5] || [];
+  // Ranking FIXO aprendido no treino (3592–3612) — usado somente como prioridade/empate
+  const TRAIN_RANK = [20, 4, 6, 8, 21, 1, 5, 9, 23, 7, 11, 19, 22, 2, 15, 24, 25, 3, 14, 16, 12, 17, 18, 13, 10];
+  const rankIndex = (()=>{
+    const m={};
+    TRAIN_RANK.forEach((n,i)=>m[n]=i);
+    return m;
+  })();
+  function scoreRank(n){ return (rankIndex[n] ?? 999); }
 
-  const S1=_setOf(prev1), S2=_setOf(prev2), S3=_setOf(prev3), S4=_setOf(prev4), SL=_setOf(last);
-
-  // Estados (letras) baseados em presença/ausência recente (comportamento)
-  // A: saiu no t-1 (prev1)  | B: gap2 (t-2 sim, t-1 não) | C: gap3 | D: gap4 | E: outros
-  const A=[],B=[],C=[],D=[],E=[];
-  for(let d=1; d<=25; d++){
-    const dd = format2(d);
-    if(S1.has(dd)) A.push(dd);
-    else if(S2.has(dd)) B.push(dd);
-    else if(S3.has(dd)) C.push(dd);
-    else if(S4.has(dd)) D.push(dd);
-    else E.push(dd);
+  // Gap atual (estado) — usa lastCtx.modern.gap se existir; senão calcula pelo payload.concursos
+  function computeGapFallback(){
+    const concursos = payload?.concursos || [];
+    const n = concursos.length;
+    const lastSeen = Array(26).fill(-1);
+    for(let i=0;i<n;i++){
+      const nums = (concursos[i].dezenas||[]).map(toNum).filter(x=>x>=1&&x<=25);
+      for(const x of nums) lastSeen[x]=i;
+    }
+    const gap = Array(26).fill(n);
+    for(let x=1;x<=25;x++) gap[x] = (lastSeen[x]===-1) ? n : (n-1-lastSeen[x]);
+    return gap;
   }
 
-  // padrões fixos aprendidos no treino (4 jogos)
-  const PADS = {
-    principal: {A:9, B:4, C:1, D:1},
-    invertida: {A:8, B:5, C:1, D:1},
-    tecnica1:  {A:10,B:3, C:1, D:1},
-    tecnica2:  {A:9, B:3, C:2, D:1}
-  };
+  const gapArr = (lastCtx?.modern?.gap) ? lastCtx.modern.gap : computeGapFallback();
 
-  // seleção determinística com rotação pela "assinatura" do último concurso (evita sempre o mesmo)
-  const seedStr = (payload?.ultimo || payload?.latest?.concurso || ctx.length) + "-" + last.join("-");
-  let seed = 0;
-  for(let i=0;i<seedStr.length;i++) seed = (seed*31 + seedStr.charCodeAt(i))>>>0;
+  // Pools fora do último concurso
+  const outPool = [];
+  for(let n=1;n<=25;n++) if(!latestSet.has(n)) outPool.push(n);
 
-  function pickFrom(arr, k){
-    if(k<=0) return [];
+  // Buckets por gap (somente fora do último)
+  function inBucket(n, g){
+    const gg = Number(gapArr?.[n] ?? 99);
+    if(g===1) return gg===1;
+    if(g===2) return gg===2;
+    if(g===3) return gg>=3; // 3+
+    return false;
+  }
+
+  function sortByRank(list){
+    return list.slice().sort((a,b)=>{
+      const ra=scoreRank(a), rb=scoreRank(b);
+      if(ra!==rb) return ra-rb; // menor índice = melhor
+      return a-b;
+    });
+  }
+
+  const bucket1 = sortByRank(outPool.filter(n=>inBucket(n,1)));
+  const bucket2 = sortByRank(outPool.filter(n=>inBucket(n,2)));
+  const bucket3 = sortByRank(outPool.filter(n=>inBucket(n,3)));
+
+  // Repetidas (gap 0) — do último concurso
+  const repeatsRanked = sortByRank(latestNums);
+
+  // Seleção determinística com "offset" (para não ficar tudo igual entre jogos)
+  function pickWithOffset(list, k, offset, hardAvoidSet){
     const out=[];
-    if(!arr.length) return out;
-    // rotação determinística
-    const start = seed % arr.length;
-    for(let i=0;i<arr.length && out.length<k;i++){
-      out.push(arr[(start+i)%arr.length]);
+    const avoid = hardAvoidSet instanceof Set ? hardAvoidSet : new Set((hardAvoidSet||[]).map(toNum));
+    if(!list || !list.length) return out;
+    const L=list.length;
+    let i=0;
+    while(out.length<k && i<L*2){
+      const idx = (offset + i) % L;
+      const n = list[idx];
+      if(!avoid.has(n) && !out.includes(n)) out.push(n);
+      i++;
+    }
+    // se não completou, relaxa avoid (mantém sem repetição)
+    i=0;
+    while(out.length<k && i<L*2){
+      const idx = (offset + i) % L;
+      const n = list[idx];
+      if(!out.includes(n)) out.push(n);
+      i++;
     }
     return out;
   }
 
-  function buildOne(pad){
-    const chosen = new Set();
-    pickFrom(A, pad.A).forEach(x=>chosen.add(x));
-    pickFrom(B, pad.B).forEach(x=>chosen.add(x));
-    pickFrom(C, pad.C).forEach(x=>chosen.add(x));
-    pickFrom(D, pad.D).forEach(x=>chosen.add(x));
-    // completa até 15 com E depois sobras
-    if(chosen.size<15){
-      pickFrom(E, 15-chosen.size).forEach(x=>chosen.add(x));
+  function fillFromBuckets(targetSet, need1, need2, need3, avoidSet, offset){
+    const avoid = avoidSet instanceof Set ? avoidSet : new Set((avoidSet||[]).map(toNum));
+    const add = (arr, needed, off)=>{
+      const picks = pickWithOffset(arr, needed, off, new Set([...targetSet, ...avoid]));
+      for(const n of picks) targetSet.add(n);
+    };
+    if(need1>0) add(bucket1, need1, offset+1);
+    if(need2>0) add(bucket2, need2, offset+2);
+    if(need3>0) add(bucket3, need3, offset+3);
+
+    // fallback: se alguma bucket não existir (ex: janela muito curta), completa com o que tiver fora do último
+    if(targetSet.size < 15){
+      const merged = sortByRank([...bucket1, ...bucket2, ...bucket3]);
+      const rest = pickWithOffset(merged, 15-targetSet.size, offset+7, new Set([...targetSet, ...avoid]));
+      for(const n of rest) targetSet.add(n);
     }
-    // se ainda faltar (janela muito curta), completa determinístico 01..25
-    for(let d=1; d<=25 && chosen.size<15; d++){
-      chosen.add(format2(d));
-    }
-    return Array.from(chosen).slice(0,15).sort((a,b)=>Number(a)-Number(b));
   }
 
+  function buildOnePattern(cfg, offset, globalAvoid){
+    const s = new Set();
+    // repetidas
+    const rep = pickWithOffset(repeatsRanked, cfg.rep, offset, globalAvoid);
+    rep.forEach(n=>s.add(n));
+
+    // completar com buckets (fora do último)
+    fillFromBuckets(s, cfg.g1, cfg.g2, cfg.g3, globalAvoid, offset);
+
+    const arr = Array.from(s).slice(0,15).sort((a,b)=>a-b);
+    return arr;
+  }
+
+  // Config dos 4 padrões fixos (conforme você definiu)
+  const P1 = { rep:9,  g1:3, g2:2, g3:1 }; // Principal
+  const P2 = { rep:10, g1:3, g2:1, g3:1 }; // Invertida
+  const P3 = { rep:8,  g1:4, g2:2, g3:1 }; // Técnica 1
+  const P4 = { rep:9,  g1:2, g2:3, g3:1 }; // Técnica 2
+
+  // Regra anti-igualdade (mínimo de diferenças)
   function diffCount(a,b){
-    const sb=new Set(b);
-    let common=0;
-    for(const x of a) if(sb.has(x)) common++;
-    return 15-common;
+    const sa=new Set(a), sb=new Set(b);
+    let same=0;
+    for(const n of sa) if(sb.has(n)) same++;
+    return 15 - same;
   }
 
-  const principal = buildOne(PADS.principal);
-  // garante jogos diferentes entre si (sem loop infinito)
-  function buildDifferent(pad, baseA){
-    let g = buildOne(pad);
-    if(diffCount(g, baseA)===0){
-      // força 1 troca determinística
-      for(const x of g){
-        for(let d=25; d>=1; d--){
-          const y=format2(d);
-          if(!g.includes(y)){
-            g = g.filter(z=>z!==x);
-            g.push(y);
-            return g.sort((a,b)=>Number(a)-Number(b));
-          }
-        }
-      }
+  function enforceMinDiff(base, other, minDiff, offset){
+    let out = other.slice();
+    let tries=0;
+    while(diffCount(base,out) < minDiff && tries<50){
+      const baseSet = new Set(base);
+      const outSet = new Set(out);
+
+      const commons = out.filter(n=>baseSet.has(n)).sort((a,b)=>scoreRank(a)-scoreRank(b));
+      const replace = commons[0];
+      if(replace==null) break;
+
+      const candidates = sortByRank([...bucket3, ...bucket2, ...bucket1]).filter(n=>!outSet.has(n));
+      const cand = pickWithOffset(candidates, 1, offset+tries, baseSet)[0];
+      if(cand==null) break;
+
+      outSet.delete(replace);
+      outSet.add(cand);
+      out = Array.from(outSet).slice(0,15).sort((a,b)=>a-b);
+      tries++;
     }
-    return g;
+    return out;
   }
 
-  const invertida = buildDifferent(PADS.invertida, principal);
-  const tecnica1  = buildDifferent(PADS.tecnica1, principal);
-  const tecnica2  = buildDifferent(PADS.tecnica2, principal);
+  // Construção com diversidade controlada (sem aleatório)
+  const usedGlobal = new Set();
+  const principal = buildOnePattern(P1, 0, usedGlobal); principal.forEach(n=>usedGlobal.add(n));
 
-  // motivos/resumo para UI (simples e consistente)
-  const motivos = {
-    principal: [`Padrão fixo (treino 21): 9A+4B+1C+1D. A=t-1, B=t-2, C=t-3, D=t-4.`],
-    invertida: [`Padrão fixo (treino 21): 8A+5B+1C+1D (variação do cenário).`],
-    tecnica1:  [`Padrão fixo (treino 21): 10A+3B+1C+1D (cenário mais repetição).`],
-    tecnica2:  [`Padrão fixo (treino 21): 9A+3B+2C+1D (cenário mais gap3).`],
-  };
+  let invertida = buildOnePattern(P2, 7, usedGlobal);
+  invertida = enforceMinDiff(principal, invertida, 4, 11); invertida.forEach(n=>usedGlobal.add(n));
+
+  let tecnica1 = buildOnePattern(P3, 13, usedGlobal);
+  tecnica1 = enforceMinDiff(principal, tecnica1, 5, 17); tecnica1.forEach(n=>usedGlobal.add(n));
+
+  let tecnica2 = buildOnePattern(P4, 19, usedGlobal);
+  tecnica2 = enforceMinDiff(principal, tecnica2, 5, 23);
+  tecnica2 = enforceMinDiff(tecnica1, tecnica2, 4, 29);
+
+  // motivos (explicação clara e fixa)
+  function motivosFor(label, cfg){
+    return [
+      { dezena: "", texto: `${label} — padrão fixo aprendido no treino (sem quente/fria).` },
+      { dezena: "", texto: `Repetidas do último (gap 0): ${cfg.rep} dezenas.` },
+      { dezena: "", texto: `Entradas fora do último: gap 1 = ${cfg.g1}, gap 2 = ${cfg.g2}, gap 3+ = ${cfg.g3}.` },
+    ];
+  }
 
   return {
     ok:true,
-    principal, invertida, tecnica1, tecnica2,
-    motivos,
-    meta:{
-      base:"padrao_fixo_21",
-      ctxConcursos: ctx.length,
-      janela: drawsAll.length
+    principal,
+    invertida,
+    tecnica1,
+    tecnica2,
+    meta: {
+      patterns: { principal:P1, invertida:P2, tecnica1:P3, tecnica2:P4 },
+      latest: latestNums
+    },
+    motivos: {
+      principal: motivosFor("JOGO PRINCIPAL", P1),
+      invertida: motivosFor("INVERTIDA", P2),
+      tecnica1: motivosFor("TÉCNICA 1", P3),
+      tecnica2: motivosFor("TÉCNICA 2", P4),
     }
   };
 }
@@ -3131,7 +3208,7 @@ function renderCartao(jogo, clsName){
   return html;
 }
 
-async function gerarInvertida(silent=false){
+async async function gerarInvertida(silent=false){
   if(!access.premium){
     if(!silent) alert("🔒 Invertida exige Premium.");
     return;
@@ -3144,8 +3221,14 @@ async function gerarInvertida(silent=false){
     await prepararContextoBase(qtd);
 
     const payload = lastPayload;
-    const pack = buildPack4JogosPreditivo(payload);
-    lastPredPack = pack;
+
+    // ✅ Reusa o pacote do Principal quando existir (evita mudar o jogo ao navegar)
+    let pack = lastPredPack;
+    if(!pack || !Array.isArray(pack.principal) || !lastPrincipalGame || pack.principal.join(',') !== lastPrincipalGame.join(',')){
+      pack = buildPack4JogosPreditivo(payload);
+      lastPredPack = pack;
+      if(!lastPrincipalGame) lastPrincipalGame = pack.principal.slice();
+    }
 
     if(!pack || pack.ok !== true || !Array.isArray(pack.invertida) || pack.invertida.length !== 15){
       if(area) area.innerHTML = `<div class="box"><b>⚠️</b><div class="mini" style="margin-top:8px">Não foi possível montar a Invertida (15 dezenas). ${(pack&&pack.err)?pack.err:""}</div></div>`;
@@ -3196,7 +3279,7 @@ async function gerarInvertida(silent=false){
 
 
 
-async function gerarTecnicaPremiada(silent=false){
+async async function gerarTecnicaPremiada(silent=false){
   if(!access.premium){
     if(!silent) alert("🔒 Técnica exige Premium.");
     return;
@@ -3209,8 +3292,14 @@ async function gerarTecnicaPremiada(silent=false){
     await prepararContextoBase(qtd);
 
     const payload = lastPayload;
-    const pack = buildPack4JogosPreditivo(payload);
-    lastPredPack = pack;
+
+    // ✅ Reusa o pacote do Principal quando existir (evita mudar o jogo ao navegar)
+    let pack = lastPredPack;
+    if(!pack || !Array.isArray(pack.principal) || !lastPrincipalGame || pack.principal.join(',') !== lastPrincipalGame.join(',')){
+      pack = buildPack4JogosPreditivo(payload);
+      lastPredPack = pack;
+      if(!lastPrincipalGame) lastPrincipalGame = pack.principal.slice();
+    }
 
     const t1ok = pack && pack.ok===true && Array.isArray(pack.tecnica1) && pack.tecnica1.length===15;
     const t2ok = pack && pack.ok===true && Array.isArray(pack.tecnica2) && pack.tecnica2.length===15;
