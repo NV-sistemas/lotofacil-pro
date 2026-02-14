@@ -8,45 +8,41 @@
 
 <style>
   :root{
-    /* ===== THEME PRIME (padrão Prints 4/5/6) ===== */
-    --bg1:#050505;
-    --bg2:#000000;
+    /* THEME PRIME (padrão Prints 4/5/6) */
+    --bg1:#0b0c10;
+    --bg2:#050608;
 
-    /* superfícies */
-    --card: rgba(18,18,18,.78);
-    --surface: rgba(255,255,255,.06);
-    --surface2: rgba(255,255,255,.085);
+    --card: rgba(26,26,28,.72);
+    --surface: rgba(255,255,255,.045);
+    --surface2: rgba(255,255,255,.07);
 
-    /* texto */
-    --text:#ffffff;
-    --muted: rgba(255,255,255,.82);
-    --muted2: rgba(255,255,255,.62);
+    --text:#f3f4f6;
+    --muted: rgba(243,244,246,.84);
+    --muted2: rgba(243,244,246,.62);
 
-    /* ✅ amarelo suave (sem bordô/laranja) */
-    --accent:#f4d24b;
-    --accent2:#ffe39a;
+    /* amarelo mais suave */
+    --accent:#eab308;
+    --accent2:#f5d67b;
 
-    --yellow:#f4d24b;
-    --yellow2:#ffe39a;
+    --yellow:var(--accent);
+    --yellow2:var(--accent2);
 
-    /* manter para barras/efeitos (sem laranja) */
-    --orange:#f4d24b;
-
-    /* estados */
-    --red:#fb7185; --red2:#ef4444;
+    /* manter nomes antigos sem puxar laranja/bordô */
+    --orange:#caa34a;
+    --red:#3f3f46; --red2:#52525b;
 
     --stroke: rgba(255,255,255,.12);
     --stroke2: rgba(255,255,255,.08);
 
     --shadow: 0 18px 60px rgba(0,0,0,.65);
 
-    --glowGold: 0 0 0 1px rgba(244,210,75,.22), 0 18px 60px rgba(244,210,75,.12);
+    --glowGold: 0 0 0 1px rgba(234,179,8,.20), 0 18px 60px rgba(234,179,8,.12);
     --glowSoft: 0 0 0 1px rgba(255,255,255,.06), 0 18px 60px rgba(0,0,0,.55);
 
     /* compat */
-    --green:#f4d24b; --green2:#ffe39a;
-    --blue:#f4d24b; --blue2:#ffe39a;
-    --purple:#f4d24b; --purple2:#ffe39a;
+    --green:var(--accent); --green2:var(--accent2);
+    --blue:var(--accent); --blue2:var(--accent2);
+    --purple:var(--accent); --purple2:var(--accent2);
   }
 
   /* ===== TIPOGRAFIA (padrão Print 1/2/3) ===== */
@@ -82,21 +78,19 @@
   }
 
   .btnPrimary, .btnYellow{
-    background: linear-gradient(180deg, rgba(244,210,75,.96), rgba(244,210,75,.72)) !important;
+    background: linear-gradient(180deg, rgba(250,204,21,.98), rgba(250,204,21,.78)) !important;
     color:#111 !important;
-    border:1px solid rgba(244,210,75,.40) !important;
-    box-shadow: 0 18px 55px rgba(244,210,75,.16);
+    border:1px solid rgba(250,204,21,.35) !important;
+    box-shadow: 0 18px 55px rgba(250,204,21,.18);
   }
-
-  .btnPrimary:hover, .btnYellow:hover{ box-shadow: 0 18px 70px rgba(244,210,75,.18); }
+  .btnPrimary:hover, .btnYellow:hover{ box-shadow: 0 18px 70px rgba(250,204,21,.22); }
 
   .btnGhost, .btn, .btnBlue, .btnGreen, .btnOrange{
-    background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(0,0,0,.70)) !important;
-    border:1px solid rgba(255,255,255,.14) !important;
-    color: rgba(255,255,255,.92) !important;
-    box-shadow: 0 14px 40px rgba(0,0,0,.30);
+    background: rgba(0,0,0,.55) !important;
+    border:1px solid rgba(255,255,255,.12) !important;
+    color: var(--text) !important;
+    box-shadow: 0 14px 40px rgba(0,0,0,.28);
   }
-
 
   .btnSmall{ padding:10px 14px !important; border-radius:16px !important; width:auto !important; }
   .btnWide{ width:100% !important; }
@@ -108,8 +102,9 @@
     margin:0;
     color:var(--text);
     background:
-      radial-gradient(980px 640px at 22% 10%, rgba(244,210,75,.14), transparent 62%),
-      radial-gradient(1100px 720px at 50% 0%, rgba(255,255,255,.05), transparent 58%),
+      radial-gradient(900px 620px at 18% 8%, rgba(250,204,21,.14), transparent 60%),
+      radial-gradient(900px 620px at 82% 12%, rgba(234,179,8,.08), transparent 62%),
+      radial-gradient(1100px 700px at 50% 0%, rgba(255,255,255,.05), transparent 58%),
       linear-gradient(180deg,var(--bg1),var(--bg2));
     min-height:100dvh;
     overflow-x:hidden;
@@ -144,9 +139,9 @@
     box-shadow: 0 10px 30px rgba(0,0,0,.25);
     white-space:nowrap;
   }
-  .chip .dot{width:7px;height:7px;border-radius:999px;background:rgba(244,210,75,.95);display:inline-block}
+  .chip .dot{width:7px;height:7px;border-radius:999px;background:rgba(250,204,21,.95);display:inline-block}
   .card{
-    background: linear-gradient(180deg, rgba(12,10,7,.78), rgba(12,10,7,.55));
+    background: linear-gradient(180deg, rgba(38,38,42,.75), rgba(20,20,22,.55));
     border:1px solid var(--stroke);
     border-radius:26px;
     padding:18px;
@@ -165,7 +160,7 @@
 
   .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:12px}
   .box{
-    background: rgba(255,255,255,.04);
+    background: linear-gradient(180deg, rgba(55,55,60,.28), rgba(20,20,22,.18));
     border:1px solid rgba(255,255,255,.11);
     border-radius:20px;
     padding:14px;
@@ -174,8 +169,8 @@
   
   /* ✅ JOGOS SALVOS: item selecionado no padrão AMARELO (igual Print 1) */
   .savedPack.on{
-    background: rgba(244,210,75,.16) !important;
-    border-color: rgba(244,210,75,.75) !important;
+    background: rgba(250,204,21,.18) !important;
+    border-color: rgba(250,204,21,.75) !important;
     color:#0b0b0b !important;
   }
   .savedPack.on b{ color:#0b0b0b !important; }
@@ -200,8 +195,8 @@
     outline:none;
   }
   input:focus, select:focus{
-    border-color: rgba(244,210,75,.28);
-    box-shadow: 0 0 0 3px rgba(244,210,75,.10);
+    border-color: rgba(250,204,21,.28);
+    box-shadow: 0 0 0 3px rgba(250,204,21,.10);
   }
   input::placeholder{color:rgba(203,213,225,.65)}
   select{cursor:pointer}
@@ -220,7 +215,7 @@
   .btn:hover{filter:brightness(1.05);transform:translateY(-1px)}
   .btn:active{transform:translateY(0px);filter:brightness(.98)}
   .btn:disabled{opacity:.55;cursor:not-allowed;transform:none;box-shadow:none}
-  .btnPrimary{background:linear-gradient(135deg,var(--yellow),var(--yellow2));box-shadow: var(--glowGold);color:#111111;border:1px solid rgba(244,210,75,.55)}
+  .btnPrimary{background:linear-gradient(135deg,var(--yellow),var(--yellow2));box-shadow: var(--glowGold);color:#111111;border:1px solid rgba(250,204,21,.55)}
   .btnBlue{background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow: var(--glowGold);color:#111111;border:1px solid rgba(255,255,255,.28)}
   .btnPurple{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#111111;box-shadow: var(--glowGold);border:1px solid rgba(255,255,255,.28)}
   .btnDanger{background:linear-gradient(135deg,var(--red),var(--red2));color:#2b0b0b;box-shadow: 0 0 0 1px rgba(251,113,133,.18), 0 12px 40px rgba(251,113,133,.12)}
@@ -235,7 +230,7 @@
   .status{display:none;margin-top:10px;padding:12px;border-radius:14px;background:rgba(56,189,248,.10);
           border:1px solid rgba(56,189,248,.22);color:#e6f8ff;font-size:13px;font-weight:950;}
   .bar{height:10px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.08);margin-top:10px}
-  .bar>div{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--orange));transition:width .2s ease}
+  .bar>div{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .2s ease}
 
   /* Views */
   .view{display:none}
@@ -253,8 +248,8 @@
     text-align:left;
     border:1px solid rgba(255,255,255,.12);
     background:
-      radial-gradient(700px 260px at 22% 0%, rgba(244,210,75,.10), transparent 60%),
-      radial-gradient(700px 260px at 78% 0%, rgba(244,210,75,.08), transparent 62%),
+      radial-gradient(700px 260px at 22% 0%, rgba(250,204,21,.10), transparent 60%),
+      radial-gradient(700px 260px at 78% 0%, rgba(251,146,60,.08), transparent 62%),
       linear-gradient(180deg, rgba(12,10,7,.78), rgba(12,10,7,.50));
     border-radius:26px;
     padding:20px 22px;
@@ -274,13 +269,13 @@
     letter-spacing:.25px;
   }
   .badge.premium{border-color:rgba(56,189,248,.30);background:rgba(56,189,248,.14);color:#e6f8ff}
-  .badge.free{border-color:rgba(244,210,75,.35);background:rgba(244,210,75,.12);color:#fff2b0}
+  .badge.free{border-color:rgba(250,204,21,.35);background:rgba(250,204,21,.14);color:#fff2b0}
 
   /* EXTRA mega chamativo */
   .extraCard{
-    border:1px solid rgba(244,210,75,.35);
-    background: radial-gradient(900px 240px at 30% 20%, rgba(244,210,75,.12), transparent 60%),
-                radial-gradient(900px 240px at 70% 20%, rgba(244,210,75,.10), transparent 60%),
+    border:1px solid rgba(250,204,21,.35);
+    background: radial-gradient(900px 240px at 30% 20%, rgba(250,204,21,.14), transparent 60%),
+                radial-gradient(900px 240px at 70% 20%, rgba(251,146,60,.10), transparent 60%),
                 rgba(0,0,0,.82);
     box-shadow: var(--glowGold), 0 22px 70px rgba(0,0,0,.45);
     transform: translateZ(0);
@@ -289,8 +284,8 @@
     position:absolute;top:14px;right:14px;
     font-size:11px;font-weight:1000;
     padding:6px 10px;border-radius:999px;
-    border:1px solid rgba(244,210,75,.35);
-    background:rgba(244,210,75,.16);
+    border:1px solid rgba(250,204,21,.35);
+    background:rgba(250,204,21,.18);
     color:#fff2b0;
   }
   .extraHeadline{
@@ -300,8 +295,8 @@
   .extraHighlight{
     display:inline-flex;align-items:center;gap:8px;
     padding:6px 10px;border-radius:999px;
-    border:1px solid rgba(244,210,75,.35);
-    background:rgba(244,210,75,.12);
+    border:1px solid rgba(250,204,21,.35);
+    background:rgba(250,204,21,.14);
     color:#fff2b0;
     font-weight:1000;font-size:12px;
   }
@@ -325,15 +320,15 @@
     background: rgba(0,0,0,.70);
     color:var(--text);font-weight:1000;
   }
-  .cel.on{background:rgba(0,0,0,.72);border:1px solid rgba(244,210,75,.38);color:var(--accent);box-shadow:0 12px 30px rgba(0,0,0,.25)}
-  .cel.inv{background:rgba(0,0,0,.72);border:1px solid rgba(244,210,75,.28);color:var(--accent2);box-shadow:0 12px 30px rgba(0,0,0,.25)}
-  .cel.tech{background:rgba(244,210,75,.12);border:1px solid rgba(244,210,75,.30);color:#fff2b0;box-shadow:0 12px 30px rgba(0,0,0,.25)}
+  .cel.on{background:rgba(0,0,0,.72);border:1px solid rgba(250,204,21,.38);color:var(--accent);box-shadow:0 12px 30px rgba(0,0,0,.25)}
+  .cel.inv{background:rgba(0,0,0,.72);border:1px solid rgba(250,204,21,.28);color:var(--accent2);box-shadow:0 12px 30px rgba(0,0,0,.25)}
+  .cel.tech{background:rgba(250,204,21,.14);border:1px solid rgba(250,204,21,.30);color:#fff2b0;box-shadow:0 12px 30px rgba(0,0,0,.25)}
 
   .numbers{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0 6px}
   .ball{
     width:44px;height:44px;border-radius:999px;display:flex;align-items:center;justify-content:center;
     background:rgba(0,0,0,.72);
-    border:1px solid rgba(244,210,75,.28);
+    border:1px solid rgba(250,204,21,.28);
     color:var(--accent);font-weight:1000;letter-spacing:.4px;
     box-shadow:0 14px 34px rgba(0,0,0,.35);
   }
@@ -409,7 +404,7 @@
   background: rgba(0,0,0,.70);
   font-weight:1000;cursor:pointer;user-select:none;
 }
-.pickCell.sel{background:rgba(0,0,0,.72);border-color:rgba(244,210,75,.40);color:var(--accent);box-shadow:0 12px 30px rgba(0,0,0,.25)}
+.pickCell.sel{background:rgba(0,0,0,.72);border-color:rgba(250,204,21,.40);color:var(--accent);box-shadow:0 12px 30px rgba(0,0,0,.25)}
 .pickCell.lock{opacity:.35;cursor:not-allowed}
 /* =========================
    ✅ Destaque de acertos (Jogos Salvos)
@@ -417,9 +412,9 @@
 ========================= */
 .hit-11{ color:#38bdf8; font-weight:900; }  /* azul */
 .hit-12{ color:#a78bfa; font-weight:900; }  /* roxo */
-.hit-13{ color:#f4d24b; font-weight:1000; } /* amarelo */
+.hit-13{ color:#facc15; font-weight:1000; } /* amarelo */
 .hit-14{ color:#fb923c; font-weight:1000; } /* laranja */
-.hit-15{ color:#f4d24b; font-weight:1000; } /* amarelo */
+.hit-15{ color:#facc15; font-weight:1000; } /* amarelo */
 
 .lineTabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .lineBtn{
@@ -438,15 +433,15 @@
   font-weight:1000;
 }
 
-  /* ✅ BOTÕES: padrão PRIME (cinza + ouro suave) */
+  /* ✅ BOTÕES: preto fosco + destaque e PRIMARY sempre amarelo (igual Print 1) */
   .btnPrimary{
-    background: linear-gradient(180deg, rgba(244,210,75,.96), rgba(244,210,75,.72)) !important;
+    background: var(--yellow) !important;
     color:#111111 !important;
-    border:1px solid rgba(244,210,75,.45) !important;
+    border:1px solid rgba(250,204,21,.80) !important;
     box-shadow: var(--glowGold) !important;
   }
 
-/* ✅ MOBILE: evita quebra feia das 5 bolas nas linhas 4/5 do 15P */
+  /* ✅ MOBILE: evita quebra feia das 5 bolas nas linhas 4/5 do 15P */
   @media (max-width:420px){
     .ball{ width:38px; height:38px; font-size:13px; }
     .numbers{ gap:6px; }
@@ -479,7 +474,7 @@
     object-fit: contain;
     margin: 0 auto;
     border-radius:14px;
-    border:1px solid rgba(244,210,75,.18);
+    border:1px solid rgba(250,204,21,.22);
     background: rgba(0,0,0,.70);
     box-shadow: 0 18px 55px rgba(0,0,0,.38);
   }
@@ -510,14 +505,14 @@
 
 .p15-card{
   background: linear-gradient(180deg, rgba(0,0,0,.92), rgba(0,0,0,.78));
-  border:1px solid rgba(244,210,75,.35);
+  border:1px solid rgba(250,204,21,.35);
   border-radius:18px;
   padding:14px;
   margin:16px auto;
   max-width:380px; /* ✅ vertical */
   box-shadow:
-    0 0 0 1px rgba(244,210,75,.15),
-    0 0 25px rgba(244,210,75,.08),
+    0 0 0 1px rgba(250,204,21,.15),
+    0 0 25px rgba(250,204,21,.08),
     0 18px 55px rgba(0,0,0,.65);
 }
 
@@ -560,13 +555,13 @@
 
 .p15-chip{
   background:rgba(0,0,0,.85);
-  border:1px solid rgba(244,210,75,.25);
+  border:1px solid rgba(250,204,21,.25);
   padding:6px 8px;
   border-radius:14px;
   font-size:11px;
   font-weight:900;
   text-align:center;
-  box-shadow: 0 0 12px rgba(244,210,75,.05);
+  box-shadow: 0 0 12px rgba(250,204,21,.05);
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
@@ -588,11 +583,11 @@
   align-items:center;
   justify-content:center;
   background:rgba(0,0,0,.95);
-  border:1px solid rgba(244,210,75,.55);
+  border:1px solid rgba(250,204,21,.55);
   color:var(--accent);
   font-weight:1000;
   font-size:11px;
-  box-shadow: 0 0 10px rgba(244,210,75,.15);
+  box-shadow: 0 0 10px rgba(250,204,21,.15);
 }
 
 .p15-section{
@@ -604,12 +599,12 @@
 
 .p15-warning{
   background:rgba(0,0,0,.75);
-  border:1px solid rgba(244,210,75,.25);
+  border:1px solid rgba(250,204,21,.25);
   padding:10px;
   border-radius:14px;
   font-size:11.5px;
   line-height:1.4;
-  box-shadow: inset 0 0 12px rgba(244,210,75,.05);
+  box-shadow: inset 0 0 12px rgba(250,204,21,.05);
 }
 
 @media (max-width:420px){
@@ -634,8 +629,8 @@
     color: rgba(255,255,255,.92);
   }
   .badge.yellow, .pill.yellow, .tag.yellow, .chip.yellow{
-    background: rgba(244,210,75,.16);
-    border-color: rgba(244,210,75,.35);
+    background: rgba(250,204,21,.18);
+    border-color: rgba(250,204,21,.35);
     color: var(--accent2);
   }
   .badge.premium, .pill.premium{
@@ -644,7 +639,7 @@
     color: rgba(255,255,255,.86);
   }
   .badge.extra, .pill.extra{
-    background: rgba(244,210,75,.10);
+    background: rgba(251,146,60,.12);
     border-color: rgba(251,146,60,.30);
     color: rgba(255,255,255,.92);
   }
@@ -656,8 +651,8 @@
     display:inline-flex;
     align-items:center;
     justify-content:center;
-    background: rgba(244,210,75,.12);
-    border:1px solid rgba(244,210,75,.18);
+    background: rgba(250,204,21,.14);
+    border:1px solid rgba(250,204,21,.22);
     box-shadow: 0 12px 30px rgba(0,0,0,.25);
   }
   .iconBox svg, .iconWrap svg{ filter: drop-shadow(0 6px 12px rgba(0,0,0,.35)); }
@@ -679,8 +674,8 @@
     backdrop-filter: blur(8px);
   }
   .badge.free{
-    background: rgba(244,210,75,.16);
-    border-color: rgba(244,210,75,.32);
+    background: rgba(250,204,21,.16);
+    border-color: rgba(250,204,21,.32);
     color: var(--accent2);
   }
   .badge.premium{
@@ -696,7 +691,7 @@
     font-size:12px;
     font-weight:1000;
     letter-spacing:.35px;
-    background: rgba(244,210,75,.10);
+    background: rgba(251,146,60,.14);
     border:1px solid rgba(251,146,60,.30);
     color: rgba(255,255,255,.92);
   }
@@ -707,6 +702,84 @@
     font-size:14.5px;
     line-height:1.35;
   }
+
+  /* ===== PRIME: tipografia e espaçamentos ===== */
+  .mini{line-height:1.4; letter-spacing:.15px}
+  b{letter-spacing:.15px}
+  .topNav button{min-height:44px}
+
+  /* PRIME: botões cinza (secundários) */
+  .btnGhost, .btn, .btnRed, .btnOrange, .btnBlue, .btnGreen, .btnYellow{
+    background: linear-gradient(180deg, rgba(64,64,70,.45), rgba(20,20,22,.55)) !important;
+    border: 1px solid rgba(255,255,255,.14) !important;
+    color: var(--text) !important;
+    box-shadow: 0 10px 26px rgba(0,0,0,.45);
+  }
+  .btnPrimary{
+    background: linear-gradient(180deg, rgba(234,179,8,.95), rgba(202,163,74,.92)) !important;
+    border: 1px solid rgba(0,0,0,.35) !important;
+    color:#111827 !important;
+    box-shadow: 0 14px 30px rgba(234,179,8,.18);
+  }
+
+  /* PRIME: tabelas mais legíveis (inclui 15P) */
+  .table{width:100%; border-collapse:separate; border-spacing:0 10px}
+  .table thead th{
+    font-weight:950; letter-spacing:.35px;
+    padding:10px 12px; text-transform:uppercase;
+    color: rgba(243,244,246,.92);
+  }
+  .table tbody tr{
+    background: linear-gradient(180deg, rgba(0,0,0,.22), rgba(0,0,0,.35));
+    border:1px solid rgba(255,255,255,.10);
+    box-shadow: 0 10px 22px rgba(0,0,0,.35);
+  }
+  .table tbody td{padding:12px 12px; font-weight:650; color: rgba(243,244,246,.92)}
+  .table tbody tr td:first-child{border-top-left-radius:14px;border-bottom-left-radius:14px}
+  .table tbody tr td:last-child{border-top-right-radius:14px;border-bottom-right-radius:14px}
+
+  /* PRIME: layout 15P (evitar tudo colado) */
+  #p15Area .box{padding:18px}
+  #p15Area .mini{font-size:14px}
+
+  /* PRIME: header dos passos (1/6 etc) */
+  .primeStepHdr{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+  .primePill{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:6px 12px;border-radius:999px;
+    border:1px solid rgba(234,179,8,.55);
+    background: rgba(0,0,0,.30);
+    font-weight:950;color:rgba(243,244,246,.92)
+  }
+  .primeGrid2{display:grid;grid-template-columns:1.1fr .9fr;gap:14px}
+  @media(max-width:920px){.primeGrid2{grid-template-columns:1fr}}
+  .primePanel{
+    background: linear-gradient(180deg, rgba(0,0,0,.28), rgba(0,0,0,.40));
+    border:1px solid rgba(255,255,255,.10);
+    border-radius:22px;
+    padding:14px;
+  }
+  .primePanelTitle{font-weight:950;letter-spacing:.25px;margin-bottom:10px}
+  .primeDonutWrap{display:grid;grid-template-columns:220px 1fr;gap:14px;align-items:center}
+  @media(max-width:720px){.primeDonutWrap{grid-template-columns:1fr}}
+  .primeRowCard{
+    background: linear-gradient(180deg, rgba(0,0,0,.26), rgba(0,0,0,.42));
+    border:1px solid rgba(255,255,255,.10);
+    border-radius:18px;
+    padding:12px;
+    margin:10px 0;
+  }
+  .primeBar{
+    height:10px;border-radius:999px;overflow:hidden;
+    background: rgba(255,255,255,.10);
+    border:1px solid rgba(255,255,255,.10);
+  }
+  .primeBar > div{
+    height:100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius:999px;
+  }
+
 </style>
 </head>
 
@@ -2041,7 +2114,7 @@ function renderTop10(freq, totalConcursos){
       <div style="display:flex;align-items:center;gap:10px;margin:10px 0">
         <div style="width:90px;color:var(--text);font-weight:950">Dezena ${format2(x.dez)}</div>
         <div style="flex:1;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.12);border-radius:999px;overflow:hidden;height:16px">
-          <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--accent),var(--orange))"></div>
+          <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--accent),var(--accent2))"></div>
         </div>
         <div style="width:56px;text-align:right;color:var(--text);font-weight:950">${x.f}x</div>
       </div>
@@ -2081,7 +2154,7 @@ function renderTop10Atrasadas(modern, totalConcursos){
       <div style="display:flex;align-items:center;gap:10px;margin:10px 0">
         <div style="width:90px;color:var(--text);font-weight:950">Dezena ${format2(x.dez)}</div>
         <div style="flex:1;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.12);border-radius:999px;overflow:hidden;height:16px">
-          <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--accent),var(--orange))"></div>
+          <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--accent),var(--accent2))"></div>
         </div>
         <div style="width:90px;text-align:right;color:var(--text);font-weight:950">${x.gap} atrasos</div>
       </div>
@@ -2148,7 +2221,7 @@ function abrirGraficoBlocos(blocos){
       <div style="display:flex;align-items:center;gap:10px;margin:10px 0">
         <div style="width:90px;color:var(--text);font-weight:950">${label}</div>
         <div style="flex:1;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.12);border-radius:999px;overflow:hidden;height:16px">
-          <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--accent),var(--orange))"></div>
+          <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--accent),var(--accent2))"></div>
         </div>
         <div style="width:56px;text-align:right;color:var(--text);font-weight:950">${val}</div>
       </div>`;
@@ -2177,12 +2250,13 @@ function calcEvenOddDistribution(concursos){
     const key = `${pares}-${impares}`;
     map[key] = (map[key]||0)+1;
   });
+  const n = Math.max(1, concursos.length);
   return Object.entries(map)
     .map(([k,v])=>{
       const [p,i] = k.split("-").map(Number);
-      return { pares:p, impares:i, count:v };
+      return { pares:p, impares:i, count:v, pct: Math.round((v/n)*100) };
     })
-    .sort((a,b)=>b.count-a.count);
+    .sort((a,b)=>b.count-a.count || b.pares-a.pares);
 }
 
 function calcSumDistribution(concursos){
@@ -2302,73 +2376,126 @@ function calcTopPairsCooc(concursos, topN=12){
   return arr.slice(0, topN);
 }
 
-function renderEvenOddDist(patterns, total){
-  const top = (patterns || []).slice(0, 6);
-  const max = top[0]?.count || 1;
+function renderEvenOddDist(evenOdd, total){
+  const top = (evenOdd||[]).slice(0,3);
+  const dom = top[0] || null;
 
-  const rows = top.map(p=>{
-    const pctBar = Math.round((p.count / max) * 100);
-    const pctJanela = Math.round((p.count / Math.max(1,total)) * 100);
+  const donutLabel = dom ? `${dom.pares}P / ${dom.impares}I` : "—";
+  const domText = dom ? `${dom.pares} pares / ${dom.impares} ímpares` : "—";
+  const domPct = dom ? (dom.pct ?? Math.round((dom.count/Math.max(1,total))*100)) : 0;
 
+  const maxCount = top[0]?.count || 1;
+
+  const rows = top.map(x=>{
+    const pctBar = Math.round((x.count/maxCount)*100);
+    const pctJanela = (x.pct ?? Math.round((x.count/Math.max(1,total))*100));
     return `
-      <div style="display:flex;align-items:center;gap:10px;margin:10px 0">
-        <div style="width:220px" class="mini">
-          <b>${p.pares} pares / ${p.impares} ímpares</b><br/>
-          <span class="mini" style="margin:0;opacity:.9">${pctJanela}% na janela</span>
+      <div class="primeRowCard">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+          <div>
+            <div style="font-weight:950">${x.pares} pares / ${x.impares} ímpares</div>
+            <div class="mini" style="margin-top:4px">${pctJanela}% na janela</div>
+          </div>
+          <div style="font-weight:1000;opacity:.92">${x.count}x</div>
         </div>
-
-        <div style="flex:1;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.12);
-                    border-radius:999px;overflow:hidden;height:16px">
-          <div style="height:100%;width:${pctBar}%;background:linear-gradient(90deg,var(--accent),var(--orange))"></div>
-        </div>
-
-        <div style="width:60px;text-align:right;color:var(--text);font-weight:950">${p.count}x</div>
+        <div class="primeBar" style="margin-top:10px"><div style="width:${pctBar}%"></div></div>
       </div>
     `;
   }).join("");
 
-  const dominante = patterns?.[0]
-    ? `<div class="mini" style="margin-top:10px">🔥 Dominante: <b>${patterns[0].pares} pares / ${patterns[0].impares} ímpares</b> (${patterns[0].count} ocorrências)</div>`
-    : "";
-
   return `
     <div class="box" style="margin-top:12px">
-      <b>⚖️ Padrões de distribuição (equilíbrio)</b>
-      <div class="mini" style="margin-top:6px">
-        Gráfico das distribuições mais recorrentes na janela analisada.
+      <div class="primeStepHdr">
+        <div>
+          <b>🧩 Padrões de distribuição (equilíbrio)</b>
+          <div class="mini" style="margin-top:6px">Mostra as distribuições (pares/ímpares) mais recorrentes na janela.</div>
+          ${dom ? `<div class="mini" style="margin-top:8px">Dominante: <b>${domText}</b> • ${domPct}% (${dom.count}x)</div>` : ``}
+        </div>
+        <div class="primePill">1/6</div>
       </div>
 
-      <div style="margin-top:10px">
-        ${rows || `<div class="mini">—</div>`}
+      <div class="primeGrid2" style="margin-top:14px">
+        <div class="primePanel">
+          <div class="primePanelTitle">Paridade (visual)</div>
+          <div style="display:flex;align-items:center;justify-content:center;min-height:220px">
+            <div style="
+              width:200px;height:200px;border-radius:999px;
+              background: conic-gradient(var(--accent) 0 ${domPct}%, rgba(255,255,255,.16) ${domPct}% 100%);
+              display:flex;align-items:center;justify-content:center;
+              border:1px solid rgba(255,255,255,.12);
+              box-shadow: 0 18px 38px rgba(0,0,0,.45);
+            ">
+              <div style="
+                width:128px;height:128px;border-radius:999px;
+                background: rgba(0,0,0,.42);
+                border:1px solid rgba(255,255,255,.10);
+                display:flex;align-items:center;justify-content:center;
+                font-weight:1000;letter-spacing:.6px
+              ">${donutLabel}</div>
+            </div>
+          </div>
+          <div class="mini" style="margin-top:10px;opacity:.9">
+            <span style="display:inline-flex;align-items:center;gap:8px;margin-right:14px">
+              <span style="width:10px;height:10px;border-radius:3px;background:var(--accent)"></span> pares
+            </span>
+            <span style="display:inline-flex;align-items:center;gap:8px">
+              <span style="width:10px;height:10px;border-radius:3px;background:rgba(255,255,255,.16)"></span> ímpares
+            </span>
+          </div>
+        </div>
+
+        <div class="primePanel">
+          <div class="primePanelTitle">Distribuições na janela</div>
+          ${rows || `<div class="mini">—</div>`}
+        </div>
       </div>
 
-      ${dominante}
+      <div class="mini" style="margin-top:12px">
+        ✅ Uso prático: monte seu jogo manual dentro do dominante para reduzir “jogo fora do padrão”.
+      </div>
     </div>
   `;
 }
 
 function renderSumsTop(sums, total){
-  const top = sums.slice(0,7);
+  const top = (sums||[]).slice(0,7);
   const max = top[0]?.count || 1;
+
   const rows = top.map(x=>{
-    const pct = Math.round((x.count/max)*100);
-    const pct2 = Math.round((x.count/Math.max(1,total))*100);
+    const pctBar = Math.round((x.count/max)*100);
+    const pctJanela = Math.round((x.count/Math.max(1,total))*100);
     return `
-      <div style="display:flex;align-items:center;gap:10px;margin:10px 0">
-        <div style="width:90px;color:var(--text);font-weight:950">Soma ${x.soma}</div>
-        <div style="flex:1;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.12);border-radius:999px;overflow:hidden;height:16px">
-          <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--accent),var(--orange))"></div>
+      <div style="display:flex;align-items:center;gap:12px;margin:12px 0">
+        <div style="width:96px;font-weight:950">Soma ${x.soma}</div>
+        <div style="flex:1">
+          <div class="primeBar"><div style="width:${pctBar}%"></div></div>
         </div>
-        <div style="width:82px;text-align:right;color:var(--text);font-weight:950">${x.count}x</div>
-        <div class="mini" style="margin:0;width:46px;text-align:right">${pct2}%</div>
+        <div style="width:54px;text-align:right;font-weight:950">${x.count}</div>
       </div>
     `;
   }).join("");
+
+  const dom = top[0] ? `Dominante: <b>Soma ${top[0].soma}</b> (aparece ${top[0].count}x • ${Math.round((top[0].count/Math.max(1,total))*100)}%)` : "Dominante: —";
+
   return `
     <div class="box" style="margin-top:12px">
-      <b>➕ Somas que mais se repetiram</b>
-      <div class="mini" style="margin-top:6px">Ajuda a evitar combinações muito fora do padrão.</div>
-      <div style="margin-top:10px">${rows || `<div class="mini">—</div>`}</div>
+      <div class="primeStepHdr">
+        <div>
+          <b>➕ Somas que mais se repetiram</b>
+          <div class="mini" style="margin-top:6px">Ajuda a evitar combinações muito fora do padrão de soma.</div>
+          <div class="mini" style="margin-top:10px">${dom}</div>
+        </div>
+        <div class="primePill">2/6</div>
+      </div>
+
+      <div class="primePanel" style="margin-top:14px">
+        <div class="primePanelTitle">Ranking de somas (mais repetidas)</div>
+        ${rows || `<div class="mini">—</div>`}
+      </div>
+
+      <div class="mini" style="margin-top:12px">
+        ✅ Uso prático: se sua soma sair muito diferente das dominantes, o jogo tende a ficar “estranho”.
+      </div>
     </div>
   `;
 }
@@ -2393,7 +2520,7 @@ function renderPrimeCountDist(primeDist, totalConcursos){
       <div style="display:grid;grid-template-columns:160px 1fr 60px;gap:10px;align-items:center;margin:10px 0">
         <div style="font-weight:900">Primos: ${row.k}</div>
         <div style="height:12px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10)">
-          <div style="height:100%;width:${w}%;background:linear-gradient(90deg,var(--accent),var(--orange));"></div>
+          <div style="height:100%;width:${w}%;background:linear-gradient(90deg,var(--accent),var(--accent2));"></div>
         </div>
         <div style="text-align:right;font-weight:1000">${row.count}x <span class="mini" style="margin:0">(${row.pct}%)</span></div>
       </div>
@@ -2427,7 +2554,7 @@ function renderLinesPatterns(linesDist, totalConcursos){
       <div style="display:grid;grid-template-columns:180px 1fr 70px;gap:10px;align-items:center;margin:10px 0">
         <div style="font-weight:900">${row.pattern}</div>
         <div style="height:12px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10)">
-          <div style="height:100%;width:${w}%;background:linear-gradient(90deg,var(--accent),var(--orange));"></div>
+          <div style="height:100%;width:${w}%;background:linear-gradient(90deg,var(--accent),var(--accent2));"></div>
         </div>
         <div style="text-align:right;font-weight:1000">${row.count}x <span class="mini" style="margin:0">(${row.pct}%)</span></div>
       </div>
@@ -2461,7 +2588,7 @@ function renderColsPatterns(colsDist, totalConcursos){
       <div style="display:grid;grid-template-columns:180px 1fr 70px;gap:10px;align-items:center;margin:10px 0">
         <div style="font-weight:900">${row.pattern}</div>
         <div style="height:12px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10)">
-          <div style="height:100%;width:${w}%;background:linear-gradient(90deg,var(--accent),var(--orange));"></div>
+          <div style="height:100%;width:${w}%;background:linear-gradient(90deg,var(--accent),var(--accent2));"></div>
         </div>
         <div style="text-align:right;font-weight:1000">${row.count}x <span class="mini" style="margin:0">(${row.pct}%)</span></div>
       </div>
@@ -2476,19 +2603,13 @@ function renderColsPatterns(colsDist, totalConcursos){
 }
 
 function renderPrimeKpis(payload, evenOdd, primeDist, linesDist, colsDist, blockPatterns){
-  // ✅ FIX: calcEvenOddDistribution retorna ARRAY; o KPI antigo esperava {dist:[...]}
-  const eoList = Array.isArray(evenOdd) ? evenOdd : (evenOdd && evenOdd.dist ? evenOdd.dist : []);
-  const eoDomRaw = eoList && eoList.length ? eoList[0] : null;
-  const eoDom = eoDomRaw ? {
-    ...eoDomRaw,
-    label: eoDomRaw.label || `${eoDomRaw.pares} P / ${eoDomRaw.impares} I`
-  } : null;
-
+  const eoDom = Array.isArray(evenOdd) ? (evenOdd[0]||null) : ((evenOdd && evenOdd.dist && evenOdd.dist.length) ? evenOdd.dist[0] : null);
   const primeDom = primeDist && primeDist.length ? primeDist[0] : null;
   const linesDom = linesDist && linesDist.length ? linesDist[0] : null;
   const colsDom = colsDist && colsDist.length ? colsDist[0] : null;
   const blockDom = blockPatterns && blockPatterns.length ? blockPatterns[0] : null;
-return `
+
+  return `
   <div class="box" style="margin-top:12px">
     <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
       <div>
@@ -2505,7 +2626,7 @@ return `
       <div class="box">
         <div class="mini" style="margin:0">Paridade dominante</div>
         <div style="font-size:18px;font-weight:1000;margin-top:6px">${eoDom ? eoDom.label : "—"}</div>
-        <div class="mini" style="margin-top:6px">${eoDom ? (eoDom.pct + "% na janela") : ""}</div>
+        <div class="mini" style="margin-top:6px">${eoDom ? ((eoDom.pct ?? Math.round((eoDom.count/Math.max(1,payload.concursos.length))*100)) + "% na janela") : ""}</div>
       </div>
       <div class="box">
         <div class="mini" style="margin:0">Primos dominantes</div>
@@ -2549,7 +2670,7 @@ function renderBlocksPrime(totals, patterns, total){
 
         <div style="flex:1;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.12);
                     border-radius:999px;overflow:hidden;height:16px">
-          <div style="height:100%;width:${pctBar}%;background:linear-gradient(90deg,var(--accent),var(--orange))"></div>
+          <div style="height:100%;width:${pctBar}%;background:linear-gradient(90deg,var(--accent),var(--accent2))"></div>
         </div>
 
         <div style="width:110px;text-align:right" class="mini">
@@ -4984,7 +5105,7 @@ function renderJogosSalvosAoAbrir(){
     const isOn = (item.slot === selectedSavedSlot);
 
     html += `
-      <div class="box savedPack ${isOn ? "on" : ""}" style="margin-top:10px;cursor:pointer;border:1px solid ${isOn ? "rgba(244,210,75,.75)" : "rgba(255,255,255,.22)"};background:${isOn ? "rgba(244,210,75,.16)" : "rgba(255,255,255,.03)"};color:${isOn ? "#0b0b0b" : "#ffffff"}"
+      <div class="box savedPack ${isOn ? "on" : ""}" style="margin-top:10px;cursor:pointer;border:1px solid ${isOn ? "rgba(250,204,21,.75)" : "rgba(255,255,255,.22)"};background:${isOn ? "rgba(250,204,21,.18)" : "rgba(255,255,255,.03)"};color:${isOn ? "#0b0b0b" : "#ffffff"}"
         onclick="selectedSavedSlot='${item.slot}'; renderJogosSalvosAoAbrir();">
         <b>💾 ${item.nome || item.slot}</b><br/>
         <span class="mini">Salvo em: ${item.at ? new Date(item.at).toLocaleString("pt-BR") : "-"}</span>
