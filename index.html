@@ -218,7 +218,7 @@
   .btnPrimary{background:linear-gradient(135deg,var(--yellow),var(--yellow2));box-shadow: var(--glowGold);color:#111111;border:1px solid rgba(250,204,21,.55)}
   .btnBlue{background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow: var(--glowGold);color:#111111;border:1px solid rgba(255,255,255,.28)}
   .btnPurple{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#111111;box-shadow: var(--glowGold);border:1px solid rgba(255,255,255,.28)}
-  .btnDanger{background:linear-gradient(135deg,var(--red),var(--red2));color:#2b0b0b;box-shadow: 0 0 0 1px rgba(251,113,133,.18), 0 12px 40px rgba(251,113,133,.12)}
+  .btnDanger{background: linear-gradient(180deg, rgba(64,64,70,.45), rgba(20,20,22,.55)) !important;border: 1px solid rgba(255,255,255,.14) !important;color: var(--text) !important;box-shadow: 0 10px 26px rgba(0,0,0,.45) !important;}
   .btnGhost{
     background: rgba(255,255,255,.06) !important;
     border:1px solid rgba(255,255,255,.14) !important;
@@ -249,8 +249,8 @@
     border:1px solid rgba(255,255,255,.12);
     background:
       radial-gradient(700px 260px at 22% 0%, rgba(250,204,21,.10), transparent 60%),
-      radial-gradient(700px 260px at 78% 0%, rgba(251,146,60,.08), transparent 62%),
-      linear-gradient(180deg, rgba(12,10,7,.78), rgba(12,10,7,.50));
+      radial-gradient(700px 260px at 78% 0%, rgba(255,255,255,.05), transparent 62%),
+      linear-gradient(180deg, rgba(38,38,42,.72), rgba(20,20,22,.52));
     border-radius:26px;
     padding:20px 22px;
     cursor:pointer;
@@ -275,7 +275,7 @@
   .extraCard{
     border:1px solid rgba(250,204,21,.35);
     background: radial-gradient(900px 240px at 30% 20%, rgba(250,204,21,.14), transparent 60%),
-                radial-gradient(900px 240px at 70% 20%, rgba(251,146,60,.10), transparent 60%),
+                radial-gradient(900px 240px at 70% 20%, rgba(255,255,255,.05), transparent 60%),
                 rgba(0,0,0,.82);
     box-shadow: var(--glowGold), 0 22px 70px rgba(0,0,0,.45);
     transform: translateZ(0);
@@ -2625,7 +2625,7 @@ function renderPrimeKpis(payload, evenOdd, primeDist, linesDist, colsDist, block
     <div class="grid" style="margin-top:12px">
       <div class="box">
         <div class="mini" style="margin:0">Paridade dominante</div>
-        <div style="font-size:18px;font-weight:1000;margin-top:6px">${eoDom ? eoDom.label : "—"}</div>
+        <div style="font-size:18px;font-weight:1000;margin-top:6px">${eoDom ? (eoDom.label || eoDom.pattern || ((eoDom.pares!=null && eoDom.impares!=null) ? (`${eoDom.pares} pares / ${eoDom.impares} ímpares`) : "—")) : "—"}</div>
         <div class="mini" style="margin-top:6px">${eoDom ? ((eoDom.pct ?? Math.round((eoDom.count/Math.max(1,payload.concursos.length))*100)) + "% na janela") : ""}</div>
       </div>
       <div class="box">
