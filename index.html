@@ -8,16 +8,16 @@
 
 <style>
   :root{
-    /* LAYOUT (padrão Print 2) */
-    --bg1:#070502;
+    /* LAYOUT (padrão Print 1) — cinza premium + amarelo PRIME */
+    --bg1:#050505;
     --bg2:#000000;
 
-    --card: rgba(12,10,7,.72);
-    --surface: rgba(255,255,255,.045);
-    --surface2: rgba(255,255,255,.07);
+    --panel: rgba(255,255,255,.06);     /* caixa cinza */
+    --panel2: rgba(255,255,255,.045);   /* cinza mais leve */
+    --inner: rgba(0,0,0,.55);           /* caixas internas escuras */
 
     --text:#ffffff;
-    --muted: rgba(255,255,255,.82);
+    --muted: rgba(255,255,255,.84);
     --muted2: rgba(255,255,255,.62);
 
     --accent:#facc15;
@@ -27,15 +27,13 @@
     --yellow2:#ffe27a;
     --orange:#fb923c;
 
-    --red:#fb7185; --red2:#ef4444;
-
-    --stroke: rgba(255,255,255,.12);
-    --stroke2: rgba(255,255,255,.08);
+    --stroke: rgba(255,255,255,.14);
+    --stroke2: rgba(255,255,255,.10);
 
     --shadow: 0 18px 60px rgba(0,0,0,.65);
 
     --glowGold: 0 0 0 1px rgba(250,204,21,.22), 0 18px 60px rgba(250,204,21,.14);
-    --glowSoft: 0 0 0 1px rgba(255,255,255,.06), 0 18px 60px rgba(0,0,0,.55);
+    --glowSoft: 0 0 0 1px rgba(255,255,255,.07), 0 18px 60px rgba(0,0,0,.55);
 
     /* compat */
     --green:#facc15; --green2:#ffe27a;
@@ -46,9 +44,14 @@
   /* ===== TIPOGRAFIA (padrão Print 1/2/3) ===== */
   *{ -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
   body{
-    font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif !important;
-    font-size: 15.5px;
-    line-height: 1.35;
+    margin:0;
+    color:var(--text);
+    background:
+      radial-gradient(980px 620px at 18% 8%, rgba(250,204,21,.12), transparent 62%),
+      radial-gradient(980px 620px at 82% 12%, rgba(251,146,60,.06), transparent 65%),
+      linear-gradient(180deg,var(--bg1),var(--bg2));
+    min-height:100dvh;
+    overflow-x:hidden;
   }
   h1,h2,h3{ letter-spacing:.2px; }
   .title{
@@ -139,7 +142,7 @@
   }
   .chip .dot{width:7px;height:7px;border-radius:999px;background:rgba(250,204,21,.95);display:inline-block}
   .card{
-    background: linear-gradient(180deg, rgba(12,10,7,.78), rgba(12,10,7,.55));
+    background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.035));
     border:1px solid var(--stroke);
     border-radius:26px;
     padding:18px;
@@ -158,9 +161,9 @@
 
   .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:12px}
   .box{
-    background: rgba(255,255,255,.04);
-    border:1px solid rgba(255,255,255,.11);
-    border-radius:20px;
+    background: var(--panel);
+    border:1px solid rgba(255,255,255,.12);
+    border-radius:22px;
     padding:14px;
     box-shadow: var(--glowSoft);
   }
@@ -175,22 +178,9 @@
   .savedPack.on .mini{ color: rgba(0,0,0,.72) !important; }
 
 .box p{margin:0;color:var(--text);font-size:13px;line-height:1.5}
-  .mini{color:var(--muted);font-size:12px;margin-top:8px;line-height:1.45}
-  .mini strong{color:var(--text)}
-
-  .row{display:flex;gap:12px;flex-wrap:wrap;align-items:stretch}
-  .col{flex:1 1 240px;min-width:0} /* ✅ evita “torto” */
-
-  label{display:block;font-size:12px;color:var(--accent);font-weight:950;margin-bottom:6px;text-align:left}
-  input, select{
-    width:100%;
-    max-width:100%;
-    padding:14px 14px;
-    border-radius:18px;
-    border:1px solid rgba(255,255,255,.14);
-    background: rgba(0,0,0,.70);
-    color:var(--text);
-    outline:none;
+  .mini{
+    font-size:13px;
+    color: rgba(255,255,255,.70);
   }
   input:focus, select:focus{
     border-color: rgba(250,204,21,.28);
@@ -247,8 +237,7 @@
     border:1px solid rgba(255,255,255,.12);
     background:
       radial-gradient(700px 260px at 22% 0%, rgba(250,204,21,.10), transparent 60%),
-      radial-gradient(700px 260px at 78% 0%, rgba(251,146,60,.08), transparent 62%),
-      linear-gradient(180deg, rgba(12,10,7,.78), rgba(12,10,7,.50));
+      linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.035));
     border-radius:26px;
     padding:20px 22px;
     cursor:pointer;
@@ -699,6 +688,13 @@
     color: rgba(255,255,255,.80);
     font-size:14.5px;
     line-height:1.35;
+  }
+
+  /* caixas internas (dentro de uma .box) */
+  .box .box{
+    background: var(--inner);
+    border:1px solid rgba(255,255,255,.10);
+    box-shadow: none;
   }
 </style>
 </head>
