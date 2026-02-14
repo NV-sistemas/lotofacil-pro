@@ -562,6 +562,54 @@
   .p15-chip{ font-size:10px; padding:6px; }
 }
 
+
+/* =========================
+   ✅ ANÁLISE PRIME (LAYOUT PREVIA)
+========================= */
+.apHero{background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:14px 14px 10px;margin:12px 0 14px;box-shadow:0 12px 28px rgba(0,0,0,.25)}
+.apHeroTop{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.apHeroTitle{font-weight:1000;font-size:18px;letter-spacing:.2px;color:#f4c400;text-transform:uppercase}
+.apHeroMini{font-size:12px;opacity:.85;margin-top:4px}
+.apHeroMini2{font-size:12px;opacity:.8;margin-top:4px}
+.apHeroActions{display:flex;gap:10px;flex-wrap:wrap}
+.apTopCards{display:grid;grid-template-columns:repeat(7,minmax(140px,1fr));gap:10px;margin-top:12px}
+@media(max-width:1024px){.apTopCards{grid-template-columns:repeat(3,minmax(140px,1fr));}}
+@media(max-width:520px){.apTopCards{grid-template-columns:repeat(2,minmax(140px,1fr));}}
+.apMiniCard{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);border-radius:14px;padding:12px;backdrop-filter: blur(6px)}
+.apMiniTitle{font-size:11px;opacity:.75}
+.apMiniValue{font-size:18px;font-weight:1000;margin-top:6px}
+.apMiniSub{font-size:11px;opacity:.7;margin-top:2px}
+
+.apStepCard{background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:14px;margin:12px 0;box-shadow:0 12px 28px rgba(0,0,0,.20)}
+.apStepHead{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
+.apStepTitle{font-weight:1000;font-size:15px;display:flex;align-items:center;gap:10px}
+.apStepBadge{display:inline-flex;align-items:center;justify-content:center;min-width:46px;height:26px;border-radius:999px;background:rgba(244,196,0,.14);border:1px solid rgba(244,196,0,.35);color:#f4c400;font-weight:1000;font-size:12px}
+.apStepSub{font-size:12px;opacity:.75;margin-top:4px}
+.apStepBody{margin-top:12px}
+.apGrid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:860px){.apGrid2{grid-template-columns:1fr;}}
+.apPane{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:14px;padding:12px}
+.apPaneTitle{font-size:12px;opacity:.8;margin-bottom:10px;font-weight:800}
+
+.apBars{display:flex;flex-direction:column;gap:10px}
+.apBarRow{display:grid;grid-template-columns: 1.4fr 3fr auto;gap:10px;align-items:center}
+@media(max-width:520px){.apBarRow{grid-template-columns: 1.6fr 2.6fr auto;}}
+.apBarTitle{font-weight:900;font-size:13px}
+.apBarSub{font-size:11px;opacity:.72;margin-top:2px}
+.apBarTrack{height:14px;border-radius:999px;background:rgba(255,255,255,.10);overflow:hidden;border:1px solid rgba(255,255,255,.08)}
+.apBarFill{height:100%;border-radius:999px;background:linear-gradient(90deg,#f4c400,#ff8f33)}
+.apBarRight{font-weight:1000;opacity:.9;min-width:54px;text-align:right}
+
+.apDonutWrap{display:flex;flex-direction:column;align-items:center;gap:10px}
+.apDonut{--p:50;width:170px;height:170px;border-radius:50%;background:conic-gradient(#f4c400 calc(var(--p)*1%), rgba(255,255,255,.12) 0);display:grid;place-items:center;border:1px solid rgba(255,255,255,.10);box-shadow:inset 0 0 0 10px rgba(0,0,0,.25)}
+.apDonutInner{width:120px;height:120px;border-radius:50%;background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.10);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.apDonutValue{font-weight:1000;font-size:18px}
+.apDonutLabel{font-size:11px;opacity:.7}
+.apDonutFoot{font-size:11px;opacity:.8;display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:center;text-align:center}
+.apLegendDot{width:10px;height:10px;border-radius:50%;background:#f4c400;display:inline-block}
+
+.apHint{margin-top:10px;font-size:12px;opacity:.82}
+
 </style>
 </head>
 
@@ -2068,64 +2116,6 @@ function calcBlockPatternDistribution(concursos){
     .sort((a,b)=>b.count-a.count);
 }
 
-function calcPrimeCountDistribution(concursos){
-  const primes = new Set([2,3,5,7,11,13,17,19,23]);
-  const dist = {};
-  concursos.forEach(c=>{
-    const nums = (c.dezenas||[]).map(d=>Number(String(d).replace(/^0+/,""))).filter(x=>x>=1 && x<=25);
-    const pc = nums.reduce((acc,n)=>acc+(primes.has(n)?1:0),0);
-    dist[pc] = (dist[pc]||0)+1;
-  });
-  const n = Math.max(1, concursos.length);
-  return Object.keys(dist).map(k=>({
-    k: Number(k),
-    count: dist[k],
-    pct: Math.round((dist[k]/n)*100)
-  })).sort((a,b)=>b.count-a.count || b.k-a.k);
-}
-
-function calcLinesPatternDistribution(concursos){
-  // linhas do volante (5x5): L1=1-5, L2=6-10, L3=11-15, L4=16-20, L5=21-25
-  const dist = {};
-  concursos.forEach(c=>{
-    const nums = (c.dezenas||[]).map(d=>Number(String(d).replace(/^0+/,""))).filter(x=>x>=1 && x<=25);
-    const rows = [0,0,0,0,0];
-    nums.forEach(n=>{
-      const r = Math.floor((n-1)/5); // 0..4
-      rows[r] += 1;
-    });
-    const key = rows.join("-");
-    dist[key] = (dist[key]||0)+1;
-  });
-  const n = Math.max(1, concursos.length);
-  return Object.keys(dist).map(k=>({
-    pattern: k,
-    count: dist[k],
-    pct: Math.round((dist[k]/n)*100)
-  })).sort((a,b)=>b.count-a.count);
-}
-
-function calcColsPatternDistribution(concursos){
-  // colunas do volante (5x5): C1=(1,6,11,16,21) ... C5=(5,10,15,20,25)
-  const dist = {};
-  concursos.forEach(c=>{
-    const nums = (c.dezenas||[]).map(d=>Number(String(d).replace(/^0+/,""))).filter(x=>x>=1 && x<=25);
-    const cols = [0,0,0,0,0];
-    nums.forEach(n=>{
-      const col = (n-1) % 5; // 0..4
-      cols[col] += 1;
-    });
-    const key = cols.join("-");
-    dist[key] = (dist[key]||0)+1;
-  });
-  const n = Math.max(1, concursos.length);
-  return Object.keys(dist).map(k=>({
-    pattern: k,
-    count: dist[k],
-    pct: Math.round((dist[k]/n)*100)
-  })).sort((a,b)=>b.count-a.count);
-}
-
 function calcBlockTotals(concursos){
   const tot = {A:0,B:0,C:0,D:0,E:0};
   concursos.forEach(c=>{
@@ -2225,156 +2215,6 @@ function renderSumsTop(sums, total){
       <div class="mini" style="margin-top:6px">Ajuda a evitar combinações muito fora do padrão.</div>
       <div style="margin-top:10px">${rows || `<div class="mini">—</div>`}</div>
     </div>
-  `;
-}
-
-function renderPrimeCountDist(primeDist, totalConcursos){
-  const top = primeDist.slice(0,6);
-  const max = Math.max(1, ...top.map(x=>x.count));
-  let html = `
-  <div class="box" style="margin-top:12px">
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap">
-      <div>
-        <b>🧮 Números primos (padrão)</b>
-        <div class="mini">Quantos números primos costumam aparecer por concurso na janela analisada.</div>
-      </div>
-      <div class="mini">Base: <b>${totalConcursos}</b> concursos</div>
-    </div>
-    <div style="margin-top:10px">
-  `;
-  top.forEach(row=>{
-    const w = Math.round((row.count/max)*100);
-    html += `
-      <div style="display:grid;grid-template-columns:160px 1fr 60px;gap:10px;align-items:center;margin:10px 0">
-        <div style="font-weight:900">Primos: ${row.k}</div>
-        <div style="height:12px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10)">
-          <div style="height:100%;width:${w}%;background:linear-gradient(90deg,var(--accent),var(--orange));"></div>
-        </div>
-        <div style="text-align:right;font-weight:1000">${row.count}x <span class="mini" style="margin:0">(${row.pct}%)</span></div>
-      </div>
-    `;
-  });
-  const dom = primeDist[0];
-  if(dom){
-    html += `<div class="mini" style="margin-top:6px">🔥 Dominante: <b>${dom.k} primos</b> (${dom.count} ocorrência${dom.count>1?"s":""}).</div>`;
-  }
-  html += `</div></div>`;
-  return html;
-}
-
-function renderLinesPatterns(linesDist, totalConcursos){
-  const top = linesDist.slice(0,6);
-  const max = Math.max(1, ...top.map(x=>x.count));
-  let html = `
-  <div class="box" style="margin-top:12px">
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap">
-      <div>
-        <b>📏 Linhas (L1–L5)</b>
-        <div class="mini">Distribuição de dezenas por linha do volante (5 linhas). Ex: 3-3-3-3-3.</div>
-      </div>
-      <div class="mini">Base: <b>${totalConcursos}</b> concursos</div>
-    </div>
-    <div style="margin-top:10px">
-  `;
-  top.forEach(row=>{
-    const w = Math.round((row.count/max)*100);
-    html += `
-      <div style="display:grid;grid-template-columns:180px 1fr 70px;gap:10px;align-items:center;margin:10px 0">
-        <div style="font-weight:900">${row.pattern}</div>
-        <div style="height:12px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10)">
-          <div style="height:100%;width:${w}%;background:linear-gradient(90deg,var(--accent),var(--orange));"></div>
-        </div>
-        <div style="text-align:right;font-weight:1000">${row.count}x <span class="mini" style="margin:0">(${row.pct}%)</span></div>
-      </div>
-    `;
-  });
-  const dom = linesDist[0];
-  if(dom){
-    html += `<div class="mini" style="margin-top:6px">🔥 Dominante: <b>${dom.pattern}</b> (${dom.count} ocorrência${dom.count>1?"s":""}).</div>`;
-  }
-  html += `</div></div>`;
-  return html;
-}
-
-function renderColsPatterns(colsDist, totalConcursos){
-  const top = colsDist.slice(0,6);
-  const max = Math.max(1, ...top.map(x=>x.count));
-  let html = `
-  <div class="box" style="margin-top:12px">
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap">
-      <div>
-        <b>📐 Colunas (C1–C5)</b>
-        <div class="mini">Distribuição de dezenas por coluna do volante (5 colunas). Ex: 4-2-3-3-3.</div>
-      </div>
-      <div class="mini">Base: <b>${totalConcursos}</b> concursos</div>
-    </div>
-    <div style="margin-top:10px">
-  `;
-  top.forEach(row=>{
-    const w = Math.round((row.count/max)*100);
-    html += `
-      <div style="display:grid;grid-template-columns:180px 1fr 70px;gap:10px;align-items:center;margin:10px 0">
-        <div style="font-weight:900">${row.pattern}</div>
-        <div style="height:12px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10)">
-          <div style="height:100%;width:${w}%;background:linear-gradient(90deg,var(--accent),var(--orange));"></div>
-        </div>
-        <div style="text-align:right;font-weight:1000">${row.count}x <span class="mini" style="margin:0">(${row.pct}%)</span></div>
-      </div>
-    `;
-  });
-  const dom = colsDist[0];
-  if(dom){
-    html += `<div class="mini" style="margin-top:6px">🔥 Dominante: <b>${dom.pattern}</b> (${dom.count} ocorrência${dom.count>1?"s":""}).</div>`;
-  }
-  html += `</div></div>`;
-  return html;
-}
-
-function renderPrimeKpis(payload, evenOdd, primeDist, linesDist, colsDist, blockPatterns){
-  const eoDom = (evenOdd && evenOdd.dist && evenOdd.dist.length) ? evenOdd.dist[0] : null;
-  const primeDom = primeDist && primeDist.length ? primeDist[0] : null;
-  const linesDom = linesDist && linesDist.length ? linesDist[0] : null;
-  const colsDom = colsDist && colsDist.length ? colsDist[0] : null;
-  const blockDom = blockPatterns && blockPatterns.length ? blockPatterns[0] : null;
-
-  return `
-  <div class="box" style="margin-top:12px">
-    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
-      <div>
-        <div style="font-weight:1000;color:var(--accent);letter-spacing:.3px">ANÁLISE PRIME • 7 PONTOS • SISTEMA PREDITIVO</div>
-        <div class="mini">Janela: <b>${payload.inicio}</b> a <b>${payload.ultimo}</b> (${payload.concursos.length} concursos)</div>
-        <div class="mini" style="margin-top:6px">Use estes <b>7 pontos</b> para montar seu <b>Jogo Manual</b> com clareza (padrões reais da janela).</div>
-      </div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <button class="btn btnGhost" type="button" onclick="verConcursos()">📅 Ver concursos</button>
-      </div>
-    </div>
-
-    <div class="grid" style="margin-top:12px">
-      <div class="box">
-        <div class="mini" style="margin:0">Paridade dominante</div>
-        <div style="font-size:18px;font-weight:1000;margin-top:6px">${eoDom ? eoDom.label : "—"}</div>
-        <div class="mini" style="margin-top:6px">${eoDom ? (eoDom.pct + "% na janela") : ""}</div>
-      </div>
-      <div class="box">
-        <div class="mini" style="margin:0">Primos dominantes</div>
-        <div style="font-size:18px;font-weight:1000;margin-top:6px">${primeDom ? (primeDom.k+" primos") : "—"}</div>
-        <div class="mini" style="margin-top:6px">${primeDom ? (primeDom.pct + "% na janela") : ""}</div>
-      </div>
-      <div class="box">
-        <div class="mini" style="margin:0">Padrão de linhas</div>
-        <div style="font-size:18px;font-weight:1000;margin-top:6px">${linesDom ? linesDom.pattern : "—"}</div>
-        <div class="mini" style="margin-top:6px">${linesDom ? (linesDom.pct + "% na janela") : ""}</div>
-      </div>
-      <div class="box">
-        <div class="mini" style="margin:0">Padrão de colunas</div>
-        <div style="font-size:18px;font-weight:1000;margin-top:6px">${colsDom ? colsDom.pattern : "—"}</div>
-        <div class="mini" style="margin-top:6px">${colsDom ? (colsDom.pct + "% na janela") : ""}</div>
-      </div>
-    </div>
-
-    ${blockDom ? `<div class="mini" style="margin-top:10px">📦 Blocos A–E dominante: <b>${blockDom.pattern}</b> (${blockDom.pct}% na janela)</div>` : ``}
-  </div>
   `;
 }
 
@@ -2600,109 +2440,516 @@ function buildDemo(qtd){
   const concursos=[];
   for(let c=inicio;c<=ultimo;c++){
     const dezenas=new Set();
-    while(dezenas.size<15) dezenas.add(Math.floor(Math.random()*25)+1);
-    concursos.push({ concurso:c, data:"—", dezenas:[...dezenas].map(n=>format2(n)) });
-  }
-  const latest = concursos[concursos.length-1];
-  return { mode:"demo", source:"Demonstração (offline)", latest, concursos, inicio, ultimo };
+    while(dezenas.size<15) dezenas.add(Math.floor(Math.random()*25)+<script>
+/* =========================
+   ✅ AÇÃO: ANÁLISE PRIME (LAYOUT PREVIA • 7 PONTOS • SEM MEXER NA LÓGICA)
+   Pontos:
+   1) Pares/Ímpares
+   2) Primos
+   3) Linhas (cartela 5x5)
+   4) Colunas (cartela 5x5)
+   5) Blocos A–E (01–05,06–10,11–15,16–20,21–25)
+   6) Somas dominantes
+   7) Atrasos (gap)
+========================= */
+
+function apSafeNum(x, fallback=0){
+  const n = Number(x);
+  return Number.isFinite(n) ? n : fallback;
+}
+function apPct(count, total){
+  return total>0 ? Math.round((count/total)*100) : 0;
+}
+function apFmtPct(count,total){ return apPct(count,total) + "%"; }
+function apDominantFromMap(mapObj){
+  const entries = Object.entries(mapObj || {});
+  if(!entries.length) return { key:"—", count:0 };
+  entries.sort((a,b)=>b[1]-a[1] || String(a[0]).localeCompare(String(b[0])));
+  return { key: entries[0][0], count: entries[0][1] };
+}
+function apDonutHTML(label, valueText, pct, footLeft, footRight){
+  // pct: 0..100 (parte amarelo)
+  const p = Math.max(0, Math.min(100, apSafeNum(pct,0)));
+  return `
+    <div class="apDonutWrap">
+      <div class="apDonut" style="--p:${p}"><div class="apDonutInner">
+        <div class="apDonutValue">${valueText}</div>
+        <div class="apDonutLabel">${label}</div>
+      </div></div>
+      <div class="apDonutFoot">
+        <span class="apLegendDot"></span><span>${footLeft||""}</span>
+        <span style="opacity:.55;margin:0 8px">•</span>
+        <span>${footRight||""}</span>
+      </div>
+    </div>
+  `;
 }
 
-async function fetchUltimoResultado(){
-  let lastErr=null;
-  for(const src of SOURCES){
-    try{
-      const latestRaw = await tryFetchJson(src.latest);
-      const latest = src.adapt(latestRaw);
-      return { ...latest, source: src.name, mode: "online" };
-    }catch(e){
-      lastErr=e;
+function apRenderBars(list, total, rightMode){
+  // list: [{label, sub, count}]
+  const max = Math.max(1, ...list.map(x=>apSafeNum(x.count,0)));
+  return `
+    <div class="apBars">
+      ${list.map(x=>{
+        const c = apSafeNum(x.count,0);
+        const w = Math.round((c/max)*100);
+        const right = rightMode==="gap"
+          ? `<div class="apBarRight">${c} atrasos</div>`
+          : `<div class="apBarRight">${c}x</div>`;
+        return `
+          <div class="apBarRow">
+            <div class="apBarLeft">
+              <div class="apBarTitle">${x.label}</div>
+              <div class="apBarSub">${x.sub||""}</div>
+            </div>
+            <div class="apBarMid"><div class="apBarTrack"><div class="apBarFill" style="width:${w}%"></div></div></div>
+            ${right}
+          </div>
+        `;
+      }).join("")}
+    </div>
+  `;
+}
+
+function apCalcPrimeDistribution(concursos){
+  const PRIMES = new Set([2,3,5,7,11,13,17,19,23]);
+  const dist = {};
+  for(const c of (concursos||[])){
+    const nums=(c.dezenas||[]).map(toNum).filter(x=>x>=1 && x<=25);
+    let p=0;
+    nums.forEach(n=>{ if(PRIMES.has(n)) p++; });
+    dist[p] = (dist[p]||0)+1;
+  }
+  return dist; // {qtdPrimos: count}
+}
+function apPatternLines(concursos){
+  const dist = {};
+  for(const c of (concursos||[])){
+    const nums=(c.dezenas||[]).map(toNum).filter(x=>x>=1 && x<=25);
+    const rows = [0,0,0,0,0];
+    nums.forEach(n=>{
+      const r = Math.floor((n-1)/5); // 0..4
+      if(r>=0 && r<5) rows[r]++;
+    });
+    const key = rows.join("-");
+    dist[key] = (dist[key]||0)+1;
+  }
+  return dist;
+}
+function apPatternCols(concursos){
+  const dist = {};
+  for(const c of (concursos||[])){
+    const nums=(c.dezenas||[]).map(toNum).filter(x=>x>=1 && x<=25);
+    const cols = [0,0,0,0,0];
+    nums.forEach(n=>{
+      const cidx = (n-1)%5; // 0..4
+      cols[cidx]++;
+    });
+    const key = cols.join("-");
+    dist[key] = (dist[key]||0)+1;
+  }
+  return dist;
+}
+
+function apDominantEvenOdd(evenOdd){
+  // evenOdd esperado: [{pares,impares,count}] ou { "8/7": 4 } etc
+  if(Array.isArray(evenOdd) && evenOdd.length){
+    const sorted = evenOdd.slice().sort((a,b)=>b.count-a.count || a.pares-b.pares);
+    const d = sorted[0];
+    return {
+      label: `${d.pares}P / ${d.impares}I`,
+      count: apSafeNum(d.count,0)
+    };
+  }
+  if(evenOdd && typeof evenOdd === "object"){
+    const dom = apDominantFromMap(evenOdd);
+    return { label: String(dom.key), count: apSafeNum(dom.count,0) };
+  }
+  return { label:"—", count:0 };
+}
+
+function apDominantSum(sums){
+  // sums esperado: [{sum,count}] ou map
+  if(Array.isArray(sums) && sums.length){
+    const sorted = sums.slice().sort((a,b)=>b.count-a.count || a.sum-b.sum);
+    return { label: String(sorted[0].sum), count: apSafeNum(sorted[0].count,0) };
+  }
+  if(sums && typeof sums === "object"){
+    const dom = apDominantFromMap(sums);
+    return { label: String(dom.key), count: apSafeNum(dom.count,0) };
+  }
+  return { label:"—", count:0 };
+}
+
+function apDominantGap(modern){
+  // pega a dezena com MAIOR gap (atraso)
+  let best = { dez: "—", gap: 0 };
+  for(let d=1; d<=25; d++){
+    const g = apSafeNum(modern?.gap?.[d], 0);
+    if(g > best.gap){
+      best = { dez: String(d).padStart(2,"0"), gap: g };
     }
   }
-  const demo = buildDemo(1);
-  return { ...demo.latest, source:"DEMO", mode:"demo" };
+  return best;
 }
-</script>
 
-<script>
-/* =========================
-   Estado global
-========================= */
-let lastPayload=null;
-function labelJanela(){
+function apRenderTopCards(payload, evenOdd, sums, blocksAEMap, primesMap, linesMap, colsMap, modern){
+  const total = (payload?.concursos||[]).length || 0;
+
+  const domEO = apDominantEvenOdd(evenOdd);
+  const domSum = apDominantSum(sums);
+
+  const domBlocks = apDominantFromMap(blocksAEMap);
+  const domPr = apDominantFromMap(primesMap);
+  const domLines = apDominantFromMap(linesMap);
+  const domCols = apDominantFromMap(colsMap);
+  const topGap = apDominantGap(modern);
+
+  const pctEO = apFmtPct(domEO.count,total);
+  const pctSum = apFmtPct(domSum.count,total);
+  const pctBlocks = apFmtPct(domBlocks.count,total);
+  const pctPr = apFmtPct(domPr.count,total);
+  const pctLines = apFmtPct(domLines.count,total);
+  const pctCols = apFmtPct(domCols.count,total);
+
+  return `
+    <div class="apTopCards">
+      <div class="apMiniCard">
+        <div class="apMiniTitle">Paridade dominante</div>
+        <div class="apMiniValue">${domEO.label}</div>
+        <div class="apMiniSub">${pctEO} na janela</div>
+      </div>
+
+      <div class="apMiniCard">
+        <div class="apMiniTitle">Primos dominantes</div>
+        <div class="apMiniValue">${domPr.key === "—" ? "—" : `${domPr.key} primos`}</div>
+        <div class="apMiniSub">${pctPr} na janela</div>
+      </div>
+
+      <div class="apMiniCard">
+        <div class="apMiniTitle">Padrão de linhas</div>
+        <div class="apMiniValue">${domLines.key}</div>
+        <div class="apMiniSub">${pctLines} na janela</div>
+      </div>
+
+      <div class="apMiniCard">
+        <div class="apMiniTitle">Padrão de colunas</div>
+        <div class="apMiniValue">${domCols.key}</div>
+        <div class="apMiniSub">${pctCols} na janela</div>
+      </div>
+
+      <div class="apMiniCard">
+        <div class="apMiniTitle">Padrão A–E</div>
+        <div class="apMiniValue">${domBlocks.key}</div>
+        <div class="apMiniSub">${pctBlocks} na janela</div>
+      </div>
+
+      <div class="apMiniCard">
+        <div class="apMiniTitle">Soma dominante</div>
+        <div class="apMiniValue">${domSum.label}</div>
+        <div class="apMiniSub">${pctSum} na janela</div>
+      </div>
+
+      <div class="apMiniCard">
+        <div class="apMiniTitle">Top atraso</div>
+        <div class="apMiniValue">${topGap.dez} (${topGap.gap})</div>
+        <div class="apMiniSub">maior gap</div>
+      </div>
+    </div>
+  `;
+}
+
+function apStepWrap(idx, title, subtitle, bodyHtml){
+  return `
+    <div class="apStepCard">
+      <div class="apStepHead">
+        <div>
+          <div class="apStepTitle"><span class="apStepBadge">${idx}/7</span> ${title}</div>
+          <div class="apStepSub">${subtitle||""}</div>
+        </div>
+      </div>
+      <div class="apStepBody">${bodyHtml||""}</div>
+    </div>
+  `;
+}
+
+async function acaoAnalise(){
+  if(!access.premium){ alert("🔒 Gerar análise exige Premium."); return; }
+
+  const qtd = qtdSelecionada();
   try{
-    if(lastPayload && lastPayload.inicio && lastPayload.ultimo){
-      const n = (lastPayload.concursos && lastPayload.concursos.length) ? lastPayload.concursos.length : (lastPayload.draws ? lastPayload.draws.length : "");
-      return `${lastPayload.inicio} a ${lastPayload.ultimo}${n!==""?` (${n} concursos)`:``}`;
-    }
-  }catch(e){}
-  return "-";
-}
+    await prepararContextoBase(qtd);
+    const payload = lastPayload;
 
-let cacheBase = { qtd: null, at: 0, payload: null, freq: null, modern: null };
-let lastCtx=null;
+    // ✅ contexto para explicação R/G2/G3/G4 (somente UI)
+    window._p15ExplainCtx = buildP15ExplainCtx(payload);
+    const {freq, modern} = lastCtx;
 
-let lastPrincipalGame=null;
-let lastPrincipalMeta=null;
+    setStatus(true,"Montando Análise PRIME…");
+    setProgress(82);
 
-let lastInvertidaGame=null;
-let lastTecnicaGames=null;
+    const evenOdd = calcEvenOddDistribution(payload.concursos);
+    const sums = calcSumDistribution(payload.concursos);
 
+    // Blocos A–E por concurso (usa a função existente, mas SEM deixar undefined vazar)
+    const blockPatterns = calcBlockPatternDistribution(payload.concursos);
+    const blocksAEMap = Array.isArray(blockPatterns)
+      ? blockPatterns.reduce((acc,x)=>{ acc[x.key]=x.count; return acc; }, {})
+      : (blockPatterns || {});
 
-let lastPredPack=null;
-/* ✅ MANUAL (Principal) */
-let manualPrincipalSet = new Set();
+    // Novos (baseados na realidade do sistema)
+    const primesMap = apCalcPrimeDistribution(payload.concursos);
+    const linesMap  = apPatternLines(payload.concursos);
+    const colsMap   = apPatternCols(payload.concursos);
 
-/* ✅ 15P manual */
-let linesSystem15 = null;
-let linesUser15 = null;
-let activeLine15 = 4; // começa na linha 5 (em branco)
-/* =========================
-   SALVAMENTO LOCAL (1 slot por tipo)
-========================= */
-const SAVE_PACK_KEY = "lf_save_pack_v1";
-const SAVE_15P_KEY  = "lf_save_15p_v1";
+    setStatus(false,""); setProgress(0);
 
-function saveLocal(key, data){
-  localStorage.setItem(key, JSON.stringify({
-    at: Date.now(),
-    data
-  }));
-}
+    const total = payload.concursos.length;
+    const domEO = apDominantEvenOdd(evenOdd);
+    const domPr = apDominantFromMap(primesMap);
+    const domLines = apDominantFromMap(linesMap);
+    const domCols  = apDominantFromMap(colsMap);
+    const domBlocks= apDominantFromMap(blocksAEMap);
+    const domSum   = apDominantSum(sums);
+    const topGap   = apDominantGap(modern);
 
-function loadLocal(key){
-  try{
-    const raw = localStorage.getItem(key);
-    if(!raw) return null;
-    return JSON.parse(raw);
+    // STEP 1 — Pares/Ímpares
+    const eoList = (Array.isArray(evenOdd) ? evenOdd : [])
+      .slice().sort((a,b)=>b.count-a.count || a.pares-b.pares)
+      .slice(0,3)
+      .map(x=>({
+        label: `${x.pares} pares / ${x.impares} ímpares`,
+        sub: `${apFmtPct(x.count,total)} na janela`,
+        count: x.count
+      }));
+    const eoDonutPct = domEO.count ? apPct(domEO.count,total) : 0;
+    const step1 = apStepWrap(
+      1,
+      "Padrões de distribuição (equilíbrio)",
+      "Mostra as distribuições (pares/ímpares) mais recorrentes na janela.",
+      `
+        <div class="apGrid2">
+          <div class="apPane">
+            <div class="apPaneTitle">Paridade (visual)</div>
+            ${apDonutHTML("dominante", domEO.label, eoDonutPct, "pares", "ímpares")}
+          </div>
+          <div class="apPane">
+            <div class="apPaneTitle">Distribuições na janela</div>
+            ${apRenderBars(eoList, total)}
+          </div>
+        </div>
+        <div class="apHint">✅ Uso prático: monte seu jogo manual dentro do dominante para reduzir “jogo fora do padrão”.</div>
+      `
+    );
+
+    // STEP 2 — Primos
+    const primeEntries = Object.entries(primesMap).map(([k,v])=>({k, v}))
+      .sort((a,b)=>b.v-a.v || Number(a.k)-Number(b.k))
+      .slice(0,4);
+    const primeList = primeEntries.map(x=>({
+      label: `${x.k} primos`,
+      sub: `${apFmtPct(x.v,total)} na janela`,
+      count: x.v
+    }));
+    const prDonutPct = domPr.count ? apPct(domPr.count,total) : 0;
+    const step2 = apStepWrap(
+      2,
+      "Padrão de primos",
+      "Quantos números primos costumam aparecer por concurso na janela.",
+      `
+        <div class="apGrid2">
+          <div class="apPane">
+            <div class="apPaneTitle">Primos (visual)</div>
+            ${apDonutHTML("dominante", (domPr.key==="—"?"—":`${domPr.key} primos`), prDonutPct, "primos", "não-primos")}
+          </div>
+          <div class="apPane">
+            <div class="apPaneTitle">Distribuições na janela</div>
+            ${apRenderBars(primeList, total)}
+          </div>
+        </div>
+        <div class="apHint">✅ Uso prático: mantenha sua seleção de primos próxima do dominante do período.</div>
+      `
+    );
+
+    // STEP 3 — Linhas
+    const linesEntries = Object.entries(linesMap).map(([k,v])=>({k, v}))
+      .sort((a,b)=>b.v-a.v || String(a.k).localeCompare(String(b.k)))
+      .slice(0,4);
+    const linesList = linesEntries.map(x=>({
+      label: x.k,
+      sub: `${apFmtPct(x.v,total)} na janela`,
+      count: x.v
+    }));
+    const lnDonutPct = domLines.count ? apPct(domLines.count,total) : 0;
+    const step3 = apStepWrap(
+      3,
+      "Padrão de linhas (cartela)",
+      "Distribuição de dezenas por linha (1–5, 6–10, 11–15, 16–20, 21–25).",
+      `
+        <div class="apGrid2">
+          <div class="apPane">
+            <div class="apPaneTitle">Linhas (visual)</div>
+            ${apDonutHTML("dominante", domLines.key, lnDonutPct, "dentro", "fora")}
+          </div>
+          <div class="apPane">
+            <div class="apPaneTitle">Padrões mais recorrentes</div>
+            ${apRenderBars(linesList, total)}
+          </div>
+        </div>
+        <div class="apHint">✅ Uso prático: evite “concentrar” dezenas numa única linha fora do padrão dominante.</div>
+      `
+    );
+
+    // STEP 4 — Colunas
+    const colsEntries = Object.entries(colsMap).map(([k,v])=>({k, v}))
+      .sort((a,b)=>b.v-a.v || String(a.k).localeCompare(String(b.k)))
+      .slice(0,4);
+    const colsList = colsEntries.map(x=>({
+      label: x.k,
+      sub: `${apFmtPct(x.v,total)} na janela`,
+      count: x.v
+    }));
+    const colDonutPct = domCols.count ? apPct(domCols.count,total) : 0;
+    const step4 = apStepWrap(
+      4,
+      "Padrão de colunas (cartela)",
+      "Distribuição de dezenas por coluna (1–6–11–16–21 … 5–10–15–20–25).",
+      `
+        <div class="apGrid2">
+          <div class="apPane">
+            <div class="apPaneTitle">Colunas (visual)</div>
+            ${apDonutHTML("dominante", domCols.key, colDonutPct, "dentro", "fora")}
+          </div>
+          <div class="apPane">
+            <div class="apPaneTitle">Padrões mais recorrentes</div>
+            ${apRenderBars(colsList, total)}
+          </div>
+        </div>
+        <div class="apHint">✅ Uso prático: deixe as colunas mais equilibradas dentro do padrão dominante.</div>
+      `
+    );
+
+    // STEP 5 — Blocos A–E
+    const blocksEntries = Object.entries(blocksAEMap).map(([k,v])=>({k, v}))
+      .sort((a,b)=>b.v-a.v || String(a.k).localeCompare(String(b.k)))
+      .slice(0,5);
+    const blocksList = blocksEntries.map(x=>({
+      label: `Padrão: ${x.k}`,
+      sub: `${apFmtPct(x.v,total)} na janela`,
+      count: x.v
+    }));
+    const blDonutPct = domBlocks.count ? apPct(domBlocks.count,total) : 0;
+    const step5 = apStepWrap(
+      5,
+      "Blocos A–E (01–25)",
+      "Cada padrão representa quantas dezenas saíram em cada bloco: A(01–05), B(06–10), C(11–15), D(16–20), E(21–25).",
+      `
+        <div class="apGrid2">
+          <div class="apPane">
+            <div class="apPaneTitle">Blocos A–E (visual)</div>
+            ${apDonutHTML("dominante", domBlocks.key, blDonutPct, "blocos", "variação")}
+          </div>
+          <div class="apPane">
+            <div class="apPaneTitle">Padrões mais frequentes</div>
+            ${apRenderBars(blocksList, total)}
+          </div>
+        </div>
+        <div class="apHint">✅ Uso prático: use o padrão dominante de blocos como “esqueleto” do seu jogo manual.</div>
+      `
+    );
+
+    // STEP 6 — Somas
+    const sumsList = (Array.isArray(sums) ? sums : [])
+      .slice().sort((a,b)=>b.count-a.count || a.sum-b.sum)
+      .slice(0,7)
+      .map(x=>({
+        label: `Soma ${x.sum}`,
+        sub: `${apFmtPct(x.count,total)} na janela`,
+        count: x.count
+      }));
+    const sumDonutPct = domSum.count ? apPct(domSum.count,total) : 0;
+    const step6 = apStepWrap(
+      6,
+      "Somas mais recorrentes",
+      "Ajuda a evitar combinações muito fora do padrão do período.",
+      `
+        <div class="apGrid2">
+          <div class="apPane">
+            <div class="apPaneTitle">Soma (visual)</div>
+            ${apDonutHTML("dominante", domSum.label, sumDonutPct, "na janela", "variação")}
+          </div>
+          <div class="apPane">
+            <div class="apPaneTitle">Somas na janela</div>
+            ${apRenderBars(sumsList, total)}
+          </div>
+        </div>
+        <div class="apHint">✅ Uso prático: escolha dezenas com soma próxima das somas dominantes do período.</div>
+      `
+    );
+
+    // STEP 7 — Atrasos
+    const atrasList = getTop10AtrasadasList(modern)
+      .map(d=>({ dez:d, gap: apSafeNum(modern?.gap?.[d],0) }))
+      .slice(0,8)
+      .map(x=>({
+        label: `Dezena ${String(x.dez).padStart(2,"0")}`,
+        sub: `gap atual`,
+        count: x.gap
+      }));
+    const gapPct = total>0 ? Math.min(100, Math.round((topGap.gap/Math.max(1,total))*100)) : 0;
+    const step7 = apStepWrap(
+      7,
+      "Atrasos (gap)",
+      "Mostra quais dezenas estão há mais concursos sem aparecer (atraso atual).",
+      `
+        <div class="apGrid2">
+          <div class="apPane">
+            <div class="apPaneTitle">Top atraso (visual)</div>
+            ${apDonutHTML("maior gap", `${topGap.dez} (${topGap.gap})`, gapPct, "gap", "janela")}
+          </div>
+          <div class="apPane">
+            <div class="apPaneTitle">Top atrasos na janela</div>
+            ${apRenderBars(atrasList, total, "gap")}
+          </div>
+        </div>
+        <div class="apHint">✅ Uso prático: use atrasadas como “complemento” — sem fugir do padrão de distribuição.</div>
+      `
+    );
+
+    document.getElementById("analiseArea").innerHTML = `
+      <div class="apHero">
+        <div class="apHeroTop">
+          <div>
+            <div class="apHeroTitle">☑️ ANÁLISE PRIME • 7 PONTOS • SISTEMA PREDITIVO</div>
+            <div class="apHeroMini">Janela: <b>${payload.inicio}</b> a <b>${payload.ultimo}</b> (${payload.concursos.length} concursos)</div>
+            <div class="apHeroMini2">Use estes <b>7 pontos</b> para montar seu <b>Jogo Manual</b> com clareza (padrões reais da janela).</div>
+          </div>
+          <div class="apHeroActions">
+            <button class="btn btnGhost" type="button" onclick="verConcursos()">📅 Ver concursos</button>
+          </div>
+        </div>
+
+        ${apRenderTopCards(payload, evenOdd, sums, blocksAEMap, primesMap, linesMap, colsMap, modern)}
+      </div>
+
+      ${step1}
+      ${step2}
+      ${step3}
+      ${step4}
+      ${step5}
+      ${step6}
+      ${step7}
+    `;
+
+    goView("viewAnalise");
   }catch(e){
-    return null;
+    console.error(e);
+    alert("Erro ao gerar análise: " + (e && e.message ? e.message : e));
+    setStatus(false,""); setProgress(0);
   }
 }
-
-function timeBR(ms){
-  try{
-    const d = new Date(ms);
-    return d.toLocaleString("pt-BR");
-  }catch(e){
-    return "—";
-  }
-}
-
 </script>
-
-<script>
-/* =========================
-   Base: preparar contexto
-========================= */
-function qtdSelecionada(){ return Number(document.getElementById("qtdConcursos").value); }
-
-async function prepararContextoBase(qtd){
-  setStatus(true,"Carregando concursos…");
-  // ✅ cache por 2 minutos
-const now = Date.now();
-if (cacheBase.payload && cacheBase.qtd === qtd && (now - cacheBase.at) < 120000) {
-  lastPayload = cacheBase.payload;
-  lastCtx = { freq: cacheBase.freq, modern: cacheBase.modern };
+, modern: cacheBase.modern };
   setStatus(false,"");
   setProgress(0);
   return { payload: lastPayload, freq: lastCtx.freq, modern: lastCtx.modern };
@@ -2761,42 +3008,47 @@ async function acaoAnalise(){
     window._p15ExplainCtx = buildP15ExplainCtx(payload);
     const {freq, modern} = lastCtx;
 
-    setStatus(true,"Montando Análise PRIME (7 pontos)…");
+    setStatus(true,"Montando resumo PRIME…");
     setProgress(82);
 
-    // 7 pontos do SISTEMA (padrão real da janela)
-    const evenOdd = calcEvenOddDistribution(payload.concursos);                 // 1) pares/ímpares
-    const primeDist = calcPrimeCountDistribution(payload.concursos);            // 2) primos
-    const linesDist = calcLinesPatternDistribution(payload.concursos);          // 3) linhas
-    const colsDist  = calcColsPatternDistribution(payload.concursos);           // 4) colunas
-    const sums = calcSumDistribution(payload.concursos);                        // 5) soma
-    const blockTotals = calcBlockTotals(payload.concursos);                     // 6) blocos (A–E)
-    const blockPatterns = calcBlockPatternDistribution(payload.concursos);      //    padrão A–E
-    const topSetsInfo = calcTopSetsCooc(payload.concursos, {                    // 7) conjuntos
-      minK: 3,
-      maxK: 9,
-      minCount: 2,
-      limit: 12
-    });
+    const evenOdd = calcEvenOddDistribution(payload.concursos);
+    const sums = calcSumDistribution(payload.concursos);
+    const blockTotals = calcBlockTotals(payload.concursos);
+    const blockPatterns = calcBlockPatternDistribution(payload.concursos);
+    const topSetsInfo = calcTopSetsCooc(payload.concursos, {
+  minK: 3,
+  maxK: 9,
+  minCount: 2,
+  limit: 12
+});
 
     setStatus(false,""); setProgress(0);
 
     document.getElementById("analiseArea").innerHTML = `
-      ${renderPrimeKpis(payload, evenOdd, primeDist, linesDist, colsDist, blockPatterns)}
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
+        <div>
+          <div style="font-weight:1000;font-size:16px">📈 Análise PRIME do período selecionado</div>
+          <div class="mini">
+            Janela: <b>${payload.inicio}</b> a <b>${payload.ultimo}</b> (${payload.concursos.length} concursos)
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btnGhost" type="button" onclick="verConcursos()">📅 Ver concursos</button>
+        </div>
+      </div>
 
       ${renderEvenOddDist(evenOdd, payload.concursos.length)}
-      ${renderPrimeCountDist(primeDist, payload.concursos.length)}
-      ${renderLinesPatterns(linesDist, payload.concursos.length)}
-      ${renderColsPatterns(colsDist, payload.concursos.length)}
       ${renderSumsTop(sums, payload.concursos.length)}
       ${renderBlocksPrime(blockTotals, blockPatterns, payload.concursos.length)}
+      ${renderTop10(freq, payload.concursos.length)}
+      ${renderTop10Atrasadas(modern, payload.concursos.length)}
       ${renderTopSets(topSetsInfo)}
 
       <div class="box" style="margin-top:12px">
         <b>📌 Nota PRIME</b>
         <div class="mini" style="margin-top:8px">
-          Estes 7 pontos mostram <b>padrões reais da janela</b> (paridade, primos, linhas, colunas, soma, blocos e conjuntos).
-          Use como guia para montar o jogo manual. <b>Não existe garantia de premiação</b>.
+          Este painel usa estatística (frequência, recência, tendência, coocorrência e padrões). Ajuda a montar estratégias,
+          mas <b>não existe garantia de premiação</b>.
         </div>
       </div>
     `;
