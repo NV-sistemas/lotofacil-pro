@@ -3632,77 +3632,6 @@ function bestSubgroupTogether(line, k, concursos){
   return best;
 }
 
-function explainLine(lineIdx, line, stats, kind){
-  const gs = groupStrength(line, stats);
-  const co = groupCoSum(line, stats);
-  const lf = groupLiftAvg(line, stats);
-  const fs = groupFreqSum(line, stats);
-    // ✅ Resumo real: 5/4/3/2 juntas na janela
-  const concursosRef = stats.concursosRef || [];
-  const odd = line.filter(n=>n%2===1).length;
-  const even = 5 - odd;
-
-  const c5 = countGroupTogether(line, concursosRef);
-  const b4 = bestSubgroupTogether(line, 4, concursosRef);
-  const b3 = bestSubgroupTogether(line, 3, concursosRef);
-  const b2 = bestSubgroupTogether(line, 2, concursosRef);
-
-  const txtParidade =
-    (odd>even)
-      ? `${odd} ímpares / ${even} pares (mais comum na Lotofácil)`
-      : (even>odd)
-        ? `${odd} ímpares / ${even} pares (um pouco mais “par”, mas ok)`
-        : `${odd} ímpares / ${even} pares (equilibrado)`;
-
-  const realMsg = (c5>0)
-    ? `✅ As 5 dezenas já saíram juntas <b>${c5}x</b> nessa janela.`
-    : `ℹ️ As 5 juntas é raro (0x), então olhe principalmente as melhores 4/3/2 que mais se repetem.`;
-
-  const pairs = (String(kind).includes("IN")) ? topPairsInGroup(line, stats, 3) : worstPairsInGroup(line, stats, 3);
-  const pairsTxt = pairs.map(p=>{
-  const isStrong = (String(kind).includes("IN"));
-  const icon = isStrong ? "✅" : "⚠️";
-  const label = isStrong ? "apareceu junto" : "sem sair juntas";
-  return `<span class="chip" style="padding:7px 10px;font-size:12px">
-    ${icon} <b>${format2(p.a)}-${format2(p.b)}</b> • ${label}: <b>${p.co}x</b>
-  </span>`;
-}).join(" ");
-
-  const resumo = (String(kind).includes("IN"))
-  ? `Linha montada pelo <b>modelo preditivo</b> (comportamento nos últimos 5 concursos + estágios 3–6 antes) indicando tendência de <b>SAIR</b>.`
-  : `Linha montada pelo <b>modelo preditivo</b> (comportamento nos últimos 5 concursos + estágios 3–6 antes) indicando tendência de <b>NÃO SAIR</b>.`;
-
-  return `
-    <div class="box">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
-        <b>${String(kind).includes("IN") ? "🟦 Linha " + lineIdx + " ("+kind+")" : "🟥 Linha " + lineIdx + " ("+kind+")"}</b>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <span class="chip" style="padding:7px 10px;font-size:12px">Score: <b>${gs.sum.toFixed(1)}</b></span>
-          <span class="chip" style="padding:7px 10px;font-size:12px">Lift médio: <b>${lf.avg.toFixed(2)}</b></span>
-          <span class="chip" style="padding:7px 10px;font-size:12px">Co médio: <b>${co.avg.toFixed(2)}</b></span>
-          <span class="chip" style="padding:7px 10px;font-size:12px">Soma freq: <b>${fs}</b></span>
-        </div>
-      </div>
-
-      <div class="numbers" style="justify-content:flex-start;margin-top:10px">${renderBallsInline(line)}</div>
-      <div class="mini"><b>Por que se juntaram:</b> ${resumo}</div>
-            <div class="mini" style="margin-top:10px">
-        <b>📌 Resumo real (juntas na janela):</b><br/>
-        <b>5 juntas:</b> <span class="mono">${line.map(format2).join("-")}</span> • <b>${c5}x</b><br/>
-        <b>4 juntas:</b> <span class="mono">${(b4.group||[]).map(format2).join("-")}</span> • <b>${b4.count}x</b><br/>
-        <b>3 juntas:</b> <span class="mono">${(b3.group||[]).map(format2).join("-")}</span> • <b>${b3.count}x</b><br/>
-        <b>2 juntas:</b> <span class="mono">${(b2.group||[]).map(format2).join("-")}</span> • <b>${b2.count}x</b><br/>
-        <div style="margin-top:8px">${realMsg}</div>
-      </div>
-
-      <div class="mini" style="margin-top:10px">
-        <b>${String(kind).includes("IN") ? "Combinações mais fortes (2 dezenas)" : "Combinações menos comuns (2 dezenas)"}:</b>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">${pairsTxt}</div>
-      </div>
-    </div>
-  `;
-}
-
 /* ===== EDITOR MANUAL 15P ===== */
 function initUserLines15FromSystem(lines){
   linesSystem15 = lines.map(l=>l.slice());
@@ -4004,15 +3933,6 @@ async function gerar15P(){
       <div id="editor15Area"></div>
       <div id="user15Output"></div>
 
-      <div class="box" style="margin-top:12px">
-        <b>🔍 Explicação detalhada das linhas</b>
-        <div class="grid" style="margin-top:12px">
-          ${explainLine(1, lines[0], stats, "forte")}
-          ${explainLine(2, lines[1], stats, "forte")}
-          ${explainLine(3, lines[2], stats, "forte")}
-          ${explainLine(4, lines[3], stats, "diversa")}
-          ${explainLine(5, lines[4], stats, "diversa")}
-        </div>
       </div>
 
       <div class="box" style="margin-top:12px">
