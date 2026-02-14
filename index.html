@@ -562,596 +562,6 @@
   .p15-chip{ font-size:10px; padding:6px; }
 }
 
-/* =========================
-   THEME PREVIEW (APLICADO) 
-   (Somente CSS / layout)
-========================= */
-:root{
-    /* ✅ PADRÃO PRETO + AMARELO (igual ao sistema de vendas) */
-    --bg1:#000000; --bg2:#000000;
-
-    /* Cards / superfícies (sempre preto) */
-    --card:#000000;
-
-    /* Preto fosco (cards/botões) */
-    --surface: rgba(255,255,255,.06);
-    --surface2: rgba(255,255,255,.08); 
-    --text:#ffffff;
-    --muted: rgba(255,255,255,.82);
-    --muted2: rgba(255,255,255,.70);
-
-    /* Cor destaque (amarelo) */
-    --accent:#facc15;
-    --accent2:#ffd84d;
-
-    /* Mantém variáveis antigas por compatibilidade, mas SEM VERDE */
-    --green:#facc15; --green2:#ffd84d;
-    --blue:#facc15; --blue2:#ffd84d;
-    --purple:#facc15; --purple2:#ffd84d;
-    --yellow:#facc15; --orange:#fb923c;
-    --red:#fb7185; --red2:#ef4444;
-
-    --stroke: rgba(255,255,255,.35);
-    --stroke2: rgba(255,255,255,.28);
-    --shadow: 0 22px 70px rgba(0,0,0,.65);
-
-    /* Glows (sem verde) */
-    --glowBlue: 0 0 0 1px rgba(250,204,21,.22), 0 12px 40px rgba(250,204,21,.12);
-    --glowGreen: 0 0 0 1px rgba(250,204,21,.22), 0 12px 40px rgba(250,204,21,.12);
-    --glowGold: 0 0 0 1px rgba(250,204,21,.22), 0 18px 60px rgba(250,204,21,.18);
-  }
-
-*{box-sizing:border-box;font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif}
-  html,body{height:100%}
-  body{
-    margin:0;color:var(--text);
-    background:
-      radial-gradient(900px 650px at 15% 10%, rgba(250,204,21,.10), transparent 58%),
-      radial-gradient(900px 650px at 85% 15%, rgba(251,146,60,.06), transparent 60%),
-      linear-gradient(180deg,var(--bg1),var(--bg2));
-    min-height:100dvh;
-    overflow-x:hidden; /* ✅ evita "torto" no mobile */
-  }
-
-  .center{
-    display:flex;align-items:center;justify-content:center;
-    min-height:100dvh;padding:16px;
-  }
-  .wrap{max-width:1180px;margin:0 auto;padding:18px}
-
-  /* Header */
-  .header{display:flex;justify-content:center;align-items:center;margin-bottom:14px}
-  .title{
-    font-size: clamp(20px, 5.6vw, 28px);
-    font-weight:1000;margin:0;letter-spacing:.2px;text-align:center;
-    line-height:1.15;
-    color: var(--accent);
-  }
-
-  /* Chip (status) */
-  .chip{
-    display:inline-flex;align-items:center;gap:8px;padding:10px 12px;border-radius:999px;
-    background: rgba(0,0,0,.72);
-    border:1px solid var(--stroke);
-    color:var(--text);
-    font-size:12px;font-weight:900;
-    box-shadow: 0 10px 30px rgba(0,0,0,.25);
-    white-space:nowrap;
-  }
-  .chip .dot{width:7px;height:7px;border-radius:999px;background:rgba(250,204,21,.95);display:inline-block}
-
-  .card{
-    background: var(--surface);
-    border:1px solid var(--stroke);
-    border-radius:20px;padding:16px;
-    box-shadow:var(--shadow);
-    margin-bottom:14px;
-    backdrop-filter: blur(10px);
-    width:100%;
-    max-width: 520px; /* ✅ login alinhado no celular */
-    margin-left:auto;margin-right:auto;
-  }
-
-  /* Cards do APP (não limitar largura) */
-  #app .card{max-width:none}
-
-  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:12px}
-  .box{
-    background: var(--surface);
-    border:1px solid var(--stroke);
-    border-radius:16px;padding:12px;
-  }
-  
-  /* ✅ JOGOS SALVOS: item selecionado no padrão AMARELO (igual Print 1) */
-  .savedPack.on{
-    background: rgba(250,204,21,.18) !important;
-    border-color: rgba(250,204,21,.75) !important;
-    color:#0b0b0b !important;
-  }
-  .savedPack.on b{ color:#0b0b0b !important; }
-  .savedPack.on .mini{ color: rgba(0,0,0,.72) !important; }
-
-.box p{margin:0;color:var(--text);font-size:13px;line-height:1.5}
-  .mini{color:var(--muted);font-size:12px;margin-top:8px;line-height:1.45}
-  .mini strong{color:var(--text)}
-
-  .row{display:flex;gap:12px;flex-wrap:wrap;align-items:stretch}
-  .col{flex:1 1 240px;min-width:0} /* ✅ evita “torto” */
-
-  label{display:block;font-size:12px;color:var(--accent);font-weight:950;margin-bottom:6px;text-align:left}
-  input, select{
-    width:100%;max-width:100%;
-    padding:13px 12px;border-radius:14px;border:1px solid var(--stroke2);
-    background: rgba(0,0,0,.78);
-    color:var(--text);outline:none;
-  }
-  input::placeholder{color:rgba(203,213,225,.65)}
-  select{cursor:pointer}
-
-  .btn{
-    padding:12px 14px;
-    border:1px solid var(--stroke);
-    border-radius:14px;
-    background: var(--surface);
-    color: var(--text);
-    font-weight:1000;
-    cursor:pointer;
-    transition:.15s;
-    box-shadow: 0 18px 45px rgba(0,0,0,.35);
-    width:100%;
-  }
-  .btn:hover{filter:brightness(1.05);transform:translateY(-1px)}
-  .btn:active{transform:translateY(0px);filter:brightness(.98)}
-  .btn:disabled{opacity:.55;cursor:not-allowed;transform:none;box-shadow:none}
-  .btnPrimary{background:linear-gradient(135deg,var(--yellow),var(--yellow2));box-shadow: var(--glowGold);color:#111111;border:1px solid rgba(250,204,21,.55)}
-  .btnBlue{background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow: var(--glowGold);color:#111111;border:1px solid rgba(255,255,255,.28)}
-  .btnPurple{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#111111;box-shadow: var(--glowGold);border:1px solid rgba(255,255,255,.28)}
-  .btnDanger{background:linear-gradient(135deg,var(--red),var(--red2));color:#2b0b0b;box-shadow: 0 0 0 1px rgba(251,113,133,.18), 0 12px 40px rgba(251,113,133,.12)}
-  .btnGhost{
-    background: rgba(0,0,0,.70);
-    border:1px solid rgba(255,255,255,.14);
-    color:var(--text);
-    box-shadow:none;
-    width:auto;
-  }
-
-  .status{display:none;margin-top:10px;padding:12px;border-radius:14px;background:rgba(56,189,248,.10);
-          border:1px solid rgba(56,189,248,.22);color:#e6f8ff;font-size:13px;font-weight:950;}
-  .bar{height:10px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.08);margin-top:10px}
-  .bar>div{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--orange));transition:width .2s ease}
-
-  /* Views */
-  .view{display:none}
-  .view.on{display:block}
-  .topNav{
-    display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;
-    margin-bottom:10px;
-  }
-  .topNav .left{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-  .topNav .right{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-
-  /* Opções */
-  .actionGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-top:12px}
-  .actionCard{
-    text-align:left;border:1px solid var(--stroke);
-    background: var(--surface);
-    border-radius:20px;padding:18px 18px;
-    cursor:pointer;transition:.15s;
-    position:relative;min-height:126px;
-    box-shadow: 0 18px 55px rgba(0,0,0,.38);
-  }
-  .actionCard:hover{transform:translateY(-2px);background: var(--surface2);}
-  .actionTitle{font-weight:1000;font-size:16px;margin:0 0 8px;color: var(--yellow);}
-  .actionDesc{margin:0;color: rgba(255,255,255,.88);font-size:13px;line-height:1.55}
-  /* ✅ Título amarelo dentro dos cards (padrão vendas) */
-  .actionCard b, .actionCard strong{color: var(--yellow)}
-
-
-  .badge{
-    position:absolute;top:14px;right:14px;
-    font-size:11px;font-weight:1000;
-    padding:6px 10px;border-radius:999px;
-    border:1px solid rgba(255,255,255,.14);
-    background: rgba(0,0,0,.72);
-    color:var(--text);
-  }
-  .badge.premium{border-color:rgba(56,189,248,.30);background:rgba(56,189,248,.14);color:#e6f8ff}
-  .badge.free{border-color:rgba(250,204,21,.35);background:rgba(250,204,21,.14);color:#fff2b0}
-
-  /* EXTRA mega chamativo */
-  .extraCard{
-    border:1px solid rgba(250,204,21,.35);
-    background: radial-gradient(900px 240px at 30% 20%, rgba(250,204,21,.14), transparent 60%),
-                radial-gradient(900px 240px at 70% 20%, rgba(251,146,60,.10), transparent 60%),
-                rgba(0,0,0,.82);
-    box-shadow: var(--glowGold), 0 22px 70px rgba(0,0,0,.45);
-    transform: translateZ(0);
-  }
-  .extraBadge{
-    position:absolute;top:14px;right:14px;
-    font-size:11px;font-weight:1000;
-    padding:6px 10px;border-radius:999px;
-    border:1px solid rgba(250,204,21,.35);
-    background:rgba(250,204,21,.18);
-    color:#fff2b0;
-  }
-  .extraHeadline{
-    display:flex;align-items:center;gap:10px;flex-wrap:wrap;
-    margin-bottom:6px
-  }
-  .extraHighlight{
-    display:inline-flex;align-items:center;gap:8px;
-    padding:6px 10px;border-radius:999px;
-    border:1px solid rgba(250,204,21,.35);
-    background:rgba(250,204,21,.14);
-    color:#fff2b0;
-    font-weight:1000;font-size:12px;
-  }
-
-  /* Cartão Lotofácil (5x5) */
-  .cartaoWrap{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
-  /* ✅ MOBILE: ajustes extras (apenas no celular) */
-@media (max-width: 520px){
-  .actionGrid{ grid-template-columns: 1fr; }
-  .header{ margin-bottom: 10px; }
-}
-
-  .cartao{
-    display:grid;grid-template-columns: repeat(5, 44px);
-    gap:8px;justify-content:center;margin:10px 0 0;
-  }
-  .cel{
-    width:44px;height:44px;border-radius:12px;
-    display:flex;align-items:center;justify-content:center;
-    border:1px solid rgba(255,255,255,.14);
-    background: rgba(0,0,0,.70);
-    color:var(--text);font-weight:1000;
-  }
-  .cel.on{background:rgba(0,0,0,.72);border:1px solid rgba(250,204,21,.38);color:var(--accent);box-shadow:0 12px 30px rgba(0,0,0,.25)}
-  .cel.inv{background:rgba(0,0,0,.72);border:1px solid rgba(250,204,21,.28);color:var(--accent2);box-shadow:0 12px 30px rgba(0,0,0,.25)}
-  .cel.tech{background:rgba(250,204,21,.14);border:1px solid rgba(250,204,21,.30);color:#fff2b0;box-shadow:0 12px 30px rgba(0,0,0,.25)}
-
-  .numbers{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0 6px}
-  .ball{
-    width:44px;height:44px;border-radius:999px;display:flex;align-items:center;justify-content:center;
-    background:rgba(0,0,0,.72);
-    border:1px solid rgba(250,204,21,.28);
-    color:var(--accent);font-weight:1000;letter-spacing:.4px;
-    box-shadow:0 14px 34px rgba(0,0,0,.35);
-  }
-  .balls{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
-
-  .hr{height:1px;background:rgba(255,255,255,.10);margin:12px 0;border-radius:999px}
-
-  /* Painel “verificar jogos gerados” */
-  .panelCheck{
-    margin-top:12px;
-    border:1px solid var(--stroke);
-    background: var(--surface);
-    border-radius:18px;
-    padding:14px;
-  }
-  .panelCheck b{font-size:13px}
-
-  /* Modal */
-  .modalBack{display:none;position:fixed;inset:0;background:rgba(0,0,0,.62);backdrop-filter: blur(7px);
-             align-items:center;justify-content:center;padding:16px;z-index:999}
-  .modal{width:100%;max-width:980px;background:linear-gradient(180deg,var(--card),rgba(255,255,255,.03));
-         border:1px solid rgba(255,255,255,.12);border-radius:20px;box-shadow:0 40px 120px rgba(0,0,0,.70);
-         overflow:hidden}
-  .modalHeader{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.10)}
-  .modalHeader b{font-size:14px}
-  .closeBtn{padding:9px 11px;border-radius:12px;background: rgba(0,0,0,.70);border:1px solid rgba(255,255,255,.14);
-            color:var(--text);cursor:pointer;font-weight:900}
-  .modalBody{padding:14px 16px}
-
-  .table{width:100%;border-collapse:collapse;font-size:13px}
-  .table th,.table td{padding:10px 8px;border-bottom:1px solid rgba(255,255,255,.10);text-align:left;vertical-align:top}
-  .table th{color:var(--muted);font-weight:1000;font-size:12px}
-  .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
-  .footerNote{text-align:center;color:var(--muted2);font-size:11px;margin-top:10px}
-
-  /* Rodapé do app (chip centralizado) */
-  .appFooter{margin-top:8px;display:flex;justify-content:center;}
-
-  /* Rodapé da tela 15p (fonte + modo) */
-  .tinyFoot{margin-top:12px;text-align:center;color:rgba(203,213,225,.75);font-size:11px;}
-
-  /* ✅ Tooltip */
-  .tip{
-    position:relative;
-    display:inline-flex;
-    align-items:center;
-    gap:6px;
-    cursor:help;
-    border-bottom:1px dashed rgba(203,213,225,.45);
-  }
-  .tip::after{
-    content: attr(data-tip);
-    position:absolute;
-    left:0;
-    top: calc(100% + 8px);
-    min-width: 220px;
-    max-width: 360px;
-    padding:10px 12px;
-    border-radius:12px;
-    background:rgba(2,6,23,.92);
-    border:1px solid rgba(255,255,255,.14);
-    color:rgba(248,250,252,.95);
-    box-shadow: 0 18px 55px rgba(0,0,0,.55);
-    opacity:0;
-    pointer-events:none;
-    transform: translateY(-4px);
-    transition: .12s ease;
-    z-index: 9999;
-    font-size: 12px;
-    line-height: 1.35;
-    white-space: normal;
-  }
-  .tip:hover::after{ opacity:1; transform: translateY(0); }
-  .tip .q{opacity:.8}
-
-  /* ✅ Fix mobile geral */
-  /* ✅ FIX ANDROID: remove o "buraco" no login quando vira coluna */
-@media (max-width: 520px){
-  #loginWrap .row{
-    flex-direction: column;
-    gap: 10px;
-  }
-  #loginWrap .col{
-    flex: 1 1 auto !important;
-  }
-}
-
-/* ===== MANUAL PICK (principal + 15P) ===== */
-.pickGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;max-width:460px;margin-top:10px}
-.pickCell{
-  height:44px;border-radius:12px;
-  display:flex;align-items:center;justify-content:center;
-  border:1px solid rgba(255,255,255,.14);
-  background: rgba(0,0,0,.70);
-  font-weight:1000;cursor:pointer;user-select:none;
-}
-.pickCell.sel{background:rgba(0,0,0,.72);border-color:rgba(250,204,21,.40);color:var(--accent);box-shadow:0 12px 30px rgba(0,0,0,.25)}
-.pickCell.lock{opacity:.35;cursor:not-allowed}
-/* =========================
-   ✅ Destaque de acertos (Jogos Salvos)
-   11,12,13,14,15 com cor
-========================= */
-.hit-11{ color:#38bdf8; font-weight:900; }  /* azul */
-.hit-12{ color:#a78bfa; font-weight:900; }  /* roxo */
-.hit-13{ color:#facc15; font-weight:1000; } /* amarelo */
-.hit-14{ color:#fb923c; font-weight:1000; } /* laranja */
-.hit-15{ color:#facc15; font-weight:1000; } /* amarelo */
-
-.lineTabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-.lineBtn{
-  padding:8px 10px;border-radius:12px;
-  border:1px solid rgba(255,255,255,.14);
-  background: rgba(0,0,0,.70);
-  color:var(--text);font-weight:1000;cursor:pointer
-}
-.lineBtn.on{border-color:rgba(56,189,248,.35);background:rgba(56,189,248,.12);color:#e6f8ff}
-.slotRow{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-.slot{
-  min-width:52px;
-  padding:8px 10px;border-radius:12px;
-  border:1px dashed rgba(255,255,255,.18);
-  background: rgba(0,0,0,.66);
-  font-weight:1000;
-}
-
-  /* ✅ BOTÕES: preto fosco + destaque e PRIMARY sempre amarelo (igual Print 1) */
-  .btnPrimary{
-    background: var(--yellow) !important;
-    color:#111111 !important;
-    border:1px solid rgba(250,204,21,.80) !important;
-    box-shadow: var(--glowGold) !important;
-  }
-
-  /* ✅ MOBILE: evita quebra feia das 5 bolas nas linhas 4/5 do 15P */
-  @media (max-width:420px){
-    .ball{ width:38px; height:38px; font-size:13px; }
-    .numbers{ gap:6px; }
-  }
-
-  /* ✅ Ilustração de troca de COLUNAS (Invertida/Técnica) */
-  .swapCard{ margin-top: 10px; }
-  .swapImgs{
-    display:grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap:12px;
-    margin-top:12px;
-    align-items:start;
-  }
-  .swapImgWrap{
-    border:1px solid rgba(255,255,255,.14);
-    background: rgba(0,0,0,.66);
-    border-radius:16px;
-    padding:12px;
-    text-align:center;
-    overflow:visible;
-  }
-  .swapImgWrap b{ color: var(--yellow); display:block; margin-bottom:8px; }
-  .swapImg{
-    display:block;
-    width:100%;
-    max-width: 520px;
-    height:auto;
-    aspect-ratio: 5 / 6;
-    object-fit: contain;
-    margin: 0 auto;
-    border-radius:14px;
-    border:1px solid rgba(250,204,21,.22);
-    background: rgba(0,0,0,.70);
-    box-shadow: 0 18px 55px rgba(0,0,0,.38);
-  }
-  .swapRow{ display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
-  .swapMini{
-    flex: 1 1 260px;
-    border:1px solid rgba(255,255,255,.14);
-    background: rgba(0,0,0,.66);
-    border-radius:16px;
-    padding:12px;
-  }
-  .swapMini b{ color: var(--yellow); }
-  .swapGamesRow{
-    display:grid;
-    grid-template-columns: 1fr 1fr;
-    gap:12px;
-    margin-top:12px;
-    align-items:start;
-  }
-  @media (max-width: 900px){
-    .swapGamesRow{ grid-template-columns: 1fr; }
-  }
-
-
-/* =========================
-   ✅ LAYOUT 15P VERTICAL PREMIUM COM GLOW (MOBILE FIRST)
-========================= */
-
-.p15-card{
-  background: linear-gradient(180deg, rgba(0,0,0,.92), rgba(0,0,0,.78));
-  border:1px solid rgba(250,204,21,.35);
-  border-radius:18px;
-  padding:14px;
-  margin:16px auto;
-  max-width:380px; /* ✅ vertical */
-  box-shadow:
-    0 0 0 1px rgba(250,204,21,.15),
-    0 0 25px rgba(250,204,21,.08),
-    0 18px 55px rgba(0,0,0,.65);
-}
-
-/* ✅ DESKTOP: 3+ cards por linha (mantém mobile 1 por linha) */
-.p15CardsGrid{
-  display:grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap:14px;
-  align-items:start;
-  margin-top:12px;
-}
-.p15CardsGrid .p15-card{
-  max-width:none; /* libera no desktop */
-  width:100%;
-  margin:0;       /* grid controla espaçamento */
-}
-@media (max-width: 1100px){
-  .p15CardsGrid{ grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
-@media (max-width: 720px){
-  .p15CardsGrid{ grid-template-columns: 1fr; }
-  .p15CardsGrid .p15-card{ max-width: 420px; margin: 0 auto; } /* volta vertical bonito no mobile */
-}
-
-.p15-title{
-  font-weight:1000;
-  font-size:14px;
-  color:var(--accent);
-  margin-bottom:10px;
-  text-align:center;
-  letter-spacing:.3px;
-}
-
-.p15-metrics{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:8px;
-  margin-bottom:12px;
-}
-
-.p15-chip{
-  background:rgba(0,0,0,.85);
-  border:1px solid rgba(250,204,21,.25);
-  padding:6px 8px;
-  border-radius:14px;
-  font-size:11px;
-  font-weight:900;
-  text-align:center;
-  box-shadow: 0 0 12px rgba(250,204,21,.05);
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-
-.p15-numbers{
-  display:flex;
-  gap:6px;
-  flex-wrap:wrap;
-  justify-content:center;
-  margin:8px 0 12px 0;
-}
-
-.p15-ball{
-  width:32px;
-  height:32px;
-  border-radius:999px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:rgba(0,0,0,.95);
-  border:1px solid rgba(250,204,21,.55);
-  color:var(--accent);
-  font-weight:1000;
-  font-size:11px;
-  box-shadow: 0 0 10px rgba(250,204,21,.15);
-}
-
-.p15-section{
-  font-size:12px;
-  line-height:1.45;
-  margin-bottom:10px;
-  color:rgba(255,255,255,.92);
-}
-
-.p15-warning{
-  background:rgba(0,0,0,.75);
-  border:1px solid rgba(250,204,21,.25);
-  padding:10px;
-  border-radius:14px;
-  font-size:11.5px;
-  line-height:1.4;
-  box-shadow: inset 0 0 12px rgba(250,204,21,.05);
-}
-
-@media (max-width:420px){
-  .p15-card{ max-width:92vw; padding:12px; }
-  .p15-ball{ width:28px; height:28px; font-size:10px; }
-  .p15-chip{ font-size:10px; padding:6px; }
-}
-
-
-
-/* =========================
-   ✅ ANÁLISE PRIME - LAYOUT NOVO (somente visual)
-========================= */
-#viewAnalise .primeHeader{margin-bottom:14px}
-#viewAnalise .primeTitleRow{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
-#viewAnalise .primeTitle{font-weight:1000;font-size:22px;letter-spacing:.2px;color:var(--accent)}
-#viewAnalise .primeSub{margin-top:6px;color:rgba(255,255,255,.82);font-size:13px}
-#viewAnalise .primeActions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-#viewAnalise .primeKpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:12px}
-#viewAnalise .primeKpi{background:rgba(0,0,0,.70);border:1px solid rgba(255,255,255,.14);border-radius:16px;padding:12px 14px;box-shadow:0 14px 34px rgba(0,0,0,.35)}
-#viewAnalise .kpiLbl{font-size:12px;color:rgba(255,255,255,.78);font-weight:900}
-#viewAnalise .kpiVal{margin-top:6px;font-size:18px;font-weight:1000;color:#fff}
-#viewAnalise .kpiMini{margin-top:4px;font-size:12px;color:rgba(255,255,255,.70)}
-#viewAnalise .primeNote{margin-top:10px;color:rgba(255,255,255,.85);font-size:12.5px}
-#viewAnalise .primeSection{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:20px;padding:16px;margin:12px 0;box-shadow:0 18px 55px rgba(0,0,0,.38)}
-#viewAnalise .primeSectionHdr{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;border-bottom:1px solid rgba(255,255,255,.10);padding-bottom:12px;margin-bottom:12px}
-#viewAnalise .hTitle{font-size:15px;font-weight:1000;color:#fff}
-#viewAnalise .hMini{margin-top:4px;color:rgba(255,255,255,.78);font-size:12px;line-height:1.35}
-#viewAnalise .hBadge{padding:8px 10px;border-radius:999px;background:rgba(0,0,0,.70);border:1px solid rgba(250,204,21,.25);color:#fff2b0;font-weight:1000;font-size:12px;white-space:nowrap}
-#viewAnalise .primeDisclaimer{margin-top:12px;color:rgba(255,255,255,.75);font-size:11.5px;line-height:1.45}
-
-@media (max-width: 920px){
-  #viewAnalise .primeKpis{grid-template-columns:repeat(2,minmax(0,1fr))}
-}
-@media (max-width: 520px){
-  #viewAnalise .primeTitle{font-size:18px}
-  #viewAnalise .primeKpis{grid-template-columns:1fr}
-}
-
 </style>
 </head>
 
@@ -2658,6 +2068,64 @@ function calcBlockPatternDistribution(concursos){
     .sort((a,b)=>b.count-a.count);
 }
 
+function calcPrimeCountDistribution(concursos){
+  const primes = new Set([2,3,5,7,11,13,17,19,23]);
+  const dist = {};
+  concursos.forEach(c=>{
+    const nums = (c.dezenas||[]).map(d=>Number(String(d).replace(/^0+/,""))).filter(x=>x>=1 && x<=25);
+    const pc = nums.reduce((acc,n)=>acc+(primes.has(n)?1:0),0);
+    dist[pc] = (dist[pc]||0)+1;
+  });
+  const n = Math.max(1, concursos.length);
+  return Object.keys(dist).map(k=>({
+    k: Number(k),
+    count: dist[k],
+    pct: Math.round((dist[k]/n)*100)
+  })).sort((a,b)=>b.count-a.count || b.k-a.k);
+}
+
+function calcLinesPatternDistribution(concursos){
+  // linhas do volante (5x5): L1=1-5, L2=6-10, L3=11-15, L4=16-20, L5=21-25
+  const dist = {};
+  concursos.forEach(c=>{
+    const nums = (c.dezenas||[]).map(d=>Number(String(d).replace(/^0+/,""))).filter(x=>x>=1 && x<=25);
+    const rows = [0,0,0,0,0];
+    nums.forEach(n=>{
+      const r = Math.floor((n-1)/5); // 0..4
+      rows[r] += 1;
+    });
+    const key = rows.join("-");
+    dist[key] = (dist[key]||0)+1;
+  });
+  const n = Math.max(1, concursos.length);
+  return Object.keys(dist).map(k=>({
+    pattern: k,
+    count: dist[k],
+    pct: Math.round((dist[k]/n)*100)
+  })).sort((a,b)=>b.count-a.count);
+}
+
+function calcColsPatternDistribution(concursos){
+  // colunas do volante (5x5): C1=(1,6,11,16,21) ... C5=(5,10,15,20,25)
+  const dist = {};
+  concursos.forEach(c=>{
+    const nums = (c.dezenas||[]).map(d=>Number(String(d).replace(/^0+/,""))).filter(x=>x>=1 && x<=25);
+    const cols = [0,0,0,0,0];
+    nums.forEach(n=>{
+      const col = (n-1) % 5; // 0..4
+      cols[col] += 1;
+    });
+    const key = cols.join("-");
+    dist[key] = (dist[key]||0)+1;
+  });
+  const n = Math.max(1, concursos.length);
+  return Object.keys(dist).map(k=>({
+    pattern: k,
+    count: dist[k],
+    pct: Math.round((dist[k]/n)*100)
+  })).sort((a,b)=>b.count-a.count);
+}
+
 function calcBlockTotals(concursos){
   const tot = {A:0,B:0,C:0,D:0,E:0};
   concursos.forEach(c=>{
@@ -2758,12 +2226,156 @@ function renderSumsTop(sums, total){
       <div style="margin-top:10px">${rows || `<div class="mini">—</div>`}</div>
     </div>
   `;
-
-// ✅ Compat: prévia usa renderSums(); mantemos renderSumsTop() como base
-function renderSums(sums, total){
-  return renderSumsTop(sums, total);
 }
 
+function renderPrimeCountDist(primeDist, totalConcursos){
+  const top = primeDist.slice(0,6);
+  const max = Math.max(1, ...top.map(x=>x.count));
+  let html = `
+  <div class="box" style="margin-top:12px">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap">
+      <div>
+        <b>🧮 Números primos (padrão)</b>
+        <div class="mini">Quantos números primos costumam aparecer por concurso na janela analisada.</div>
+      </div>
+      <div class="mini">Base: <b>${totalConcursos}</b> concursos</div>
+    </div>
+    <div style="margin-top:10px">
+  `;
+  top.forEach(row=>{
+    const w = Math.round((row.count/max)*100);
+    html += `
+      <div style="display:grid;grid-template-columns:160px 1fr 60px;gap:10px;align-items:center;margin:10px 0">
+        <div style="font-weight:900">Primos: ${row.k}</div>
+        <div style="height:12px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10)">
+          <div style="height:100%;width:${w}%;background:linear-gradient(90deg,var(--accent),var(--orange));"></div>
+        </div>
+        <div style="text-align:right;font-weight:1000">${row.count}x <span class="mini" style="margin:0">(${row.pct}%)</span></div>
+      </div>
+    `;
+  });
+  const dom = primeDist[0];
+  if(dom){
+    html += `<div class="mini" style="margin-top:6px">🔥 Dominante: <b>${dom.k} primos</b> (${dom.count} ocorrência${dom.count>1?"s":""}).</div>`;
+  }
+  html += `</div></div>`;
+  return html;
+}
+
+function renderLinesPatterns(linesDist, totalConcursos){
+  const top = linesDist.slice(0,6);
+  const max = Math.max(1, ...top.map(x=>x.count));
+  let html = `
+  <div class="box" style="margin-top:12px">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap">
+      <div>
+        <b>📏 Linhas (L1–L5)</b>
+        <div class="mini">Distribuição de dezenas por linha do volante (5 linhas). Ex: 3-3-3-3-3.</div>
+      </div>
+      <div class="mini">Base: <b>${totalConcursos}</b> concursos</div>
+    </div>
+    <div style="margin-top:10px">
+  `;
+  top.forEach(row=>{
+    const w = Math.round((row.count/max)*100);
+    html += `
+      <div style="display:grid;grid-template-columns:180px 1fr 70px;gap:10px;align-items:center;margin:10px 0">
+        <div style="font-weight:900">${row.pattern}</div>
+        <div style="height:12px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10)">
+          <div style="height:100%;width:${w}%;background:linear-gradient(90deg,var(--accent),var(--orange));"></div>
+        </div>
+        <div style="text-align:right;font-weight:1000">${row.count}x <span class="mini" style="margin:0">(${row.pct}%)</span></div>
+      </div>
+    `;
+  });
+  const dom = linesDist[0];
+  if(dom){
+    html += `<div class="mini" style="margin-top:6px">🔥 Dominante: <b>${dom.pattern}</b> (${dom.count} ocorrência${dom.count>1?"s":""}).</div>`;
+  }
+  html += `</div></div>`;
+  return html;
+}
+
+function renderColsPatterns(colsDist, totalConcursos){
+  const top = colsDist.slice(0,6);
+  const max = Math.max(1, ...top.map(x=>x.count));
+  let html = `
+  <div class="box" style="margin-top:12px">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap">
+      <div>
+        <b>📐 Colunas (C1–C5)</b>
+        <div class="mini">Distribuição de dezenas por coluna do volante (5 colunas). Ex: 4-2-3-3-3.</div>
+      </div>
+      <div class="mini">Base: <b>${totalConcursos}</b> concursos</div>
+    </div>
+    <div style="margin-top:10px">
+  `;
+  top.forEach(row=>{
+    const w = Math.round((row.count/max)*100);
+    html += `
+      <div style="display:grid;grid-template-columns:180px 1fr 70px;gap:10px;align-items:center;margin:10px 0">
+        <div style="font-weight:900">${row.pattern}</div>
+        <div style="height:12px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10)">
+          <div style="height:100%;width:${w}%;background:linear-gradient(90deg,var(--accent),var(--orange));"></div>
+        </div>
+        <div style="text-align:right;font-weight:1000">${row.count}x <span class="mini" style="margin:0">(${row.pct}%)</span></div>
+      </div>
+    `;
+  });
+  const dom = colsDist[0];
+  if(dom){
+    html += `<div class="mini" style="margin-top:6px">🔥 Dominante: <b>${dom.pattern}</b> (${dom.count} ocorrência${dom.count>1?"s":""}).</div>`;
+  }
+  html += `</div></div>`;
+  return html;
+}
+
+function renderPrimeKpis(payload, evenOdd, primeDist, linesDist, colsDist, blockPatterns){
+  const eoDom = (evenOdd && evenOdd.dist && evenOdd.dist.length) ? evenOdd.dist[0] : null;
+  const primeDom = primeDist && primeDist.length ? primeDist[0] : null;
+  const linesDom = linesDist && linesDist.length ? linesDist[0] : null;
+  const colsDom = colsDist && colsDist.length ? colsDist[0] : null;
+  const blockDom = blockPatterns && blockPatterns.length ? blockPatterns[0] : null;
+
+  return `
+  <div class="box" style="margin-top:12px">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+      <div>
+        <div style="font-weight:1000;color:var(--accent);letter-spacing:.3px">ANÁLISE PRIME • 7 PONTOS • SISTEMA PREDITIVO</div>
+        <div class="mini">Janela: <b>${payload.inicio}</b> a <b>${payload.ultimo}</b> (${payload.concursos.length} concursos)</div>
+        <div class="mini" style="margin-top:6px">Use estes <b>7 pontos</b> para montar seu <b>Jogo Manual</b> com clareza (padrões reais da janela).</div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btnGhost" type="button" onclick="verConcursos()">📅 Ver concursos</button>
+      </div>
+    </div>
+
+    <div class="grid" style="margin-top:12px">
+      <div class="box">
+        <div class="mini" style="margin:0">Paridade dominante</div>
+        <div style="font-size:18px;font-weight:1000;margin-top:6px">${eoDom ? eoDom.label : "—"}</div>
+        <div class="mini" style="margin-top:6px">${eoDom ? (eoDom.pct + "% na janela") : ""}</div>
+      </div>
+      <div class="box">
+        <div class="mini" style="margin:0">Primos dominantes</div>
+        <div style="font-size:18px;font-weight:1000;margin-top:6px">${primeDom ? (primeDom.k+" primos") : "—"}</div>
+        <div class="mini" style="margin-top:6px">${primeDom ? (primeDom.pct + "% na janela") : ""}</div>
+      </div>
+      <div class="box">
+        <div class="mini" style="margin:0">Padrão de linhas</div>
+        <div style="font-size:18px;font-weight:1000;margin-top:6px">${linesDom ? linesDom.pattern : "—"}</div>
+        <div class="mini" style="margin-top:6px">${linesDom ? (linesDom.pct + "% na janela") : ""}</div>
+      </div>
+      <div class="box">
+        <div class="mini" style="margin:0">Padrão de colunas</div>
+        <div style="font-size:18px;font-weight:1000;margin-top:6px">${colsDom ? colsDom.pattern : "—"}</div>
+        <div class="mini" style="margin-top:6px">${colsDom ? (colsDom.pct + "% na janela") : ""}</div>
+      </div>
+    </div>
+
+    ${blockDom ? `<div class="mini" style="margin-top:10px">📦 Blocos A–E dominante: <b>${blockDom.pattern}</b> (${blockDom.pct}% na janela)</div>` : ``}
+  </div>
+  `;
 }
 
 function renderBlocksPrime(totals, patterns, total){
@@ -3149,147 +2761,43 @@ async function acaoAnalise(){
     window._p15ExplainCtx = buildP15ExplainCtx(payload);
     const {freq, modern} = lastCtx;
 
-    setStatus(true,"Montando resumo PRIME…");
+    setStatus(true,"Montando Análise PRIME (7 pontos)…");
     setProgress(82);
 
-    const evenOdd = calcEvenOddDistribution(payload.concursos);
-    const sums = calcSumDistribution(payload.concursos);
-    const blockTotals = calcBlockTotals(payload.concursos);
-    const blockPatterns = calcBlockPatternDistribution(payload.concursos);
-    const topSetsInfo = calcTopSetsCooc(payload.concursos, {
-  minK: 3,
-  maxK: 9,
-  minCount: 2,
-  limit: 12
-});
+    // 7 pontos do SISTEMA (padrão real da janela)
+    const evenOdd = calcEvenOddDistribution(payload.concursos);                 // 1) pares/ímpares
+    const primeDist = calcPrimeCountDistribution(payload.concursos);            // 2) primos
+    const linesDist = calcLinesPatternDistribution(payload.concursos);          // 3) linhas
+    const colsDist  = calcColsPatternDistribution(payload.concursos);           // 4) colunas
+    const sums = calcSumDistribution(payload.concursos);                        // 5) soma
+    const blockTotals = calcBlockTotals(payload.concursos);                     // 6) blocos (A–E)
+    const blockPatterns = calcBlockPatternDistribution(payload.concursos);      //    padrão A–E
+    const topSetsInfo = calcTopSetsCooc(payload.concursos, {                    // 7) conjuntos
+      minK: 3,
+      maxK: 9,
+      minCount: 2,
+      limit: 12
+    });
 
     setStatus(false,""); setProgress(0);
 
     document.getElementById("analiseArea").innerHTML = `
-      <div class="primeHeader">
-        <div class="primeTitleRow">
-          <div>
-            <div class="primeTitle">📈 ANÁLISE PRIME • 6 PONTOS • SISTEMA PREDITIVO</div>
-            <div class="primeSub">Janela: ${payload.concursos[0]?.concurso} a ${payload.concursos[payload.concursos.length-1]?.concurso} (${payload.concursos.length} concursos)</div>
-          </div>
-          <div class="primeActions">
-            <button class="btn btnGhost" type="button" onclick="abrirModalConcursos()">🗓️ Ver concursos</button>
-          </div>
+      ${renderPrimeKpis(payload, evenOdd, primeDist, linesDist, colsDist, blockPatterns)}
+
+      ${renderEvenOddDist(evenOdd, payload.concursos.length)}
+      ${renderPrimeCountDist(primeDist, payload.concursos.length)}
+      ${renderLinesPatterns(linesDist, payload.concursos.length)}
+      ${renderColsPatterns(colsDist, payload.concursos.length)}
+      ${renderSumsTop(sums, payload.concursos.length)}
+      ${renderBlocksPrime(blockTotals, blockPatterns, payload.concursos.length)}
+      ${renderTopSets(topSetsInfo)}
+
+      <div class="box" style="margin-top:12px">
+        <b>📌 Nota PRIME</b>
+        <div class="mini" style="margin-top:8px">
+          Estes 7 pontos mostram <b>padrões reais da janela</b> (paridade, primos, linhas, colunas, soma, blocos e conjuntos).
+          Use como guia para montar o jogo manual. <b>Não existe garantia de premiação</b>.
         </div>
-
-        <div class="primeKpis">
-          ${(()=>{ 
-            const tot = payload.concursos.length||1;
-            const domEO = (freq.evenOdd && freq.evenOdd[0]) ? freq.evenOdd[0] : null;
-            const domSum = (freq.sums && freq.sums[0]) ? freq.sums[0] : null;
-            const domAE = (freq.blockPatterns && freq.blockPatterns[0]) ? freq.blockPatterns[0] : null;
-            const gapArr = (modern && modern.gap) ? modern.gap : [];
-            let maxGapN = 0, maxGapV = 0;
-            for(let n=1;n<=25;n++){ const g = gapArr[n]||0; if(g>maxGapV){ maxGapV=g; maxGapN=n; } }
-            const eoText = domEO ? `${domEO.pares}P / ${domEO.impares}I` : "—";
-            const eoPct  = domEO ? Math.round((domEO.count/tot)*100) : 0;
-            const sumText = domSum ? String(domSum.soma) : "—";
-            const sumPct  = domSum ? Math.round((domSum.count/tot)*100) : 0;
-            const aeText = domAE ? domAE.key : "—";
-            const aePct  = domAE ? Math.round((domAE.count/tot)*100) : 0;
-            const atrasoText = maxGapN ? `${String(maxGapN).padStart(2,"0")} (${maxGapV})` : "—";
-            return `
-              <div class="primeKpi">
-                <div class="kpiLbl">Paridade dominante</div>
-                <div class="kpiVal">${eoText}</div>
-                <div class="kpiMini">${eoPct}% na janela</div>
-              </div>
-              <div class="primeKpi">
-                <div class="kpiLbl">Soma dominante</div>
-                <div class="kpiVal">${sumText}</div>
-                <div class="kpiMini">${sumPct}% na janela</div>
-              </div>
-              <div class="primeKpi">
-                <div class="kpiLbl">Padrão A–E</div>
-                <div class="kpiVal">${aeText}</div>
-                <div class="kpiMini">${aePct}% na janela</div>
-              </div>
-              <div class="primeKpi">
-                <div class="kpiLbl">Top atraso</div>
-                <div class="kpiVal">${atrasoText}</div>
-                <div class="kpiMini">maior gap</div>
-              </div>
-            `;
-          })()}
-        </div>
-
-        <div class="primeNote">Análise PRIME com <b>6 pontos diretos na página</b> (sem passar janelas), para você escolher dezenas manualmente com clareza.</div>
-      </div>
-
-      <div class="primeSection">
-        <div class="primeSectionHdr">
-          <div class="hLeft">
-            <div class="hTitle">🧮 Padrões de distribuição (equilíbrio)</div>
-            <div class="hMini">Mostra as distribuições (pares/ímpares) mais recorrentes na janela.</div>
-          </div>
-          <div class="hBadge">1/6</div>
-        </div>
-        ${renderEvenOddDist(freq.evenOdd, payload.concursos.length)}
-      </div>
-
-      <div class="primeSection">
-        <div class="primeSectionHdr">
-          <div class="hLeft">
-            <div class="hTitle">➕ Somas que mais se repetiram</div>
-            <div class="hMini">Ajuda a evitar combinações muito fora do padrão.</div>
-          </div>
-          <div class="hBadge">2/6</div>
-        </div>
-        ${renderSums(sums, payload.concursos.length)}
-      </div>
-
-      <div class="primeSection">
-        <div class="primeSectionHdr">
-          <div class="hLeft">
-            <div class="hTitle">📌 Padrões mais frequentes (A–E por concurso)</div>
-            <div class="hMini">Cada padrão representa quantas dezenas saíram em cada bloco A(01–05), B(06–10), C(11–15), D(16–20), E(21–25).</div>
-          </div>
-          <div class="hBadge">3/6</div>
-        </div>
-        ${renderBlockPatterns(freq.blockPatterns, payload.concursos.length)}
-      </div>
-
-      <div class="primeSection">
-        <div class="primeSectionHdr">
-          <div class="hLeft">
-            <div class="hTitle">📊 Top 10 dezenas mais frequentes</div>
-            <div class="hMini">Barras maiores = dezenas que mais apareceram no período analisado.</div>
-          </div>
-          <div class="hBadge">4/6</div>
-        </div>
-        ${renderTop10Freq(freq.freqList, payload.concursos.length)}
-      </div>
-
-      <div class="primeSection">
-        <div class="primeSectionHdr">
-          <div class="hLeft">
-            <div class="hTitle">⏳ Top 10 dezenas atrasadas</div>
-            <div class="hMini">Barra maior = dezena há mais concursos sem aparecer (atraso).</div>
-          </div>
-          <div class="hBadge">5/6</div>
-        </div>
-        ${renderTop10Atrasadas(modern, payload.concursos.length)}
-      </div>
-
-      <div class="primeSection">
-        <div class="primeSectionHdr">
-          <div class="hLeft">
-            <div class="hTitle">🧩 Dezenas que mais saem juntas (conjuntos repetidos)</div>
-            <div class="hMini">O sistema busca ternos, quadras, quintetos e sextetos que se repetem na janela (não é só par).</div>
-          </div>
-          <div class="hBadge">6/6</div>
-        </div>
-        ${renderConjuntosRepetidos(freq.sets)}
-      </div>
-
-      <div class="primeDisclaimer">
-        Aviso: este painel usa estatística (frequência, recência, tendência, coocorrência e padrões). Ajuda a montar estratégias,
-        mas <b>não existe garantia de premiação</b>.
       </div>
     `;
 
