@@ -446,6 +446,69 @@
     .swapGamesRow{ grid-template-columns: 1fr; }
   }
 
+
+/* =========================
+   ✅ LAYOUT EXPLICAÇÃO 15P (PADRÃO PRINT)
+========================= */
+.p15-card{
+  background: rgba(0,0,0,.75);
+  border:1px solid rgba(250,204,21,.25);
+  border-radius:18px;
+  padding:16px;
+  margin-top:14px;
+  box-shadow: 0 18px 55px rgba(0,0,0,.55);
+}
+.p15-title{
+  font-weight:1000;
+  font-size:15px;
+  color:var(--accent);
+  margin-bottom:8px;
+}
+.p15-metrics{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-bottom:10px;
+}
+.p15-chip{
+  background:rgba(0,0,0,.85);
+  border:1px solid rgba(255,255,255,.15);
+  padding:6px 10px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:900;
+}
+.p15-numbers{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin:8px 0 12px 0;
+}
+.p15-ball{
+  width:38px;
+  height:38px;
+  border-radius:999px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,0,0,.85);
+  border:1px solid rgba(250,204,21,.35);
+  color:var(--accent);
+  font-weight:1000;
+}
+.p15-section{
+  font-size:13px;
+  line-height:1.45;
+  margin-bottom:10px;
+}
+.p15-warning{
+  background:rgba(0,0,0,.65);
+  border:1px solid rgba(255,255,255,.12);
+  padding:10px;
+  border-radius:12px;
+  margin-top:8px;
+}
+
 </style>
 </head>
 
@@ -3936,15 +3999,25 @@ function gerar15PComMinhasLinhas(){
 ========================= */
 function buildP15ExplainCtx(payload){
   try{
-    const arr = (payload && Array.isArray(payload.concursos)) ? payload.concursos : [];
+    const raw = (payload && Array.isArray(payload.concursos)) ? payload.concursos : [];
+
+    // Normaliza concursos -> sempre {dezenas:[1..25]}
+    const concursos = raw.map(c=>({
+      dezenas: (c?.dezenas || c?.nums || c?.numeros || []).map(toNum).filter(n=>n>=1 && n<=25)
+    }));
+
     // pega últimos 4 concursos (t-1..t-4)
-    const last = arr.slice(-4);
-    const toSet = (c)=> new Set((c?.dezenas||c?.nums||c?.numeros||[]).map(toNum));
+    const last = concursos.slice(-4);
+    const toSet = (c)=> new Set((c?.dezenas||[]).map(toNum));
     const s1 = toSet(last[3] || last[last.length-1]); // último
     const s2 = toSet(last[2] || last[last.length-2]);
     const s3 = toSet(last[1] || last[last.length-3]);
     const s4 = toSet(last[0] || last[last.length-4]);
-    return { s1, s2, s3, s4, ok:true };
+
+    // stats da janela inteira (co / lift / freq / gap / recência)
+    const stats = calcCoocAndStats(concursos);
+
+    return { s1, s2, s3, s4, concursos, stats, ok:true };
   }catch(e){
     return { ok:false, err:String(e?.message||e) };
   }
@@ -3962,55 +4035,122 @@ function buildExplainRowsHTML(lines){
   if(!ctx || !ctx.ok){
     return `<div class="mini" style="margin-top:8px">⚠️ Não foi possível montar a explicação (contexto insuficiente).</div>`;
   }
-  const row = (arr)=> (arr && arr.length) ? arr.map(format2).join(" - ") : "—";
-  return `
-    <div style="margin-top:12px;overflow:auto">
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Linha</th>
-            <th>Contador</th>
-            <th>R</th>
-            <th>G2</th>
-            <th>G3</th>
-            <th>G4</th>
-            <th>Outros</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${lines.map((l,idx)=>{
-            const r=[],g2=[],g3=[],g4=[],o=[];
-            (l||[]).forEach(n=>{
-              const c = classifyRG(ctx, n);
-              if(c==="R") r.push(n);
-              else if(c==="G2") g2.push(n);
-              else if(c==="G3") g3.push(n);
-              else if(c==="G4") g4.push(n);
-              else o.push(n);
-            });
-            return `
-              <tr>
-                <td><b>${idx+1}</b></td>
-                <td class="mono">R:${r.length} • G2:${g2.length} • G3:${g3.length} • G4:${g4.length}</td>
-                <td class="mono">${row(r)}</td>
-                <td class="mono">${row(g2)}</td>
-                <td class="mono">${row(g3)}</td>
-                <td class="mono">${row(g4)}</td>
-                <td class="mono">${row(o)}</td>
-              </tr>
-            `;
-          }).join("")}
-        </tbody>
-      </table>
-    </div>
-  `;
+  const concursos = ctx.concursos || [];
+  const stats = ctx.stats;
+
+  const fmt1 = (v)=> (Number.isFinite(v)? v.toFixed(1) : "0.0");
+  const fmt2d = (v)=> (Number.isFinite(v)? v.toFixed(2) : "0.00");
+
+  function resumoReal(line){
+    const base = line.slice().sort((a,b)=>a-b);
+    const out = [];
+
+    // 5 juntas (grupo inteiro)
+    const c5 = countGroupTogetherInWindow(base, concursos);
+    out.push(`5 juntas: <span class="mono">${base.map(format2).join("-")}</span> • <b>${c5}x</b>`);
+
+    // 4/3/2 juntas (top 2)
+    [4,3,2].forEach(k=>{
+      const comb = combosK(base, k);
+      const scored = comb.map(g=>({
+        g,
+        c: countGroupTogetherInWindow(g, concursos)
+      })).sort((a,b)=> (b.c-a.c) || (a.g.join(",").localeCompare(b.g.join(","))));
+
+      const top = scored.slice(0,2);
+      top.forEach((x,idx)=>{
+        out.push(`${k} juntas: <span class="mono">${x.g.map(format2).join("-")}</span> • <b>${x.c}x</b>`);
+      });
+    });
+
+    return out.map(s=>`<div>${s}</div>`).join("");
+  }
+
+  function leastCommonPairs(line){
+    if(!stats) return `<div class="mini">—</div>`;
+    const g = line.slice().sort((a,b)=>a-b);
+    const pairs = [];
+    for(let i=0;i<g.length;i++){
+      for(let j=i+1;j<g.length;j++){
+        const a=g[i], b=g[j];
+        const c = stats.co?.[a]?.[b] ?? 0;
+        pairs.push({a,b,c});
+      }
+    }
+    pairs.sort((x,y)=> (x.c-y.c) || (`${x.a}-${x.b}`.localeCompare(`${y.a}-${y.b}`)));
+    return pairs.slice(0,3).map(p=>{
+      return `<div>⚠️ <span class="mono">${format2(p.a)}-${format2(p.b)}</span> • sem sair juntas: <b>${p.c}x</b></div>`;
+    }).join("");
+  }
+
+  function justificativa(idx, line){
+    // Mantém o texto no estilo do print (sem mexer no motor)
+    if(idx===4){
+      return `Linha montada para ser mais diferente, evitando ficar “presa” nas mesmas combinações e mantendo um mix mais equilibrado.`;
+    }
+    return `Linha montada para reforçar os agrupamentos mais recorrentes na janela, mantendo pares fortes e boa consistência.`;
+  }
+
+  function metrics(line){
+    if(!stats){
+      return {forca:"0.0", lift:"0.00", co:"0.00", somaFreq:"0"};
+    }
+    const gs = groupStrength(line, stats);
+    const gl = groupLiftAvg(line, stats);
+    const gc = groupCoSum(line, stats);
+    const sf = groupFreqSum(line, stats);
+
+    return {
+      forca: fmt1(gs.avg),
+      lift: fmt2d(gl.avg),
+      co: fmt2d(gc.avg),
+      somaFreq: String(sf)
+    };
+  }
+
+  return (lines||[]).map((line,idx)=>{
+    const m = metrics(line||[]);
+    const tag = (idx===4) ? "DIVERSA" : "PADRÃO";
+
+    const bolas = (line||[]).slice().sort((a,b)=>a-b).map(n=>`<div class="p15-ball">${format2(n)}</div>`).join("");
+
+    return `
+      <div class="p15-card">
+        <div class="p15-title">Linha ${idx+1} (${tag})</div>
+
+        <div class="p15-metrics">
+          <div class="p15-chip">Força: ${m.forca}</div>
+          <div class="p15-chip">Lift médio: ${m.lift}</div>
+          <div class="p15-chip">Co médio: ${m.co}</div>
+          <div class="p15-chip">Soma freq: ${m.somaFreq}</div>
+        </div>
+
+        <div class="p15-numbers">${bolas}</div>
+
+        <div class="p15-section">
+          <b>Por que se juntaram:</b> ${justificativa(idx,line||[])}
+        </div>
+
+        <div class="p15-section">
+          ⭐ <b>Resumo real (juntas na janela):</b>
+          <div style="margin-top:6px">${resumoReal(line||[])}</div>
+          <div class="mini" style="margin-top:6px">As <b>5 juntas</b> é raro, então olhe principalmente as melhores <b>4/3/2</b> que mais se repetem.</div>
+        </div>
+
+        <div class="p15-warning">
+          <b>Combinações menos comuns (2 dezenas):</b>
+          <div style="margin-top:6px">${leastCommonPairs(line||[])}</div>
+        </div>
+      </div>
+    `;
+  }).join("");
 }
+
 function renderExplainBoxInner(lines){
   return `
-    <b>✅ Explicação por linha (R / G2 / G3 / G4)</b>
+    <b>✅ Explicação por linha (padrão antigo)</b>
     <div class="mini" style="margin-top:8px">
-      <b>R</b>=repetiu do último • <b>G2</b>=saiu no t-2 e faltou no t-1 • <b>G3</b>=saiu no t-3 e faltou t-2,t-1 • <b>G4</b>=saiu no t-4 e faltou t-3,t-2,t-1.
-      <br/>Abaixo você vê <b>exatamente quais dezenas</b> caíram em cada categoria + <b>contador automático por linha</b>.
+      Abaixo está o mesmo layout clássico (Força / Lift / Co / Soma freq + resumo real na janela).
     </div>
     ${buildExplainRowsHTML(lines||[])}
   `;
