@@ -2411,7 +2411,7 @@ function renderEvenOddDist(evenOdd, total){
           <div class="mini" style="margin-top:6px">Mostra as distribuições (pares/ímpares) mais recorrentes na janela.</div>
           ${dom ? `<div class="mini" style="margin-top:8px">Dominante: <b>${domText}</b> • ${domPct}% (${dom.count}x)</div>` : ``}
         </div>
-        <div class="primePill">1/6</div>
+        <div class="primePill">1/7</div>
       </div>
 
       <div class="primeGrid2" style="margin-top:14px">
@@ -2457,150 +2457,271 @@ function renderEvenOddDist(evenOdd, total){
   `;
 }
 
-function renderSumsTop(sums, total){
-  const top = (sums||[]).slice(0,7);
-  const max = top[0]?.count || 1;
 
-  const rows = top.map(x=>{
-    const pctBar = Math.round((x.count/max)*100);
-    const pctJanela = Math.round((x.count/Math.max(1,total))*100);
-    return `
-      <div style="display:flex;align-items:center;gap:12px;margin:12px 0">
-        <div style="width:96px;font-weight:950">Soma ${x.soma}</div>
-        <div style="flex:1">
-          <div class="primeBar"><div style="width:${pctBar}%"></div></div>
-        </div>
-        <div style="width:54px;text-align:right;font-weight:950">${x.count}</div>
+/* =========================
+   ✅ PRIME: helpers de layout (padrão do Print)
+========================= */
+function _primePct(n, total){
+  return total ? Math.round((n/Math.max(1,total))*100) : 0;
+}
+function _primeMaxCount(list){
+  return Math.max(1, ...(list||[]).map(x => (x?.count||0)));
+}
+function _primeDonut({ pct=0, label="—", legendHtml="" }){
+  const safe = Math.max(0, Math.min(100, Number(pct)||0));
+  return `
+    <div style="display:flex;align-items:center;justify-content:center;margin-top:8px">
+      <div style="
+        width:170px;height:170px;border-radius:999px;
+        background: conic-gradient(var(--accent) 0 ${safe}%, rgba(255,255,255,16) ${safe}% 100%);
+        display:flex;align-items:center;justify-content:center;
+        border:1px solid rgba(255,255,255,12);
+        box-shadow: 0 18px 38px rgba(0,0,0,45);
+      ">
+        <div style="
+          width:128px;height:128px;border-radius:999px;
+          background: rgba(0,0,0,42);
+          border:1px solid rgba(255,255,255,10);
+          display:flex;align-items:center;justify-content:center;
+          font-weight:1000;letter-spacing:.6px;text-align:center;padding:10px
+        ">${label}</div>
       </div>
-    `;
-  }).join("");
-
-  const dom = top[0] ? `Dominante: <b>Soma ${top[0].soma}</b> (aparece ${top[0].count}x • ${Math.round((top[0].count/Math.max(1,total))*100)}%)` : "Dominante: —";
-
+    </div>
+    ${legendHtml ? `<div class="mini" style="margin-top:10px;opacity:.9">${legendHtml}</div>` : ``}
+  `;
+}
+function _primeRow({ labelLeft="", subLeft="", pctBar=0, countRight="", pctRight="" }){
+  const w = Math.max(0, Math.min(100, Number(pctBar)||0));
+  return `
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;margin:14px 0">
+      <div style="min-width:220px">
+        <div style="font-weight:1000">${labelLeft}</div>
+        ${subLeft ? `<div class="mini" style="margin-top:2px">${subLeft}</div>` : ``}
+      </div>
+      <div style="flex:1">
+        <div class="primeBar"><div style="width:${w}%"></div></div>
+      </div>
+      <div style="min-width:58px;text-align:right;font-weight:1000">${countRight}</div>
+    </div>
+  `;
+}
+function _primeSectionBox({ title="", subtitle="", dominantLine="", pill="1/7", leftTitle="Visual", donutHtml="", rightTitle="Distribuições na janela", rowsHtml="", footerHtml="" }){
   return `
     <div class="box" style="margin-top:12px">
       <div class="primeStepHdr">
         <div>
-          <b>➕ Somas que mais se repetiram</b>
-          <div class="mini" style="margin-top:6px">Ajuda a evitar combinações muito fora do padrão de soma.</div>
-          <div class="mini" style="margin-top:10px">${dom}</div>
+          <b>${title}</b>
+          ${subtitle ? `<div class="mini" style="margin-top:6px">${subtitle}</div>` : ``}
+          ${dominantLine ? `<div class="mini" style="margin-top:10px">${dominantLine}</div>` : ``}
         </div>
-        <div class="primePill">2/6</div>
+        <div class="primePill">${pill}</div>
       </div>
 
-      <div class="primePanel" style="margin-top:14px">
-        <div class="primePanelTitle">Ranking de somas (mais repetidas)</div>
-        ${rows || `<div class="mini">—</div>`}
+      <div class="primeGrid2" style="margin-top:14px">
+        <div class="primePanel">
+          <div class="primePanelTitle">${leftTitle}</div>
+          ${donutHtml}
+        </div>
+
+        <div class="primePanel">
+          <div class="primePanelTitle">${rightTitle}</div>
+          ${rowsHtml || `<div class="mini">—</div>`}
+        </div>
       </div>
 
-      <div class="mini" style="margin-top:12px">
-        ✅ Uso prático: se sua soma sair muito diferente das dominantes, o jogo tende a ficar “estranho”.
-      </div>
+      ${footerHtml ? `<div class="mini" style="margin-top:12px">${footerHtml}</div>` : ``}
     </div>
   `;
 }
+
+
+function renderSumsTop(sums, total){
+  const top = (sums||[]).slice(0, 7);
+  const dom = top[0] || null;
+  const max = _primeMaxCount(top);
+
+  const rows = top.map(x=>{
+    const pctJanela = _primePct(x?.count||0, total);
+    return _primeRow({
+      labelLeft: `Soma ${x.soma}`,
+      subLeft: `${pctJanela}% na janela`,
+      pctBar: Math.round(((x.count||0)/max)*100),
+      countRight: `${x.count||0}x`
+    });
+  }).join("");
+
+  const donutPct = dom ? _primePct(dom.count||0, total) : 0;
+  const donutHtml = _primeDonut({
+    pct: donutPct,
+    label: dom ? `Soma ${dom.soma}` : "—",
+    legendHtml: `
+      <span style="display:inline-flex;align-items:center;gap:8px;margin-right:14px">
+        <span style="width:10px;height:10px;border-radius:3px;background:var(--accent)"></span> dominante
+      </span>
+      <span style="display:inline-flex;align-items:center;gap:8px">
+        <span style="width:10px;height:10px;border-radius:3px;background:rgba(255,255,255,16)"></span> outros
+      </span>
+    `
+  });
+
+  const dominantLine = dom
+    ? `Dominante: <b>Soma ${dom.soma}</b> • ${donutPct}% na janela (${dom.count||0}x)`
+    : `Dominante: —`;
+
+  return _primeSectionBox({
+    title: "➕ Padrões de soma (equilíbrio)",
+    subtitle: "Mostra quais somas mais se repetiram na janela (ajuda a evitar combinações muito fora do padrão).",
+    dominantLine,
+    pill: "5/7",
+    leftTitle: "Soma (visual)",
+    donutHtml,
+    rightTitle: "Distribuições na janela",
+    rowsHtml: rows,
+    footerHtml: "✅ Uso prático: se a soma sair muito diferente das dominantes, o jogo tende a ficar “estranho”."
+  });
+}
+
 
 function renderPrimeCountDist(primeDist, totalConcursos){
-  const top = primeDist.slice(0,6);
-  const max = Math.max(1, ...top.map(x=>x.count));
-  let html = `
-  <div class="box" style="margin-top:12px">
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap">
-      <div>
-        <b>🧮 Números primos (padrão)</b>
-        <div class="mini">Quantos números primos costumam aparecer por concurso na janela analisada.</div>
-      </div>
-      <div class="mini">Base: <b>${totalConcursos}</b> concursos</div>
-    </div>
-    <div style="margin-top:10px">
-  `;
-  top.forEach(row=>{
-    const w = Math.round((row.count/max)*100);
-    html += `
-      <div style="display:grid;grid-template-columns:160px 1fr 60px;gap:10px;align-items:center;margin:10px 0">
-        <div style="font-weight:900">Primos: ${row.k}</div>
-        <div style="height:12px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10)">
-          <div style="height:100%;width:${w}%;background:linear-gradient(90deg,var(--accent),var(--accent2));"></div>
-        </div>
-        <div style="text-align:right;font-weight:1000">${row.count}x <span class="mini" style="margin:0">(${row.pct}%)</span></div>
-      </div>
-    `;
+  const top = (primeDist||[]).slice(0, 6);
+  const dom = top[0] || null;
+  const max = _primeMaxCount(top);
+
+  const rows = top.map(x=>{
+    const pctJanela = x?.pct ?? _primePct(x?.count||0, totalConcursos);
+    return _primeRow({
+      labelLeft: `${x.k} primos`,
+      subLeft: `${pctJanela}% na janela`,
+      pctBar: Math.round(((x.count||0)/max)*100),
+      countRight: `${x.count||0}x`
+    });
+  }).join("");
+
+  const donutPct = dom ? (dom.pct ?? _primePct(dom.count||0, totalConcursos)) : 0;
+  const donutHtml = _primeDonut({
+    pct: donutPct,
+    label: dom ? `${dom.k} primos` : "—",
+    legendHtml: `
+      <span style="display:inline-flex;align-items:center;gap:8px;margin-right:14px">
+        <span style="width:10px;height:10px;border-radius:3px;background:var(--accent)"></span> dominante
+      </span>
+      <span style="display:inline-flex;align-items:center;gap:8px">
+        <span style="width:10px;height:10px;border-radius:3px;background:rgba(255,255,255,16)"></span> outros
+      </span>
+    `
   });
-  const dom = primeDist[0];
-  if(dom){
-    html += `<div class="mini" style="margin-top:6px">🔥 Dominante: <b>${dom.k} primos</b> (${dom.count} ocorrência${dom.count>1?"s":""}).</div>`;
-  }
-  html += `</div></div>`;
-  return html;
+
+  const dominantLine = dom
+    ? `Dominante: <b>${dom.k} primos</b> • ${donutPct}% na janela (${dom.count||0}x)`
+    : `Dominante: —`;
+
+  return _primeSectionBox({
+    title: "🧮 Padrões de primos (equilíbrio)",
+    subtitle: "Mostra quantos números primos costumam aparecer por concurso na janela.",
+    dominantLine,
+    pill: "2/7",
+    leftTitle: "Primos (visual)",
+    donutHtml,
+    rightTitle: "Distribuições na janela",
+    rowsHtml: rows,
+    footerHtml: "✅ Uso prático: manter seu jogo dentro do dominante reduz combinações “fora do padrão”."
+  });
 }
+
 
 function renderLinesPatterns(linesDist, totalConcursos){
-  const top = linesDist.slice(0,6);
-  const max = Math.max(1, ...top.map(x=>x.count));
-  let html = `
-  <div class="box" style="margin-top:12px">
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap">
-      <div>
-        <b>📏 Linhas (L1–L5)</b>
-        <div class="mini">Distribuição de dezenas por linha do volante (5 linhas). Ex: 3-3-3-3-3.</div>
-      </div>
-      <div class="mini">Base: <b>${totalConcursos}</b> concursos</div>
-    </div>
-    <div style="margin-top:10px">
-  `;
-  top.forEach(row=>{
-    const w = Math.round((row.count/max)*100);
-    html += `
-      <div style="display:grid;grid-template-columns:180px 1fr 70px;gap:10px;align-items:center;margin:10px 0">
-        <div style="font-weight:900">${row.pattern}</div>
-        <div style="height:12px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10)">
-          <div style="height:100%;width:${w}%;background:linear-gradient(90deg,var(--accent),var(--accent2));"></div>
-        </div>
-        <div style="text-align:right;font-weight:1000">${row.count}x <span class="mini" style="margin:0">(${row.pct}%)</span></div>
-      </div>
-    `;
+  const top = (linesDist||[]).slice(0, 6);
+  const dom = top[0] || null;
+  const max = _primeMaxCount(top);
+
+  const rows = top.map(x=>{
+    const pctJanela = x?.pct ?? _primePct(x?.count||0, totalConcursos);
+    return _primeRow({
+      labelLeft: `${x.pattern}`,
+      subLeft: `${pctJanela}% na janela`,
+      pctBar: Math.round(((x.count||0)/max)*100),
+      countRight: `${x.count||0}x`
+    });
+  }).join("");
+
+  const donutPct = dom ? (dom.pct ?? _primePct(dom.count||0, totalConcursos)) : 0;
+  const donutHtml = _primeDonut({
+    pct: donutPct,
+    label: dom ? `${dom.pattern}` : "—",
+    legendHtml: `
+      <span style="display:inline-flex;align-items:center;gap:8px;margin-right:14px">
+        <span style="width:10px;height:10px;border-radius:3px;background:var(--accent)"></span> dominante
+      </span>
+      <span style="display:inline-flex;align-items:center;gap:8px">
+        <span style="width:10px;height:10px;border-radius:3px;background:rgba(255,255,255,16)"></span> outros
+      </span>
+    `
   });
-  const dom = linesDist[0];
-  if(dom){
-    html += `<div class="mini" style="margin-top:6px">🔥 Dominante: <b>${dom.pattern}</b> (${dom.count} ocorrência${dom.count>1?"s":""}).</div>`;
-  }
-  html += `</div></div>`;
-  return html;
+
+  const dominantLine = dom
+    ? `Dominante: <b>${dom.pattern}</b> • ${donutPct}% na janela (${dom.count||0}x)`
+    : `Dominante: —`;
+
+  return _primeSectionBox({
+    title: "📏 Padrões de linhas (equilíbrio)",
+    subtitle: "Distribuição de dezenas por linha do volante (5 linhas). Ex: 3-3-3-3-3.",
+    dominantLine,
+    pill: "3/7",
+    leftTitle: "Linhas (visual)",
+    donutHtml,
+    rightTitle: "Distribuições na janela",
+    rowsHtml: rows,
+    footerHtml: "✅ Uso prático: linhas equilibradas ajudam a evitar concentração exagerada em uma faixa do volante."
+  });
 }
 
+
 function renderColsPatterns(colsDist, totalConcursos){
-  const top = colsDist.slice(0,6);
-  const max = Math.max(1, ...top.map(x=>x.count));
-  let html = `
-  <div class="box" style="margin-top:12px">
-    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap">
-      <div>
-        <b>📐 Colunas (C1–C5)</b>
-        <div class="mini">Distribuição de dezenas por coluna do volante (5 colunas). Ex: 4-2-3-3-3.</div>
-      </div>
-      <div class="mini">Base: <b>${totalConcursos}</b> concursos</div>
-    </div>
-    <div style="margin-top:10px">
-  `;
-  top.forEach(row=>{
-    const w = Math.round((row.count/max)*100);
-    html += `
-      <div style="display:grid;grid-template-columns:180px 1fr 70px;gap:10px;align-items:center;margin:10px 0">
-        <div style="font-weight:900">${row.pattern}</div>
-        <div style="height:12px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10)">
-          <div style="height:100%;width:${w}%;background:linear-gradient(90deg,var(--accent),var(--accent2));"></div>
-        </div>
-        <div style="text-align:right;font-weight:1000">${row.count}x <span class="mini" style="margin:0">(${row.pct}%)</span></div>
-      </div>
-    `;
+  const top = (colsDist||[]).slice(0, 6);
+  const dom = top[0] || null;
+  const max = _primeMaxCount(top);
+
+  const rows = top.map(x=>{
+    const pctJanela = x?.pct ?? _primePct(x?.count||0, totalConcursos);
+    return _primeRow({
+      labelLeft: `${x.pattern}`,
+      subLeft: `${pctJanela}% na janela`,
+      pctBar: Math.round(((x.count||0)/max)*100),
+      countRight: `${x.count||0}x`
+    });
+  }).join("");
+
+  const donutPct = dom ? (dom.pct ?? _primePct(dom.count||0, totalConcursos)) : 0;
+  const donutHtml = _primeDonut({
+    pct: donutPct,
+    label: dom ? `${dom.pattern}` : "—",
+    legendHtml: `
+      <span style="display:inline-flex;align-items:center;gap:8px;margin-right:14px">
+        <span style="width:10px;height:10px;border-radius:3px;background:var(--accent)"></span> dominante
+      </span>
+      <span style="display:inline-flex;align-items:center;gap:8px">
+        <span style="width:10px;height:10px;border-radius:3px;background:rgba(255,255,255,16)"></span> outros
+      </span>
+    `
   });
-  const dom = colsDist[0];
-  if(dom){
-    html += `<div class="mini" style="margin-top:6px">🔥 Dominante: <b>${dom.pattern}</b> (${dom.count} ocorrência${dom.count>1?"s":""}).</div>`;
-  }
-  html += `</div></div>`;
-  return html;
+
+  const dominantLine = dom
+    ? `Dominante: <b>${dom.pattern}</b> • ${donutPct}% na janela (${dom.count||0}x)`
+    : `Dominante: —`;
+
+  return _primeSectionBox({
+    title: "📐 Padrões de colunas (equilíbrio)",
+    subtitle: "Distribuição de dezenas por coluna do volante (5 colunas). Ex: 4-2-3-3-3.",
+    dominantLine,
+    pill: "4/7",
+    leftTitle: "Colunas (visual)",
+    donutHtml,
+    rightTitle: "Distribuições na janela",
+    rowsHtml: rows,
+    footerHtml: "✅ Uso prático: colunas muito concentradas tendem a gerar cartões “fora do padrão” da janela."
+  });
 }
+
 
 function renderPrimeKpis(payload, evenOdd, primeDist, linesDist, colsDist, blockPatterns){
   const eoDom = Array.isArray(evenOdd) ? (evenOdd[0]||null) : ((evenOdd && evenOdd.dist && evenOdd.dist.length) ? evenOdd.dist[0] : null);
@@ -2651,49 +2772,55 @@ function renderPrimeKpis(payload, evenOdd, primeDist, linesDist, colsDist, block
 }
 
 function renderBlocksPrime(totals, patterns, total){
-  // ✅ Mostra SOMENTE: "Padrões mais frequentes (A–E por concurso)"
-  // ✅ (Removeu o gráfico de totais A–E)
+  // ✅ Padrões A–E (01–05, 06–10, 11–15, 16–20, 21–25)
+  const toplist = (patterns || []).slice(0, 10);
+  const dom = toplist[0] || null;
+  const max = _primeMaxCount(toplist);
 
-  const toplist = (patterns || []).slice(0, 10); // Top 10 padrões
-  const maxCount = Math.max(...toplist.map(p => p.count || 0), 1);
-
-  const rows = toplist.map(p => {
-    const pctBar = Math.round(((p.count || 0) / maxCount) * 100);
-    const pctJanela = Math.round(((p.count || 0) / Math.max(1, total)) * 100);
-
-    return `
-      <div style="display:flex;align-items:center;gap:10px;margin:10px 0">
-        <div style="width:210px" class="mini">
-          <b>Padrão:</b>
-          <span class="mono">${p.A}-${p.B}-${p.C}-${p.D}-${p.E}</span>
-        </div>
-
-        <div style="flex:1;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.12);
-                    border-radius:999px;overflow:hidden;height:16px">
-          <div style="height:100%;width:${pctBar}%;background:linear-gradient(90deg,var(--accent),var(--accent2))"></div>
-        </div>
-
-        <div style="width:110px;text-align:right" class="mini">
-          <b>${p.count || 0}x</b> • ${pctJanela}%
-        </div>
-      </div>
-    `;
+  const rows = toplist.map(p=>{
+    const key = (p.key || `${p.A}-${p.B}-${p.C}-${p.D}-${p.E}`);
+    const pctJanela = _primePct(p?.count||0, total);
+    return _primeRow({
+      labelLeft: `${key}`,
+      subLeft: `${pctJanela}% na janela`,
+      pctBar: Math.round(((p.count||0)/max)*100),
+      countRight: `${p.count||0}x`
+    });
   }).join("");
 
-  return `
-    <div class="box" style="margin-top:12px">
-      <b>📌 Padrões mais frequentes (A–E por concurso)</b>
-      <div class="mini" style="margin-top:6px">
-        Cada padrão representa quantas dezenas caíram em cada bloco:
-        A(01–05), B(06–10), C(11–15), D(16–20), E(21–25).
-      </div>
+  const domKey = dom ? (dom.key || `${dom.A}-${dom.B}-${dom.C}-${dom.D}-${dom.E}`) : "—";
+  const donutPct = dom ? _primePct(dom.count||0, total) : 0;
 
-      <div style="margin-top:10px">
-        ${rows || `<div class="mini">—</div>`}
-      </div>
-    </div>
-  `;
+  const donutHtml = _primeDonut({
+    pct: donutPct,
+    label: dom ? domKey : "—",
+    legendHtml: `
+      <span style="display:inline-flex;align-items:center;gap:8px;margin-right:14px">
+        <span style="width:10px;height:10px;border-radius:3px;background:var(--accent)"></span> dominante
+      </span>
+      <span style="display:inline-flex;align-items:center;gap:8px">
+        <span style="width:10px;height:10px;border-radius:3px;background:rgba(255,255,255,16)"></span> outros
+      </span>
+    `
+  });
+
+  const dominantLine = dom
+    ? `Dominante: <b>${domKey}</b> • ${donutPct}% na janela (${dom.count||0}x)`
+    : `Dominante: —`;
+
+  return _primeSectionBox({
+    title: "📦 Padrões de blocos A–E (equilíbrio)",
+    subtitle: "Cada padrão representa quantas dezenas caíram em cada bloco: A(01–05), B(06–10), C(11–15), D(16–20), E(21–25).",
+    dominantLine,
+    pill: "6/7",
+    leftTitle: "Blocos (visual)",
+    donutHtml,
+    rightTitle: "Distribuições na janela",
+    rowsHtml: rows,
+    footerHtml: "✅ Uso prático: blocos ajudam a montar um cartão equilibrado no volante (sem concentrar tudo em um lado)."
+  });
 }
+
 /* =========================
    ✅ NOVO: conjuntos que mais saem juntos (3..6 dezenas)
 ========================= */
@@ -2764,45 +2891,54 @@ function calcTopSetsCooc(concursos, opts={}){
 
 function renderTopSets(setsInfo){
   const total = setsInfo?.total || 0;
-  const list = setsInfo?.list || [];
+  const list = (setsInfo?.list || []).slice(0, 10);
+  const dom = list[0] || null;
+  const max = _primeMaxCount(list);
 
   const rows = list.map(s=>{
-    const pct = total ? Math.round((s.count/total)*100) : 0;
-    return `
-      <tr>
-        <td class="mono"><b>${s.key.replaceAll("-", ", ")}</b></td>
-        <td>${s.size}</td>
-        <td><b>${s.count}</b>x</td>
-        <td>${pct}%</td>
-      </tr>
-    `;
+    const pctJanela = _primePct(s?.count||0, total);
+    const label = (s.key || "").replaceAll("-", ", ");
+    return _primeRow({
+      labelLeft: label ? `<span class="mono"><b>${label}</b></span>` : "—",
+      subLeft: `Tamanho ${s.size} • ${pctJanela}% na janela`,
+      pctBar: Math.round(((s.count||0)/max)*100),
+      countRight: `${s.count||0}x`
+    });
   }).join("");
 
-  return `
-    <div class="box" style="margin-top:12px">
-      <b>🔗 Dezenas que mais saem juntas (conjuntos repetidos)</b>
-      <div class="mini" style="margin-top:6px">
-        Aqui o sistema busca <b>ternos, quadras, quintetos e sextetos</b> que se repetem na janela selecionada.
-        (Não é só par.)
-      </div>
-      <div style="margin-top:10px;overflow:auto">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Conjunto</th><th>Tamanho</th><th>Juntos</th><th>% na janela</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${rows || `<tr><td colspan="4" class="mini">—</td></tr>`}
-          </tbody>
-        </table>
-      </div>
-      <div class="mini" style="margin-top:10px">
-        Dica PRIME: esses conjuntos podem ser usados como “núcleo” para montar o jogo, porque mostram repetição real dentro do período analisado.
-      </div>
-    </div>
-  `;
+  const domLabel = dom ? dom.key.replaceAll("-", ", ") : "—";
+  const donutPct = dom ? _primePct(dom.count||0, total) : 0;
+
+  const donutHtml = _primeDonut({
+    pct: donutPct,
+    label: dom ? domLabel : "—",
+    legendHtml: `
+      <span style="display:inline-flex;align-items:center;gap:8px;margin-right:14px">
+        <span style="width:10px;height:10px;border-radius:3px;background:var(--accent)"></span> dominante
+      </span>
+      <span style="display:inline-flex;align-items:center;gap:8px">
+        <span style="width:10px;height:10px;border-radius:3px;background:rgba(255,255,255,16)"></span> outros
+      </span>
+    `
+  });
+
+  const dominantLine = dom
+    ? `Dominante: <b class="mono">${domLabel}</b> • ${donutPct}% na janela (${dom.count||0}x)`
+    : `Dominante: —`;
+
+  return _primeSectionBox({
+    title: "🔗 Conjuntos que mais saem juntos (equilíbrio)",
+    subtitle: "Aqui o sistema busca ternos, quadras, quintetos… que se repetem na janela (não é só par).",
+    dominantLine,
+    pill: "7/7",
+    leftTitle: "Conjunto (visual)",
+    donutHtml,
+    rightTitle: "Distribuições na janela",
+    rowsHtml: rows,
+    footerHtml: "✅ Dica PRIME: use o conjunto dominante como “núcleo” e complete com dezenas compatíveis com os demais padrões (paridade, linhas, colunas, blocos)."
+  });
 }
+
 
 
 
