@@ -7,6 +7,7 @@
 <title>Lotofácil Prime Analytics</title>
 
 <style>
+
   :root{
     /* THEME PRIME (padrão Prints 4/5/6) */
     --bg1:#0b0c10;
@@ -61,67 +62,39 @@
   .sub, .subtitle, .mini, .hint{ color: var(--muted2); }
 
 
-  /* ===== BOTÕES (padrão unificado PRIME) ===== */
-  button, .btn, .btnGhost, .btnPrimary, .btnBlue, .btnGreen, .btnRed, .btnYellow, 
-function formatEoLabel(eo){
-  if(!eo) return "—";
-  if(typeof eo.label === "string" && eo.label.trim()) return eo.label;
-  if(Number.isFinite(eo.pares) && Number.isFinite(eo.impares)) return `${eo.pares} P / ${eo.impares} I`;
-  if(typeof eo.key === "string" && eo.key.includes("-")){
-    const [p,i] = eo.key.split("-").map(Number);
-    if(Number.isFinite(p) && Number.isFinite(i)) return `${p} P / ${i} I`;
-  }
-  return "—";
-}
-
-.btnOrange{
+  /* ===== BOTÕES (padrão Print 6 - cinza com miolo preto) ===== */
+  button, .btn, .btnGhost, .btnPrimary, .btnBlue, .btnGreen, .btnRed, .btnYellow, .btnOrange{
+    -webkit-appearance:none; appearance:none;
     border-radius:18px !important;
-    font-weight:1000;
+    font-weight:900 !important;
     letter-spacing:.2px;
-    transition:.15s;
+    transition: transform .12s ease, filter .12s ease, box-shadow .12s ease;
   }
   button:hover, .btn:hover, .btnGhost:hover, .btnPrimary:hover, .btnBlue:hover, .btnGreen:hover, .btnRed:hover, .btnYellow:hover, .btnOrange:hover{
     transform: translateY(-1px);
-    filter: brightness(1.05);
+    filter: brightness(1.03);
   }
   button:active, .btn:active, .btnGhost:active, .btnPrimary:active, .btnBlue:active, .btnGreen:active, .btnRed:active, .btnYellow:active, .btnOrange:active{
-    transform: translateY(0px);
-    filter: brightness(.98);
+    transform: translateY(0px) scale(.99);
   }
 
-  .btnPrimary, .btnYellow{
-    background: linear-gradient(180deg,
-      rgba(245,214,123,.96) 0%,
-      rgba(234,179,8,.86) 60%,
-      rgba(245,214,123,.90) 100%
-    ) !important;
-    color:#111 !important;
-    border:1px solid rgba(234,179,8,.30) !important;
-    box-shadow:
-      inset 0 1px 0 rgba(255,255,255,.18),
-      0 18px 55px rgba(234,179,8,.14);
-  }
-  .btnPrimary:hover, .btnYellow:hover{ box-shadow: inset 0 1px 0 rgba(255,255,255,.22), 0 18px 70px rgba(234,179,8,.18); }
-
-  .btnGhost, .btn, .btnBlue, .btnGreen, .btnOrange, .btnRed{
-    background: linear-gradient(180deg,
-      rgba(255,255,255,.12) 0%,
-      rgba(0,0,0,.66) 55%,
-      rgba(255,255,255,.08) 100%
-    ) !important;
+  /* Secundários (cinza com preto no meio) */
+  .btnGhost, .btn, .btnRed, .btnOrange, .btnBlue, .btnGreen, .btnYellow{
+    background: linear-gradient(180deg, rgba(245,245,245,.18), rgba(0,0,0,.38), rgba(255,255,255,.10)) !important;
     border:1px solid rgba(255,255,255,.18) !important;
     color: var(--text) !important;
-    box-shadow:
-      inset 0 1px 0 rgba(255,255,255,.10),
-      inset 0 -1px 0 rgba(0,0,0,.55),
-      0 14px 40px rgba(0,0,0,.30);
+    box-shadow: 0 10px 26px rgba(0,0,0,.45);
   }
-
+  /* Primário (dourado suave) */
+  .btnPrimary{
+    background: linear-gradient(180deg, rgba(250,204,21,.92), rgba(234,179,8,.78)) !important;
+    border:1px solid rgba(0,0,0,.35) !important;
+    color:#111827 !important;
+    box-shadow: 0 14px 30px rgba(234,179,8,.16);
+  }
   .btnSmall{ padding:10px 14px !important; border-radius:16px !important; width:auto !important; }
   .btnWide{ width:100% !important; }
 
-
-*{box-sizing:border-box;font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif}
   html,body{height:100%}
   body{
     margin:0;
@@ -254,6 +227,12 @@ function formatEoLabel(eo){
 
   .status{display:none;margin-top:10px;padding:12px;border-radius:14px;background:rgba(56,189,248,.10);
           border:1px solid rgba(56,189,248,.22);color:#e6f8ff;font-size:13px;font-weight:950;}
+
+  .status.statusErr{
+    background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(0,0,0,.35), rgba(255,255,255,.06));
+    border:1px solid rgba(255,255,255,.18);
+    color: rgba(243,244,246,.92);
+  }
   .bar{height:10px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.08);margin-top:10px}
   .bar>div{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .2s ease}
 
@@ -733,20 +712,6 @@ function formatEoLabel(eo){
   b{letter-spacing:.15px}
   .topNav button{min-height:44px}
 
-  /* PRIME: botões cinza (secundários) */
-  .btnGhost, .btn, .btnRed, .btnOrange, .btnBlue, .btnGreen, .btnYellow{
-    background: linear-gradient(180deg, rgba(64,64,70,.45), rgba(20,20,22,.55)) !important;
-    border: 1px solid rgba(255,255,255,.14) !important;
-    color: var(--text) !important;
-    box-shadow: 0 10px 26px rgba(0,0,0,.45);
-  }
-  .btnPrimary{
-    background: linear-gradient(180deg, rgba(234,179,8,.95), rgba(202,163,74,.92)) !important;
-    border: 1px solid rgba(0,0,0,.35) !important;
-    color:#111827 !important;
-    box-shadow: 0 14px 30px rgba(234,179,8,.18);
-  }
-
   /* PRIME: tabelas mais legíveis (inclui 15P) */
   .table{width:100%; border-collapse:separate; border-spacing:0 10px}
   .table thead th{
@@ -886,7 +851,7 @@ const functions = firebase.app().functions("us-central1");
     </button>
 
     <div id="msgOk" class="status" style="display:none"></div>
-    <div id="msgErr" class="status" style="display:none;background:rgba(251,113,133,.12);border:1px solid rgba(251,113,133,.28);color:#ffe7ec"></div>
+    <div id="msgErr" class="status statusErr" style="display:none"></div>
 
     <div class="footerNote">Dica: use o mesmo email utilizado na compra Hotmart.</div>
   </div>
@@ -2626,6 +2591,21 @@ function renderColsPatterns(colsDist, totalConcursos){
   html += `</div></div>`;
   return html;
 }
+
+
+function formatEoLabel(eo){
+  if(!eo) return "—";
+  if(typeof eo.label === "string" && eo.label.trim()) return eo.label.trim();
+  if(Number.isFinite(eo.pares) && Number.isFinite(eo.impares)) return `${eo.pares} P / ${eo.impares} I`;
+  if(typeof eo.key === "string" && eo.key.includes("-")){
+    const [p,i] = eo.key.split("-").map(Number);
+    if(Number.isFinite(p) && Number.isFinite(i)) return `${p} P / ${i} I`;
+  }
+  if(Number.isFinite(eo.even) && Number.isFinite(eo.odd)) return `${eo.even} P / ${eo.odd} I`;
+  return "—";
+}
+// compat: alguns pontos antigos chamam com outro nome
+function formatEOLabel(eo){ return formatEoLabel(eo); }
 
 function renderPrimeKpis(payload, evenOdd, primeDist, linesDist, colsDist, blockPatterns){
   const eoDom = Array.isArray(evenOdd) ? (evenOdd[0]||null) : ((evenOdd && evenOdd.dist && evenOdd.dist.length) ? evenOdd.dist[0] : null);
