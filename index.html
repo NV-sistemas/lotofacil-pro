@@ -448,65 +448,96 @@
 
 
 /* =========================
-   ✅ LAYOUT EXPLICAÇÃO 15P (PADRÃO PRINT)
+   ✅ LAYOUT 15P VERTICAL PREMIUM COM GLOW (MOBILE FIRST)
 ========================= */
+
 .p15-card{
-  background: rgba(0,0,0,.75);
-  border:1px solid rgba(250,204,21,.25);
+  background: linear-gradient(180deg, rgba(0,0,0,.92), rgba(0,0,0,.78));
+  border:1px solid rgba(250,204,21,.35);
   border-radius:18px;
-  padding:16px;
-  margin-top:14px;
-  box-shadow: 0 18px 55px rgba(0,0,0,.55);
+  padding:14px;
+  margin:16px auto;
+  max-width:380px; /* ✅ vertical */
+  box-shadow:
+    0 0 0 1px rgba(250,204,21,.15),
+    0 0 25px rgba(250,204,21,.08),
+    0 18px 55px rgba(0,0,0,.65);
 }
+
 .p15-title{
   font-weight:1000;
-  font-size:15px;
+  font-size:14px;
   color:var(--accent);
-  margin-bottom:8px;
-}
-.p15-metrics{
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
   margin-bottom:10px;
+  text-align:center;
+  letter-spacing:.3px;
 }
+
+.p15-metrics{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-bottom:12px;
+}
+
 .p15-chip{
   background:rgba(0,0,0,.85);
-  border:1px solid rgba(255,255,255,.15);
-  padding:6px 10px;
-  border-radius:999px;
-  font-size:12px;
+  border:1px solid rgba(250,204,21,.25);
+  padding:6px 8px;
+  border-radius:14px;
+  font-size:11px;
   font-weight:900;
+  text-align:center;
+  box-shadow: 0 0 12px rgba(250,204,21,.05);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
 }
+
 .p15-numbers{
   display:flex;
-  gap:8px;
+  gap:6px;
   flex-wrap:wrap;
+  justify-content:center;
   margin:8px 0 12px 0;
 }
+
 .p15-ball{
-  width:38px;
-  height:38px;
+  width:32px;
+  height:32px;
   border-radius:999px;
   display:flex;
   align-items:center;
   justify-content:center;
-  background:rgba(0,0,0,.85);
-  border:1px solid rgba(250,204,21,.35);
+  background:rgba(0,0,0,.95);
+  border:1px solid rgba(250,204,21,.55);
   color:var(--accent);
   font-weight:1000;
+  font-size:11px;
+  box-shadow: 0 0 10px rgba(250,204,21,.15);
 }
+
 .p15-section{
-  font-size:13px;
+  font-size:12px;
   line-height:1.45;
   margin-bottom:10px;
+  color:rgba(255,255,255,.92);
 }
+
 .p15-warning{
-  background:rgba(0,0,0,.65);
-  border:1px solid rgba(255,255,255,.12);
+  background:rgba(0,0,0,.75);
+  border:1px solid rgba(250,204,21,.25);
   padding:10px;
-  border-radius:12px;
-  margin-top:8px;
+  border-radius:14px;
+  font-size:11.5px;
+  line-height:1.4;
+  box-shadow: inset 0 0 12px rgba(250,204,21,.05);
+}
+
+@media (max-width:420px){
+  .p15-card{ max-width:92vw; padding:12px; }
+  .p15-ball{ width:28px; height:28px; font-size:10px; }
+  .p15-chip{ font-size:10px; padding:6px; }
 }
 
 </style>
