@@ -1401,6 +1401,17 @@ function _normDezenasAny(x){
   return [];
 }
 
+
+// Normaliza as dezenas de um concurso (aceita objetos com várias chaves ou arrays diretos)
+function getDezenas(concurso){
+  if(!concurso) return [];
+  // Se já veio como array
+  if(Array.isArray(concurso)) return _normDezenasAny(concurso);
+  // Tenta chaves comuns do seu payload
+  const raw = concurso.dezenas ?? concurso.numeros ?? concurso.nums ?? concurso.resultado ?? concurso.res ?? concurso.dez ?? concurso.dz;
+  return _normDezenasAny(raw);
+}
+
 function _getDrawArraysFromConcursos(concursos){
   const arr = (concursos||[])
     .map(c=>{
