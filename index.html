@@ -43,6 +43,41 @@
     --purple:#facc15; --purple2:#ffe27a;
   }
 
+  /* ===== BOTÕES (padrão unificado PRIME) ===== */
+  button, .btn, .btnGhost, .btnPrimary, .btnBlue, .btnGreen, .btnRed, .btnYellow, .btnOrange{
+    border-radius:18px !important;
+    font-weight:1000;
+    letter-spacing:.2px;
+    transition:.15s;
+  }
+  button:hover, .btn:hover, .btnGhost:hover, .btnPrimary:hover, .btnBlue:hover, .btnGreen:hover, .btnRed:hover, .btnYellow:hover, .btnOrange:hover{
+    transform: translateY(-1px);
+    filter: brightness(1.05);
+  }
+  button:active, .btn:active, .btnGhost:active, .btnPrimary:active, .btnBlue:active, .btnGreen:active, .btnRed:active, .btnYellow:active, .btnOrange:active{
+    transform: translateY(0px);
+    filter: brightness(.98);
+  }
+
+  .btnPrimary, .btnYellow{
+    background: linear-gradient(180deg, rgba(250,204,21,.98), rgba(250,204,21,.78)) !important;
+    color:#111 !important;
+    border:1px solid rgba(250,204,21,.35) !important;
+    box-shadow: 0 18px 55px rgba(250,204,21,.18);
+  }
+  .btnPrimary:hover, .btnYellow:hover{ box-shadow: 0 18px 70px rgba(250,204,21,.22); }
+
+  .btnGhost, .btn, .btnBlue, .btnGreen, .btnOrange{
+    background: rgba(0,0,0,.55) !important;
+    border:1px solid rgba(255,255,255,.12) !important;
+    color: var(--text) !important;
+    box-shadow: 0 14px 40px rgba(0,0,0,.28);
+  }
+
+  .btnSmall{ padding:10px 14px !important; border-radius:16px !important; width:auto !important; }
+  .btnWide{ width:100% !important; }
+
+
 *{box-sizing:border-box;font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif}
   html,body{height:100%}
   body{
@@ -137,7 +172,7 @@
     padding:14px 14px;
     border-radius:18px;
     border:1px solid rgba(255,255,255,.12);
-    background: rgba(0,0,0,.78);
+    background: rgba(0,0,0,.72);
     color:var(--text);
     outline:none;
   }
@@ -190,14 +225,15 @@
   .actionCard{
     text-align:left;
     border:1px solid rgba(255,255,255,.12);
-    background: linear-gradient(180deg, rgba(12,10,7,.72), rgba(12,10,7,.50));
+    background: linear-gradient(180deg, rgba(12,10,7,.74), rgba(12,10,7,.52));
     border-radius:26px;
     padding:20px 20px;
     cursor:pointer;
     transition:.15s;
     position:relative;
-    min-height:132px;
-    box-shadow: 0 18px 55px rgba(0,0,0,.40);
+    min-height:140px;
+    box-shadow: 0 18px 55px rgba(0,0,0,.42);
+    overflow:hidden;
   }
   .actionCard:hover{transform:translateY(-2px);background: var(--surface2);}
   .actionTitle{
@@ -552,6 +588,49 @@
   .p15-chip{ font-size:10px; padding:6px; }
 }
 
+
+  /* ===== BADGES/PILLS (FREE/PREMIUM/EXTRA) ===== */
+  .badge, .pill, .tag, .chip{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:7px 12px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:1000;
+    letter-spacing:.3px;
+    border:1px solid rgba(255,255,255,.12);
+    background: rgba(0,0,0,.55);
+    color: rgba(255,255,255,.92);
+  }
+  .badge.yellow, .pill.yellow, .tag.yellow, .chip.yellow{
+    background: rgba(250,204,21,.18);
+    border-color: rgba(250,204,21,.35);
+    color: var(--accent2);
+  }
+  .badge.premium, .pill.premium{
+    background: rgba(255,255,255,.06);
+    border-color: rgba(255,255,255,.14);
+    color: rgba(255,255,255,.86);
+  }
+  .badge.extra, .pill.extra{
+    background: rgba(251,146,60,.12);
+    border-color: rgba(251,146,60,.30);
+    color: rgba(255,255,255,.92);
+  }
+
+  /* ===== ÍCONES/IMAGENS (harmonia) ===== */
+  .iconBox, .iconWrap{
+    width:34px;height:34px;
+    border-radius:12px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    background: rgba(250,204,21,.14);
+    border:1px solid rgba(250,204,21,.22);
+    box-shadow: 0 12px 30px rgba(0,0,0,.25);
+  }
+  .iconBox svg, .iconWrap svg{ filter: drop-shadow(0 6px 12px rgba(0,0,0,.35)); }
 </style>
 </head>
 
