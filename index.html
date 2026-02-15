@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -1732,16 +1733,18 @@ function _scoreMatch(feat, prof){
   return s;
 }
 
-function _rankCandidatesForProfile(candidates, usedSet, prev4Draws, prof, avoidCounts, penalty=0.35){
-  const pen = (typeof penalty === "number") ? penalty : 0.35;
+function _rankCandidatesForProfile(candidates, usedSet, prev4Draws, prof, avoidCounts, penalty=0.9){
+  const pen = (typeof penalty === "number") ? penalty : 0.9;
   const scored = [];
   for(const n of candidates){
     if(usedSet.has(n)) continue;
     const feat = _featuresNow(n, prev4Draws);
     let sc = _scoreMatch(feat, prof);
+
     const usedTimes = avoidCounts && avoidCounts[n] ? avoidCounts[n] : 0;
     sc = sc - usedTimes * pen;
-    scored.push({ n, sc });
+
+    scored.push({ n, sc, usedTimes });
   }
   scored.sort((a,b)=>{
     if(b.sc !== a.sc) return b.sc - a.sc;
@@ -1750,11 +1753,37 @@ function _rankCandidatesForProfile(candidates, usedSet, prev4Draws, prof, avoidC
   return scored;
 }
 
-function _pickVariantForProfile(candidates, usedSet, prev4Draws, prof, variantIndex, avoidCounts, penalty=0.35){
+function _pickVariantForProfile(candidates, usedSet, prev4Draws, prof, variantIndex, avoidCounts, penalty=0.9){
   const ranked = _rankCandidatesForProfile(candidates, usedSet, prev4Draws, prof, avoidCounts, penalty);
   if(!ranked.length) return null;
-  const idx = Math.max(0, Math.min(Number(variantIndex)||0, ranked.length-1));
-  const pick = ranked[idx].n;
+
+  const v = Math.max(0, Number(variantIndex)||0);
+
+  // ✅ Alternância determinística:
+  // - tenta pegar a opção "v" (0..3) da letra
+  // - mas evita reutilizar dezenas já muito usadas nos jogos anteriores (avoidCounts)
+  //   (ex: no jogo 2, prioriza dezenas com usedTimes <= 1, etc)
+  let chosen = null;
+
+  // 1) procura a partir do índice v uma dezena "compatível" com o nível de reutilização
+  for(let i=v; i<ranked.length; i++){
+    const it = ranked[i];
+    if((it.usedTimes||0) <= v){
+      chosen = it;
+      break;
+    }
+  }
+
+  // 2) se não achou, cai para o índice v (se existir)
+  if(!chosen){
+    const idx = Math.min(v, ranked.length-1);
+    chosen = ranked[idx];
+  }
+
+  // 3) fallback final: melhor (0)
+  if(!chosen) chosen = ranked[0];
+
+  const pick = chosen.n;
   usedSet.add(pick);
   return pick;
 }
@@ -1819,12 +1848,15 @@ function buildPack4JogosPreditivo(payload){
   function montarJogo(kind, avoidCounts){
     const vIdx = _variantIndexByKind(kind);
 
+    // penalidade de reutilização cresce por jogo (determinístico)
+    const pen = 0.9 * (1 + vIdx*0.35);
+
     const used = new Set();
 
     const outPick = [];
     for(const L of LETTERS_OUT){
       const prof = profiles.out[L];
-      const pick = _pickVariantForProfile(ALL_25, used, prev4, prof, vIdx, avoidCounts, 0.35);
+      const pick = _pickVariantForProfile(ALL_25, used, prev4, prof, vIdx, avoidCounts, pen);
       if(pick!==null) outPick.push({L, n:pick, prof});
     }
 
@@ -1838,11 +1870,11 @@ function buildPack4JogosPreditivo(payload){
       const profUse = profiles.drawn[L];
 
       // ✅ variação por jogo (0..3) dentro do MESMO treino por letras
-      let pick = _pickVariantForProfile(remainCandidates, usedGame, prev4, profUse, vIdx, avoidCounts, 0.35);
+      let pick = _pickVariantForProfile(remainCandidates, usedGame, prev4, profUse, vIdx, avoidCounts, pen);
 
       // fallback determinístico: se o índice da variação não existir, cai para o melhor (0)
       if(pick===null){
-        pick = _pickVariantForProfile(remainCandidates, usedGame, prev4, profUse, 0, avoidCounts, 0.35);
+        pick = _pickVariantForProfile(remainCandidates, usedGame, prev4, profUse, 0, avoidCounts, 0.9);
       }
 
       if(pick!==null){
