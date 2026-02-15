@@ -5511,6 +5511,163 @@ function renderJogosSalvosAoAbrir(){
       }
     };
   }
+  /* =========================
+     ✅ HYBRIDO INTELIGENTE (TREINO POR LETRAS + ESTRUTURA FIXA POR GAP)
+     - O treino (letras A..O / P..Y) continua sendo o "cérebro" (quem escolhe as dezenas).
+     - O FIX_PATTERNS continua sendo só a "estrutura" (quantas repetidas/gap1/gap2/gap3p em cada jogo).
+     - Assim: o usuário pode escolher 3/4/12/30 concursos e o PADRÃO NÃO MUDA; só muda o "estado atual" (features) lido da janela.
+  ========================= */
+
+  function buildGameHybrid(name, pattern, windowDraws, seed){
+    const pools = buildPoolsFromWindow(windowDraws);
+    const prev4 = lastK(windowDraws, 4); // estado atual lido (sempre 4 pra trás)
+
+    // perfis fixos do treino
+    const profiles = trainFixedProfiles();
+
+    // ajustes por jogo (mesma ideia do motor por letras antigo)
+    function tweakProfileByKind(letter, profBase){
+      const p = Object.assign({}, profBase);
+      if(name === "invertida"){
+        // espelha paridade (se no treino era par, prefere ímpar e vice-versa)
+        if(typeof p.parity === "number") p.parity = p.parity ? 0 : 1;
+      }
+      // técnica1/técnica2: mantém o perfil, só muda desempate
+      return p;
+    }
+
+    const used = new Set();
+    const motivos = [];
+    const picked = [];
+
+    // ordem fixa de preenchimento conforme padrão (garante agressividade/repetidas primeiro)
+    const steps = [
+      {key:"gap0",  label:"R (repetida do último)", need: Number(pattern.gap0||0), tieDefault:"LOW"},
+      {key:"gap1",  label:"G1 (saiu no penúltimo)", need: Number(pattern.gap1||0), tieDefault:"LOW"},
+      {key:"gap2",  label:"G2 (saiu no antepenúltimo)", need: Number(pattern.gap2||0), tieDefault:"LOW"},
+      {key:"gap3p", label:"G3+ (não saiu nos 3 últimos)", need: Number(pattern.gap3p||0), tieDefault:"LOW"},
+    ];
+
+    // tie-break por jogo
+    function tieByKind(){
+      if(name==="tecnica1") return "HIGH";
+      if(name==="tecnica2") return "LOW";
+      return "LOW";
+    }
+    const tie = tieByKind();
+
+    // preenche cada bucket usando as letras em sequência (A..O)
+    let li = 0;
+    for(const st of steps){
+      let pool = (pools && pools[st.key]) ? pools[st.key].slice() : [];
+      // fallback: se pool vier vazio (janela pequena), usa ALL_25
+      if(!pool.length) pool = ALL_25.slice();
+
+      for(let k=0;k<st.need && li<LETTERS_DRAWN.length;k++){
+        const letter = LETTERS_DRAWN[li];
+        const profBase = profiles.drawn[letter];
+        const prof = tweakProfileByKind(letter, profBase);
+
+        // escolhe dentro do pool
+        let n = _pickBestForProfile(pool, used, prev4, prof, tie);
+        if(n==null){
+          // fallback global
+          n = _pickBestForProfile(ALL_25, used, prev4, prof, tie);
+        }
+        if(n==null) continue;
+
+        used.add(n);
+        picked.push(n);
+        motivos.push({dezena:n, texto:`${name.toUpperCase()} • letra ${letter} • ${st.label}`});
+        li++;
+      }
+    }
+
+    // completa se faltou alguma (por segurança)
+    while(picked.length < 15){
+      const letter = LETTERS_DRAWN[Math.min(li, LETTERS_DRAWN.length-1)];
+      const profBase = profiles.drawn[letter];
+      const prof = tweakProfileByKind(letter, profBase);
+
+      let n = _pickBestForProfile(ALL_25, used, prev4, prof, tie);
+      if(n==null){
+        // último fallback: menor disponível
+        for(let x=1;x<=25;x++){ if(!used.has(x)){ n=x; break; } }
+      }
+      if(n==null) break;
+      used.add(n);
+      picked.push(n);
+      motivos.push({dezena:n, texto:`${name.toUpperCase()} • ajuste de completude`});
+      li++;
+    }
+
+    return { jogo: uniqSort15(picked), motivos };
+  }
+
+  function buildPackHybrid(payload){
+    const qtd = qtdSelecionadaSafe();
+    const draws = (payload && Array.isArray(payload.concursos) && payload.concursos.length)
+      ? payload.concursos.slice()
+      : getConcursosDisponiveisSafe();
+
+    // janela apenas para ler estado atual (features), sem mudar o padrão
+    const windowDraws = lastK(draws, Math.max(6, qtd)); // mínimo 6 por causa dos gaps
+    const ultimoConcurso = windowDraws[windowDraws.length-1]?.concurso || (payload?.ultimo||0) || 0;
+    const seedBase = (Number(ultimoConcurso)||0) + (Number(qtd)||0)*17;
+
+    const gP  = buildGameHybrid("principal", FIX_PATTERNS.principal, windowDraws, seedBase+1);
+    const gI  = buildGameHybrid("invertida", FIX_PATTERNS.invertida, windowDraws, seedBase+2);
+    const gT1 = buildGameHybrid("tecnica1", FIX_PATTERNS.tecnica1, windowDraws, seedBase+3);
+    const gT2 = buildGameHybrid("tecnica2", FIX_PATTERNS.tecnica2, windowDraws, seedBase+4);
+
+    // Anti-igualdade mínima (reusa os mesmos params do motor fixo atual)
+    const games = [
+      {id:"P", jogo:gP.jogo, motivos:gP.motivos},
+      {id:"I", jogo:gI.jogo, motivos:gI.motivos},
+      {id:"T1", jogo:gT1.jogo, motivos:gT1.motivos},
+      {id:"T2", jogo:gT2.jogo, motivos:gT2.motivos},
+    ];
+    const minDiffs = {
+      I:  {P:4},
+      T1: {P:5},
+      T2: {P:5, T1:4}
+    };
+    enforceDifferent(games, minDiffs, seedBase+9);
+
+    function forceNotEqual(a, b){
+      if(!sameArr(a.jogo,b.jogo)) return;
+      for(let n=1;n<=25;n++){
+        if(!a.jogo.includes(n)){
+          a.jogo = uniqSort15(a.jogo.slice(0,14).concat([n]));
+          a.motivos.push({dezena:n, texto:"Ajuste final anti-duplicação"});
+          break;
+        }
+      }
+    }
+    forceNotEqual(games[1], games[0]);
+    forceNotEqual(games[2], games[0]);
+    forceNotEqual(games[3], games[0]);
+    forceNotEqual(games[3], games[2]);
+
+    return {
+      ok: true,
+      principal: games[0].jogo,
+      invertida: games[1].jogo,
+      tecnica1:  games[2].jogo,
+      tecnica2:  games[3].jogo,
+      motivos: {
+        principal: games[0].motivos,
+        invertida: games[1].motivos,
+        tecnica1:  games[2].motivos,
+        tecnica2:  games[3].motivos,
+      },
+      meta: {
+        padrao: "HIBRIDO • letras (treino fixo) + estrutura FIX_PATTERNS (gaps/repetidas) • sem aleatório",
+        patterns: FIX_PATTERNS
+      }
+    };
+  }
+
 
   // >>> Instala o motor novo SEM apagar o antigo (OPÇÃO 1)
   // Overwrite global callable: buildPack4JogosPreditivo(payload)
@@ -5518,7 +5675,7 @@ function renderJogosSalvosAoAbrir(){
   window.__old_buildPack4JogosPreditivo__ = old;
 
   window.buildPack4JogosPreditivo = function(payload){
-    return buildPackFix(payload || window.lastPayload || null);
+    return buildPackHybrid(payload || window.lastPayload || null);
   };
 
   // garante que chamadas por identificador também usem o novo
