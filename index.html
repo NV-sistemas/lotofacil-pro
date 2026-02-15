@@ -1733,13 +1733,45 @@ function _scoreMatch(feat, prof){
   return s;
 }
 
-function _pickBestForProfile(candidates, usedSet, prev4Draws, prof, tie){
+function _pickBestForProfileB(candidates, usedSet, prev4Draws, prof, tie, avoidCounts, 0.35){
   let best=null;
   let bestScore=-1;
   for(const n of candidates){
     if(usedSet.has(n)) continue;
     const feat = _featuresNow(n, prev4Draws);
     const sc = _scoreMatch(feat, prof);
+
+    if(sc > bestScore){
+      best = n; bestScore = sc;
+      continue;
+    }
+    if(sc === bestScore && best!==null){
+      if(tie === "LOW"){
+        if(n < best) best=n;
+      }else if(tie === "HIGH"){
+        if(n > best) best=n;
+      }else{
+        if(n < best) best=n;
+      }
+    }
+  }
+  if(best!==null){
+    usedSet.add(best);
+    return best;
+  }
+  return null;
+}
+
+function _pickBestForProfileB(candidates, usedSet, prev4Draws, prof, tie, avoidCounts, penalty, avoidCounts, 0.35){
+  let best=null;
+  let bestScore=-1e9;
+  const pen = (typeof penalty==="number") ? penalty : 0.35;
+  for(const n of candidates){
+    if(usedSet.has(n)) continue;
+    const feat = _featuresNow(n, prev4Draws);
+    let sc = _scoreMatch(feat, prof);
+    const usedTimes = avoidCounts && (avoidCounts[n]||0) ? (avoidCounts[n]||0) : 0;
+    sc = sc - usedTimes * pen;
 
     if(sc > bestScore){
       best = n; bestScore = sc;
@@ -1783,13 +1815,13 @@ function buildPack4JogosPreditivo(payload){
   const motivos = { principal:[], invertida:[], tecnica1:[], tecnica2:[] };
   const meta = { profiles };
 
-  function montarJogo(kind){
+  function montarJogo(kind, avoidCounts){
     const used = new Set();
 
     const outPick = [];
     for(const L of LETTERS_OUT){
       const prof = profiles.out[L];
-      const pick = _pickBestForProfile(ALL_25, used, prev4, prof, (kind==="tecnica1" ? "HIGH" : "LOW"));
+      const pick = _pickBestForProfileB(ALL_25, used, prev4, prof, (kind==="tecnica1" ? "HIGH" : "LOW"), avoidCounts, 0.35);
       if(pick!==null) outPick.push({L, n:pick, prof});
     }
 
@@ -1814,7 +1846,7 @@ function buildPack4JogosPreditivo(payload){
       }
 
       const tie = (kind==="tecnica1") ? "HIGH" : "LOW";
-      const pick = _pickBestForProfile(remainCandidates, usedGame, prev4, profUse, tie);
+      const pick = _pickBestForProfileB(remainCandidates, usedGame, prev4, profUse, tie, avoidCounts, 0.35);
 
       if(pick!==null){
         jogo.push(pick);
@@ -1846,10 +1878,18 @@ function buildPack4JogosPreditivo(payload){
     return { jogo: jogoSorted, out: outPick.map(x=>x.n).sort((a,b)=>a-b), picks };
   }
 
-  const p  = montarJogo("principal");
-  const i  = montarJogo("invertida");
-  const t1 = montarJogo("tecnica1");
-  const t2 = montarJogo("tecnica2");
+  const avoidCounts = Object.create(null);
+
+const p  = montarJogo("principal", avoidCounts);
+for(const n of p.jogo){ avoidCounts[n] = (avoidCounts[n]||0) + 1; }
+
+const i  = montarJogo("invertida", avoidCounts);
+for(const n of i.jogo){ avoidCounts[n] = (avoidCounts[n]||0) + 1; }
+
+const t1 = montarJogo("tecnica1", avoidCounts);
+for(const n of t1.jogo){ avoidCounts[n] = (avoidCounts[n]||0) + 1; }
+
+const t2 = montarJogo("tecnica2", avoidCounts);
 
   return {
     ok:true,
@@ -5083,76 +5123,14 @@ function renderJogosSalvosAoAbrir(){
     }
   }
 
-  function buildPackFix(payload){
-    const qtd = qtdSelecionadaSafe();
-    const draws = (payload && Array.isArray(payload.concursos) && payload.concursos.length)
-      ? payload.concursos.slice()
-      : getConcursosDisponiveisSafe();
 
-    const windowDraws = lastK(draws, Math.max(6, qtd)); // usa pelo menos 6 para gaps 0-6
-    const ultimoConcurso = windowDraws[windowDraws.length-1]?.concurso || (payload?.ultimo||0) || 0;
-    const seedBase = (Number(ultimoConcurso)||0) + (Number(qtd)||0)*17;
+// >>> Instala o motor TREINADO (MODELO B) como único gerador
+window.buildPack4JogosPreditivo = function(payload){
+  return buildPack4JogosPreditivo(payload || window.lastPayload || null);
+};
 
-    const gP  = buildGameFromPattern("principal", FIX_PATTERNS.principal, windowDraws, new Set(), seedBase+1);
-    const gI  = buildGameFromPattern("invertida", FIX_PATTERNS.invertida, windowDraws, new Set(), seedBase+2);
-    const gT1 = buildGameFromPattern("tecnica1", FIX_PATTERNS.tecnica1, windowDraws, new Set(), seedBase+3);
-    const gT2 = buildGameFromPattern("tecnica2", FIX_PATTERNS.tecnica2, windowDraws, new Set(), seedBase+4);
-
-    const games = [
-      {id:"P", jogo:gP.jogo, motivos:gP.motivos},
-      {id:"I", jogo:gI.jogo, motivos:gI.motivos},
-      {id:"T1", jogo:gT1.jogo, motivos:gT1.motivos},
-      {id:"T2", jogo:gT2.jogo, motivos:gT2.motivos},
-    ];
-    const minDiffs = {
-      I:  {P:4},
-      T1: {P:5},
-      T2: {P:5, T1:4}
-    };
-    enforceDifferent(games, minDiffs, seedBase+9);
-
-    function forceNotEqual(a, b){
-      if(!sameArr(a.jogo,b.jogo)) return;
-      for(let n=1;n<=25;n++){
-        if(!a.jogo.includes(n)){
-          a.jogo = uniqSort15(a.jogo.slice(0,14).concat([n]));
-          a.motivos.push({dezena:n, texto:"Ajuste final anti-duplicação"});
-          break;
-        }
-      }
-    }
-    forceNotEqual(games[1], games[0]);
-    forceNotEqual(games[2], games[0]);
-    forceNotEqual(games[3], games[0]);
-    forceNotEqual(games[3], games[2]);
-
-    return {
-      ok: true,
-      principal: games[0].jogo,
-      invertida: games[1].jogo,
-      tecnica1:  games[2].jogo,
-      tecnica2:  games[3].jogo,
-      motivos: {
-        principal: games[0].motivos,
-        invertida: games[1].motivos,
-        tecnica1:  games[2].motivos,
-        tecnica2:  games[3].motivos,
-      },
-      meta: {
-        padrao: "FIXO (treino 21) • 4 padrões hardcoded • sem quente/fria",
-        patterns: FIX_PATTERNS
-      }
-    };
-  }
-
-  const old = window.buildPack4JogosPreditivo;
-  window.__old_buildPack4JogosPreditivo__ = old;
-
-  window.buildPack4JogosPreditivo = function(payload){
-    return buildPackFix(payload || window.lastPayload || null);
-  };
-
-  try{ buildPack4JogosPreditivo = window.buildPack4JogosPreditivo; }catch(_){}
+// garante que chamadas por identificador também usem o novo
+try{ buildPack4JogosPreditivo = window.buildPack4JogosPreditivo; }catch(_){}
 
 })();
 </script>
