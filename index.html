@@ -298,6 +298,24 @@
     color:#fff2b0;
     font-weight:1000;font-size:12px;
   }
+  /* ====== ELITE (COMBO) ====== */
+  .eliteCard{
+    border:3px solid rgba(234,179,8,.55);
+    background: radial-gradient(900px 240px at 30% 20%, rgba(255,255,255,.06), transparent 60%),
+                radial-gradient(900px 240px at 70% 20%, rgba(255,255,255,.05), transparent 60%),
+                rgba(0,0,0,.74);
+    box-shadow: var(--glowGold), 0 22px 70px rgba(0,0,0,.40);
+  }
+  .eliteBadge{
+    position:absolute;top:14px;right:14px;
+    font-size:11px;font-weight:1000;
+    padding:6px 10px;border-radius:999px;
+    border:3px solid rgba(234,179,8,.55);
+    background:rgba(255,255,255,.06);
+    color:#fff2b0;
+    letter-spacing:.35px;
+  }
+
 
 
   .cartaoWrap{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
@@ -952,7 +970,15 @@ const functions = firebase.app().functions("us-central1");
           <p class="actionDesc">Gera 2 jogos extras a partir do Principal (UTILIZANDO O SISTEMA PREDITIVO).</p>
         </div>
 
-        <!-- ✅ JOGOS SALVOS (ANTES DO EXTRA) -->
+        
+        <!-- ELITE (SOMENTE COMBO) -->
+        <div class="actionCard eliteCard" id="btnHomeElite" role="button" tabindex="0">
+          <span class="eliteBadge">COMBO</span>
+          <p class="actionTitle">💎 JOGO ELITE</p>
+          <p class="actionDesc">Gera 6 jogos exclusivos (padrões ELITE fixos) usando sempre os <b>últimos 4 concursos</b> para encaixe. Treinado em 24 concursos.</p>
+        </div>
+
+<!-- ✅ JOGOS SALVOS (ANTES DO EXTRA) -->
         <div class="actionCard" id="btnHomeSaved" role="button" tabindex="0">
           <span class="badge premium">PREMIUM</span>
           <p class="actionTitle">💾 Jogos salvos</p>
@@ -1068,7 +1094,44 @@ const functions = firebase.app().functions("us-central1");
   </div>
 
   <!-- TELA: 15 PONTOS -->
-  <div class="view" id="view15p">
+  
+  <!-- TELA: JOGO ELITE -->
+  <div class="view" id="viewElite">
+    <div class="topNav">
+      <div class="left">
+        <button class="btn btnGhost" type="button" onclick="goView('viewHome')">⬅ Voltar</button>
+      </div>
+      <div class="right">
+        <button class="btn btnGhost" type="button" onclick="verConcursos()">📅 Ver concursos</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="box">
+        <b>💎 JOGO ELITE (6 jogos)</b>
+        <div class="mini" style="margin-top:8px">
+          Este módulo <b>sempre</b> usa os <b>últimos 4 concursos</b> para análise/encaixe (padrões aprendidos no treino ELITE).
+        </div>
+
+        <div class="row" style="margin-top:12px">
+          <div class="col">
+            <button class="btn btnPrimary btnWide" type="button" onclick="gerarElite()">🚀 Gerar ELITE (6 jogos)</button>
+          </div>
+          <div class="col">
+            <button class="btn btnGhost btnWide" type="button" onclick="salvarElite()">💾 Salvar ELITE</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div id="eliteArea">
+        <div class="footerNote">Clique em “Gerar ELITE” para montar os 6 jogos.</div>
+      </div>
+    </div>
+  </div>
+
+<div class="view" id="view15p">
     <div class="topNav">
       <div class="left">
         <button class="btn btnGhost" type="button" onclick="goView('viewHome')">⬅ Voltar</button>
@@ -1248,6 +1311,15 @@ function goView(id){
     return;
   }
 
+
+  if(id === 'viewElite'){
+    const canElite = ((access.premium && access.addonElite) || access.isAdmin);
+    if(canElite){
+      gerarElite(true);
+    }
+    return;
+  }
+
   if(id === 'viewTecnica'){
     if(access?.premium && lastPrincipalGame){
       gerarTecnicaPremiada(true);
@@ -1264,6 +1336,7 @@ let access = {
   uid: "",
   premium: false,
   addon15: false,
+  addonElite: false,
   isAdmin: false
 };
 
@@ -1277,8 +1350,9 @@ async function refreshClaims(force=false){
 
   const premium = !!token.claims.premium || isAdmin;
   const addon15 = !!token.claims.addon15 || isAdmin;
+  const addonElite = !!token.claims.addonElite || !!token.claims.elite || !!token.claims.combo || isAdmin;
 
-  access = { email, uid: u.uid, premium, addon15, isAdmin };
+  access = { email, uid: u.uid, premium, addon15, addonElite, isAdmin };
   updateChip();
   aplicarAcessos();
   return access;
@@ -1287,8 +1361,9 @@ async function refreshClaims(force=false){
 function updateChip(){
   const plan = access.isAdmin ? "🛡️ Admin" : (access.premium ? "👑 Premium" : "👤 Free");
   const extra = (access.addon15 || access.isAdmin) ? " • ✅ 15P" : "";
+  const extraElite = (access.addonElite || access.isAdmin) ? " • 💎 ELITE" : "";
   const chipTextEl = document.getElementById("chipText");
-  if(chipTextEl) chipTextEl.textContent = `${plan} • ${access.email || "—"}${extra}`;
+  if(chipTextEl) chipTextEl.textContent = `${plan} • ${access.email || "—"}${extra}${extraElite}`;
 }
 
 function isFreeUsed(){
@@ -1308,6 +1383,7 @@ function setCardEnabled(el, enabled, onClick, msg){
 
 function aplicarAcessos(){
   const can15p = ((access.premium && access.addon15) || access.isAdmin);
+  const canElite = ((access.premium && access.addonElite) || access.isAdmin);
 
   const premiumGate = document.getElementById("premiumGate");
   if(premiumGate) premiumGate.style.display = access.premium ? "none" : "block";
@@ -1320,8 +1396,9 @@ function aplicarAcessos(){
   const btnInvertida= document.getElementById("btnHomeInvertida");
   const btnTecnica  = document.getElementById("btnHomeTecnica");
   const btn15       = document.getElementById("btnHome15p");
+  const btnElite    = document.getElementById("btnHomeElite");
 
-  setCardEnabled(btnAnalise, access.premium, acaoAnalise, "🔒 Gerar análise exige Premium.");
+setCardEnabled(btnAnalise, access.premium, acaoAnalise, "🔒 Gerar análise exige Premium.");
 
   setCardEnabled(btnInvertida, access.premium, ()=>{
     goView("viewInvertida"); gerarInvertida();
@@ -1330,6 +1407,9 @@ function aplicarAcessos(){
   setCardEnabled(btnTecnica, access.premium, ()=>{
     goView("viewTecnica"); gerarTecnicaPremiada();
   }, "🔒 Técnica premiada exige Premium.");
+
+  // 💎 ELITE (somente COMBO)
+  setCardEnabled(btnElite, canElite, ()=>{ goView("viewElite"); gerarElite(); }, "🔒 O recurso 'JOGO ELITE' está disponível somente no pacote COMBO.");
 
   if(!access.premium && isFreeUsed()){
     btnPrincipal?.classList.add("disabled");
@@ -1429,7 +1509,7 @@ async function jaComprei15p(){ await ativarComCodigo(); }
 
 auth.onAuthStateChanged(async (user)=>{
   if(!user){
-    access = { email:"", uid:"", premium:false, addon15:false, isAdmin:false };
+    access = { email:"", uid:"", premium:false, addon15:false, addonElite:false, isAdmin:false };
     fecharApp();
     return;
   }
@@ -4962,6 +5042,317 @@ async function gerar15P(){
     goView("view15p");
   }
 }
+
+/* ===================== JOGO ELITE (6 jogos) ===================== */
+
+let lastEliteGames = null;
+
+const ELITE_TREINO_24 = [
+  { concurso:3614, data:"14/02/2026", dezenas:[2,4,5,6,9,10,11,12,14,15,16,17,20,23,25] },
+  { concurso:3613, data:"13/02/2026", dezenas:[1,3,4,7,9,10,11,12,15,16,18,20,21,22,23] },
+  { concurso:3612, data:"12/02/2026", dezenas:[4,6,8,9,11,14,15,16,17,18,19,20,21,22,25] },
+  { concurso:3611, data:"11/02/2026", dezenas:[1,2,3,4,5,6,10,11,12,14,15,17,18,19,25] },
+  { concurso:3610, data:"10/02/2026", dezenas:[1,3,5,7,8,10,13,14,17,20,21,22,23,24,25] },
+  { concurso:3609, data:"09/02/2026", dezenas:[2,5,6,8,9,10,11,12,13,17,19,20,22,24,25] },
+  { concurso:3608, data:"07/02/2026", dezenas:[2,5,6,8,9,11,14,16,17,18,19,20,22,23,25] },
+  { concurso:3607, data:"06/02/2026", dezenas:[1,2,4,5,6,8,9,13,14,15,16,18,19,20,23] },
+  { concurso:3606, data:"05/02/2026", dezenas:[2,3,6,7,9,11,12,14,15,17,19,20,21,23,24] },
+  { concurso:3605, data:"04/02/2026", dezenas:[1,3,4,7,10,12,13,14,19,20,21,22,23,24,25] },
+  { concurso:3604, data:"03/02/2026", dezenas:[1,2,3,6,7,8,11,13,15,16,19,21,22,23,24] },
+  { concurso:3603, data:"02/02/2026", dezenas:[2,4,5,9,10,11,12,14,15,17,19,20,21,22,24] },
+  { concurso:3602, data:"31/01/2026", dezenas:[1,2,3,4,5,6,8,9,15,18,19,20,22,23,24] },
+  { concurso:3601, data:"30/01/2026", dezenas:[2,3,4,6,7,8,9,11,16,17,20,21,23,24,25] },
+  { concurso:3600, data:"29/01/2026", dezenas:[3,4,5,6,7,8,9,11,12,16,17,20,21,22,25] },
+  { concurso:3599, data:"28/01/2026", dezenas:[1,4,6,7,8,9,11,12,13,16,19,20,21,23,24] },
+  { concurso:3598, data:"27/01/2026", dezenas:[1,3,4,5,6,7,8,9,11,16,18,21,22,23,24] },
+  { concurso:3597, data:"26/01/2026", dezenas:[1,4,5,7,10,11,13,14,15,16,19,20,21,23,25] },
+  { concurso:3596, data:"24/01/2026", dezenas:[1,2,3,4,5,6,7,8,14,15,16,18,20,21,22] },
+  { concurso:3595, data:"23/01/2026", dezenas:[1,2,4,5,6,8,10,12,13,15,16,20,21,22,25] },
+  { concurso:3594, data:"22/01/2026", dezenas:[1,2,4,5,7,8,9,11,14,15,18,20,21,23,24] },
+  { concurso:3593, data:"21/01/2026", dezenas:[1,3,4,6,7,8,9,10,12,15,18,19,23,24,25] },
+  { concurso:3592, data:"20/01/2026", dezenas:[1,4,5,6,7,9,12,13,17,18,20,21,22,23,25] },
+  { concurso:3591, data:"19/01/2026", dezenas:[1,2,3,4,6,7,10,11,13,14,15,17,18,19,20] }
+];
+
+// contexto extra (3587-3590) para "antes de 3591"
+const ELITE_CTX_3587_3590 = [
+  { concurso:3590, data:"17/01/2026", dezenas:[4,6,8,10,11,12,13,15,16,17,19,20,21,22,23] },
+  { concurso:3589, data:"16/01/2026", dezenas:[1,2,3,4,8,10,11,12,15,18,19,21,22,24,25] },
+  { concurso:3588, data:"15/01/2026", dezenas:[3,5,7,8,9,11,14,15,16,17,19,21,22,23,24] },
+  { concurso:3587, data:"14/01/2026", dezenas:[1,2,4,8,9,10,11,12,13,16,17,18,19,20,22] }
+];
+
+function eliteFreqTreino(){
+  const freq = {};
+  for(let i=1;i<=25;i++) freq[i]=0;
+  ELITE_TREINO_24.forEach(c=> c.dezenas.forEach(n=>{ freq[n]=(freq[n]||0)+1; }));
+  return freq;
+}
+
+function allNums25(){ const a=[]; for(let i=1;i<=25;i++) a.push(i); return a; }
+
+function pickDet(list, need, usedSet, seed){
+  const arr = (list||[]).slice();
+  if(!arr.length) return [];
+  const out = [];
+  let start = Math.abs(seed||0) % arr.length;
+  for(let k=0; k<arr.length && out.length<need; k++){
+    const v = arr[(start+k)%arr.length];
+    if(!usedSet.has(v)){
+      usedSet.add(v);
+      out.push(v);
+    }
+  }
+  return out;
+}
+
+function gameKey(nums){
+  return sortNum(nums||[]).map(format2).join("-");
+}
+
+function buildEliteGamesFromPayload(payload){
+  const concursos = payload?.concursos || [];
+  if(concursos.length < 4) throw new Error("ELITE exige pelo menos 4 concursos carregados.");
+  const last4 = concursos.slice(-4);
+
+  const s1 = new Set((last4[3].dezenas||[]).map(toNum)); // último
+  const s2 = new Set((last4[2].dezenas||[]).map(toNum));
+  const s3 = new Set((last4[1].dezenas||[]).map(toNum));
+  const s4 = new Set((last4[0].dezenas||[]).map(toNum));
+
+  const R  = [...s1].sort((a,b)=>a-b);
+  const G2 = [...s2].filter(n=>!s1.has(n)).sort((a,b)=>a-b);
+  const G3 = [...s3].filter(n=>!s1.has(n) && !s2.has(n)).sort((a,b)=>a-b);
+  const G4 = [...s4].filter(n=>!s1.has(n) && !s2.has(n) && !s3.has(n)).sort((a,b)=>a-b);
+
+  const all = allNums25();
+  const absentLast = all.filter(n=>!s1.has(n)).sort((a,b)=>a-b);
+  const absent4 = all.filter(n=>!s1.has(n) && !s2.has(n) && !s3.has(n) && !s4.has(n)).sort((a,b)=>a-b);
+
+  const freq = eliteFreqTreino();
+  const hot = Object.keys(freq).map(k=>({n:Number(k), f:freq[k]}))
+    .sort((a,b)=> b.f-a.f || a.n-b.n).map(x=>x.n);
+  const cold = Object.keys(freq).map(k=>({n:Number(k), f:freq[k]}))
+    .sort((a,b)=> a.f-b.f || a.n-b.n).map(x=>x.n);
+
+  const seedBase = Number(payload?.latest?.concurso || payload?.ultimo || 0) || 0;
+
+  const patterns = [
+    { name:"ELITE 1", quota:{R:9,G2:3,G3:2,G4:1, HOT:0, COLD:0, OUT1:0, OUT4:0} },
+    { name:"ELITE 2", quota:{R:8,G2:4,G3:2,G4:0, HOT:0, COLD:1, OUT1:0, OUT4:0} },
+    { name:"ELITE 3", quota:{R:10,G2:2,G3:0,G4:2, HOT:1, COLD:0, OUT1:0, OUT4:0} },
+    { name:"ELITE 4", quota:{R:7,G2:4,G3:3,G4:1, HOT:0, COLD:0, OUT1:0, OUT4:0} },
+    { name:"ELITE 5", quota:{R:8,G2:0,G3:3,G4:2, HOT:0, COLD:0, OUT1:2, OUT4:0} },
+    { name:"ELITE 6", quota:{R:9,G2:2,G3:1,G4:1, HOT:0, COLD:0, OUT1:0, OUT4:2} }
+  ];
+
+  const games = [];
+  const seen = new Set();
+
+  patterns.forEach((p, idx)=>{
+    const used = new Set();
+    const seed = seedBase + idx*37;
+
+    const pickR  = pickDet(R,  p.quota.R||0,  used, seed+1);
+    const pickG2 = pickDet(G2, p.quota.G2||0, used, seed+2);
+    const pickG3 = pickDet(G3, p.quota.G3||0, used, seed+3);
+    const pickG4 = pickDet(G4, p.quota.G4||0, used, seed+4);
+
+    // HOT: prefer hot fora do último (para variar)
+    const hotPool = hot.filter(n=>!s1.has(n));
+    const pickHot = pickDet(hotPool, p.quota.HOT||0, used, seed+5);
+
+    // COLD: prefer cold fora do último
+    const coldPool = cold.filter(n=>!s1.has(n));
+    const pickCold = pickDet(coldPool, p.quota.COLD||0, used, seed+6);
+
+    // OUT1: ausentes do último (mas podem ter aparecido nos 4)
+    const pickOut1 = pickDet(absentLast, p.quota.OUT1||0, used, seed+7);
+
+    // OUT4: ausentes nos 4 últimos (bem agressivo pra “vir do nada”)
+    const pickOut4 = pickDet(absent4, p.quota.OUT4||0, used, seed+8);
+
+    let nums = [...pickR, ...pickG2, ...pickG3, ...pickG4, ...pickHot, ...pickCold, ...pickOut1, ...pickOut4];
+
+    // completa se faltar
+    if(nums.length < 15){
+      const pool = hot.concat(R).concat(G2).concat(G3).concat(G4).concat(absentLast);
+      nums = nums.concat(pickDet(pool, 15-nums.length, used, seed+9));
+    }
+
+    nums = sortNum(nums).slice(0,15);
+
+    // garante não repetir jogos idênticos
+    let key = gameKey(nums);
+    if(seen.has(key)){
+      // pequeno shift determinístico
+      const used2 = new Set();
+      const alt = pickDet(hot.concat(R).concat(G2).concat(G3).concat(G4).concat(absentLast), 15, used2, seed+99);
+      nums = sortNum(alt).slice(0,15);
+      key = gameKey(nums);
+    }
+    seen.add(key);
+
+    // mapa letras (A-O dentro / P-Y fora)
+    const lettersIn = "ABCDEFGHIJKLMNO".split("");
+    const lettersOut = "PQRSTUVWXYZ".split(""); // 10 letras
+    const outNums = all.filter(n=>!nums.includes(n)).sort((a,b)=>a-b);
+
+    const map = [];
+    nums.forEach((n,i)=> map.push({ letter: lettersIn[i], num: n, kind:"IN" }));
+    outNums.forEach((n,i)=> map.push({ letter: lettersOut[i], num: n, kind:"OUT" }));
+
+    games.push({
+      nome: p.name,
+      dezenas: nums,
+      meta: {
+        R: pickR, G2: pickG2, G3: pickG3, G4: pickG4,
+        OUT1: pickOut1, OUT4: pickOut4,
+        hot: pickHot, cold: pickCold
+      },
+      map
+    });
+  });
+
+  return {
+    ok:true,
+    games,
+    ctx: {
+      last4: last4.map(c=>({concurso:c.concurso, data:c.data, dezenas:(c.dezenas||[]).map(toNum)})),
+      seedBase,
+      groups: { R, G2, G3, G4, absentLast, absent4 }
+    }
+  };
+}
+
+function eliteResumoMeta(m){
+  const chunks = [];
+  function add(tag, arr){
+    if(arr && arr.length) chunks.push(`<span class="mini"><b>${tag}:</b> ${arr.map(format2).join(" - ")}</span>`);
+  }
+  add("R", m.R);
+  add("G2", m.G2);
+  add("G3", m.G3);
+  add("G4", m.G4);
+  add("OUT(último)", m.OUT1);
+  add("OUT(4)", m.OUT4);
+  add("HOT", m.hot);
+  add("COLD", m.cold);
+  return chunks.join("<br/>");
+}
+
+async function gerarElite(silent=false){
+  const canElite = ((access.premium && access.addonElite) || access.isAdmin);
+  if(!canElite){
+    if(!silent) alert("🔒 O recurso 'JOGO ELITE' está disponível somente no pacote COMBO.");
+    return;
+  }
+
+  const area = document.getElementById("eliteArea");
+  try{
+    // ✅ ELITE SEMPRE USA 4 (não depende do seletor)
+    const qtd = 4;
+    await prepararContextoBase(qtd);
+
+    const payload = lastPayload;
+    const pack = buildEliteGamesFromPayload(payload);
+    lastEliteGames = pack;
+
+    const w = payload ? { inicio: payload.inicio, ultimo: payload.ultimo, qtd: payload.concursos?.length || null } : null;
+    const srcInfo = { source: payload?.source, mode: payload?.mode, window: w };
+
+    let html = `
+      <div class="box">
+        <b>📌 Base ELITE:</b>
+        <div class="mini" style="margin-top:6px">
+          Sempre usando <b>últimos 4 concursos</b> para encaixe • Último concurso carregado: <b>${payload?.latest?.concurso || payload?.ultimo || "—"}</b>
+        </div>
+        <div class="mini" style="margin-top:6px">
+          Fonte: <b>${srcInfo.source || "—"}</b> • Modo: <b>${String(srcInfo.mode||"—").toUpperCase()}</b>
+        </div>
+      </div>
+      <div class="hr"></div>
+    `;
+
+    (pack.games||[]).forEach((g, i)=>{
+      const balls = (g.dezenas||[]).map(n=>`<div class="ball">${format2(n)}</div>`).join("");
+      const mapRows = (g.map||[])
+        .slice()
+        .sort((a,b)=> a.letter.localeCompare(b.letter))
+        .map(o=>`<tr>
+          <td class="mono"><b>${o.letter}</b></td>
+          <td class="mono">${format2(o.num)}</td>
+          <td>${o.kind==="IN" ? "SORTEADA (IN)" : "NÃO SAIU (OUT)"}</td>
+        </tr>`).join("");
+
+      html += `
+        <div class="box" style="margin-top:12px">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+            <b>💎 ${g.nome}</b>
+            <span class="badge premium">ELITE</span>
+          </div>
+
+          <div class="numbers" style="justify-content:flex-start;margin-top:10px">${balls}</div>
+
+          <div class="mini" style="margin-top:10px">
+            ${eliteResumoMeta(g.meta||{})}
+          </div>
+
+          <div class="hr"></div>
+
+          <div class="mini"><b>Mapa de letras (treino → encaixe):</b></div>
+          <div style="overflow:auto">
+            <table class="table" style="margin-top:6px">
+              <thead>
+                <tr>
+                  <th>Letra</th><th>Dezena</th><th>Tipo</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${mapRows}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    });
+
+    if(area) area.innerHTML = html;
+    goView("viewElite");
+  }catch(e){
+    console.log(e);
+    if(area) area.innerHTML = `
+      <div class="box">
+        <b>⚠️ Erro</b>
+        <div class="mini" style="margin-top:8px">${String(e?.message || e)}</div>
+      </div>
+    `;
+    goView("viewElite");
+  }
+}
+
+function salvarElite(){
+  const canElite = ((access.premium && access.addonElite) || access.isAdmin);
+  if(!canElite) return alert("🔒 O recurso 'JOGO ELITE' está disponível somente no pacote COMBO.");
+  if(!lastEliteGames?.games?.length){
+    alert("Gere o JOGO ELITE primeiro.");
+    return;
+  }
+
+  const jogos = lastEliteGames.games.map(g=>g.dezenas);
+  salvarJogoNoStorage({
+    slot: "JOGO ELITE (6)",
+    tipo: "elite6",
+    nome: "JOGO ELITE (6)",
+    jogos: jogos,
+    at: Date.now()
+  });
+
+  alert("✅ ELITE salvo em JOGOS SALVOS: JOGO ELITE (6) (sobrescreve ao salvar de novo)");
+}
+
+/* ===================== /JOGO ELITE ===================== */
+
 </script>
 
 <script>
@@ -5009,7 +5400,7 @@ document.getElementById("btnSair").addEventListener("click", sair);
 document.getElementById("btnComprar15p").addEventListener("click", comprar15p);
 document.getElementById("btnAtivar15p").addEventListener("click", jaComprei15p);
 
-["btnHomePrincipal","btnHomeAnalise","btnHomeInvertida","btnHomeTecnica","btnHome15p","btnHomeSaved"].forEach(id=>{
+["btnHomePrincipal","btnHomeAnalise","btnHomeInvertida","btnHomeTecnica","btnHomeElite","btnHome15p","btnHomeSaved"].forEach(id=>{
   const el = document.getElementById(id);
   if(el) bindCardKey(el);
 });
@@ -5183,6 +5574,36 @@ jogos.forEach((jogoNums, idx)=>{
           `;
         });
       }
+
+      else if(item.tipo === "elite6" && Array.isArray(item.jogos)){
+        const jogos = item.jogos;
+
+        jogos.forEach((jogoNums, idx)=>{
+          const jogo = jogoNums.slice().map(Number).sort((a,b)=>a-b);
+
+          let linhasResultados = "";
+          concursos.forEach(c=>{
+            const hits = hitsCount(jogo, c.dezenas);
+            const cls = (hits >= 11 && hits <= 15) ? `hit-${hits}` : "";
+            linhasResultados += `
+              <div class="mini ${cls}">
+                Concurso <b>${c.concurso}</b> → <b>${hits} acertos</b>
+              </div>
+            `;
+          });
+
+          html += `
+            <div class="box" style="margin-top:10px">
+              <b>💎 ELITE • Jogo ${idx+1}</b>
+              <div class="numbers" style="justify-content:flex-start;margin-top:8px">
+                ${jogo.map(format2).join(" - ")}
+              </div>
+              <div style="margin-top:10px">${linhasResultados}</div>
+            </div>
+          `;
+        });
+      }
+
       else{
         alert("Tipo de jogo salvo não reconhecido.");
         return;
