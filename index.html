@@ -244,7 +244,7 @@
   .actionGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-top:12px}
   .actionCard{
     text-align:left;
-    border:3px solid #000;
+    border:3px solid rgba(255,255,255,.92);
     background:
       radial-gradient(700px 260px at 22% 0%, rgba(255,255,255,.06), transparent 60%),
       radial-gradient(700px 260px at 78% 0%, rgba(255,255,255,.05), transparent 62%),
@@ -1019,8 +1019,41 @@ const functions = firebase.app().functions("us-central1");
 
       <!-- Cards de ações -->
       <div class="actionGrid">
-        <!-- FREE -->
-        
+<div class="actionCard" id="btnHomePrincipal" role="button" tabindex="0">
+          <span class="badge free">FREE 1x</span>
+          <p class="actionTitle">🎯 Jogo principal</p>
+          <p class="actionDesc">Gera 15 dezenas + resumo PRIME. Você também pode montar o seu jogo manualmente.</p>
+        </div>
+
+<div class="actionCard" id="btnHomeAnalise" role="button" tabindex="0">
+          <span class="badge premium">PREMIUM</span>
+          <p class="actionTitle">📈 Gerar análise</p>
+          <p class="actionDesc">Resumo PRIME do período selecionado (sem jogo) com tendências e probabilidades.</p>
+        </div>
+
+<div class="actionCard" id="btnHomeSaved" role="button" tabindex="0">
+          <span class="badge premium">PREMIUM</span>
+          <p class="actionTitle">💾 Jogos salvos</p>
+          <p class="actionDesc">
+            Confira seus jogos salvos e veja quantos pontos faria nos últimos 5, 10, 20 ou 30 concursos.
+          </p>
+        </div>
+
+<div class="actionCard eliteCard" id="btnHomeElite" role="button" tabindex="0">
+          <span class="eliteBadge">COMBO</span>
+          <p class="actionTitle">💎 JOGO ELITE</p>
+          <p class="actionDesc">Gera 6 jogos exclusivos (padrões ELITE fixos) usando sempre os <b>últimos 4 concursos</b> para encaixe. Treinado em 24 concursos.</p>
+        </div>
+
+<div class="actionCard extraCard" id="btnHome15p" role="button" tabindex="0">
+          <span class="extraBadge">EXTRA</span>
+          <div class="extraHeadline">
+            <p class="actionTitle" style="margin:0">✅ 15 pontos garantido</p>
+            <span class="extraHighlight">ESTRATÉGIA (10 JOGOS)</span>
+          </div>
+          <p class="actionDesc">Tela separada: 5 linhas + análise avançada e 10 jogos. Você também pode criar suas próprias linhas.</p>
+        </div>
+</div>
     </div>
 
     <div class="card" id="resultadoHome">
