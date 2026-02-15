@@ -2730,15 +2730,14 @@ const RESULT_SOURCES = [
 ];
 
 // ✅ Evita fonte que dá CORS no GitHub Pages
-const RESULT_SOURCES_ACTIVE = (()=>{
-  try{
+const RESULT_SOURCES_ACTIVE = (() => {
+  try {
     const isGh = /github\.io$/i.test(location.hostname);
-    return RESULT_SOURCES_ACTIVE.filter(s => !(isGh && s.name === "LOTTOLOOKUP"));
-  }catch(_){
-    return RESULT_SOURCES_ACTIVE;
+    return RESULT_SOURCES.filter(s => !(isGh && s.name === "LOTTOLOOKUP"));
+  } catch (_) {
+    return RESULT_SOURCES;
   }
 })();
-
 async function fetchJsonTimeout(url, ms=6500){
   const ac = new AbortController();
   const t = setTimeout(()=>ac.abort(), ms);
