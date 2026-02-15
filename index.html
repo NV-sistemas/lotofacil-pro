@@ -1733,61 +1733,35 @@ function _scoreMatch(feat, prof){
   return s;
 }
 
-function _pickBestForProfileB(candidates, usedSet, prev4Draws, prof, tie, avoidCounts, 0.35){
-  let best=null;
-  let bestScore=-1;
-  for(const n of candidates){
-    if(usedSet.has(n)) continue;
-    const feat = _featuresNow(n, prev4Draws);
-    const sc = _scoreMatch(feat, prof);
+function _pickBestForProfileB(candidates, usedSet, prev4Draws, prof, tie, avoidCounts, penalty=0.35){
+  let best = null;
+  let bestScore = -1e9;
+  const pen = (typeof penalty === "number") ? penalty : 0.35;
 
-    if(sc > bestScore){
-      best = n; bestScore = sc;
-      continue;
-    }
-    if(sc === bestScore && best!==null){
-      if(tie === "LOW"){
-        if(n < best) best=n;
-      }else if(tie === "HIGH"){
-        if(n > best) best=n;
-      }else{
-        if(n < best) best=n;
-      }
-    }
-  }
-  if(best!==null){
-    usedSet.add(best);
-    return best;
-  }
-  return null;
-}
-
-function _pickBestForProfileB(candidates, usedSet, prev4Draws, prof, tie, avoidCounts, penalty, avoidCounts, 0.35){
-  let best=null;
-  let bestScore=-1e9;
-  const pen = (typeof penalty==="number") ? penalty : 0.35;
   for(const n of candidates){
     if(usedSet.has(n)) continue;
     const feat = _featuresNow(n, prev4Draws);
     let sc = _scoreMatch(feat, prof);
-    const usedTimes = avoidCounts && (avoidCounts[n]||0) ? (avoidCounts[n]||0) : 0;
+
+    const usedTimes = avoidCounts && avoidCounts[n] ? avoidCounts[n] : 0;
     sc = sc - usedTimes * pen;
 
     if(sc > bestScore){
       best = n; bestScore = sc;
       continue;
     }
-    if(sc === bestScore && best!==null){
+    if(sc === bestScore && best !== null){
       if(tie === "LOW"){
-        if(n < best) best=n;
+        if(n < best) best = n;
       }else if(tie === "HIGH"){
-        if(n > best) best=n;
+        if(n > best) best = n;
       }else{
-        if(n < best) best=n;
+        if(n < best) best = n;
       }
     }
   }
-  if(best!==null){
+
+  if(best !== null){
     usedSet.add(best);
     return best;
   }
@@ -5124,13 +5098,8 @@ function renderJogosSalvosAoAbrir(){
   }
 
 
-// >>> Instala o motor TREINADO (MODELO B) como único gerador
-window.buildPack4JogosPreditivo = function(payload){
-  return buildPack4JogosPreditivo(payload || window.lastPayload || null);
-};
-
-// garante que chamadas por identificador também usem o novo
-try{ buildPack4JogosPreditivo = window.buildPack4JogosPreditivo; }catch(_){}
+// >>> Instala o motor TREINADO (MODELO B) como gerador oficial
+window.buildPack4JogosPreditivo = buildPack4JogosPreditivo;
 
 })();
 </script>
