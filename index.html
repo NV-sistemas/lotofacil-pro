@@ -1771,19 +1771,25 @@ function _pickBestForProfileB(candidates, usedSet, prev4Draws, prof, tie, avoidC
 function buildPack4JogosPreditivo(payload){
   const concursos = payload?.concursos || [];
   const draws = concursos
-    .map(c=> (c?.dezenas||[]).map(toNum).filter(n=>n>=1 && n<=25).sort((a,b)=>a-b))
+    .map(c=> getDezenas(c).slice().sort((a,b)=>a-b))
     .filter(a=>a.length===15);
 
-  if(draws.length < 5){
-    return { ok:false, err:`Janela insuficiente: precisa de pelo menos 5 concursos válidos.` };
+  if(draws.length < 1){
+    return {
+      ok:false,
+      err:"Sem concursos válidos.",
+      principal:[], invertida:[], tecnica1:[], tecnica2:[],
+      motivos:{principal:[], invertida:[], tecnica1:[], tecnica2:[]},
+      meta:{}
+    };
   }
 
-  const prev4 = [
-    draws[draws.length-1], // t-1
-    draws[draws.length-2], // t-2
-    draws[draws.length-3], // t-3
-    draws[draws.length-4], // t-4
-  ];
+  // Base do treino: sempre prev4 (últimos 4). Se a janela tiver <4, fazemos padding repetindo o mais recente.
+  const last = draws[draws.length-1];
+  const prev4 = [last, last, last, last];
+  for(let k=1; k<4 && (draws.length-1-k)>=0; k++){
+    prev4[k] = draws[draws.length-1-k];
+  }
 
   const profiles = trainFixedProfiles();
   const motivos = { principal:[], invertida:[], tecnica1:[], tecnica2:[] };
