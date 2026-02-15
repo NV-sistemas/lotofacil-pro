@@ -1733,13 +1733,16 @@ function _scoreMatch(feat, prof){
   return s;
 }
 
-function _rankCandidatesForProfile(candidates, usedSet, prev4Draws, prof, avoidCounts, penalty=0.9){
+function _rankCandidatesForProfile(candidates, usedSet, prev4Draws, prof, avoidCounts, penalty=0.9, tpl=null, cur=null){
   const pen = (typeof penalty === "number") ? penalty : 0.9;
   const scored = [];
   for(const n of candidates){
     if(usedSet.has(n)) continue;
     const feat = _featuresNow(n, prev4Draws);
     let sc = _scoreMatch(feat, prof);
+
+    // ✅ bônus de conjunto (blocos/paridade) aprendido no treino
+    sc += _templateBonus(n, tpl, cur);
 
     const usedTimes = avoidCounts && avoidCounts[n] ? avoidCounts[n] : 0;
     sc = sc - usedTimes * pen;
@@ -1753,19 +1756,20 @@ function _rankCandidatesForProfile(candidates, usedSet, prev4Draws, prof, avoidC
   return scored;
 }
 
-function _pickVariantForProfile(candidates, usedSet, prev4Draws, prof, variantIndex, avoidCounts, penalty=0.9){
-  const ranked = _rankCandidatesForProfile(candidates, usedSet, prev4Draws, prof, avoidCounts, penalty);
+
+function _pickVariantForProfile(candidates, usedSet, prev4Draws, prof, variantIndex, avoidCounts, penalty=0.9, tpl=null, cur=null){
+  const ranked = _rankCandidatesForProfile(candidates, usedSet, prev4Draws, prof, avoidCounts, penalty, tpl, cur);
   if(!ranked.length) return null;
 
   const v = Math.max(0, Number(variantIndex)||0);
 
   // ✅ Alternância determinística:
-  // - tenta pegar a opção "v" (0..3) da letra
+  // - tenta usar a opção "v" (0..3) da letra
   // - mas evita reutilizar dezenas já muito usadas nos jogos anteriores (avoidCounts)
-  //   (ex: no jogo 2, prioriza dezenas com usedTimes <= 1, etc)
+  // - e respeita o template de conjunto (blocos/paridade) daquele jogo
   let chosen = null;
 
-  // 1) procura a partir do índice v uma dezena "compatível" com o nível de reutilização
+  // 1) procura a partir do índice v uma dezena com reutilização <= v
   for(let i=v; i<ranked.length; i++){
     const it = ranked[i];
     if((it.usedTimes||0) <= v){
@@ -1785,8 +1789,10 @@ function _pickVariantForProfile(candidates, usedSet, prev4Draws, prof, variantIn
 
   const pick = chosen.n;
   usedSet.add(pick);
+  if(cur) _applyToCur(pick, cur);
   return pick;
 }
+
 
 function _variantIndexByKind(kind){
   // 0..3 = variações do MESMO treino (sem inverter regras do perfil)
@@ -1796,6 +1802,80 @@ function _variantIndexByKind(kind){
   if(kind === "tecnica2") return 3;
   return 0;
 }
+
+
+// ===============================
+// ✅ Templates de CONJUNTO (aprendido no treino)
+// - captura padrões recorrentes do TREINO (distribuição de blocos e paridade)
+// - usado para variar os 4 jogos sem sair do que foi aprendido
+// ===============================
+function _sigFromJogo(nums){
+  const b = {A:0,B:0,C:0,D:0,E:0};
+  let pares=0, impares=0;
+  for(const n of (nums||[])){
+    const x = Number(n);
+    if(x>=1 && x<=5) b.A++; else if(x<=10) b.B++; else if(x<=15) b.C++; else if(x<=20) b.D++; else if(x<=25) b.E++;
+    if(x%2===0) pares++; else impares++;
+  }
+  return { b, pares, impares };
+}
+
+function _topKTemplatesFromTrain(trainDraws, k=4){
+  const map = Object.create(null);
+  for(const a of (trainDraws||[])){
+    if(!Array.isArray(a) || a.length!==15) continue;
+    const sig = _sigFromJogo(a);
+    const key = `A${sig.b.A}B${sig.b.B}C${sig.b.C}D${sig.b.D}E${sig.b.E}_P${sig.pares}I${sig.impares}`;
+    map[key] = (map[key]||0) + 1;
+  }
+  const arr = Object.entries(map).map(([key,c])=>({key,c}));
+  arr.sort((x,y)=> y.c - x.c || (x.key<y.key?-1:1));
+  const out = [];
+  for(const it of arr.slice(0, Math.max(1, k))){
+    // parse key
+    const m = /A(\d+)B(\d+)C(\d+)D(\d+)E(\d+)_P(\d+)I(\d+)/.exec(it.key);
+    if(!m) continue;
+    out.push({
+      count: it.c,
+      blocks: {A:+m[1],B:+m[2],C:+m[3],D:+m[4],E:+m[5]},
+      pares: +m[6],
+      impares: +m[7]
+    });
+  }
+  return out.length ? out : [{count:1, blocks:{A:3,B:3,C:3,D:3,E:3}, pares:7, impares:8}];
+}
+
+function _templateBonus(num, tpl, cur){
+  if(!tpl || !cur) return 0;
+  const n = Number(num);
+  let blk = "E";
+  if(n>=1 && n<=5) blk="A"; else if(n<=10) blk="B"; else if(n<=15) blk="C"; else if(n<=20) blk="D";
+
+  let bonus = 0;
+  // bloco: se ainda estamos abaixo do alvo daquele bloco, bonifica
+  const needB = (tpl.blocks?.[blk] ?? 0) - (cur.blocks?.[blk] ?? 0);
+  if(needB > 0) bonus += 1.75;
+
+  // paridade: se ainda falta pares/impares, bonifica
+  const isPar = (n%2===0);
+  const needP = (tpl.pares - (cur.pares||0));
+  const needI = (tpl.impares - (cur.impares||0));
+  if(isPar && needP > 0) bonus += 1.15;
+  if(!isPar && needI > 0) bonus += 1.15;
+
+  return bonus;
+}
+
+function _initTemplateCur(){
+  return { blocks:{A:0,B:0,C:0,D:0,E:0}, pares:0, impares:0 };
+}
+
+function _applyToCur(num, cur){
+  const n = Number(num);
+  if(n>=1 && n<=5) cur.blocks.A++; else if(n<=10) cur.blocks.B++; else if(n<=15) cur.blocks.C++; else if(n<=20) cur.blocks.D++; else if(n<=25) cur.blocks.E++;
+  if(n%2===0) cur.pares++; else cur.impares++;
+}
+
 
 
 function buildPack4JogosPreditivo(payload){
@@ -1825,6 +1905,20 @@ function buildPack4JogosPreditivo(payload){
   const motivos = { principal:[], invertida:[], tecnica1:[], tecnica2:[] };
   const meta = { profiles };
 
+  // ✅ Templates de conjunto aprendidos no TREINO (Top 4 mais recorrentes)
+  // Usamos o TREINO FIXO quando disponível; senão usamos os concursos do payload.
+  const _trainDraws = (typeof TRAIN_FIXED !== "undefined" && Array.isArray(TRAIN_FIXED) && TRAIN_FIXED.length)
+    ? TRAIN_FIXED.map(x=> (x.dezenas||[]).slice().sort((a,b)=>a-b))
+    : draws;
+
+  const templates = _topKTemplatesFromTrain(_trainDraws, 4);
+
+  function _templateForKind(kind){
+    const v = _variantIndexByKind(kind);
+    return templates[Math.min(v, templates.length-1)] || templates[0];
+  }
+
+
   // ✅ Garantia: sempre entregar array com 15 dezenas (evita "Pacote inválido")
   function _ensure15(arr, fallback){
     const a = Array.isArray(arr) ? arr.slice() : [];
@@ -1845,18 +1939,22 @@ function buildPack4JogosPreditivo(payload){
     return a.slice(0,15).sort((x,y)=>x-y);
   }
 
-  function montarJogo(kind, avoidCounts){
+  function montarJogo(kind, avoidCounts, avoidOutCounts){
     const vIdx = _variantIndexByKind(kind);
 
     // penalidade de reutilização cresce por jogo (determinístico)
     const pen = 0.9 * (1 + vIdx*0.35);
+
+    // template do conjunto (blocos/paridade) para este jogo (Top#1..Top#4 do treino)
+    const tpl = _templateForKind(kind);
+    const curTpl = _initTemplateCur();
 
     const used = new Set();
 
     const outPick = [];
     for(const L of LETTERS_OUT){
       const prof = profiles.out[L];
-      const pick = _pickVariantForProfile(ALL_25, used, prev4, prof, vIdx, avoidCounts, pen);
+      const pick = _pickVariantForProfile(ALL_25, used, prev4, prof, vIdx, avoidOutCounts, pen, null, null);
       if(pick!==null) outPick.push({L, n:pick, prof});
     }
 
@@ -1870,11 +1968,11 @@ function buildPack4JogosPreditivo(payload){
       const profUse = profiles.drawn[L];
 
       // ✅ variação por jogo (0..3) dentro do MESMO treino por letras
-      let pick = _pickVariantForProfile(remainCandidates, usedGame, prev4, profUse, vIdx, avoidCounts, pen);
+      let pick = _pickVariantForProfile(remainCandidates, usedGame, prev4, profUse, vIdx, avoidCounts, pen, tpl, curTpl);
 
       // fallback determinístico: se o índice da variação não existir, cai para o melhor (0)
       if(pick===null){
-        pick = _pickVariantForProfile(remainCandidates, usedGame, prev4, profUse, 0, avoidCounts, 0.9);
+        pick = _pickVariantForProfile(remainCandidates, usedGame, prev4, profUse, 0, avoidCounts, 0.9, tpl, curTpl);
       }
 
       if(pick!==null){
@@ -1884,11 +1982,23 @@ function buildPack4JogosPreditivo(payload){
     }
 
     if(jogo.length < 15){
-      for(const n of remainCandidates){
+      // ✅ completa respeitando o conjunto aprendido (template) + evita repetição entre jogos
+      const rest = remainCandidates
+        .filter(n=>!usedGame.has(n))
+        .map(n=>{
+          const usedTimes = avoidCounts && avoidCounts[n] ? avoidCounts[n] : 0;
+          const sc = _templateBonus(n, tpl, curTpl) - usedTimes * pen;
+          return {n, sc};
+        })
+        .sort((a,b)=> (b.sc - a.sc) || (a.n - b.n));
+
+      for(const it of rest){
         if(jogo.length>=15) break;
+        const n = it.n;
         if(!usedGame.has(n)){
           usedGame.add(n);
           jogo.push(n);
+          _applyToCur(n, curTpl);
         }
       }
     }
@@ -1910,17 +2020,21 @@ function buildPack4JogosPreditivo(payload){
 
 
   const avoidCounts = Object.create(null);
+  const avoidOutCounts = Object.create(null);
 
-const p  = montarJogo("principal", avoidCounts);
+const p  = montarJogo("principal", avoidCounts, avoidOutCounts);
 for(const n of p.jogo){ avoidCounts[n] = (avoidCounts[n]||0) + 1; }
+for(const x of (p.outPick||[])){ const n=x.n; avoidOutCounts[n] = (avoidOutCounts[n]||0) + 1; }
 
-const i  = montarJogo("invertida", avoidCounts);
+const i  = montarJogo("invertida", avoidCounts, avoidOutCounts);
 for(const n of i.jogo){ avoidCounts[n] = (avoidCounts[n]||0) + 1; }
+for(const x of (i.outPick||[])){ const n=x.n; avoidOutCounts[n] = (avoidOutCounts[n]||0) + 1; }
 
-const t1 = montarJogo("tecnica1", avoidCounts);
+const t1 = montarJogo("tecnica1", avoidCounts, avoidOutCounts);
 for(const n of t1.jogo){ avoidCounts[n] = (avoidCounts[n]||0) + 1; }
+for(const x of (t1.outPick||[])){ const n=x.n; avoidOutCounts[n] = (avoidOutCounts[n]||0) + 1; }
 
-const t2 = montarJogo("tecnica2", avoidCounts);
+const t2 = montarJogo("tecnica2", avoidCounts, avoidOutCounts);
 
   const fallbackBase = (prev4 && prev4[0] && Array.isArray(prev4[0])) ? prev4[0] : ALL_25;
   const principal = _ensure15(p && p.jogo, fallbackBase);
