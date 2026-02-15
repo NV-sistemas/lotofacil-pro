@@ -5249,6 +5249,8 @@ async function gerarElite(silent=false){
   }
 
   const area = document.getElementById("eliteArea");
+  if(window.__eliteGenLock) return;
+  window.__eliteGenLock = true;
   try{
     // ✅ ELITE SEMPRE USA 4 (não depende do seletor)
     const qtd = 4;
@@ -5318,7 +5320,7 @@ async function gerarElite(silent=false){
     });
 
     if(area) area.innerHTML = html;
-    goView("viewElite");
+
   }catch(e){
     console.log(e);
     if(area) area.innerHTML = `
@@ -5327,9 +5329,11 @@ async function gerarElite(silent=false){
         <div class="mini" style="margin-top:8px">${String(e?.message || e)}</div>
       </div>
     `;
-    goView("viewElite");
+  }finally{
+    window.__eliteGenLock = false;
   }
 }
+
 
 function salvarElite(){
   const canElite = ((access.premium && access.addonElite) || access.isAdmin);
