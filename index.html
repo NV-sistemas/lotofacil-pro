@@ -200,7 +200,7 @@
   select{cursor:pointer}
   .btn{
     padding:12px 16px;
-    border:3px solid #000;
+    border:3px solid #3a3a3a;
     border-radius:18px;
     background: rgba(0,0,0,.52);
     color: var(--text);
@@ -244,7 +244,7 @@
   .actionGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-top:12px}
   .actionCard{
     text-align:left;
-    border:3px solid #000;
+    border:3px solid #3a3a3a;
     background:
       radial-gradient(700px 260px at 22% 0%, rgba(255,255,255,.06), transparent 60%),
       radial-gradient(700px 260px at 78% 0%, rgba(255,255,255,.05), transparent 62%),
@@ -369,7 +369,7 @@
     width:100%;
     max-width:980px;
     background: linear-gradient(180deg, rgba(12,10,7,.86), rgba(12,10,7,.62));
-    border:3px solid #000;
+    border:3px solid #3a3a3a;
     border-radius:20px;
     box-shadow:0 40px 120px rgba(0,0,0,.70);
     overflow:hidden;
@@ -629,7 +629,7 @@
     font-size:12px;
     font-weight:1000;
     letter-spacing:.3px;
-    border:3px solid #000;
+    border:3px solid #3a3a3a;
     background: rgba(0,0,0,.55);
     color: rgba(255,255,255,.92);
   }
@@ -672,7 +672,7 @@
     font-size:12px;
     font-weight:1000;
     letter-spacing:.35px;
-    border:3px solid #000;
+    border:3px solid #3a3a3a;
     background: rgba(0,0,0,.48);
     color: rgba(255,255,255,.92);
     backdrop-filter: blur(8px);
@@ -2373,7 +2373,7 @@ function renderTop10(freq, totalConcursos){
     return `
       <div style="display:flex;align-items:center;gap:10px;margin:10px 0">
         <div style="width:90px;color:var(--text);font-weight:950">Dezena ${format2(x.dez)}</div>
-        <div style="flex:1;background:rgba(255,255,255,.10);border:3px solid #000;border-radius:999px;overflow:hidden;height:16px">
+        <div style="flex:1;background:rgba(255,255,255,.10);border:3px solid #3a3a3a;border-radius:999px;overflow:hidden;height:16px">
           <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--accent),var(--accent2))"></div>
         </div>
         <div style="width:56px;text-align:right;color:var(--text);font-weight:950">${x.f}x</div>
@@ -2410,7 +2410,7 @@ function renderTop10Atrasadas(modern, totalConcursos){
     return `
       <div style="display:flex;align-items:center;gap:10px;margin:10px 0">
         <div style="width:90px;color:var(--text);font-weight:950">Dezena ${format2(x.dez)}</div>
-        <div style="flex:1;background:rgba(255,255,255,.10);border:3px solid #000;border-radius:999px;overflow:hidden;height:16px">
+        <div style="flex:1;background:rgba(255,255,255,.10);border:3px solid #3a3a3a;border-radius:999px;overflow:hidden;height:16px">
           <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--accent),var(--accent2))"></div>
         </div>
         <div style="width:90px;text-align:right;color:var(--text);font-weight:950">${x.gap} atrasos</div>
@@ -2476,7 +2476,7 @@ function abrirGraficoBlocos(blocos){
     return `
       <div style="display:flex;align-items:center;gap:10px;margin:10px 0">
         <div style="width:90px;color:var(--text);font-weight:950">${label}</div>
-        <div style="flex:1;background:rgba(255,255,255,.10);border:3px solid #000;border-radius:999px;overflow:hidden;height:16px">
+        <div style="flex:1;background:rgba(255,255,255,.10);border:3px solid #3a3a3a;border-radius:999px;overflow:hidden;height:16px">
           <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--accent),var(--accent2))"></div>
         </div>
         <div style="width:56px;text-align:right;color:var(--text);font-weight:950">${val}</div>
@@ -2674,7 +2674,7 @@ function renderEvenOddDist(evenOdd, total){
               width:200px;height:200px;border-radius:999px;
               background: conic-gradient(var(--accent) 0 ${domPct}%, rgba(255,255,255,.16) ${domPct}% 100%);
               display:flex;align-items:center;justify-content:center;
-              border:3px solid #000;
+              border:3px solid #3a3a3a;
               box-shadow: 0 18px 38px rgba(0,0,0,.45);
             ">
               <div style="
