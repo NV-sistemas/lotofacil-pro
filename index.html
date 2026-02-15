@@ -1951,6 +1951,7 @@ function buildPack4JogosPreditivo(payload){
 
     const used = new Set();
 
+    // --- OUT (não sorteadas) também variam entre os 4 jogos
     const outPick = [];
     for(const L of LETTERS_OUT){
       const prof = profiles.out[L];
@@ -1964,25 +1965,147 @@ function buildPack4JogosPreditivo(payload){
     const jogo = [];
     const picks = [];
 
+    // guardamos o ranking por letra para poder ajustar o CONJUNTO depois (sem sair do treino)
+    const rankedByLetter = {};
+
+    function _chooseFromRanked(ranked, v){
+      if(!ranked || !ranked.length) return null;
+      const vv = Math.max(0, Number(v)||0);
+
+      // 1) procura a partir do índice v uma dezena com reutilização <= v
+      for(let i=vv; i<ranked.length; i++){
+        const it = ranked[i];
+        if((it.usedTimes||0) <= vv) return it.n;
+      }
+      // 2) cai para o índice v (se existir)
+      const idx = Math.min(vv, ranked.length-1);
+      return ranked[idx].n;
+    }
+
+    // 1) pick inicial por letra (variação determinística por jogo)
     for(const L of LETTERS_DRAWN){
       const profUse = profiles.drawn[L];
 
-      // ✅ variação por jogo (0..3) dentro do MESMO treino por letras
-      let pick = _pickVariantForProfile(remainCandidates, usedGame, prev4, profUse, vIdx, avoidCounts, pen, tpl, curTpl);
+      const ranked = _rankCandidatesForProfile(remainCandidates, usedGame, prev4, profUse, avoidCounts, pen, tpl, curTpl);
+      rankedByLetter[L] = ranked; // para ajuste posterior
+
+      let pick = _chooseFromRanked(ranked, vIdx);
 
       // fallback determinístico: se o índice da variação não existir, cai para o melhor (0)
       if(pick===null){
-        pick = _pickVariantForProfile(remainCandidates, usedGame, prev4, profUse, 0, avoidCounts, 0.9, tpl, curTpl);
+        const ranked0 = _rankCandidatesForProfile(remainCandidates, usedGame, prev4, profUse, avoidCounts, 0.9, tpl, curTpl);
+        rankedByLetter[L] = ranked0;
+        pick = _chooseFromRanked(ranked0, 0);
       }
 
-      if(pick!==null){
+      if(pick!==null && !usedGame.has(pick)){
+        usedGame.add(pick);
         jogo.push(pick);
+        _applyToCur(pick, curTpl);
         picks.push({ L, n: pick, prof: profUse });
       }
     }
 
+    // 2) AJUSTE DE CONJUNTO (camada B):
+    // tenta trocar algumas dezenas por alternativas da MESMA letra para aproximar do template (blocos/paridade)
+    function _distToTpl(cur, tpl){
+      if(!tpl || !cur) return 0;
+      const tb = tpl.blocks || {};
+      const cb = cur.blocks || {};
+      let d = 0;
+      d += Math.abs((tpl.pares||0)   - (cur.pares||0));
+      d += Math.abs((tpl.impares||0) - (cur.impares||0));
+      d += Math.abs((tb.A||0) - (cb.A||0));
+      d += Math.abs((tb.B||0) - (cb.B||0));
+      d += Math.abs((tb.C||0) - (cb.C||0));
+      d += Math.abs((tb.D||0) - (cb.D||0));
+      d += Math.abs((tb.E||0) - (cb.E||0));
+      return d;
+    }
+
+    function _cloneTpl(cur){
+      return {
+        blocks:{ A:cur.blocks.A, B:cur.blocks.B, C:cur.blocks.C, D:cur.blocks.D, E:cur.blocks.E },
+        pares:cur.pares, impares:cur.impares
+      };
+    }
+
+    function _rebuildCurTpl(nums){
+      const c = _initTemplateCur();
+      for(const n of nums) _applyToCur(n, c);
+      return c;
+    }
+
+    // só tenta ajustar se houver template válido
+    if(tpl && tpl.blocks){
+      let guard=0;
+      let improved=true;
+      while(improved && guard<40){
+        guard++;
+        improved=false;
+
+        const baseDist = _distToTpl(curTpl, tpl);
+        if(baseDist<=0) break;
+
+        let bestSwap = null; // {L, from, to, dist}
+        for(const p of picks){
+          const L = p.L;
+          const from = p.n;
+          const ranked = rankedByLetter[L] || [];
+          // limita o universo por performance e para manter determinismo
+          const limit = Math.min(10, ranked.length);
+          for(let k=0; k<limit; k++){
+            const cand = ranked[k].n;
+            if(cand===from) continue;
+            if(usedGame.has(cand)) continue;
+
+            // simula troca
+            const tmpNums = jogo.slice();
+            const idx = tmpNums.indexOf(from);
+            if(idx<0) continue;
+            tmpNums[idx] = cand;
+
+            const tmpCur = _rebuildCurTpl(tmpNums);
+            const d = _distToTpl(tmpCur, tpl);
+
+            if(d < baseDist){
+              if(!bestSwap || d < bestSwap.dist || (d===bestSwap.dist && cand < bestSwap.to)){
+                bestSwap = { L, from, to:cand, dist:d };
+              }
+            }
+          }
+        }
+
+        if(bestSwap){
+          // aplica troca
+          const idx = jogo.indexOf(bestSwap.from);
+          if(idx>=0){
+            usedGame.delete(bestSwap.from);
+            usedGame.add(bestSwap.to);
+            jogo[idx] = bestSwap.to;
+
+            // atualiza picks
+            for(const p of picks){
+              if(p.L===bestSwap.L){
+                p.n = bestSwap.to;
+                break;
+              }
+            }
+
+            // rebuild curTpl
+            const rebuilt = _rebuildCurTpl(jogo);
+            curTpl.blocks = rebuilt.blocks;
+            curTpl.pares = rebuilt.pares;
+            curTpl.impares = rebuilt.impares;
+
+            improved=true;
+          }
+        }
+      }
+    }
+
+    // 3) completa se faltar (respeitando template + evitando repetição entre jogos)
     if(jogo.length < 15){
-      // ✅ completa respeitando o conjunto aprendido (template) + evita repetição entre jogos
       const rest = remainCandidates
         .filter(n=>!usedGame.has(n))
         .map(n=>{
