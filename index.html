@@ -1897,12 +1897,31 @@ const t2 = montarJogo("tecnica2", avoidCounts);
   const tecnica1  = _ensure15(t1 && t1.jogo, fallbackBase);
   const tecnica2  = _ensure15(t2 && t2.jogo, fallbackBase);
 
+  // ✅ MODELO B: forçar diferença mínima entre os 4 jogos (sem aumentar quantidade)
+  const games = [
+    { id:"principal", jogo: principal.slice(), motivos: motivos.principal },
+    { id:"invertida", jogo: invertida.slice(), motivos: motivos.invertida },
+    { id:"tecnica1",  jogo: tecnica1.slice(),  motivos: motivos.tecnica1 },
+    { id:"tecnica2",  jogo: tecnica2.slice(),  motivos: motivos.tecnica2 },
+  ];
+  const minDiffs = {
+    invertida: { principal: 3 },
+    tecnica1:  { principal: 4, invertida: 3 },
+    tecnica2:  { principal: 4, invertida: 3, tecnica1: 3 },
+  };
+  enforceDifferent(games, minDiffs, prev4[0]);
+  // re-hidrata após ajustes
+  const principal2 = games.find(g=>g.id==="principal").jogo;
+  const invertida2 = games.find(g=>g.id==="invertida").jogo;
+  const tecnica12  = games.find(g=>g.id==="tecnica1").jogo;
+  const tecnica22  = games.find(g=>g.id==="tecnica2").jogo;
+
   return {
     ok:true,
-    principal,
-    invertida,
-    tecnica1,
-    tecnica2,
+    principal: principal2,
+    invertida: invertida2,
+    tecnica1: tecnica12,
+    tecnica2: tecnica22,
     motivos,
     meta
   };
