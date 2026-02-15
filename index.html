@@ -1445,6 +1445,13 @@ function format2(n){ return String(n).padStart(2,"0"); }
 function toNum(d){ return Number(String(d).replace(/^0+/,"")) || Number(d); }
 function sortNum(arr){ return arr.slice().sort((a,b)=>a-b); }
 
+
+function lastK(arr, k){
+  const a = Array.isArray(arr) ? arr : [];
+  const n = Math.max(0, Math.floor(Number(k)||0));
+  if(n<=0) return a.slice();
+  return a.slice(Math.max(0, a.length - n));
+}
 function getDezenas(c){
   const arr = (c && (c.dezenas || c.numeros || c.dezenasSorteadas)) || [];
   return (arr || []).map(toNum).filter(n=>n>=1 && n<=25);
