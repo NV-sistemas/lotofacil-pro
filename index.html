@@ -1445,13 +1445,6 @@ function format2(n){ return String(n).padStart(2,"0"); }
 function toNum(d){ return Number(String(d).replace(/^0+/,"")) || Number(d); }
 function sortNum(arr){ return arr.slice().sort((a,b)=>a-b); }
 
-
-function lastK(arr, k){
-  const a = Array.isArray(arr) ? arr : [];
-  const n = Math.max(0, Math.floor(Number(k)||0));
-  if(n<=0) return a.slice();
-  return a.slice(Math.max(0, a.length - n));
-}
 function getDezenas(c){
   const arr = (c && (c.dezenas || c.numeros || c.dezenasSorteadas)) || [];
   return (arr || []).map(toNum).filter(n=>n>=1 && n<=25);
@@ -4918,13 +4911,15 @@ function renderJogosSalvosAoAbrir(){
 <script>
 
 (function(){
-  // === MOTOR PURO POR LETRAS (TREINADO) ===
-  // Objetivo: o TREINO (letras A–O / P–Y) comanda 100% a escolha das dezenas.
-  // Geração sempre usando os ÚLTIMOS 4 concursos (igual ao treino).
-  // Mantém apenas a regra de não repetir os 4 jogos entre si (anti-duplicação).
+  if(window.__MOTOR_FIXO_TREINO21_INSTALADO__) return;
+  window.__MOTOR_FIXO_TREINO21_INSTALADO__ = true;
 
-  if(window.__MOTOR_PURO_LETRAS_INSTALADO__) return;
-  window.__MOTOR_PURO_LETRAS_INSTALADO__ = true;
+  const FIX_PATTERNS = {
+    principal: { gap0: 9,  gap1: 3, gap2: 2, gap3p: 1 },
+    invertida: { gap0: 10, gap1: 3, gap2: 1, gap3p: 1 },
+    tecnica1:  { gap0: 8,  gap1: 4, gap2: 2, gap3p: 1 },
+    tecnica2:  { gap0: 9,  gap1: 2, gap2: 3, gap3p: 1 } // 9 repetidas, mas mix diferente do Principal
+  };
 
   function rng(seed){
     let t = (seed >>> 0) || 1;
@@ -4936,230 +4931,220 @@ function renderJogosSalvosAoAbrir(){
       return ((x ^ (x >>> 14)) >>> 0) / 4294967296;
     };
   }
-
-  // escolhe o "rank"-ésimo candidato (0 = melhor), com pequeno ruído controlado para desempate
-  function pickCandidate(scored, seed, rank){
-    if(!scored || !scored.length) return null;
+  function shuffle(arr, seed){
+    const a = arr.slice();
     const r = rng(seed);
-    // agrupa por score para desempate justo
-    scored.sort((a,b)=> (b.s-a.s) || (a.n-b.n));
-    // aplica um micro-embaralhamento APENAS dentro de scores iguais (mantém agressividade)
-    let i=0;
-    while(i<scored.length){
-      let j=i+1;
-      while(j<scored.length && scored[j].s===scored[i].s) j++;
-      if(j-i>1){
-        // Fisher-Yates no intervalo [i, j)
-        for(let k=j-1;k>i;k--){
-          const p = i + Math.floor(r()*(k-i+1));
-          const tmp=scored[k]; scored[k]=scored[p]; scored[p]=tmp;
-        }
-      }
-      i=j;
+    for(let i=a.length-1;i>0;i--){
+      const j = Math.floor(r()*(i+1));
+      [a[i], a[j]] = [a[j], a[i]];
     }
-    const idx = Math.max(0, Math.min(rank||0, scored.length-1));
-    return scored[idx];
+    return a;
   }
-
-  // Estratégias fixas (4 padrões) para diferenciar os 4 jogos, SEM motor estrutural paralelo:
-  // - Principal: sempre melhor candidato (mais agressivo).
-  // - Invertida: 2º melhor candidato por letra (varia sem perder o padrão).
-  // - Técnica 1: alterna 1º/2º (diversificação).
-  // - Técnica 2: usa 3º em posições específicas (diversificação extra).
-  function rankFor(kind, letterIndex){
-    if(kind==="principal") return 0;
-    if(kind==="invertida") return 1;
-    if(kind==="tecnica1") return (letterIndex % 2 === 0) ? 0 : 1;
-    // tecnica2: empurra algumas letras para 2º/3º lugar
-    if(letterIndex % 5 === 0) return 2;
-    if(letterIndex % 3 === 0) return 1;
-    return 0;
-  }
-
-  function buildGameByLetters(kind, prev4Draws, seedBase){
-    const profiles = trainFixedProfiles(); // FIXO (treinado)
-    const letters = LETTERS_DRAWN.slice(); // A..O (15)
-
-    const used = new Set();
-    const jogo = [];
-    const motivos = [];
-
-    for(let idx=0; idx<letters.length; idx++){
-      const L = letters[idx];
-      const prof = profiles?.drawn?.[L];
-      const scored = [];
-
-      // avalia todos os 25 com as features ATUAIS (janela = últimos 4)
-      for(const n of ALL_25){
-        if(used.has(n)) continue;
-        const feat = _featuresNow(n, prev4Draws);
-        const s = _scoreMatch(feat, prof);
-        scored.push({ n, s, feat });
-      }
-
-      const pick = pickCandidate(scored, seedBase + (idx+1)*31 + (kind==="invertida"?7:0) + (kind==="tecnica1"?13:0) + (kind==="tecnica2"?19:0), rankFor(kind, idx));
-      if(!pick){
-        // fallback extremo
-        for(const n of ALL_25){ if(!used.has(n)){ jogo.push(n); used.add(n); break; } }
-        continue;
-      }
-
-      jogo.push(pick.n);
-      used.add(pick.n);
-
-      // motivo curto e claro
-      motivos.push({
-        dezena: pick.n,
-        texto: `${L}: score ${pick.s} • ${pick.feat.gapClass} • ${pick.feat.parity} • bloco ${pick.feat.block}`
-      });
-    }
-
-    jogo.sort((a,b)=>a-b);
-    return { jogo, motivos };
-  }
-
-  function sameArr(a,b){
-    if(!a || !b || a.length!==b.length) return false;
-    for(let i=0;i<a.length;i++) if(Number(a[i])!==Number(b[i])) return false;
-    return true;
-  }
-
   function uniqSort15(nums){
-    const set = new Set((nums||[]).map(Number).filter(n=>n>=1 && n<=25));
+    const set = new Set(nums.map(Number).filter(n=>n>=1 && n<=25));
     const arr = Array.from(set).sort((a,b)=>a-b);
     for(let n=1; arr.length<15 && n<=25; n++){
       if(!set.has(n)){ set.add(n); arr.push(n); }
     }
     return arr.slice(0,15).sort((a,b)=>a-b);
   }
+  function sameArr(a,b){
+    if(!Array.isArray(a)||!Array.isArray(b)) return false;
+    if(a.length!==b.length) return false;
+    for(let i=0;i<a.length;i++) if(Number(a[i])!==Number(b[i])) return false;
+    return true;
+  }
+  function diffCount(a,b){
+    const sa = new Set(a);
+    let same=0;
+    for(const x of b) if(sa.has(x)) same++;
+    return 15 - same;
+  }
+
+  function qtdSelecionadaSafe(){
+    try{ return (typeof qtdSelecionada==="function") ? qtdSelecionada() : 3; }catch(_){ return 3; }
+  }
+  function getConcursosDisponiveisSafe(){
+    if(window.lastPayload && Array.isArray(window.lastPayload.concursos) && window.lastPayload.concursos.length){
+      return window.lastPayload.concursos.slice();
+    }
+    return [];
+  }
+  function lastK(draws, k){
+    const arr = draws.filter(d=>Array.isArray(d.dezenas) && d.dezenas.length>=15);
+    const n = Math.max(1, Math.min(arr.length, k));
+    return arr.slice(-n);
+  }
+
+  function buildPoolsFromWindow(windowDraws){
+    const last = windowDraws[windowDraws.length-1]?.dezenas || [];
+    const s0 = new Set(last.map(Number));
+    const s1 = new Set((windowDraws[windowDraws.length-2]?.dezenas || []).map(Number));
+    const s2 = new Set((windowDraws[windowDraws.length-3]?.dezenas || []).map(Number));
+    const s3 = new Set((windowDraws[windowDraws.length-4]?.dezenas || []).map(Number));
+    const s4 = new Set((windowDraws[windowDraws.length-5]?.dezenas || []).map(Number));
+    const s5 = new Set((windowDraws[windowDraws.length-6]?.dezenas || []).map(Number));
+
+    const gap0 = Array.from(s0);
+    const gap1 = Array.from(s1).filter(n=>!s0.has(n));
+    const gap2 = Array.from(s2).filter(n=>!s0.has(n) && !s1.has(n));
+    const gap3p = [];
+    for(let n=1;n<=25;n++){
+      if(s0.has(n) || s1.has(n) || s2.has(n)) continue;
+      if(s3.has(n) || s4.has(n) || s5.has(n)) gap3p.push(n);
+    }
+    const atrasadas = [];
+    for(let n=1;n<=25;n++){
+      if(s0.has(n)||s1.has(n)||s2.has(n)||s3.has(n)||s4.has(n)||s5.has(n)) continue;
+      atrasadas.push(n);
+    }
+    return {gap0, gap1, gap2, gap3p, atrasadas};
+  }
+
+  function pickFrom(pool, k, seed){
+    const a = shuffle(pool, seed);
+    return a.slice(0, Math.max(0, k));
+  }
+
+  function buildGameFromPattern(name, pattern, windowDraws, forbidSet, seed){
+    const pools = buildPoolsFromWindow(windowDraws);
+    const motivos = [];
+
+    function pickGap(label, pool, k, seedOffset){
+      const picked = pickFrom(pool.filter(n=>!forbidSet.has(n)), k, seed + seedOffset);
+      picked.forEach(n=>{
+        motivos.push({dezena:n, texto:`${label} (padrão ${name})`});
+        forbidSet.add(n);
+      });
+      return picked;
+    }
+
+    let game = [];
+    game = game.concat(pickGap("Repetida (gap 0)", pools.gap0, pattern.gap0, 11));
+    game = game.concat(pickGap("Gap 1", pools.gap1, pattern.gap1, 23));
+    game = game.concat(pickGap("Gap 2", pools.gap2, pattern.gap2, 37));
+
+    const need3 = pattern.gap3p;
+    let g3 = pickGap("Gap 3+", pools.gap3p, need3, 51);
+    if(g3.length < need3){
+      const falta = need3 - g3.length;
+      const extra = pickGap("Atrasada forte (6+)", pools.atrasadas, falta, 61);
+      g3 = g3.concat(extra);
+    }
+    game = game.concat(g3);
+
+    if(game.length < 15){
+      const all = [];
+      for(let n=1;n<=25;n++) if(!forbidSet.has(n)) all.push(n);
+      const extra = pickFrom(all, 15-game.length, seed+77);
+      extra.forEach(n=>{
+        motivos.push({dezena:n, texto:`Completo do padrão ${name} (reserva)`});
+        forbidSet.add(n);
+      });
+      game = game.concat(extra);
+    }
+    game = uniqSort15(game);
+
+    return {jogo: game, motivos};
+  }
 
   function enforceDifferent(games, minDiffs, seed){
-    const r = rng(seed||1);
-    function diffCount(a,b){
-      const sa = new Set(a), sb = new Set(b);
-      let inter=0;
-      sa.forEach(x=>{ if(sb.has(x)) inter++; });
-      return 15 - inter; // diferenças
-    }
-    function tweak(game, baseAvoid){
-      // tenta trocar 1 dezena de score menor por uma fora do jogo
-      const cur = game.jogo.slice();
-      for(let tries=0; tries<30; tries++){
-        const out = [];
-        for(let n=1;n<=25;n++) if(!cur.includes(n)) out.push(n);
-        if(!out.length) break;
-        const i = Math.floor(r()*cur.length);
-        const j = Math.floor(r()*out.length);
-        cur[i] = out[j];
-        const fixed = uniqSort15(cur);
-        // não pode virar igual ao baseAvoid
-        if(baseAvoid && sameArr(fixed, baseAvoid)) continue;
-        game.jogo = fixed;
-        game.motivos.push({dezena: out[j], texto:"Ajuste diversidade (anti-repetição entre jogos)"} );
-        return true;
-      }
-      return false;
-    }
-
-    // aplica mínimos
-    const byId = {};
-    games.forEach(g=>byId[g.id]=g);
-    let changed=true, guard=0;
-    while(changed && guard<60){
-      guard++;
-      changed=false;
-      for(const g of games){
-        const rules = minDiffs[g.id];
-        if(!rules) continue;
-        for(const refId of Object.keys(rules)){
-          const need = rules[refId];
-          const ref = byId[refId];
-          if(!ref) continue;
-          const d = diffCount(g.jogo, ref.jogo);
-          if(d < need){
-            if(tweak(g, ref.jogo)) changed=true;
+    for(let i=0;i<games.length;i++){
+      for(let j=0;j<i;j++){
+        const min = minDiffs[games[i].id] && minDiffs[games[i].id][games[j].id] || 0;
+        if(min<=0) continue;
+        let tries = 0;
+        while(diffCount(games[i].jogo, games[j].jogo) < min && tries < 25){
+          tries++;
+          const current = games[i].jogo.slice();
+          const set = new Set(current);
+          let candIn = null;
+          for(let n=1;n<=25;n++){
+            if(!set.has(n)){ candIn = n; break; }
           }
+          if(candIn==null) break;
+          const outIdx = (current.length-1) - (tries%3);
+          const out = current[outIdx];
+          current[outIdx] = candIn;
+          games[i].jogo = uniqSort15(current);
+          games[i].motivos.push({dezena:candIn, texto:"Ajuste anti-igualdade entre jogos"});
         }
       }
     }
   }
 
-  // Substitui o builder do pack 4 jogos: agora 100% letras + janela fixa 4
-  window.buildPack4JogosPreditivo = async function(payload){
-    try{
-      const qtd = Number(document.getElementById("qtdConcursos")?.value || 4) || 4;
+  function buildPackFix(payload){
+    const qtd = qtdSelecionadaSafe();
+    const draws = (payload && Array.isArray(payload.concursos) && payload.concursos.length)
+      ? payload.concursos.slice()
+      : getConcursosDisponiveisSafe();
 
-      const draws = (payload && Array.isArray(payload.concursos) && payload.concursos.length)
-        ? payload.concursos.slice()
-        : getConcursosDisponiveisSafe();
+    const windowDraws = lastK(draws, Math.max(6, qtd)); // usa pelo menos 6 para gaps 0-6
+    const ultimoConcurso = windowDraws[windowDraws.length-1]?.concurso || (payload?.ultimo||0) || 0;
+    const seedBase = (Number(ultimoConcurso)||0) + (Number(qtd)||0)*17;
 
-      // Mantém a janela escolhida só para CONTEXTO/EXIBIÇÃO; a geração usa SEMPRE os últimos 4 (igual ao treino).
-      const windowDraws = lastK(draws, Math.max(4, qtd));
-      const prev4 = lastK(windowDraws, 4);
+    const gP  = buildGameFromPattern("principal", FIX_PATTERNS.principal, windowDraws, new Set(), seedBase+1);
+    const gI  = buildGameFromPattern("invertida", FIX_PATTERNS.invertida, windowDraws, new Set(), seedBase+2);
+    const gT1 = buildGameFromPattern("tecnica1", FIX_PATTERNS.tecnica1, windowDraws, new Set(), seedBase+3);
+    const gT2 = buildGameFromPattern("tecnica2", FIX_PATTERNS.tecnica2, windowDraws, new Set(), seedBase+4);
 
-      const ultimoConcurso = windowDraws[windowDraws.length-1]?.concurso || (payload?.ultimo||0) || 0;
-      const seedBase = (Number(ultimoConcurso)||0) + (Number(qtd)||0)*17;
+    const games = [
+      {id:"P", jogo:gP.jogo, motivos:gP.motivos},
+      {id:"I", jogo:gI.jogo, motivos:gI.motivos},
+      {id:"T1", jogo:gT1.jogo, motivos:gT1.motivos},
+      {id:"T2", jogo:gT2.jogo, motivos:gT2.motivos},
+    ];
+    const minDiffs = {
+      I:  {P:4},
+      T1: {P:5},
+      T2: {P:5, T1:4}
+    };
+    enforceDifferent(games, minDiffs, seedBase+9);
 
-      const gP  = buildGameByLetters("principal", prev4, seedBase+1);
-      const gI  = buildGameByLetters("invertida", prev4, seedBase+2);
-      const gT1 = buildGameByLetters("tecnica1",  prev4, seedBase+3);
-      const gT2 = buildGameByLetters("tecnica2",  prev4, seedBase+4);
-
-      const games = [
-        {id:"P",  jogo:gP.jogo,  motivos:gP.motivos},
-        {id:"I",  jogo:gI.jogo,  motivos:gI.motivos},
-        {id:"T1", jogo:gT1.jogo, motivos:gT1.motivos},
-        {id:"T2", jogo:gT2.jogo, motivos:gT2.motivos},
-      ];
-
-      // Não permitir jogos repetidos (idênticos). Também força diferenças mínimas para evitar clones.
-      const minDiffs = {
-        I:  {P:4},
-        T1: {P:5},
-        T2: {P:5, T1:4}
-      };
-      enforceDifferent(games, minDiffs, seedBase+9);
-
-      function forceNotEqual(a, b){
-        if(!sameArr(a.jogo,b.jogo)) return;
-        for(let n=1;n<=25;n++){
-          if(!a.jogo.includes(n)){
-            a.jogo = uniqSort15(a.jogo.slice(0,14).concat([n]));
-            a.motivos.push({dezena:n, texto:"Ajuste final anti-duplicação"} );
-            break;
-          }
+    function forceNotEqual(a, b){
+      if(!sameArr(a.jogo,b.jogo)) return;
+      for(let n=1;n<=25;n++){
+        if(!a.jogo.includes(n)){
+          a.jogo = uniqSort15(a.jogo.slice(0,14).concat([n]));
+          a.motivos.push({dezena:n, texto:"Ajuste final anti-duplicação"});
+          break;
         }
       }
-      forceNotEqual(games[1], games[0]);
-      forceNotEqual(games[2], games[0]);
-      forceNotEqual(games[3], games[0]);
-      forceNotEqual(games[3], games[2]);
-
-      return {
-        ok: true,
-        principal: games[0].jogo,
-        invertida: games[1].jogo,
-        tecnica1:  games[2].jogo,
-        tecnica2:  games[3].jogo,
-        motivos: {
-          principal: games[0].motivos,
-          invertida: games[1].motivos,
-          tecnica1:  games[2].motivos,
-          tecnica2:  games[3].motivos,
-        },
-        meta: {
-          padrao: "PURO (letras) • treino fixo • geração sempre com 4 concursos",
-          mode: "puro_letras",
-          usingPrev: 4
-        }
-      };
-    }catch(e){
-      console.error(e);
-      return { ok:false, error: String(e && (e.message||e) || "Erro") };
     }
+    forceNotEqual(games[1], games[0]);
+    forceNotEqual(games[2], games[0]);
+    forceNotEqual(games[3], games[0]);
+    forceNotEqual(games[3], games[2]);
+
+    return {
+      ok: true,
+      principal: games[0].jogo,
+      invertida: games[1].jogo,
+      tecnica1:  games[2].jogo,
+      tecnica2:  games[3].jogo,
+      motivos: {
+        principal: games[0].motivos,
+        invertida: games[1].motivos,
+        tecnica1:  games[2].motivos,
+        tecnica2:  games[3].motivos,
+      },
+      meta: {
+        padrao: "FIXO (treino 21) • 4 padrões hardcoded • sem quente/fria",
+        patterns: FIX_PATTERNS
+      }
+    };
+  }
+
+  const old = window.buildPack4JogosPreditivo;
+  window.__old_buildPack4JogosPreditivo__ = old;
+
+  window.buildPack4JogosPreditivo = function(payload){
+    return buildPackFix(payload || window.lastPayload || null);
   };
 
-})();;
+  try{ buildPack4JogosPreditivo = window.buildPack4JogosPreditivo; }catch(_){}
+
+})();
 </script>
 
 </body>
