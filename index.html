@@ -318,7 +318,6 @@
 
 
 
-
   .cartaoWrap{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
 
 @media (max-width: 520px){
@@ -774,88 +773,51 @@
     margin:10px 0;
   
 
-  /* === ELITE MOTIVOS (NÍVEL 2 - ULTRA PREMIUM) === */
+  /* === ELITE MOTIVOS (compacto) === */
   .eliteMotives{
     margin-top:12px;
-    border:2px solid rgba(234,179,8,.45);
+    background: linear-gradient(180deg, rgba(0,0,0,.20), rgba(0,0,0,.38));
+    border:1px solid rgba(255,255,255,.10);
     border-radius:18px;
     padding:12px;
-    background: linear-gradient(180deg, rgba(0,0,0,.70), rgba(0,0,0,.42));
-    box-shadow:
-      0 0 0 1px rgba(234,179,8,.10),
-      0 18px 60px rgba(0,0,0,.55);
   }
   .eliteMotivesHdr{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:10px;
-    flex-wrap:wrap;
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
     margin-bottom:10px;
   }
   .eliteMotivesHdr b{ color: var(--accent); font-size:13px; letter-spacing:.25px; }
-  .eliteMotivesHdr span{ color: rgba(255,255,255,.70); font-size:11.5px; font-weight:850; }
-
+  .eliteMotivesHdr span{ color: rgba(255,255,255,.58); font-size:11.5px; font-weight:850; }
   .eliteMotivesGrid{
-    display:grid;
-    grid-template-columns: 1fr 1fr;
-    gap:10px;
-    align-items:start;
-  }
-
-  .eliteMotivesRow{
-    border-radius:16px;
-    padding:10px 10px 12px;
-    background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(0,0,0,.28));
-    border:1px solid rgba(255,255,255,.10);
-    box-shadow: 0 10px 24px rgba(0,0,0,.35);
-    position:relative;
-    overflow:hidden;
-  }
-  .eliteMotivesRow::before{
-    content:"";
-    position:absolute;
-    left:0; top:0; bottom:0;
-    width:5px;
-    background: rgba(234,179,8,.55);
-    box-shadow: 0 0 22px rgba(234,179,8,.18);
-  }
-
-  .eliteMotivesTop{
     display:flex;
-    align-items:center;
+    flex-direction:column;
+    gap:8px;
+  }
+  .eliteMotivesRow{
+    display:flex;
+    align-items:flex-start;
     justify-content:space-between;
     gap:10px;
-    margin-bottom:10px;
+    padding:10px 12px;
+    border-radius:14px;
+    border:1px solid rgba(255,255,255,.10);
+    background: rgba(0,0,0,.48);
   }
-
   .eliteMotivesTag{
-    display:inline-flex;
-    align-items:center;
-    gap:8px;
-    padding:6px 10px;
+    flex:0 0 auto;
+    font-size:11.5px;
+    font-weight:950;
+    color: rgba(255,255,255,.86);
+    background: rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.12);
     border-radius:999px;
-    font-size:11px;
-    font-weight:1000;
-    letter-spacing:.25px;
-    color: rgba(255,255,255,.92);
-    background: rgba(0,0,0,.55);
-    border:1px solid rgba(255,255,255,.14);
-    max-width:100%;
+    padding:6px 10px;
     white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
   }
-  .eliteMotivesTag small{
-    opacity:.9;
-    font-weight:900;
-    color: rgba(255,255,255,.78);
-    font-size:11px;
-  }
-
   .eliteMotivesNums{
+    flex:1 1 auto;
     display:flex;
     flex-wrap:wrap;
+    justify-content:flex-end;
     gap:6px;
   }
   .eliteMotivesNum{
@@ -863,40 +825,25 @@
     align-items:center;
     justify-content:center;
     min-width:34px;
-    padding:6px 10px;
+    height:28px;
+    padding:0 10px;
     border-radius:999px;
-    font-size:11px;
-    font-weight:1000;
-    letter-spacing:.25px;
-    color: var(--accent);
     background: rgba(0,0,0,.72);
-    border:1px solid rgba(234,179,8,.35);
-    box-shadow: 0 0 16px rgba(234,179,8,.08);
+    border:1px solid rgba(234,179,8,.30);
+    color: var(--accent);
+    font-weight:1000;
+    font-size:12px;
+    letter-spacing:.3px;
   }
 
-  /* Cores por tipo (NÍVEL 2) */
-  .eliteMotivesRow.k-r::before{ background: rgba(234,179,8,.85); }
-  .eliteMotivesRow.k-g2::before{ background: rgba(56,189,248,.75); }
-  .eliteMotivesRow.k-g3::before{ background: rgba(167,139,250,.70); }
-  .eliteMotivesRow.k-g4::before{ background: rgba(34,197,94,.65); }
-  .eliteMotivesRow.k-fit::before{ background: rgba(251,146,60,.70); }
-  .eliteMotivesRow.k-other::before{ background: rgba(255,255,255,.30); }
-
-  .eliteMotivesRow.k-g2 .eliteMotivesNum{ border-color: rgba(56,189,248,.35); color: rgba(186,230,253,.95); }
-  .eliteMotivesRow.k-g3 .eliteMotivesNum{ border-color: rgba(167,139,250,.35); color: rgba(233,213,255,.95); }
-  .eliteMotivesRow.k-g4 .eliteMotivesNum{ border-color: rgba(34,197,94,.30); color: rgba(187,247,208,.95); }
-  .eliteMotivesRow.k-fit .eliteMotivesNum{ border-color: rgba(251,146,60,.30); color: rgba(255,237,213,.95); }
-
-  @media (max-width: 720px){
-    .eliteMotivesGrid{ grid-template-columns: 1fr; }
-  }
   @media (max-width: 520px){
+    .eliteMotivesRow{ padding:9px 10px; }
+    .eliteMotivesNums{ justify-content:flex-start; }
+    .eliteMotivesNum{ min-width:32px; height:26px; padding:0 9px; font-size:11.5px; }
+    .eliteMotivesTag{ font-size:11px; padding:6px 9px; }
     .eliteMotivesHdr span{ display:none; }
-    .eliteMotivesNum{ min-width:32px; padding:6px 9px; font-size:10.8px; }
-    .eliteMotivesTag{ font-size:10.8px; padding:6px 9px; }
   }
-
-
+}
   .primeBar{
     height:10px;border-radius:999px;overflow:hidden;
     background: rgba(255,255,255,.10);
@@ -5433,8 +5380,7 @@ async function gerarElite(silent=false){
         return 9; // Encaixe / outros
       };
 
-      
-      // Agrupa dezenas pelo mesmo motivo (NÍVEL 2: ULTRA PREMIUM)
+      // Agrupa dezenas pelo mesmo motivo para ficar compacto e bonito
       const groups = {};
       dezenas.forEach(n=>{
         const motivo = eliteMotivo(n, g.meta);
@@ -5442,40 +5388,10 @@ async function gerarElite(silent=false){
         groups[motivo].push(n);
       });
 
-      const _eliteKind = (motivo)=>{
-        const head = String(motivo||"").trim();
-        if(/^R\b/.test(head)) return "r";
-        if(/^G2\b/.test(head)) return "g2";
-        if(/^G3\b/.test(head)) return "g3";
-        if(/^G4\b/.test(head)) return "g4";
-        if(/encaixe/i.test(head)) return "fit";
-        return "other";
-      };
-
       const expRows = Object.entries(groups)
         .sort((a,b)=> (_eliteOrder(a[0]) - _eliteOrder(b[0])) || (String(a[0]).localeCompare(String(b[0]))))
         .map(([motivo, nums])=>{
-          const parts = String(motivo||"").split("•").map(s=>s.trim()).filter(Boolean);
-          const code = parts[0] || "ELITE";
-          const desc = parts.slice(1).join(" • ");
-          const kind = _eliteKind(code) || _eliteKind(motivo);
-
-          const numsHtml = sortNum(nums)
-            .map(x=>`<span class="eliteMotivesNum">${format2(x)}</span>`)
-            .join("");
-
-          const descHtml = desc ? `<small>${desc}</small>` : "";
-
-          return `
-            <div class="eliteMotivesRow k-${kind}">
-              <div class="eliteMotivesTop">
-                <span class="eliteMotivesTag"><span>${code}</span>${descHtml}</span>
-              </div>
-              <div class="eliteMotivesNums">${numsHtml}</div>
-            </div>
-          `;
-        }).join("");
-
+          const numsHtml = sortNum(nums).map(x=>`<span class="eliteMotivesNum">${format2(x)}</span>`).join("");
           return `
             <div class="eliteMotivesRow">
               <span class="eliteMotivesTag">${motivo}</span>
