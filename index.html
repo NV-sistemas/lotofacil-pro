@@ -5226,52 +5226,10 @@ function buildEliteGamesFromPayload(payload){
 }
 
 function eliteResumoMeta(m){
-  // UI compacto (sem mexer no motor): mostrar só o que importa.
-  const r = (m.R||[]).length;
-  const g2 = (m.G2||[]).length;
-  const g3 = (m.G3||[]).length;
-  const g4 = (m.G4||[]).length;
-  const totalCore = r+g2+g3+g4;
-  const novo = Math.max(0, 15 - totalCore);
-
-  const badges = [
-    `<span class="badge premium">R ${r}</span>`,
-    `<span class="badge premium">G2 ${g2}</span>`,
-    `<span class="badge premium">G3 ${g3}</span>`,
-    `<span class="badge premium">G4 ${g4}</span>`,
-    `<span class="badge premium">NOVAS ${novo}</span>`
-  ].join(" ");
-
-  const linha = `
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">${badges}</div>
-    <div class="mini" style="margin-top:8px">
-      <b>Base:</b> ${r} repetidas • <b>Retorno:</b> ${g2+g3+g4} (G2+G3+G4) • <b>Entradas:</b> ${novo}
-    </div>
-  `;
-
-  // Detalhes em modo recolhível (não polui a tela)
-  function list(tag, arr){
-    if(!arr || !arr.length) return "";
-    return `<div class="mini" style="margin-top:6px"><b>${tag}:</b> ${arr.map(format2).join(" - ")}</div>`;
+  const chunks = [];
+  function add(tag, arr){
+    if(arr && arr.length) chunks.push(`<span class="mini"><b>${tag}:</b> ${arr.map(format2).join(" - ")}</span>`);
   }
-
-  const detalhes = `
-    <details style="margin-top:10px">
-      <summary class="mini" style="cursor:pointer"><b>Ver detalhes</b></summary>
-      ${list("R", m.R)}
-      ${list("G2", m.G2)}
-      ${list("G3", m.G3)}
-      ${list("G4", m.G4)}
-      ${list("FORA do último", m.OUT1)}
-      ${list("FORA nos 4", m.OUT4)}
-      ${list("HOT", m.hot)}
-      ${list("COLD", m.cold)}
-    </details>
-  `;
-
-  return linha + detalhes;
-}
-
   add("R", m.R);
   add("G2", m.G2);
   add("G3", m.G3);
@@ -5293,9 +5251,8 @@ async function gerarElite(silent=false){
   const area = document.getElementById("eliteArea");
   if(window.__eliteGenLock) return;
   window.__eliteGenLock = true;
-
   try{
-    // ✅ ELITE sempre usa 4 concursos para encaixe (fixo)
+    // ✅ ELITE SEMPRE USA 4 (não depende do seletor)
     const qtd = 4;
     await prepararContextoBase(qtd);
 
@@ -5303,70 +5260,59 @@ async function gerarElite(silent=false){
     const pack = buildEliteGamesFromPayload(payload);
     lastEliteGames = pack;
 
-    const latestN = payload?.latest?.concurso || payload?.ultimo || "—";
-
-    // Painel compacto: frequência dos últimos 4 concursos (somente visual)
-    function buildWindowPanel(concursos){
-      const counts = new Array(26).fill(0);
-      (concursos||[]).forEach(c=>{
-        (c.dezenas||[]).forEach(n=>{ if(n>=1 && n<=25) counts[n]++; });
-      });
-
-      function chips(nums){
-        return (nums||[]).map(n=>`<div class="ball">${format2(n)}</div>`).join("");
-      }
-
-      const f4=[], f3=[], f2=[], f1=[];
-      for(let n=1;n<=25;n++){
-        if(counts[n]===4) f4.push(n);
-        else if(counts[n]===3) f3.push(n);
-        else if(counts[n]===2) f2.push(n);
-        else if(counts[n]===1) f1.push(n);
-      }
-
-      const rows = [
-        {t:"4/4 (muito fortes)", a:f4},
-        {t:"3/4 (fortes)", a:f3},
-        {t:"2/4 (médias)", a:f2},
-        {t:"1/4 (baixa)", a:f1}
-      ].filter(x=>x.a.length);
-
-      if(!rows.length) return "";
-
-      return `
-        <div class="box">
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
-            <b>📊 Últimos 4 concursos (força por frequência)</b>
-            <span class="badge premium">Janela 4</span>
-          </div>
-          ${rows.map(r=>`
-            <div class="mini" style="margin-top:8px"><b>${r.t}:</b></div>
-            <div class="numbers" style="justify-content:flex-start;margin-top:6px">${chips(r.a)}</div>
-          `).join("")}
-        </div>
-        <div class="hr"></div>
-      `;
-    }
+    const w = payload ? { inicio: payload.inicio, ultimo: payload.ultimo, qtd: payload.concursos?.length || null } : null;
+    const srcInfo = { source: payload?.source, mode: payload?.mode, window: w };
 
     let html = `
       <div class="box">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
-          <b>📌 Base ELITE</b>
-          <span class="badge premium">COMBO</span>
+        <b>📌 Base ELITE:</b>
+        <div class="mini" style="margin-top:6px">
+          Sempre usando <b>últimos 4 concursos</b> para encaixe • Último concurso carregado: <b>${payload?.latest?.concurso || payload?.ultimo || "—"}</b>
         </div>
         <div class="mini" style="margin-top:6px">
-          Encaixe sempre nos <b>últimos 4 concursos</b> • Último concurso carregado: <b>${latestN}</b>
-        </div>
-        <div class="mini" style="margin-top:6px">
-          Fonte: <b>${payload?.source || "—"}</b> • Modo: <b>${String(payload?.mode||"—").toUpperCase()}</b>
+          Fonte: <b>${srcInfo.source || "—"}</b> • Modo: <b>${String(srcInfo.mode||"—").toUpperCase()}</b>
         </div>
       </div>
       <div class="hr"></div>
-      ${buildWindowPanel(payload?.concursos)}
     `;
 
-    (pack.games||[]).forEach((g)=>{
-      const balls = (g.dezenas||[]).map(n=>`<div class="ball">${format2(n)}</div>`).join("");
+    (pack.games||[]).forEach((g, i)=>{
+
+      function eliteMotivo(n, meta){
+        const m = meta || {};
+        const has = (arr)=> Array.isArray(arr) && arr.includes(n);
+
+        if(has(m.R))   return "R • repetição do último concurso";
+        if(has(m.G2))  return "G2 • veio do penúltimo (gap 2)";
+        if(has(m.G3))  return "G3 • veio do antepenúltimo (gap 3)";
+        if(has(m.G4))  return "G4 • veio do 4º concurso (gap 4)";
+        if(has(m.OUT1))return "OUT(último) • estava fora no último";
+        if(has(m.OUT4))return "OUT(4) • ficou 4 concursos fora";
+        if(has(m.hot)) return "HOT • alta frequência no treino ELITE";
+        if(has(m.cold))return "COLD • baixa frequência (variação)";
+        return "Encaixe do padrão ELITE";
+      }
+
+      const dezenas = (g.dezenas||[]).slice();
+      const balls = dezenas.map(n=>`<div class="ball">${format2(n)}</div>`).join("");
+
+      const expRows = dezenas.map(n=>`
+        <div style="
+          display:flex;
+          align-items:center;
+          justify-content:space-between;
+          gap:10px;
+          padding:10px 12px;
+          border-radius:14px;
+          border:1px solid rgba(255,255,255,.10);
+          background:rgba(0,0,0,.55);
+        ">
+          <span class="mono" style="font-weight:1000;color:var(--accent)">${format2(n)}</span>
+          <span style="font-size:12px;color:rgba(255,255,255,.78);text-align:right">
+            ${eliteMotivo(n, g.meta)}
+          </span>
+        </div>
+      `).join("");
 
       html += `
         <div class="box" style="margin-top:12px">
@@ -5377,7 +5323,12 @@ async function gerarElite(silent=false){
 
           <div class="numbers" style="justify-content:flex-start;margin-top:10px">${balls}</div>
 
-          ${eliteResumoMeta(g.meta||{})}
+          <div class="primeRowCard" style="margin-top:12px">
+            <b style="color:var(--accent)">📌 Motivo de cada dezena</b>
+            <div style="margin-top:10px;display:flex;flex-direction:column;gap:8px">
+              ${expRows}
+            </div>
+          </div>
         </div>
       `;
     });
