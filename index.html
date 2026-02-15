@@ -2949,59 +2949,104 @@ function renderTopSets(setsInfo){
 <script>
 /* =========================
    DADOS ONLINE / DEMO
+   ✅ Correção: pega o MAIOR concurso entre fontes (evita atraso do /latest)
+   ✅ Adiciona LottoLookup como fonte rápida
 ========================= */
-const SOURCES = [
+
+const RESULT_SOURCES = [
   {
-    name: "loteriascaixa-api (público)",
-    latest: "https://loteriascaixa-api.herokuapp.com/api/lotofacil/latest",
-    byId: (n)=>`https://loteriascaixa-api.herokuapp.com/api/lotofacil/${n}`,
-    adapt: (j)=>({ concurso:Number(j.concurso), data:j.data||"", dezenas:(j.dezenas||[]).map(String) })
+    name: "GUIDI",
+    latest: () => "https://api.guidi.dev.br/loteria/lotofacil/ultimo",
+    byId:   (n)=>`https://api.guidi.dev.br/loteria/lotofacil/${n}`,
+    getNumero: (j)=> Number(j?.concurso ?? j?.numero ?? j?.numeroDoConcurso),
+    getDezenas:(j)=> (j?.dezenas ?? j?.listaDezenas ?? j?.dezenasSorteadasOrdemSorteio ?? [])
   },
   {
-    name: "api.guidi.dev.br (fallback)",
-    latest: "https://api.guidi.dev.br/loteria/lotofacil/ultimo",
-    byId: (n)=>`https://api.guidi.dev.br/loteria/lotofacil/${n}`,
-    adapt: (j)=>({ concurso:Number(j.numero), data:j.dataApuracao||"", dezenas:(j.listaDezenas||[]).map(String) })
+    name: "LOTTOLOOKUP",
+    latest: () => "https://lottolookup.com.br/api/lotofacil/latest",
+    byId:   (n)=>`https://lottolookup.com.br/api/lotofacil/${n}`,
+    getNumero: (j)=> Number(j?.numero ?? j?.concurso ?? j?.numeroDoConcurso),
+    getDezenas:(j)=> (j?.listaDezenas ?? j?.dezenasSorteadasOrdemSorteio ?? j?.dezenas ?? [])
+  },
+  {
+    name: "HEROKU",
+    latest: () => "https://loteriascaixa-api.herokuapp.com/api/lotofacil/latest",
+    byId:   (n)=>`https://loteriascaixa-api.herokuapp.com/api/lotofacil/${n}`,
+    getNumero: (j)=> Number(j?.concurso ?? j?.numero ?? j?.numeroDoConcurso),
+    getDezenas:(j)=> (j?.dezenas ?? j?.listaDezenas ?? j?.dezenasSorteadasOrdemSorteio ?? [])
   }
 ];
 
-async function tryFetchJson(url){
-  const r = await fetch(url, { cache:"no-store" });
-  if(!r.ok) throw new Error("HTTP "+r.status);
-  return await r.json();
+async function fetchJsonTimeout(url, ms=6500){
+  const ac = new AbortController();
+  const t = setTimeout(()=>ac.abort(), ms);
+  try{
+    const r = await fetch(url, { cache:"no-store", signal: ac.signal });
+    if(!r.ok) throw new Error("HTTP "+r.status);
+    return await r.json();
+  }finally{
+    clearTimeout(t);
+  }
 }
 
-async function getOnlineConcursos(qtd){
-  let lastErr=null;
-  for(const src of SOURCES){
+function isValidResult(src, j){
+  const num = src.getNumero(j);
+  const dz  = src.getDezenas(j);
+  return Number.isFinite(num) && num > 0 && Array.isArray(dz) && dz.length >= 15;
+}
+
+function normalizeResult(raw){
+  const concurso = Number(raw?.concurso ?? raw?.numero ?? raw?.numeroDoConcurso);
+  const data = raw?.data ?? raw?.dataApuracao ?? raw?.dataApuracaoStr ?? raw?.dataSorteio ?? "";
+  const dezenas = (raw?.dezenas ?? raw?.listaDezenas ?? raw?.dezenasSorteadasOrdemSorteio ?? [])
+    .map(x => String(x).padStart(2,"0"));
+  return { concurso, data, dezenas, raw };
+}
+
+async function getLatestFromAll(){
+  const checks = await Promise.allSettled(
+    RESULT_SOURCES.map(async (src)=>{
+      const t0 = performance.now();
+      const j = await fetchJsonTimeout(src.latest(), 6500);
+      const ok = isValidResult(src, j);
+      return { src, ok, numero: ok ? src.getNumero(j) : -1, ms: Math.round(performance.now()-t0) };
+    })
+  );
+
+  const valid = checks
+    .filter(x=>x.status==="fulfilled")
+    .map(x=>x.value)
+    .filter(x=>x.ok)
+    .sort((a,b)=> b.numero - a.numero);
+
+  if(!valid.length) throw new Error("Nenhuma API retornou um 'latest' válido agora.");
+  return valid[0]; // ✅ maior concurso
+}
+
+async function getConcursoByNumberBest(n){
+  for(const src of RESULT_SOURCES){
     try{
-      const latestRaw = await tryFetchJson(src.latest);
-      const latest = src.adapt(latestRaw);
-      if(!latest.concurso || !latest.dezenas?.length) throw new Error("Resposta inválida");
-
-      const ultimo = latest.concurso;
-      const inicio = Math.max(1, ultimo - qtd + 1);
-
-     const ids = [];
-for (let c = inicio; c <= ultimo; c++) ids.push(c);
-
-// busca tudo em paralelo (muito mais rápido)
-const results = await Promise.allSettled(ids.map(c => tryFetchJson(src.byId(c))));
-
-const concursos = results
-  .filter(r => r.status === "fulfilled")
-  .map(r => src.adapt(r.value))
-  .filter(x => x && x.concurso && x.dezenas && x.dezenas.length);
-
-// garante que veio tudo; se faltou algum, força fallback para outra fonte
-if (concursos.length !== ids.length) throw new Error("API incompleta (faltou concurso).");
-
-return { mode:"online", source:src.name, latest, concursos, inicio, ultimo };
-    }catch(e){
-      lastErr=e;
-    }
+      const j = await fetchJsonTimeout(src.byId(n), 6500);
+      if(isValidResult(src, j)) return j;
+    }catch(e){}
   }
-  throw lastErr || new Error("Falha online");
+  throw new Error("Falha ao buscar concurso "+n+" em todas as fontes.");
+}
+
+/* ✅ Mantém o formato que o resto do sistema já espera: { mode, source, latest, concursos, inicio, ultimo } */
+async function getOnlineConcursos(qtd){
+  const latestMeta = await getLatestFromAll();
+  const ultimo = latestMeta.numero;
+  const inicio = ultimo - qtd + 1;
+
+  const nums = [];
+  for(let n=ultimo; n>=inicio; n--) nums.push(n);
+
+  const raws = await Promise.all(nums.map(n=>getConcursoByNumberBest(n)));
+  const concursos = raws.map(r=>normalizeResult(r));
+
+  const latest = concursos[0]; // pq nums começa do ultimo
+  return { mode:"online", source: latestMeta.src.name, latest, concursos, inicio, ultimo };
 }
 
 function buildDemo(qtd){
@@ -3018,20 +3063,28 @@ function buildDemo(qtd){
 }
 
 async function fetchUltimoResultado(){
-  let lastErr=null;
-  for(const src of SOURCES){
-    try{
-      const latestRaw = await tryFetchJson(src.latest);
-      const latest = src.adapt(latestRaw);
-      return { ...latest, source: src.name, mode: "online" };
-    }catch(e){
-      lastErr=e;
-    }
+  try{
+    const latestMeta = await getLatestFromAll();
+    const raw = await getConcursoByNumberBest(latestMeta.numero);
+    const latest = normalizeResult(raw);
+    return { ...latest, source: latestMeta.src.name, mode: "online" };
+  }catch(e){
+    const demo = buildDemo(1);
+    return { ...demo.latest, source:"DEMO", mode:"demo" };
   }
-  const demo = buildDemo(1);
-  return { ...demo.latest, source:"DEMO", mode:"demo" };
+}
+
+/* (opcional) diagnóstico rápido no console */
+async function diagnosticoApisLotofacil(){
+  const r = await Promise.allSettled(RESULT_SOURCES.map(async (s)=>{
+    const t0 = performance.now();
+    const j = await fetchJsonTimeout(s.latest(), 6500);
+    return { fonte:s.name, numero:s.getNumero(j), dezenas:(s.getDezenas(j)||[]).length, ms: Math.round(performance.now()-t0) };
+  }));
+  console.table(r.map(x=> x.status==="fulfilled" ? x.value : ({ erro:true })));
 }
 </script>
+
 
 <script>
 /* =========================
