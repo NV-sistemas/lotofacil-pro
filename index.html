@@ -1733,40 +1733,42 @@ function _scoreMatch(feat, prof){
   return s;
 }
 
-function _pickBestForProfileB(candidates, usedSet, prev4Draws, prof, tie, avoidCounts, penalty=0.35){
-  let best = null;
-  let bestScore = -1e9;
+function _rankCandidatesForProfile(candidates, usedSet, prev4Draws, prof, avoidCounts, penalty=0.35){
   const pen = (typeof penalty === "number") ? penalty : 0.35;
-
+  const scored = [];
   for(const n of candidates){
     if(usedSet.has(n)) continue;
     const feat = _featuresNow(n, prev4Draws);
     let sc = _scoreMatch(feat, prof);
-
     const usedTimes = avoidCounts && avoidCounts[n] ? avoidCounts[n] : 0;
     sc = sc - usedTimes * pen;
-
-    if(sc > bestScore){
-      best = n; bestScore = sc;
-      continue;
-    }
-    if(sc === bestScore && best !== null){
-      if(tie === "LOW"){
-        if(n < best) best = n;
-      }else if(tie === "HIGH"){
-        if(n > best) best = n;
-      }else{
-        if(n < best) best = n;
-      }
-    }
+    scored.push({ n, sc });
   }
-
-  if(best !== null){
-    usedSet.add(best);
-    return best;
-  }
-  return null;
+  scored.sort((a,b)=>{
+    if(b.sc !== a.sc) return b.sc - a.sc;
+    return a.n - b.n; // determinístico
+  });
+  return scored;
 }
+
+function _pickVariantForProfile(candidates, usedSet, prev4Draws, prof, variantIndex, avoidCounts, penalty=0.35){
+  const ranked = _rankCandidatesForProfile(candidates, usedSet, prev4Draws, prof, avoidCounts, penalty);
+  if(!ranked.length) return null;
+  const idx = Math.max(0, Math.min(Number(variantIndex)||0, ranked.length-1));
+  const pick = ranked[idx].n;
+  usedSet.add(pick);
+  return pick;
+}
+
+function _variantIndexByKind(kind){
+  // 0..3 = variações do MESMO treino (sem inverter regras do perfil)
+  // principal=0, invertida=1, tecnica1=2, tecnica2=3
+  if(kind === "invertida") return 1;
+  if(kind === "tecnica1") return 2;
+  if(kind === "tecnica2") return 3;
+  return 0;
+}
+
 
 function buildPack4JogosPreditivo(payload){
   const concursos = payload?.concursos || [];
@@ -1816,12 +1818,14 @@ function buildPack4JogosPreditivo(payload){
   }
 
   function montarJogo(kind, avoidCounts){
+    const vIdx = _variantIndexByKind(kind);
+
     const used = new Set();
 
     const outPick = [];
     for(const L of LETTERS_OUT){
       const prof = profiles.out[L];
-      const pick = _pickBestForProfileB(ALL_25, used, prev4, prof, (kind==="tecnica1" ? "HIGH" : "LOW"), avoidCounts, 0.35);
+      const pick = _pickVariantForProfile(ALL_25, used, prev4, prof, vIdx, avoidCounts, 0.35);
       if(pick!==null) outPick.push({L, n:pick, prof});
     }
 
@@ -1832,21 +1836,15 @@ function buildPack4JogosPreditivo(payload){
     const picks = [];
 
     for(const L of LETTERS_DRAWN){
-      const prof = profiles.drawn[L];
+      const profUse = profiles.drawn[L];
 
-      let profUse = prof;
+      // ✅ variação por jogo (0..3) dentro do MESMO treino por letras
+      let pick = _pickVariantForProfile(remainCandidates, usedGame, prev4, profUse, vIdx, avoidCounts, 0.35);
 
-      if(kind === "invertida"){
-        const mirror = {A:"E", B:"D", C:"C", D:"B", E:"A"};
-        profUse = {
-          ...prof,
-          parity: (prof.parity==="PAR" ? "IMPAR" : "PAR"),
-          block: mirror[prof.block] || prof.block
-        };
+      // fallback determinístico: se o índice da variação não existir, cai para o melhor (0)
+      if(pick===null){
+        pick = _pickVariantForProfile(remainCandidates, usedGame, prev4, profUse, 0, avoidCounts, 0.35);
       }
-
-      const tie = (kind==="tecnica1") ? "HIGH" : "LOW";
-      const pick = _pickBestForProfileB(remainCandidates, usedGame, prev4, profUse, tie, avoidCounts, 0.35);
 
       if(pick!==null){
         jogo.push(pick);
@@ -1872,11 +1870,13 @@ function buildPack4JogosPreditivo(payload){
       mapMot.set(p.n, `🧩 ${p.L}: ${feat.gapClass} • ${feat.parity} • Bloco ${feat.block} • L${feat.row}/C${feat.col}`);
     }
     jogoSorted.forEach(n=>{
-      motivos[kind].push({ dezena:n, texto: mapMot.get(n) || "🧩 encaixe fixo" });
+      motivos[kind].push({ dezena: n, texto: mapMot.get(n) || "" });
     });
 
-    return { jogo: jogoSorted, out: outPick.map(x=>x.n).sort((a,b)=>a-b), picks };
+    return { jogo: jogoSorted, outPick, picks };
   }
+
+
 
   const avoidCounts = Object.create(null);
 
@@ -1897,31 +1897,12 @@ const t2 = montarJogo("tecnica2", avoidCounts);
   const tecnica1  = _ensure15(t1 && t1.jogo, fallbackBase);
   const tecnica2  = _ensure15(t2 && t2.jogo, fallbackBase);
 
-  // ✅ MODELO B: forçar diferença mínima entre os 4 jogos (sem aumentar quantidade)
-  const games = [
-    { id:"principal", jogo: principal.slice(), motivos: motivos.principal },
-    { id:"invertida", jogo: invertida.slice(), motivos: motivos.invertida },
-    { id:"tecnica1",  jogo: tecnica1.slice(),  motivos: motivos.tecnica1 },
-    { id:"tecnica2",  jogo: tecnica2.slice(),  motivos: motivos.tecnica2 },
-  ];
-  const minDiffs = {
-    invertida: { principal: 3 },
-    tecnica1:  { principal: 4, invertida: 3 },
-    tecnica2:  { principal: 4, invertida: 3, tecnica1: 3 },
-  };
-  enforceDifferent(games, minDiffs, prev4[0]);
-  // re-hidrata após ajustes
-  const principal2 = games.find(g=>g.id==="principal").jogo;
-  const invertida2 = games.find(g=>g.id==="invertida").jogo;
-  const tecnica12  = games.find(g=>g.id==="tecnica1").jogo;
-  const tecnica22  = games.find(g=>g.id==="tecnica2").jogo;
-
   return {
     ok:true,
-    principal: principal2,
-    invertida: invertida2,
-    tecnica1: tecnica12,
-    tecnica2: tecnica22,
+    principal,
+    invertida,
+    tecnica1,
+    tecnica2,
     motivos,
     meta
   };
