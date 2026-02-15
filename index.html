@@ -1795,6 +1795,26 @@ function buildPack4JogosPreditivo(payload){
   const motivos = { principal:[], invertida:[], tecnica1:[], tecnica2:[] };
   const meta = { profiles };
 
+  // ✅ Garantia: sempre entregar array com 15 dezenas (evita "Pacote inválido")
+  function _ensure15(arr, fallback){
+    const a = Array.isArray(arr) ? arr.slice() : [];
+    const used = new Set(a);
+    const fb = Array.isArray(fallback) ? fallback : [];
+    for(const n of fb){
+      if(a.length>=15) break;
+      if(!used.has(n)){
+        used.add(n); a.push(n);
+      }
+    }
+    // completa com 1..25 se ainda faltar
+    for(let n=1; n<=25 && a.length<15; n++){
+      if(!used.has(n)){
+        used.add(n); a.push(n);
+      }
+    }
+    return a.slice(0,15).sort((x,y)=>x-y);
+  }
+
   function montarJogo(kind, avoidCounts){
     const used = new Set();
 
@@ -1871,12 +1891,18 @@ for(const n of t1.jogo){ avoidCounts[n] = (avoidCounts[n]||0) + 1; }
 
 const t2 = montarJogo("tecnica2", avoidCounts);
 
+  const fallbackBase = (prev4 && prev4[0] && Array.isArray(prev4[0])) ? prev4[0] : ALL_25;
+  const principal = _ensure15(p && p.jogo, fallbackBase);
+  const invertida = _ensure15(i && i.jogo, fallbackBase);
+  const tecnica1  = _ensure15(t1 && t1.jogo, fallbackBase);
+  const tecnica2  = _ensure15(t2 && t2.jogo, fallbackBase);
+
   return {
     ok:true,
-    principal: p.jogo,
-    invertida: i.jogo,
-    tecnica1:  t1.jogo,
-    tecnica2:  t2.jogo,
+    principal,
+    invertida,
+    tecnica1,
+    tecnica2,
     motivos,
     meta
   };
