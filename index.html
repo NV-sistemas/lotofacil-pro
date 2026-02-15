@@ -5055,13 +5055,15 @@ function checkSavedGames(){
 
   (async ()=>{
     try{
-      if(!lastPayload || !lastPayload.concursos){
-        const qtdBase = qtdSelecionada();
-        await prepararContextoBase(qtdBase);
+      // ✅ garante que a conferência use EXATAMENTE a quantidade escolhida em "Jogos Salvos"
+      // Se o lastPayload tiver menos concursos do que o necessário, recarrega a base com a janela correta.
+      const need = Math.max(qtd, qtdSelecionada()); // mantém compatível com o seletor da Home, sem limitar Jogos Salvos
+      if(!lastPayload || !lastPayload.concursos || (lastPayload.concursos.length < qtd)){
+        await prepararContextoBase(need);
       }
 
       const concursos = (lastPayload.concursos || []).slice(-qtd);
-      if(!concursos.length){
+if(!concursos.length){
         alert("Não foi possível carregar concursos para conferência.");
         return;
       }
