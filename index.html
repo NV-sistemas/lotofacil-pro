@@ -3668,17 +3668,35 @@ const motivosAgrupados = {};
   if(Number.isFinite(Number(m.dezena))) motivosAgrupados[key].push(Number(m.dezena));
 });
 
-const motivosHtml = Object.entries(motivosAgrupados)
-  .sort((a,b)=>a[1][0]-b[1][0])
-  .map(([texto, dezenas])=>{
-    const lista = dezenas.sort((x,y)=>x-y).map(n=>format2(n)).join(", ");
-    return `
-      <div style="padding:10px;border-bottom:1px solid rgba(255,255,255,.08)">
-        <b class="mono">${lista}</b>
-        <div class="mini" style="margin-top:6px">${texto}</div>
-      </div>
-    `;
-  }).join("") || `<div class="mini">—</div>`;
+const motivosHtml = `
+  <div class="eliteMotives">
+    <div class="eliteMotivesHdr">
+      <b>🧠 Explicação comportamental</b>
+      <span>Padrão fixo • Sistema Preditivo</span>
+    </div>
+    <div class="eliteMotivesGrid">
+      ${
+        Object.entries(motivosAgrupados)
+          .sort((a,b)=>a[1][0]-b[1][0])
+          .map(([texto, dezenas])=>{
+            const ordenadas = dezenas.sort((x,y)=>x-y);
+            const numsHtml = ordenadas
+              .map(n=>`<div class="eliteMotivesNum">${format2(n)}</div>`)
+              .join("");
+
+            return `
+              <div class="eliteMotivesRow">
+                <div class="eliteMotivesTag">${texto}</div>
+                <div class="eliteMotivesNums">
+                  ${numsHtml}
+                </div>
+              </div>
+            `;
+          }).join("")
+      }
+    </div>
+  </div>
+`;
 
     const resumoPares = (pi.pares===7||pi.pares===8)
       ? `Distribuição ideal (${pi.pares} pares / ${pi.impares} ímpares).`
@@ -3904,10 +3922,34 @@ async function gerarInvertida(silent=false){
       if(!motivosAgrupados[key]) motivosAgrupados[key]=[];
       if(Number.isFinite(Number(m.dezena))) motivosAgrupados[key].push(Number(m.dezena));
     });
-    const motivosHtml = Object.entries(motivosAgrupados).map(([k,arr])=>{
-      const nums = arr.sort((a,b)=>a-b).map(format2).join(" - ");
-      return `<div class="mini">• <b>${k}</b>${nums?`<br><span style="opacity:.9">${nums}</span>`:""}</div>`;
-    }).join("");
+    const motivosHtml = `
+  <div class="eliteMotives">
+    <div class="eliteMotivesHdr">
+      <b>🧠 Explicação comportamental</b>
+      <span>Padrão fixo • Técnica</span>
+    </div>
+    <div class="eliteMotivesGrid">
+      ${
+        Object.entries(motivosAgrupados)
+          .map(([texto, dezenas])=>{
+            const ordenadas = dezenas.sort((a,b)=>a-b);
+            const numsHtml = ordenadas
+              .map(n=>`<div class="eliteMotivesNum">${format2(n)}</div>`)
+              .join("");
+
+            return `
+              <div class="eliteMotivesRow">
+                <div class="eliteMotivesTag">${texto}</div>
+                <div class="eliteMotivesNums">
+                  ${numsHtml}
+                </div>
+              </div>
+            `;
+          }).join("")
+      }
+    </div>
+  </div>
+`;
 
     if(area){
       area.innerHTML = `
