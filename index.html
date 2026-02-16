@@ -2267,7 +2267,7 @@ function buildPack4JogosPreditivo(payload){
       }
       // fallback dentro do prev4 se faltar naquela categoria
       while(taken<k){
-        const fallbackCats = ["R","G2","G3","G4","F"];
+        const fallbackCats = (catKey==="R") ? ["R","G2","G3","G4","F"] : ["G2","G3","G4","F"];
         let got=null;
         for(const fc of fallbackCats){
           got = _pickDiversified(fc, used, patIdx);
@@ -4032,8 +4032,6 @@ async function gerarTecnicaPremiada(silent=false){
     </div>
   </div>
 `;
-return `<div class="mini">• <b>${k}</b>${numsTxt?`<br><span style="opacity:.9">${numsTxt}</span>`:""}</div>`;
-      }).join("");
 
       return `
         <div class="box" style="margin-bottom:12px">
