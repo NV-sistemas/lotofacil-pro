@@ -776,77 +776,117 @@
   }
 
 
-  /* === ELITE MOTIVOS (compacto) === */
-  .eliteMotives{
-    margin-top:12px;
-    background: linear-gradient(180deg, rgba(0,0,0,.20), rgba(0,0,0,.38));
-    border:1px solid rgba(255,255,255,.10);
-    border-radius:18px;
-    padding:12px;
-  }
-  .eliteMotivesHdr{
-    display:flex; align-items:center; justify-content:space-between; gap:10px;
-    margin-bottom:10px;
-  }
-  .eliteMotivesHdr b{ color: var(--accent); font-size:13px; letter-spacing:.25px; }
-  .eliteMotivesHdr span{ color: rgba(255,255,255,.58); font-size:11.5px; font-weight:850; }
-  .eliteMotivesGrid{
-    display:flex;
-    flex-direction:column;
-    gap:8px;
-  }
+  /* === ELITE MOTIVOS (PADRÃO ELITE AJUSTADO MOBILE) === */
+.eliteMotives{
+  margin-top:14px;
+  background: linear-gradient(180deg, rgba(0,0,0,.25), rgba(0,0,0,.45));
+  border:1px solid rgba(255,255,255,.10);
+  border-radius:20px;
+  padding:14px;
+}
+
+.eliteMotivesHdr{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:12px;
+}
+
+.eliteMotivesHdr b{
+  color: var(--accent);
+  font-size:13.5px;
+  letter-spacing:.4px;
+}
+
+.eliteMotivesHdr span{
+  color: rgba(255,255,255,.55);
+  font-size:11px;
+  font-weight:800;
+}
+
+.eliteMotivesGrid{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.eliteMotivesRow{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  padding:12px;
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,.10);
+  background: rgba(0,0,0,.55);
+}
+
+.eliteMotivesTag{
+  font-size:11.5px;
+  font-weight:950;
+  color: rgba(255,255,255,.85);
+  background: rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:999px;
+  padding:6px 10px;
+  align-self:flex-start;
+}
+
+.eliteMotivesNums{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+}
+
+.eliteMotivesNum{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:34px;
+  height:30px;
+  padding:0 10px;
+  border-radius:999px;
+  background: rgba(0,0,0,.85);
+  border:1px solid rgba(234,179,8,.40);
+  color: var(--accent);
+  font-weight:1000;
+  font-size:12px;
+  letter-spacing:.3px;
+}
+
+/* ===== Desktop ajustado ===== */
+@media (min-width: 721px){
+
   .eliteMotivesRow{
-    display:flex;
-    align-items:flex-start;
-    justify-content:space-between;
-    gap:10px;
-    padding:10px 12px;
-    border-radius:14px;
-    border:1px solid rgba(255,255,255,.10);
-    background: rgba(0,0,0,.48);
-  }
-  .eliteMotivesTag{
-    flex:0 0 auto;
-    font-size:11.5px;
-    font-weight:950;
-    color: rgba(255,255,255,.86);
-    background: rgba(255,255,255,.06);
-    border:1px solid rgba(255,255,255,.12);
-    border-radius:999px;
-    padding:6px 10px;
-    white-space:nowrap;
-  }
-  .eliteMotivesNums{
-    flex:1 1 auto;
-    display:flex;
-    flex-wrap:wrap;
-    justify-content:flex-end;
-    gap:6px;
-  }
-  .eliteMotivesNum{
-    display:inline-flex;
+    flex-direction:row;
     align-items:center;
-    justify-content:center;
-    min-width:34px;
-    height:28px;
-    padding:0 10px;
-    border-radius:999px;
-    background: rgba(0,0,0,.72);
-    border:1px solid rgba(234,179,8,.30);
-    color: var(--accent);
-    font-weight:1000;
-    font-size:12px;
-    letter-spacing:.3px;
+    justify-content:space-between;
   }
 
-  @media (max-width: 520px){
-    .eliteMotivesRow{ padding:9px 10px; }
-    .eliteMotivesNums{ justify-content:flex-start; }
-    .eliteMotivesNum{ min-width:32px; height:26px; padding:0 9px; font-size:11.5px; }
-    .eliteMotivesTag{ font-size:11px; padding:6px 9px; }
-    .eliteMotivesHdr span{ display:none; }
+  .eliteMotivesNums{
+    justify-content:flex-end;
   }
 
+}
+
+/* ===== Mobile refinado ===== */
+@media (max-width: 720px){
+
+  .eliteMotivesHdr span{
+    display:none;
+  }
+
+  .eliteMotivesRow{
+    padding:10px 12px;
+  }
+
+  .eliteMotivesNum{
+    min-width:30px;
+    height:26px;
+    font-size:11px;
+  }
+
+}
   .primeBar{
     height:10px;border-radius:999px;overflow:hidden;
     background: rgba(255,255,255,.10);
