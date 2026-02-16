@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -776,117 +777,84 @@
   }
 
 
-  /* === ELITE MOTIVOS (PADRÃO ELITE AJUSTADO MOBILE) === */
-.eliteMotives{
-  margin-top:14px;
-  background: linear-gradient(180deg, rgba(0,0,0,.25), rgba(0,0,0,.45));
-  border:1px solid rgba(255,255,255,.10);
-  border-radius:20px;
-  padding:14px;
-}
-
-.eliteMotivesHdr{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  margin-bottom:12px;
-}
-
-.eliteMotivesHdr b{
-  color: var(--accent);
-  font-size:13.5px;
-  letter-spacing:.4px;
-}
-
-.eliteMotivesHdr span{
-  color: rgba(255,255,255,.55);
-  font-size:11px;
-  font-weight:800;
-}
-
-.eliteMotivesGrid{
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-}
-
-.eliteMotivesRow{
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-  padding:12px;
-  border-radius:16px;
-  border:1px solid rgba(255,255,255,.10);
-  background: rgba(0,0,0,.55);
-}
-
-.eliteMotivesTag{
-  font-size:11.5px;
-  font-weight:950;
-  color: rgba(255,255,255,.85);
-  background: rgba(255,255,255,.06);
-  border:1px solid rgba(255,255,255,.12);
-  border-radius:999px;
-  padding:6px 10px;
-  align-self:flex-start;
-}
-
-.eliteMotivesNums{
-  display:flex;
-  flex-wrap:wrap;
-  gap:6px;
-}
-
-.eliteMotivesNum{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  min-width:34px;
-  height:30px;
-  padding:0 10px;
-  border-radius:999px;
-  background: rgba(0,0,0,.85);
-  border:1px solid rgba(234,179,8,.40);
-  color: var(--accent);
-  font-weight:1000;
-  font-size:12px;
-  letter-spacing:.3px;
-}
-
-/* ===== Desktop ajustado ===== */
-@media (min-width: 721px){
-
+  /* === ELITE MOTIVOS (compacto) === */
+  .eliteMotives{
+    margin-top:12px;
+    background: linear-gradient(180deg, rgba(0,0,0,.20), rgba(0,0,0,.38));
+    border:1px solid rgba(255,255,255,.10);
+    border-radius:18px;
+    padding:12px;
+  }
+  .eliteMotivesHdr{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    margin-bottom:10px;
+  }
+  .eliteMotivesHdr b{ color: var(--accent); font-size:13px; letter-spacing:.25px; }
+  .eliteMotivesHdr span{ color: rgba(255,255,255,.58); font-size:11.5px; font-weight:850; }
+  .eliteMotivesGrid{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
   .eliteMotivesRow{
-    flex-direction:row;
-    align-items:center;
+    display:flex;
+    align-items:flex-start;
     justify-content:space-between;
-  }
-
-  .eliteMotivesNums{
-    justify-content:flex-end;
-  }
-
-}
-
-/* ===== Mobile refinado ===== */
-@media (max-width: 720px){
-
-  .eliteMotivesHdr span{
-    display:none;
-  }
-
-  .eliteMotivesRow{
+    gap:10px;
     padding:10px 12px;
+    border-radius:14px;
+    border:1px solid rgba(255,255,255,.10);
+    background: rgba(0,0,0,.48);
   }
-
+  .eliteMotivesTag{
+    flex:0 0 auto;
+    font-size:11.5px;
+    font-weight:950;
+    color: rgba(255,255,255,.86);
+    background: rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.12);
+    border-radius:999px;
+    padding:6px 10px;
+    white-space:nowrap;
+  }
+  .eliteMotivesNums{
+    flex:1 1 auto;
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:flex-end;
+    gap:6px;
+  }
   .eliteMotivesNum{
-    min-width:30px;
-    height:26px;
-    font-size:11px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-width:34px;
+    height:28px;
+    padding:0 10px;
+    border-radius:999px;
+    background: rgba(0,0,0,.72);
+    border:1px solid rgba(234,179,8,.30);
+    color: var(--accent);
+    font-weight:1000;
+    font-size:12px;
+    letter-spacing:.3px;
   }
 
-}
+  @media(max-width:520px){
+    .eliteMotivesRow{ flex-direction:column; align-items:flex-start; }
+    .eliteMotivesTag{ white-space:normal; }
+    .eliteMotivesNums{ justify-content:flex-start; }
+  }
+
+
+  @media (max-width: 520px){
+    .eliteMotivesRow{ padding:9px 10px; }
+    .eliteMotivesNums{ justify-content:flex-start; }
+    .eliteMotivesNum{ min-width:32px; height:26px; padding:0 9px; font-size:11.5px; }
+    .eliteMotivesTag{ font-size:11px; padding:6px 9px; }
+    .eliteMotivesHdr span{ display:none; }
+  }
+
   .primeBar{
     height:10px;border-radius:999px;overflow:hidden;
     background: rgba(255,255,255,.10);
@@ -3664,23 +3632,46 @@ async function acaoPrincipal(){
 const motivosAgrupados = {};
 (result?.motivos || []).forEach(m=>{
   const key = (m.texto || "").trim();
+  if(!key) return;
   if(!motivosAgrupados[key]) motivosAgrupados[key] = [];
   if(Number.isFinite(Number(m.dezena))) motivosAgrupados[key].push(Number(m.dezena));
 });
 
-const motivosHtml = Object.entries(motivosAgrupados)
-  .sort((a,b)=>a[1][0]-b[1][0])
+const _motivoOrder = (txt)=>{
+  const t = String(txt||"").toUpperCase();
+  if(/\bR\b/.test(t)) return 1;
+  if(/\bG2\b/.test(t)) return 2;
+  if(/\bG3\b/.test(t)) return 3;
+  if(/\bG4\b/.test(t)) return 4;
+  if(/\bHOT\b/.test(t)) return 5;
+  if(/\bCOLD\b/.test(t)) return 6;
+  if(/\bOUT\b/.test(t)) return 7;
+  return 9;
+};
+
+const expRows = Object.entries(motivosAgrupados)
+  .sort((a,b)=> (_motivoOrder(a[0]) - _motivoOrder(b[0])) || String(a[0]).localeCompare(String(b[0])))
   .map(([texto, dezenas])=>{
-    const lista = dezenas.sort((x,y)=>x-y).map(n=>format2(n)).join(", ");
+    const numsHtml = (dezenas||[]).slice().sort((x,y)=>x-y).map(n=>`<span class="eliteMotivesNum">${format2(n)}</span>`).join("");
     return `
-      <div style="padding:10px;border-bottom:1px solid rgba(255,255,255,.08)">
-        <b class="mono">${lista}</b>
-        <div class="mini" style="margin-top:6px">${texto}</div>
+      <div class="eliteMotivesRow">
+        <span class="eliteMotivesTag">${texto}</span>
+        <div class="eliteMotivesNums">${numsHtml}</div>
       </div>
     `;
-  }).join("") || `<div class="mini">—</div>`;
+  }).join("");
 
-    const resumoPares = (pi.pares===7||pi.pares===8)
+const motivosHtml = expRows ? `
+  <div class="eliteMotives">
+    <div class="eliteMotivesHdr">
+      <b>📌 Motivo (agrupado)</b>
+      <span>mesmo motivo = dezenas juntas</span>
+    </div>
+    <div class="eliteMotivesGrid">${expRows}</div>
+  </div>
+` : `<div class="mini">—</div>`;
+
+const resumoPares = (pi.pares===7||pi.pares===8)
       ? `Distribuição ideal (${pi.pares} pares / ${pi.impares} ímpares).`
       : `Distribuição fora do ideal (melhor: 7/8).`;
     const resumoSoma = (soma>=170 && soma<=230)
@@ -3718,9 +3709,7 @@ const motivosHtml = Object.entries(motivosAgrupados)
   <div class="mini" style="margin-top:8px">
     Explicação preditiva (comportamento nos últimos 5 concursos + estágios 3–6 antes • IN/OUT).
   </div>
-  <div style="margin-top:10px;border:1px solid rgba(255,255,255,.10);border-radius:14px;overflow:hidden">
-    ${motivosHtml}
-  </div>
+  ${motivosHtml}
 </div>
 
       <div class="box" style="margin-top:12px">
@@ -3899,17 +3888,48 @@ async function gerarInvertida(silent=false){
     const balls = inv.map(n=>`<div class="ball">${format2(n)}</div>`).join("");
 
     const motivosAgrupados = {};
-    (motivos||[]).forEach(m=>{
-      const key = (m.texto||"").trim();
-      if(!motivosAgrupados[key]) motivosAgrupados[key]=[];
-      if(Number.isFinite(Number(m.dezena))) motivosAgrupados[key].push(Number(m.dezena));
-    });
-    const motivosHtml = Object.entries(motivosAgrupados).map(([k,arr])=>{
-      const nums = arr.sort((a,b)=>a-b).map(format2).join(" - ");
-      return `<div class="mini">• <b>${k}</b>${nums?`<br><span style="opacity:.9">${nums}</span>`:""}</div>`;
-    }).join("");
+(motivos||[]).forEach(m=>{
+  const key = (m.texto||"").trim();
+  if(!key) return;
+  if(!motivosAgrupados[key]) motivosAgrupados[key]=[];
+  if(Number.isFinite(Number(m.dezena))) motivosAgrupados[key].push(Number(m.dezena));
+});
 
-    if(area){
+const _motivoOrder = (txt)=>{
+  const t = String(txt||"").toUpperCase();
+  if(/\bR\b/.test(t)) return 1;
+  if(/\bG2\b/.test(t)) return 2;
+  if(/\bG3\b/.test(t)) return 3;
+  if(/\bG4\b/.test(t)) return 4;
+  if(/\bHOT\b/.test(t)) return 5;
+  if(/\bCOLD\b/.test(t)) return 6;
+  if(/\bOUT\b/.test(t)) return 7;
+  return 9;
+};
+
+const expRows = Object.entries(motivosAgrupados)
+  .sort((a,b)=> (_motivoOrder(a[0]) - _motivoOrder(b[0])) || String(a[0]).localeCompare(String(b[0])))
+  .map(([motivo, nums])=>{
+    const numsHtml = (nums||[]).slice().sort((a,b)=>a-b).map(x=>`<span class="eliteMotivesNum">${format2(x)}</span>`).join("");
+    return `
+      <div class="eliteMotivesRow">
+        <span class="eliteMotivesTag">${motivo}</span>
+        <div class="eliteMotivesNums">${numsHtml}</div>
+      </div>
+    `;
+  }).join("");
+
+const motivosHtml = expRows ? `
+  <div class="eliteMotives">
+    <div class="eliteMotivesHdr">
+      <b>📌 Motivo (agrupado)</b>
+      <span>mesmo motivo = dezenas juntas</span>
+    </div>
+    <div class="eliteMotivesGrid">${expRows}</div>
+  </div>
+` : `<div class="mini">—</div>`;
+
+if(area){
       area.innerHTML = `
         <div class="box">
           <div class="titleRow">
@@ -3922,7 +3942,7 @@ async function gerarInvertida(silent=false){
           <div class="sep"></div>
           <div class="mini"><b>Por que essas dezenas?</b></div>
           <div class="mini" style="opacity:.88">Padrão fixo comportamental (repetição + gaps 2/3/4) • sem quentes/frias.</div>
-          <div class="mini" style="margin-top:8px">${motivosHtml || "—"}</div>
+          ${motivosHtml}
         </div>
       `;
     }
@@ -3967,14 +3987,48 @@ async function gerarTecnicaPremiada(silent=false){
     function renderCard(title, nums, motivos){
       const balls = nums.map(n=>`<div class="ball">${format2(n)}</div>`).join("");
       const motivosAgrupados = {};
-      (motivos||[]).forEach(m=>{
-        const key = (m.texto||"").trim();
-        if(!motivosAgrupados[key]) motivosAgrupados[key]=[];
-        if(Number.isFinite(Number(m.dezena))) motivosAgrupados[key].push(Number(m.dezena));
-      });
-      const motivosHtml = Object.entries(motivosAgrupados).map(([k,arr])=>{
-        const numsTxt = arr.sort((a,b)=>a-b).map(format2).join(" - ");
-        return `<div class="mini">• <b>${k}</b>${numsTxt?`<br><span style="opacity:.9">${numsTxt}</span>`:""}</div>`;
+(motivos||[]).forEach(m=>{
+  const key = (m.texto||"").trim();
+  if(!key) return;
+  if(!motivosAgrupados[key]) motivosAgrupados[key]=[];
+  if(Number.isFinite(Number(m.dezena))) motivosAgrupados[key].push(Number(m.dezena));
+});
+
+const _motivoOrder = (txt)=>{
+  const t = String(txt||"").toUpperCase();
+  if(/\bR\b/.test(t)) return 1;
+  if(/\bG2\b/.test(t)) return 2;
+  if(/\bG3\b/.test(t)) return 3;
+  if(/\bG4\b/.test(t)) return 4;
+  if(/\bHOT\b/.test(t)) return 5;
+  if(/\bCOLD\b/.test(t)) return 6;
+  if(/\bOUT\b/.test(t)) return 7;
+  return 9;
+};
+
+const expRows = Object.entries(motivosAgrupados)
+  .sort((a,b)=> (_motivoOrder(a[0]) - _motivoOrder(b[0])) || String(a[0]).localeCompare(String(b[0])))
+  .map(([motivo, nums])=>{
+    const numsHtml = (nums||[]).slice().sort((a,b)=>a-b).map(x=>`<span class="eliteMotivesNum">${format2(x)}</span>`).join("");
+    return `
+      <div class="eliteMotivesRow">
+        <span class="eliteMotivesTag">${motivo}</span>
+        <div class="eliteMotivesNums">${numsHtml}</div>
+      </div>
+    `;
+  }).join("");
+
+const motivosHtml = expRows ? `
+  <div class="eliteMotives">
+    <div class="eliteMotivesHdr">
+      <b>📌 Motivo (agrupado)</b>
+      <span>mesmo motivo = dezenas juntas</span>
+    </div>
+    <div class="eliteMotivesGrid">${expRows}</div>
+  </div>
+` : `<div class="mini">—</div>`;
+
+return `<div class="mini">• <b>${k}</b>${numsTxt?`<br><span style="opacity:.9">${numsTxt}</span>`:""}</div>`;
       }).join("");
 
       return `
@@ -3987,7 +4041,7 @@ async function gerarTecnicaPremiada(silent=false){
           <div class="sep"></div>
           <div class="mini"><b>Por que essas dezenas?</b></div>
           <div class="mini" style="opacity:.88">Padrão fixo comportamental (repetição + gaps 2/3/4) • sem quentes/frias.</div>
-          <div class="mini" style="margin-top:8px">${motivosHtml || "—"}</div>
+          ${motivosHtml}
         </div>
       `;
     }
