@@ -1619,6 +1619,22 @@ auth.onAuthStateChanged(async (user)=>{
 
 function format2(n){ return String(n).padStart(2,"0"); }
 
+function normalizarMotivo(txt){
+  let t = String(txt || "").trim();
+
+  // Remove prefixo de letra (ex: "N: " / "K: ")
+  t = t.replace(/^[A-ZÁÉÍÓÚÂÊÔÃÕÇ]{1,2}\s*:\s*/i, "");
+
+  // Compacta posição: "L1/C3" -> "L1" (mantém linha, remove coluna)
+  // Aceita com ou sem espaços ao redor do "/"
+  t = t.replace(/\s*•\s*L(\d+)\s*\/\s*C(\d+)/gi, " • L$1");
+  t = t.replace(/L(\d+)\s*\/\s*C(\d+)/gi, "L$1");
+
+  // Normaliza espaços
+  t = t.replace(/\s+/g, " ").trim();
+  return t;
+}
+
 function toNum(d){ return Number(String(d).replace(/^0+/,"")) || Number(d); }
 function sortNum(arr){ return arr.slice().sort((a,b)=>a-b); }
 
@@ -3004,7 +3020,8 @@ function renderPrimeKpis(payload, evenOdd, primeDist, linesDist, colsDist, block
         <div class="mini" style="margin-top:6px">Use estes <b>7 pontos</b> para montar seu <b>Jogo Manual</b> com clareza (padrões reais da janela).</div>
       </div>
       <div style="display:flex;gap:10px;flex-wrap:wrap">
-        </div>
+        <button class="btn btnGhost" type="button" onclick="verConcursos()">📅 Ver concursos</button>
+      </div>
     </div>
 
     <div class="grid" style="margin-top:12px">
@@ -3661,8 +3678,10 @@ async function acaoPrincipal(){
 
     const balls = jogo.map(n=>`<div class="ball">${format2(n)}</div>`).join("");
 const motivosAgrupados = {};
-(result?.motivos || []).forEach(m=>{
-  const key = (m.texto || "").trim();
+const _motList = (typeof result !== "undefined" && (result?.motivos)) ? result.motivos : (typeof motivos !== "undefined" ? motivos : []);
+(_motList || []).forEach(m=>{
+  const raw = (m.texto || "").trim();
+  const key = normalizarMotivo(raw);
   if(!motivosAgrupados[key]) motivosAgrupados[key] = [];
   if(Number.isFinite(Number(m.dezena))) motivosAgrupados[key].push(Number(m.dezena));
 });
@@ -3916,9 +3935,11 @@ async function gerarInvertida(silent=false){
     const balls = inv.map(n=>`<div class="ball">${format2(n)}</div>`).join("");
 
     const motivosAgrupados = {};
-    (motivos||[]).forEach(m=>{
-      const key = (m.texto||"").trim();
-      if(!motivosAgrupados[key]) motivosAgrupados[key]=[];
+    const _motList = (typeof result !== "undefined" && (result?.motivos)) ? result.motivos : (typeof motivos !== "undefined" ? motivos : []);
+    (_motList || []).forEach(m=>{
+      const raw = (m.texto || "").trim();
+      const key = normalizarMotivo(raw);
+      if(!motivosAgrupados[key]) motivosAgrupados[key] = [];
       if(Number.isFinite(Number(m.dezena))) motivosAgrupados[key].push(Number(m.dezena));
     });
     const motivosHtml = `
@@ -4008,9 +4029,11 @@ async function gerarTecnicaPremiada(silent=false){
     function renderCard(title, nums, motivos){
       const balls = nums.map(n=>`<div class="ball">${format2(n)}</div>`).join("");
       const motivosAgrupados = {};
-      (motivos||[]).forEach(m=>{
-        const key = (m.texto||"").trim();
-        if(!motivosAgrupados[key]) motivosAgrupados[key]=[];
+      const _motList = (typeof result !== "undefined" && (result?.motivos)) ? result.motivos : (typeof motivos !== "undefined" ? motivos : []);
+      (_motList || []).forEach(m=>{
+        const raw = (m.texto || "").trim();
+        const key = normalizarMotivo(raw);
+        if(!motivosAgrupados[key]) motivosAgrupados[key] = [];
         if(Number.isFinite(Number(m.dezena))) motivosAgrupados[key].push(Number(m.dezena));
       });
       const motivosHtml = Object.entries(motivosAgrupados).map(([k,arr])=>{
