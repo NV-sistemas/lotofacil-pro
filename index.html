@@ -2135,6 +2135,69 @@ function buildPack4JogosPreditivo(payload){
     G4:_rank("G4"),
     F: _rank("F")
   };
+  // --- Diversificação entre jogos (evita ficar tudo parecido) ---
+  // A lista por categoria é a mesma, mas cada padrão pega "fatias" diferentes (determinístico)
+  // e reduz reuso dos mesmos números como repetidas (R) entre Principal/Invertida/Técnicas.
+  const globalUse = {
+    R: Array(26).fill(0),
+    G2: Array(26).fill(0),
+    G3: Array(26).fill(0),
+    G4: Array(26).fill(0),
+    F: Array(26).fill(0)
+  };
+
+  function _rot(list, shift){
+    if(!list || !list.length) return [];
+    const s = ((shift%list.length)+list.length)%list.length;
+    return list.slice(s).concat(list.slice(0,s));
+  }
+
+  function _pickDiversified(catKey, used, patIdx){
+    const base = pool[catKey] || [];
+    if(!base.length) return null;
+
+    // shifts diferentes por padrão e por categoria
+    const catShift =
+      (catKey==="R")  ? 0 :
+      (catKey==="G2") ? 3 :
+      (catKey==="G3") ? 5 :
+      (catKey==="G4") ? 7 : 11;
+
+    const shift = (patIdx*7 + catShift) % base.length;
+    const list = _rot(base, shift);
+
+    // escolhe o candidato com MENOR reuso global nesta categoria (nos primeiros candidatos)
+    let best = null;
+    let bestUse = 1e9;
+
+    const scan = Math.min(18, list.length);
+    for(let i=0;i<scan;i++){
+      const n = list[i];
+      if(used.has(n)) continue;
+      const u = globalUse[catKey]?.[n] ?? 0;
+
+      if(u < bestUse){
+        bestUse = u;
+        best = n;
+        if(bestUse===0) break; // já é o ideal
+      }
+    }
+
+    // fallback: primeira disponível na rotação
+    if(best==null){
+      for(const n of list){
+        if(!used.has(n)){ best = n; break; }
+      }
+    }
+
+    if(best!=null){
+      used.add(best);
+      globalUse[catKey][best] = (globalUse[catKey][best]||0) + 1;
+      return best;
+    }
+    return null;
+  }
+
 
   function _pickFrom(list, used){
     for(const n of list){
@@ -2187,7 +2250,7 @@ function buildPack4JogosPreditivo(payload){
     }
   }
 
-  function _applyPattern(patternName, quota, globalAvoidSet){
+  function _applyPattern(patternName, quota, globalAvoidSet, patIdx){
     // quota: {R,G2,G3,G4,F}
     const used = new Set();
     const game = [];
@@ -2196,7 +2259,7 @@ function buildPack4JogosPreditivo(payload){
     function take(catKey, k){
       let taken=0;
       while(taken<k){
-        const n = _pickFrom(pool[catKey], used);
+        const n = _pickDiversified(catKey, used, patIdx);
         if(n==null) break;
         game.push(n);
         motivos.push({dezena:n, texto:`${catKey} • Padrão ${patternName}`});
@@ -2207,7 +2270,7 @@ function buildPack4JogosPreditivo(payload){
         const fallbackCats = ["R","G2","G3","G4","F"];
         let got=null;
         for(const fc of fallbackCats){
-          got = _pickFrom(pool[fc], used);
+          got = _pickDiversified(fc, used, patIdx);
           if(got!=null){ 
             game.push(got);
             motivos.push({dezena:got, texto:`Fallback (${catKey}→${fc}) • Padrão ${patternName}`});
@@ -2264,8 +2327,9 @@ function buildPack4JogosPreditivo(payload){
   const outGames = {};
   const outMotivos = { principal:[], invertida:[], tecnica1:[], tecnica2:[] };
 
-  for(const p of patterns){
-    const built = _applyPattern(p.name, p.q, avoid);
+  for(let i=0;i<patterns.length;i++){
+    const p = patterns[i];
+    const built = _applyPattern(p.name, p.q, avoid, i);
     outGames[p.id] = built.jogo;
     outMotivos[p.id] = built.motivos;
   }
@@ -3893,9 +3957,7 @@ async function gerarInvertida(silent=false){
           <div class="balls">${balls}</div>
 
           <div class="sep"></div>
-          <div class="mini"><b>Por que essas dezenas?</b></div>
-          <div class="mini" style="opacity:.88">Padrão fixo comportamental (repetição + gaps 2/3/4) • sem quentes/frias.</div>
-          <div class="mini" style="margin-top:8px">${motivosHtml || "—"}</div>
+          ${motivosHtml || "—"}
         </div>
       `;
     }
@@ -3945,9 +4007,32 @@ async function gerarTecnicaPremiada(silent=false){
         if(!motivosAgrupados[key]) motivosAgrupados[key]=[];
         if(Number.isFinite(Number(m.dezena))) motivosAgrupados[key].push(Number(m.dezena));
       });
-      const motivosHtml = Object.entries(motivosAgrupados).map(([k,arr])=>{
-        const numsTxt = arr.sort((a,b)=>a-b).map(format2).join(" - ");
-        return `<div class="mini">• <b>${k}</b>${numsTxt?`<br><span style="opacity:.9">${numsTxt}</span>`:""}</div>`;
+      const motivosHtml = `
+  <div class="eliteMotives">
+    <div class="eliteMotivesHdr">
+      <b>🧠 Explicação comportamental</b>
+      <span>Padrão fixo • Sistema Preditivo</span>
+    </div>
+    <div class="eliteMotivesGrid">
+      ${
+        Object.entries(motivosAgrupados)
+          .map(([texto, dezenas])=>{
+            const ordenadas = (dezenas||[]).slice().sort((x,y)=>x-y);
+            const numsHtml = ordenadas.map(n=>`<div class="eliteMotivesNum">${format2(n)}</div>`).join("");
+            return `
+              <div class="eliteMotivesRow">
+                <div class="eliteMotivesTag">${texto}</div>
+                <div class="eliteMotivesNums">
+                  ${numsHtml}
+                </div>
+              </div>
+            `;
+          }).join("")
+      }
+    </div>
+  </div>
+`;
+return `<div class="mini">• <b>${k}</b>${numsTxt?`<br><span style="opacity:.9">${numsTxt}</span>`:""}</div>`;
       }).join("");
 
       return `
@@ -3958,9 +4043,7 @@ async function gerarTecnicaPremiada(silent=false){
           </div>
           <div class="balls">${balls}</div>
           <div class="sep"></div>
-          <div class="mini"><b>Por que essas dezenas?</b></div>
-          <div class="mini" style="opacity:.88">Padrão fixo comportamental (repetição + gaps 2/3/4) • sem quentes/frias.</div>
-          <div class="mini" style="margin-top:8px">${motivosHtml || "—"}</div>
+          ${motivosHtml || "—"}
         </div>
       `;
     }
