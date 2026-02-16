@@ -918,10 +918,8 @@ const ADMIN_EMAIL = "admin@lotofacilprime.com";
 
 function freeKey(uid){ return `lf_free_used_v1_${uid||"anon"}`; }
 
-const PRINCIPAL_SEQ_KEY = "lf_principal_seq_v1";
 
-const PRINCIPAL_SEQ = [9, 8, 9, 10, 9, 8, 9, 10, 9, 10];
-
+// (removido) sequência antiga do motor do JOGO PRINCIPAL
 </script>
 
 <script>
@@ -1619,22 +1617,6 @@ auth.onAuthStateChanged(async (user)=>{
 
 function format2(n){ return String(n).padStart(2,"0"); }
 
-function normalizarMotivo(txt){
-  let t = String(txt || "").trim();
-
-  // Remove prefixo de letra (ex: "N: " / "K: ")
-  t = t.replace(/^[A-ZÁÉÍÓÚÂÊÔÃÕÇ]{1,2}\s*:\s*/i, "");
-
-  // Compacta posição: "L1/C3" -> "L1" (mantém linha, remove coluna)
-  // Aceita com ou sem espaços ao redor do "/"
-  t = t.replace(/\s*•\s*L(\d+)\s*\/\s*C(\d+)/gi, " • L$1");
-  t = t.replace(/L(\d+)\s*\/\s*C(\d+)/gi, "L$1");
-
-  // Normaliza espaços
-  t = t.replace(/\s+/g, " ").trim();
-  return t;
-}
-
 function toNum(d){ return Number(String(d).replace(/^0+/,"")) || Number(d); }
 function sortNum(arr){ return arr.slice().sort((a,b)=>a-b); }
 
@@ -2072,6 +2054,17 @@ function _applyToCur(num, cur){
 
 
 function buildPack4JogosPreditivo(payload){
+  // =========================================================
+  // ✅ NOVO MOTOR (36 concursos de treino / base: prev4)
+  // - O usuário escolhe a janela (qtd concursos) para análise/score
+  // - A classificação comportamental é SEMPRE baseada nos últimos 4 concursos (prev4)
+  // - Gera 4 jogos FIXOS (padrões) e DIFERENTES:
+  //   P1 Dominante      (9R,4G2,2G3,0G4,0F)
+  //   P2 Agressivo 10R  (10R,3G2,2G3,0G4,0F)
+  //   P3 Profundidade   (9R,3G2,2G3,1G4,0F)
+  //   P4 Risco control. (9R,4G2,1G3,0G4,1F)  // 1 fora do prev4
+  // =========================================================
+
   const concursos = payload?.concursos || [];
   const draws = concursos
     .map(c=> getDezenas(c).slice().sort((a,b)=>a-b))
@@ -2087,285 +2080,207 @@ function buildPack4JogosPreditivo(payload){
     };
   }
 
-  // Base do treino: sempre prev4 (últimos 4). Se a janela tiver <4, fazemos padding repetindo o mais recente.
+  // Base: sempre últimos 4 sorteios (prev4). Se a janela tiver <4, fazemos padding repetindo o mais recente.
   const last = draws[draws.length-1];
   const prev4 = [last, last, last, last];
   for(let k=1; k<4 && (draws.length-1-k)>=0; k++){
     prev4[k] = draws[draws.length-1-k];
   }
 
-  const profiles = trainFixedProfiles();
-  const motivos = { principal:[], invertida:[], tecnica1:[], tecnica2:[] };
-  const meta = { profiles };
+  const s1 = new Set(prev4[0]);
+  const s2 = new Set(prev4[1]);
+  const s3 = new Set(prev4[2]);
+  const s4 = new Set(prev4[3]);
 
-  // ✅ Templates de conjunto aprendidos no TREINO (Top 4 mais recorrentes)
-  // Usamos o TREINO FIXO quando disponível; senão usamos os concursos do payload.
-  const _trainDraws = (typeof TRAIN_FIXED !== "undefined" && Array.isArray(TRAIN_FIXED) && TRAIN_FIXED.length)
-    ? TRAIN_FIXED.map(x=> (x.dezenas||[]).slice().sort((a,b)=>a-b))
-    : draws;
-
-  const templates = _topKTemplatesFromTrain(_trainDraws, 4);
-
-  function _templateForKind(kind){
-    const v = _variantIndexByKind(kind);
-    return templates[Math.min(v, templates.length-1)] || templates[0];
+  function cat(n){
+    if(s1.has(n)) return "R";
+    if(s2.has(n)) return "G2";
+    if(s3.has(n)) return "G3";
+    if(s4.has(n)) return "G4";
+    return "F"; // fora do prev4
   }
 
-
-  // ✅ Garantia: sempre entregar array com 15 dezenas (evita "Pacote inválido")
-  function _ensure15(arr, fallback){
-    const a = Array.isArray(arr) ? arr.slice() : [];
-    const used = new Set(a);
-    const fb = Array.isArray(fallback) ? fallback : [];
-    for(const n of fb){
-      if(a.length>=15) break;
-      if(!used.has(n)){
-        used.add(n); a.push(n);
-      }
-    }
-    // completa com 1..25 se ainda faltar
-    for(let n=1; n<=25 && a.length<15; n++){
-      if(!used.has(n)){
-        used.add(n); a.push(n);
-      }
-    }
-    return a.slice(0,15).sort((x,y)=>x-y);
+  // Frequência na janela selecionada (quanto mais concursos o usuário escolher, mais estável o score)
+  const freq = Array(26).fill(0);
+  for(const d of draws){
+    for(const n of d) freq[n] = (freq[n]||0)+1;
   }
 
-  function montarJogo(kind, avoidCounts, avoidOutCounts){
-    const vIdx = _variantIndexByKind(kind);
+  function _score(n){
+    // Score determinístico: freq + bônus leve por categoria (agressivo p/ R/G2)
+    const c = cat(n);
+    let b = 0;
+    if(c==="R") b = 0.80;
+    else if(c==="G2") b = 0.55;
+    else if(c==="G3") b = 0.35;
+    else if(c==="G4") b = 0.20;
+    else b = 0.05;
+    return (freq[n]||0) + b;
+  }
 
-    // penalidade de reutilização cresce por jogo (determinístico)
-    const pen = 0.9 * (1 + vIdx*0.35);
+  function _rank(categoria){
+    const out = [];
+    for(let n=1;n<=25;n++){
+      if(cat(n)!==categoria) continue;
+      out.push({n, sc:_score(n)});
+    }
+    out.sort((a,b)=> (b.sc-a.sc) || (a.n-b.n));
+    return out.map(x=>x.n);
+  }
 
-    // template do conjunto (blocos/paridade) para este jogo (Top#1..Top#4 do treino)
-    const tpl = _templateForKind(kind);
-    const curTpl = _initTemplateCur();
+  const pool = {
+    R: _rank("R"),
+    G2:_rank("G2"),
+    G3:_rank("G3"),
+    G4:_rank("G4"),
+    F: _rank("F")
+  };
 
+  function _pickFrom(list, used){
+    for(const n of list){
+      if(!used.has(n)){
+        used.add(n);
+        return n;
+      }
+    }
+    return null;
+  }
+
+  function _uniqSort15(arr){
+    const s = new Set();
+    const out=[];
+    for(const n of (arr||[])){
+      const x = Number(n);
+      if(!Number.isFinite(x)) continue;
+      if(x<1||x>25) continue;
+      if(s.has(x)) continue;
+      s.add(x); out.push(x);
+      if(out.length===15) break;
+    }
+    out.sort((a,b)=>a-b);
+    return out;
+  }
+
+  function _buildMotivos(gameNums){
+    const motivos = [];
+    for(const n of gameNums){
+      const c = cat(n);
+      const label = (c==="R") ? "R (repetida do último concurso)"
+                  : (c==="G2") ? "G2 (veio de 2 concursos atrás)"
+                  : (c==="G3") ? "G3 (veio de 3 concursos atrás)"
+                  : (c==="G4") ? "G4 (veio de 4 concursos atrás)"
+                  : "F (fora do prev4 — risco controlado)";
+      motivos.push({dezena:n, texto:label});
+    }
+    return motivos;
+  }
+
+  function _fillRemaining(game, used){
+    // completa determinístico com melhor score geral, priorizando ainda dentro do prev4
+    const all = [];
+    for(let n=1;n<=25;n++) all.push(n);
+    all.sort((a,b)=> (_score(b)-_score(a)) || (a-b));
+    while(game.length<15){
+      const n = _pickFrom(all, used);
+      if(n==null) break;
+      game.push(n);
+    }
+  }
+
+  function _applyPattern(patternName, quota, globalAvoidSet){
+    // quota: {R,G2,G3,G4,F}
     const used = new Set();
+    const game = [];
+    const motivos = [];
 
-    // --- OUT (não sorteadas) também variam entre os 4 jogos
-    const outPick = [];
-    for(const L of LETTERS_OUT){
-      const prof = profiles.out[L];
-      const pick = _pickVariantForProfile(ALL_25, used, prev4, prof, vIdx, avoidOutCounts, pen, null, null);
-      if(pick!==null) outPick.push({L, n:pick, prof});
-    }
-
-    const remainCandidates = ALL_25.filter(n=>!used.has(n));
-
-    const usedGame = new Set(outPick.map(x=>x.n));
-    const jogo = [];
-    const picks = [];
-
-    // guardamos o ranking por letra para poder ajustar o CONJUNTO depois (sem sair do treino)
-    const rankedByLetter = {};
-
-    function _chooseFromRanked(ranked, v){
-      if(!ranked || !ranked.length) return null;
-      const vv = Math.max(0, Number(v)||0);
-
-      // 1) procura a partir do índice v uma dezena com reutilização <= v
-      for(let i=vv; i<ranked.length; i++){
-        const it = ranked[i];
-        if((it.usedTimes||0) <= vv) return it.n;
+    function take(catKey, k){
+      let taken=0;
+      while(taken<k){
+        const n = _pickFrom(pool[catKey], used);
+        if(n==null) break;
+        game.push(n);
+        motivos.push({dezena:n, texto:`${catKey} • Padrão ${patternName}`});
+        taken++;
       }
-      // 2) cai para o índice v (se existir)
-      const idx = Math.min(vv, ranked.length-1);
-      return ranked[idx].n;
-    }
-
-    // 1) pick inicial por letra (variação determinística por jogo)
-    for(const L of LETTERS_DRAWN){
-      const profUse = profiles.drawn[L];
-
-      const ranked = _rankCandidatesForProfile(remainCandidates, usedGame, prev4, profUse, avoidCounts, pen, tpl, curTpl);
-      rankedByLetter[L] = ranked; // para ajuste posterior
-
-      let pick = _chooseFromRanked(ranked, vIdx);
-
-      // fallback determinístico: se o índice da variação não existir, cai para o melhor (0)
-      if(pick===null){
-        const ranked0 = _rankCandidatesForProfile(remainCandidates, usedGame, prev4, profUse, avoidCounts, 0.9, tpl, curTpl);
-        rankedByLetter[L] = ranked0;
-        pick = _chooseFromRanked(ranked0, 0);
-      }
-
-      if(pick!==null && !usedGame.has(pick)){
-        usedGame.add(pick);
-        jogo.push(pick);
-        _applyToCur(pick, curTpl);
-        picks.push({ L, n: pick, prof: profUse });
-      }
-    }
-
-    // 2) AJUSTE DE CONJUNTO (camada B):
-    // tenta trocar algumas dezenas por alternativas da MESMA letra para aproximar do template (blocos/paridade)
-    function _distToTpl(cur, tpl){
-      if(!tpl || !cur) return 0;
-      const tb = tpl.blocks || {};
-      const cb = cur.blocks || {};
-      let d = 0;
-      d += Math.abs((tpl.pares||0)   - (cur.pares||0));
-      d += Math.abs((tpl.impares||0) - (cur.impares||0));
-      d += Math.abs((tb.A||0) - (cb.A||0));
-      d += Math.abs((tb.B||0) - (cb.B||0));
-      d += Math.abs((tb.C||0) - (cb.C||0));
-      d += Math.abs((tb.D||0) - (cb.D||0));
-      d += Math.abs((tb.E||0) - (cb.E||0));
-      return d;
-    }
-
-    function _cloneTpl(cur){
-      return {
-        blocks:{ A:cur.blocks.A, B:cur.blocks.B, C:cur.blocks.C, D:cur.blocks.D, E:cur.blocks.E },
-        pares:cur.pares, impares:cur.impares
-      };
-    }
-
-    function _rebuildCurTpl(nums){
-      const c = _initTemplateCur();
-      for(const n of nums) _applyToCur(n, c);
-      return c;
-    }
-
-    // só tenta ajustar se houver template válido
-    if(tpl && tpl.blocks){
-      let guard=0;
-      let improved=true;
-      while(improved && guard<40){
-        guard++;
-        improved=false;
-
-        const baseDist = _distToTpl(curTpl, tpl);
-        if(baseDist<=0) break;
-
-        let bestSwap = null; // {L, from, to, dist}
-        for(const p of picks){
-          const L = p.L;
-          const from = p.n;
-          const ranked = rankedByLetter[L] || [];
-          // limita o universo por performance e para manter determinismo
-          const limit = Math.min(10, ranked.length);
-          for(let k=0; k<limit; k++){
-            const cand = ranked[k].n;
-            if(cand===from) continue;
-            if(usedGame.has(cand)) continue;
-
-            // simula troca
-            const tmpNums = jogo.slice();
-            const idx = tmpNums.indexOf(from);
-            if(idx<0) continue;
-            tmpNums[idx] = cand;
-
-            const tmpCur = _rebuildCurTpl(tmpNums);
-            const d = _distToTpl(tmpCur, tpl);
-
-            if(d < baseDist){
-              if(!bestSwap || d < bestSwap.dist || (d===bestSwap.dist && cand < bestSwap.to)){
-                bestSwap = { L, from, to:cand, dist:d };
-              }
-            }
+      // fallback dentro do prev4 se faltar naquela categoria
+      while(taken<k){
+        const fallbackCats = ["R","G2","G3","G4","F"];
+        let got=null;
+        for(const fc of fallbackCats){
+          got = _pickFrom(pool[fc], used);
+          if(got!=null){ 
+            game.push(got);
+            motivos.push({dezena:got, texto:`Fallback (${catKey}→${fc}) • Padrão ${patternName}`});
+            taken++;
+            break;
           }
         }
-
-        if(bestSwap){
-          // aplica troca
-          const idx = jogo.indexOf(bestSwap.from);
-          if(idx>=0){
-            usedGame.delete(bestSwap.from);
-            usedGame.add(bestSwap.to);
-            jogo[idx] = bestSwap.to;
-
-            // atualiza picks
-            for(const p of picks){
-              if(p.L===bestSwap.L){
-                p.n = bestSwap.to;
-                break;
-              }
-            }
-
-            // rebuild curTpl
-            const rebuilt = _rebuildCurTpl(jogo);
-            curTpl.blocks = rebuilt.blocks;
-            curTpl.pares = rebuilt.pares;
-            curTpl.impares = rebuilt.impares;
-
-            improved=true;
-          }
-        }
+        if(got==null) break;
       }
     }
 
-    // 3) completa se faltar (respeitando template + evitando repetição entre jogos)
-    if(jogo.length < 15){
-      const rest = remainCandidates
-        .filter(n=>!usedGame.has(n))
-        .map(n=>{
-          const usedTimes = avoidCounts && avoidCounts[n] ? avoidCounts[n] : 0;
-          const sc = _templateBonus(n, tpl, curTpl) - usedTimes * pen;
-          return {n, sc};
-        })
-        .sort((a,b)=> (b.sc - a.sc) || (a.n - b.n));
+    take("R",  quota.R||0);
+    take("G2", quota.G2||0);
+    take("G3", quota.G3||0);
+    take("G4", quota.G4||0);
+    take("F",  quota.F||0);
 
-      for(const it of rest){
-        if(jogo.length>=15) break;
-        const n = it.n;
-        if(!usedGame.has(n)){
-          usedGame.add(n);
-          jogo.push(n);
-          _applyToCur(n, curTpl);
+    _fillRemaining(game, used);
+
+    const finalGame = _uniqSort15(game);
+
+    // Anti-igualdade (mínimo 1 número diferente do já gerado)
+    // Se for idêntico a outro jogo, troca o último por melhor fora.
+    if(globalAvoidSet && typeof globalAvoidSet === "object"){
+      const key = finalGame.join("-");
+      if(globalAvoidSet.has(key)){
+        const used2 = new Set(finalGame);
+        const all = [];
+        for(let n=1;n<=25;n++) if(!used2.has(n)) all.push(n);
+        all.sort((a,b)=> (_score(b)-_score(a)) || (a-b));
+        const inN = all[0];
+        if(inN!=null){
+          const alt = finalGame.slice();
+          alt[alt.length-1] = inN;
+          const alt2 = _uniqSort15(alt);
+          globalAvoidSet.add(alt2.join("-"));
+          return { jogo: alt2, motivos: motivos.concat([{dezena:inN, texto:`Ajuste anti-igualdade • Padrão ${patternName}` }]) };
         }
       }
+      globalAvoidSet.add(key);
     }
 
-    const jogoSorted = jogo.slice(0,15).sort((a,b)=>a-b);
-
-    const mapMot = new Map();
-    for(const p of picks){
-      const feat = _featuresNow(p.n, prev4);
-      mapMot.set(p.n, `🧩 ${p.L}: ${feat.gapClass} • ${feat.parity} • Bloco ${feat.block} • L${feat.row}/C${feat.col}`);
-    }
-    jogoSorted.forEach(n=>{
-      motivos[kind].push({ dezena: n, texto: mapMot.get(n) || "" });
-    });
-
-    return { jogo: jogoSorted, outPick, picks };
+    return { jogo: finalGame, motivos };
   }
 
+  const patterns = [
+    { id:"principal", name:"1 (Dominante)",     q:{R:9,G2:4,G3:2,G4:0,F:0} },
+    { id:"invertida", name:"2 (Agressivo 10R)", q:{R:10,G2:3,G3:2,G4:0,F:0} },
+    { id:"tecnica1",  name:"3 (Profundidade)",  q:{R:9,G2:3,G3:2,G4:1,F:0} },
+    { id:"tecnica2",  name:"4 (Risco control.)",q:{R:9,G2:4,G3:1,G4:0,F:1} }
+  ];
 
+  const avoid = new Set();
+  const outGames = {};
+  const outMotivos = { principal:[], invertida:[], tecnica1:[], tecnica2:[] };
 
-  const avoidCounts = Object.create(null);
-  const avoidOutCounts = Object.create(null);
-
-const p  = montarJogo("principal", avoidCounts, avoidOutCounts);
-for(const n of p.jogo){ avoidCounts[n] = (avoidCounts[n]||0) + 1; }
-for(const x of (p.outPick||[])){ const n=x.n; avoidOutCounts[n] = (avoidOutCounts[n]||0) + 1; }
-
-const i  = montarJogo("invertida", avoidCounts, avoidOutCounts);
-for(const n of i.jogo){ avoidCounts[n] = (avoidCounts[n]||0) + 1; }
-for(const x of (i.outPick||[])){ const n=x.n; avoidOutCounts[n] = (avoidOutCounts[n]||0) + 1; }
-
-const t1 = montarJogo("tecnica1", avoidCounts, avoidOutCounts);
-for(const n of t1.jogo){ avoidCounts[n] = (avoidCounts[n]||0) + 1; }
-for(const x of (t1.outPick||[])){ const n=x.n; avoidOutCounts[n] = (avoidOutCounts[n]||0) + 1; }
-
-const t2 = montarJogo("tecnica2", avoidCounts, avoidOutCounts);
-
-  const fallbackBase = (prev4 && prev4[0] && Array.isArray(prev4[0])) ? prev4[0] : ALL_25;
-  const principal = _ensure15(p && p.jogo, fallbackBase);
-  const invertida = _ensure15(i && i.jogo, fallbackBase);
-  const tecnica1  = _ensure15(t1 && t1.jogo, fallbackBase);
-  const tecnica2  = _ensure15(t2 && t2.jogo, fallbackBase);
+  for(const p of patterns){
+    const built = _applyPattern(p.name, p.q, avoid);
+    outGames[p.id] = built.jogo;
+    outMotivos[p.id] = built.motivos;
+  }
 
   return {
     ok:true,
-    principal,
-    invertida,
-    tecnica1,
-    tecnica2,
-    motivos,
-    meta
+    principal: outGames.principal,
+    invertida: outGames.invertida,
+    tecnica1: outGames.tecnica1,
+    tecnica2: outGames.tecnica2,
+    motivos: outMotivos,
+    meta:{
+      window:{ qtd: draws.length, inicio: payload?.inicio, ultimo: payload?.ultimo },
+      quotas: patterns.reduce((acc,p)=>{ acc[p.id]=p.q; return acc; }, {})
+    }
   };
 }
 
@@ -3678,10 +3593,8 @@ async function acaoPrincipal(){
 
     const balls = jogo.map(n=>`<div class="ball">${format2(n)}</div>`).join("");
 const motivosAgrupados = {};
-const _motList = (typeof result !== "undefined" && (result?.motivos)) ? result.motivos : (typeof motivos !== "undefined" ? motivos : []);
-(_motList || []).forEach(m=>{
-  const raw = (m.texto || "").trim();
-  const key = normalizarMotivo(raw);
+(result?.motivos || []).forEach(m=>{
+  const key = (m.texto || "").trim();
   if(!motivosAgrupados[key]) motivosAgrupados[key] = [];
   if(Number.isFinite(Number(m.dezena))) motivosAgrupados[key].push(Number(m.dezena));
 });
@@ -3935,11 +3848,9 @@ async function gerarInvertida(silent=false){
     const balls = inv.map(n=>`<div class="ball">${format2(n)}</div>`).join("");
 
     const motivosAgrupados = {};
-    const _motList = (typeof result !== "undefined" && (result?.motivos)) ? result.motivos : (typeof motivos !== "undefined" ? motivos : []);
-    (_motList || []).forEach(m=>{
-      const raw = (m.texto || "").trim();
-      const key = normalizarMotivo(raw);
-      if(!motivosAgrupados[key]) motivosAgrupados[key] = [];
+    (motivos||[]).forEach(m=>{
+      const key = (m.texto||"").trim();
+      if(!motivosAgrupados[key]) motivosAgrupados[key]=[];
       if(Number.isFinite(Number(m.dezena))) motivosAgrupados[key].push(Number(m.dezena));
     });
     const motivosHtml = `
@@ -4029,11 +3940,9 @@ async function gerarTecnicaPremiada(silent=false){
     function renderCard(title, nums, motivos){
       const balls = nums.map(n=>`<div class="ball">${format2(n)}</div>`).join("");
       const motivosAgrupados = {};
-      const _motList = (typeof result !== "undefined" && (result?.motivos)) ? result.motivos : (typeof motivos !== "undefined" ? motivos : []);
-      (_motList || []).forEach(m=>{
-        const raw = (m.texto || "").trim();
-        const key = normalizarMotivo(raw);
-        if(!motivosAgrupados[key]) motivosAgrupados[key] = [];
+      (motivos||[]).forEach(m=>{
+        const key = (m.texto||"").trim();
+        if(!motivosAgrupados[key]) motivosAgrupados[key]=[];
         if(Number.isFinite(Number(m.dezena))) motivosAgrupados[key].push(Number(m.dezena));
       });
       const motivosHtml = Object.entries(motivosAgrupados).map(([k,arr])=>{
@@ -6015,7 +5924,7 @@ function renderJogosSalvosAoAbrir(){
   }
 
 
-// >>> Instala o motor TREINADO (MODELO B) como gerador oficial
+// >>> Instala o motor NOVO (Padrões Fixos) como gerador oficial
 window.buildPack4JogosPreditivo = buildPack4JogosPreditivo;
 
 })();
