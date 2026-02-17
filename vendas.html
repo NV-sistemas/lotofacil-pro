@@ -129,10 +129,11 @@ p{ margin:0; color:var(--muted); line-height:1.55; font-size:15.2px; }
 
 .kpis{
   display:grid;
-  grid-template-columns: repeat(3, minmax(0,1fr));
+  grid-template-columns: repeat(4, minmax(0,1fr));
   gap:10px;
   margin-top:14px;
 }
+@media(max-width:980px){ .kpis{grid-template-columns: repeat(2, minmax(0,1fr));} }
 @media(max-width:740px){ .kpis{grid-template-columns:1fr} }
 .kpi{
   background: rgba(0,0,0,.50);
@@ -469,14 +470,19 @@ const SHOTS = [
         <div class="badge"><span class="dot"></span> SISTEMA PREDITIVO PROFISSIONAL</div>
         <h1>Lotofácil Prime Analytics</h1>
         <p>
-          <b>Sistema Preditivo</b> é um conjunto de tecnologias — envolvendo inteligência artificial, machine learning (aprendizado de máquina),
+          <b style="color:var(--accent)">Sistema Preditivo é um conjunto de tecnologias</b> — envolvendo inteligência artificial, machine learning (aprendizado de máquina),
           algoritmos e modelagem estatística — que analisa dados históricos para identificar padrões e prever tendências futuras.
         </p>
         <div class="mini" style="margin-top:10px">
           Aqui você não depende de “feeling”. Você joga com <b>padrões</b>, <b>estrutura</b> e <b>recorrência</b> do comportamento das dezenas.
         </div>
 
+        <div class="mini" style="margin-top:10px; border-left:3px solid var(--accent); padding-left:10px;">
+          🆓 <b>Primeiro acesso FREE:</b> você pode testar o sistema com <b>1 geração gratuita</b> antes de decidir comprar.
+        </div>
+
         <div class="kpis">
+          <div class="kpi"><b>🆓 Acesso FREE</b><span>1 geração gratuita</span></div>
           <div class="kpi"><b>✅ 6 módulos no sistema</b><span>Fluxo completo</span></div>
           <div class="kpi"><b>💎 ELITE</b><span>6 jogos exclusivos</span></div>
           <div class="kpi"><b>⚡ Extra 15P</b><span>10 jogos por linhas</span></div>
