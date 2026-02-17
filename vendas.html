@@ -365,6 +365,33 @@ p{ margin:0; color:var(--muted); line-height:1.55; font-size:15.2px; }
   border:1px solid rgba(0,0,0,.35);
 }
 @media(min-width:980px){ .stickyCta{display:none} }
+/* BLINK (FREE/COMBO) */
+@keyframes blinkFree{
+  0%,100%{
+    box-shadow: 0 0 0 1px rgba(34,197,94,.35), 0 0 18px rgba(34,197,94,.22) !important;
+    border-color: rgba(34,197,94,.55) !important;
+    filter: brightness(1) saturate(1.05);
+  }
+  50%{
+    box-shadow: 0 0 0 1px rgba(34,197,94,.95), 0 0 34px rgba(34,197,94,.55) !important;
+    border-color: rgba(34,197,94,1) !important;
+    filter: brightness(1.12) saturate(1.15);
+  }
+}
+@keyframes blinkCombo{
+  0%,100%{
+    box-shadow: 0 0 0 1px rgba(234,179,8,.30), 0 0 18px rgba(234,179,8,.18) !important;
+    border-color: rgba(234,179,8,.55) !important;
+    filter: brightness(1) saturate(1.05);
+  }
+  50%{
+    box-shadow: 0 0 0 1px rgba(234,179,8,.95), 0 0 36px rgba(234,179,8,.55) !important;
+    border-color: rgba(234,179,8,1) !important;
+    filter: brightness(1.12) saturate(1.15);
+  }
+}
+.blinkFree{ animation: blinkFree 1s infinite; }
+.blinkCombo{ animation: blinkCombo 1s infinite; }
 </style>
 </head>
 
@@ -770,6 +797,22 @@ document.querySelectorAll(".shotBtn").forEach(btn=>{
     if(src) openLb(src, title);
   });
 });
+
+/* Piscar botões FREE (verde) e COMBO (amarelo) */
+(function applyBlinkButtons(){
+  const nodes = document.querySelectorAll("a, button");
+  nodes.forEach(el=>{
+    const txt = (el.textContent || "").toUpperCase();
+    const href = (el.getAttribute("href") || "");
+    const onclick = (el.getAttribute("onclick") || "");
+
+    const isFree = txt.includes("FREE") || href.includes("nv-sistemas.github.io/lotofacil-pro");
+    const isCombo = txt.includes("COMBO") || onclick.includes("LINK_COMBO") || onclick.includes("window.open(LINK_COMBO");
+
+    if(isFree) el.classList.add("blinkFree");
+    if(isCombo) el.classList.add("blinkCombo");
+  });
+})();
 </script>
 
 </body>
