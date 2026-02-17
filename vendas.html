@@ -1,449 +1,385 @@
-<!DOCTYPE html>
+<!--
+ARQUIVO DE VENDAS (MODELO 2 - VITRINE + CTA)
+
+SALVAR AS IMAGENS NA MESMA PASTA DO HTML (RAIZ DO PROJETO)
+
+NOMES EXATOS DOS ARQUIVOS:
+1-HOME.png
+2-JOGO PRINCIPAL.png
+3-JOGO ELITE.png
+4-15P.png
+5-JOGOS SALVOS.png
+
+Não utilizar pasta /assets.
+-->
+
+<!doctype html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Lotofácil Prime Analytics — Sistema Preditivo Exclusivo</title>
-<meta name="description" content="Entenda o Sistema Preditivo: o que significa, como funciona e por que é o diferencial do Prime." />
+<title>Prime — Página de Vendas (Modelo 2)</title>
+<meta name="description" content="Lotofácil Prime Analytics — Sistema Preditivo, Jogo Elite e Extra 15P." />
 <meta name="theme-color" content="#000000" />
 <style>
+
 :root{
-  --bg:#070708;
-  --card: rgba(255,255,255,.06);
-  --card2: rgba(255,255,255,.08);
-  --stroke: rgba(255,255,255,.14);
-  --text:#ffffff;
-  --muted: rgba(255,255,255,.76);
-  --muted2: rgba(255,255,255,.68);
-  --accent:#ffc400;
-  --accent2:#ffdd57;
-  --shadow: 0 22px 70px rgba(0,0,0,.55);
-  --radius:18px;
+  --bg1:#0b0c10;
+  --bg2:#050608;
+  --card: rgba(26,26,28,.72);
+  --surface: rgba(255,255,255,.045);
+  --surface2: rgba(255,255,255,.07);
+  --text:#f3f4f6;
+  --muted: rgba(243,244,246,.84);
+  --muted2: rgba(243,244,246,.62);
+  --accent:#eab308;
+  --accent2:#f5d67b;
+  --stroke: rgba(255,255,255,.12);
+  --stroke2: rgba(255,255,255,.08);
+  --shadow: 0 18px 60px rgba(0,0,0,.65);
+  --glowGold: 0 0 0 1px rgba(234,179,8,.20), 0 18px 60px rgba(234,179,8,.12);
+  --glowSoft: 0 0 0 1px rgba(255,255,255,.06), 0 18px 60px rgba(0,0,0,.55);
+  --radius:22px;
 }
 *{box-sizing:border-box}
 html,body{height:100%}
 body{
   margin:0;
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, Helvetica, sans-serif;
   color:var(--text);
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
   background:
-    radial-gradient(900px 650px at 15% 10%, rgba(255,196,0,.14), transparent 58%),
-    radial-gradient(900px 650px at 85% 15%, rgba(255,221,87,.10), transparent 60%),
-    linear-gradient(180deg, #060607 0%, #000 100%);
+    radial-gradient(900px 620px at 18% 8%, rgba(255,255,255,.06), transparent 60%),
+    radial-gradient(900px 620px at 82% 12%, rgba(255,255,255,.04), transparent 62%),
+    radial-gradient(1100px 700px at 50% 0%, rgba(255,255,255,.05), transparent 58%),
+    linear-gradient(180deg,var(--bg1),var(--bg2));
+  min-height:100dvh;
   overflow-x:hidden;
 }
 a{color:inherit}
 .container{width:min(1120px, 92vw); margin:0 auto;}
 .section{padding:56px 0}
 .card{
-  background: linear-gradient(180deg, var(--card2), var(--card));
+  background: linear-gradient(180deg, rgba(38,38,42,.75), rgba(20,20,22,.55));
   border:1px solid var(--stroke);
   border-radius:var(--radius);
-  box-shadow:var(--shadow);
   padding:18px;
+  box-shadow:var(--shadow);
+  backdrop-filter: blur(10px);
 }
-.grid{display:grid; gap:16px;}
-.grid2{grid-template-columns: 1.15fr .85fr;}
-.grid3{grid-template-columns:repeat(3,1fr)}
-@media (max-width: 920px){ .grid2,.grid3{grid-template-columns:1fr;} }
-
+.hr{height:1px;background:rgba(255,255,255,.10);margin:16px 0;border-radius:999px}
 .badge{
-  display:inline-flex; gap:10px; align-items:center;
-  padding:10px 14px; border-radius:999px;
-  background: rgba(255,255,255,.08);
-  border: 1px solid rgba(255,255,255,.12);
-  font-weight:1000; font-size:13px;
+  display:inline-flex;align-items:center;gap:10px;
+  padding:10px 14px;border-radius:999px;
+  background: rgba(0,0,0,.62);
+  border:1px solid var(--stroke);
+  font-weight:1000;font-size:12.5px;letter-spacing:.25px;
 }
-h1{font-size: clamp(30px, 4.6vw, 52px); margin:14px 0 10px; letter-spacing:-.8px; line-height:1.05;}
-h2{margin:0 0 10px; letter-spacing:-.3px}
-.lead{margin:0; color:var(--muted); font-size: clamp(16px, 2.2vw, 20px); max-width: 70ch;}
-.mini{color: var(--muted2); font-size: 12.5px; line-height:1.55}
-.hr{height:1px; background: rgba(255,255,255,.12); margin:16px 0; border:0}
-
-.ctaRow{display:flex; flex-wrap:wrap; gap:12px; margin-top:18px;}
+h1{font-size: clamp(30px, 4.6vw, 54px); margin:14px 0 10px; line-height:1.05; letter-spacing:-.8px}
+h2{margin:0 0 10px; letter-spacing:-.2px}
+h3{margin:0 0 8px}
+.lead{margin:0;color:var(--muted);font-size: clamp(16px, 2.2vw, 20px); max-width: 70ch}
+.mini{color:var(--muted2);font-size:12.5px;line-height:1.55}
+.grid{display:grid;gap:14px}
+.grid2{grid-template-columns:1.1fr .9fr}
+.grid3{grid-template-columns:repeat(3,1fr)}
+@media (max-width: 920px){.grid2,.grid3{grid-template-columns:1fr}}
+.btnRow{display:flex;flex-wrap:wrap;gap:12px;margin-top:16px}
 .btn{
-  display:inline-flex; align-items:center; justify-content:center;
-  padding:15px 18px; border-radius:14px;
-  text-decoration:none; font-weight:1000; letter-spacing:.2px;
-  border:1px solid transparent;
-  transition: transform .08s ease, filter .15s ease;
-}
-.btn:active{transform: translateY(1px)}
-.btnPrimary{background: linear-gradient(180deg, var(--accent2), var(--accent)); color:#111; border-color: rgba(255,196,0,.2);}
-.btnGhost{background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.14); color:#fff; border:1px solid rgba(255,255,255,.14)}
-.btnDark{background: rgba(0,0,0,.55); border-color: rgba(255,255,255,.12); color:#fff; border:1px solid rgba(255,255,255,.12)}
-
-.kpiRow{display:grid; gap:12px; grid-template-columns: repeat(3, 1fr); margin-top:16px;}
-@media (max-width: 920px){ .kpiRow{grid-template-columns:1fr;} }
-.kpi{
-  background: rgba(0,0,0,.45);
-  border:1px solid rgba(255,255,255,.12);
-  border-radius:16px;
-  padding:12px;
-  font-weight:1000;
-}
-.kpi span{display:block; font-weight:700; color: rgba(255,255,255,.75); margin-top:6px; font-size:12px;}
-
-.videoWrap{background: rgba(0,0,0,.45); border:1px solid rgba(255,255,255,.12); border-radius:18px; padding:12px;}
-video{width:100%; border-radius:14px; background:#000; border:1px solid rgba(255,255,255,.10);}
-
-.offerGrid{display:grid; gap:14px; grid-template-columns: repeat(4, 1fr); align-items:stretch;}
-@media (max-width: 1100px){ .offerGrid{grid-template-columns: repeat(2, 1fr);} }
-@media (max-width: 720px){ .offerGrid{grid-template-columns:1fr;} }
-.offer{
-  position:relative;
-  background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.05));
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:14px 16px;border-radius:16px;
+  text-decoration:none;font-weight:1000;letter-spacing:.2px;
   border:1px solid rgba(255,255,255,.14);
+  background: linear-gradient(180deg, rgba(64,64,70,.45), rgba(20,20,22,.55));
+  color: var(--text);
+  box-shadow: 0 10px 26px rgba(0,0,0,.45);
+  transition:.14s;
+}
+.btn:hover{transform:translateY(-1px);filter:brightness(1.06)}
+.btn:active{transform:translateY(0px);filter:brightness(.98)}
+.btnGold{
+  background: linear-gradient(180deg, rgba(234,179,8,.95), rgba(202,163,74,.92));
+  border:1px solid rgba(0,0,0,.35);
+  color:#111827;
+  box-shadow: var(--glowGold);
+}
+.btnGhost{background: rgba(0,0,0,.55)}
+.pills{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.pill{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:8px 10px;border-radius:999px;
+  border:1px solid rgba(255,255,255,.12);
+  background: rgba(0,0,0,.45);
+  color:rgba(255,255,255,.92);
+  font-weight:1000;font-size:12px;
+}
+.kpis{display:grid;gap:12px;grid-template-columns:repeat(3,1fr);margin-top:14px}
+@media (max-width:920px){.kpis{grid-template-columns:1fr}}
+.kpi{
+  background: rgba(0,0,0,.40);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:18px;
+  padding:14px;
+  box-shadow: var(--glowSoft);
+}
+.kpi b{color:var(--accent)}
+.kpi span{display:block;margin-top:6px;color:rgba(255,255,255,.75);font-size:12px;font-weight:700}
+.feature{
+  background: linear-gradient(180deg, rgba(0,0,0,.24), rgba(0,0,0,.40));
+  border:1px solid rgba(255,255,255,.10);
   border-radius:18px;
   padding:16px;
-  display:flex; flex-direction:column;
+}
+.feature b{color:var(--accent2)}
+.shots{display:grid;gap:14px;grid-template-columns:repeat(3,1fr)}
+@media (max-width:920px){.shots{grid-template-columns:1fr}}
+.shotWrap{
+  border-radius:18px; overflow:hidden;
+  border:1px solid rgba(255,255,255,.12);
+  background: rgba(0,0,0,.55);
+}
+.shot{
+  width:100%;
+  display:block;
+  aspect-ratio: 16/10;
+  object-fit:cover;
+}
+.shotCap{padding:10px 12px;border-top:1px solid rgba(255,255,255,.10);font-size:12px;color:rgba(255,255,255,.78)}
+.offerGrid{display:grid;gap:14px;grid-template-columns:repeat(3,1fr);align-items:stretch}
+@media (max-width:980px){.offerGrid{grid-template-columns:1fr}}
+.offer{
+  position:relative;
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:20px;
+  padding:16px;
+  background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.05));
+  display:flex;flex-direction:column;
   min-height:100%;
 }
-.pill{
-  display:inline-flex; align-items:center; gap:8px;
-  padding:8px 10px; border-radius:999px;
-  border:1px solid rgba(255,255,255,.14);
-  background: rgba(0,0,0,.35);
-  font-weight:1000; font-size:12px;
-}
-.price{
-  margin-top:12px;
-  padding:12px 12px;
-  border-radius:14px;
-  border:1px solid rgba(255,255,255,.12);
-  background: rgba(0,0,0,.35);
-  display:flex; gap:10px; align-items:baseline;
-}
-.price b{font-size:28px}
-.list{margin:12px 0 0; padding:0; list-style:none}
-.list li{display:flex; gap:10px; margin:8px 0; color: rgba(255,255,255,.82)}
-.list i{font-style:normal; width:22px}
 .ribbon{
-  position:absolute; top:12px; right:12px;
+  position:absolute;top:12px;right:12px;
   background: linear-gradient(180deg, var(--accent2), var(--accent));
   color:#111;
   border-radius:999px;
   padding:8px 10px;
-  font-weight:1000;
-  font-size:12px;
+  font-weight:1000;font-size:12px;
 }
-.offer .btn{width:100%; margin-top:auto}
-
-.shots{display:grid; gap:14px; grid-template-columns: repeat(3, 1fr);}
-@media (max-width: 920px){ .shots{grid-template-columns:1fr;} }
-.shotWrap{
-  border-radius:18px;
-  overflow:hidden;
-  border:1px solid rgba(255,255,255,.12);
-  background: rgba(0,0,0,.45);
-}
-.shot{width:100%; display:block; cursor:zoom-in}
-
-.noteBox{
-  border:1px solid rgba(255,255,255,.14);
-  background: rgba(0,0,0,.38);
-  border-radius:16px;
-  padding:14px;
-}
-.noteBox b{color: var(--accent2)}
-.steps{display:grid; gap:10px; margin-top:10px}
-.step{
-  display:flex; gap:10px; align-items:flex-start;
+.price{
+  margin-top:12px;
   padding:12px;
   border-radius:16px;
   border:1px solid rgba(255,255,255,.12);
-  background: rgba(255,255,255,.04);
+  background: rgba(0,0,0,.35);
+  display:flex;gap:10px;align-items:baseline;
 }
-.step .n{
-  width:28px; height:28px; border-radius:999px;
-  display:flex; align-items:center; justify-content:center;
-  background: rgba(255,196,0,.18);
-  border:1px solid rgba(255,196,0,.30);
-  font-weight:1000;
-}
-
-details{
-  background: rgba(0,0,0,.40);
-  border:1px solid rgba(255,255,255,.12);
-  border-radius:16px;
-  padding:12px 14px;
-}
-details summary{cursor:pointer; font-weight:1000}
-details p{margin:10px 0 0; color: rgba(255,255,255,.78)}
-
-.stickyCta{display:none;}
+.price b{font-size:30px}
+.list{margin:12px 0 0;padding:0;list-style:none}
+.list li{display:flex;gap:10px;margin:8px 0;color:rgba(255,255,255,.82)}
+.list i{font-style:normal;width:22px}
+.offer .btn{width:100%;margin-top:auto}
+.foot{padding:26px 0;text-align:center;color:rgba(255,255,255,.65);font-size:12px}
+.stickyCta{display:none}
 @media (max-width: 900px){
+  body{padding-bottom:86px}
   .stickyCta{
-    display:block; position:fixed; left:0; right:0; bottom:0;
-    padding:10px 12px;
-    background: rgba(0,0,0,.82);
+    display:block;position:fixed;left:0;right:0;bottom:0;
+    padding:10px 12px;background: rgba(0,0,0,.82);
     border-top:1px solid rgba(255,255,255,.12);
-    backdrop-filter: blur(10px);
-    z-index:9998;
+    backdrop-filter: blur(10px);z-index:9998;
   }
-  body{padding-bottom:86px;}
+  .stickyRow{display:grid;gap:10px;grid-template-columns:repeat(4,1fr);max-width:1120px;margin:0 auto}
+  .stickyRow a{
+    text-decoration:none;text-align:center;
+    padding:12px 10px;border-radius:14px;
+    font-weight:1000;font-size:12px;
+    border:1px solid rgba(255,255,255,.14);
+    background: rgba(255,255,255,.06);
+  }
+  .stickyRow a.stGold{background: linear-gradient(180deg, var(--accent2), var(--accent)); color:#111; border-color: transparent;}
 }
-.stickyRow{display:grid; gap:10px; grid-template-columns: repeat(4,1fr); max-width:1120px; margin:0 auto;}
-.stickyRow a{
-  text-decoration:none; text-align:center;
-  padding:12px 10px; border-radius:14px;
-  font-weight:1000; font-size:12px;
-  border:1px solid rgba(255,255,255,.14);
-  background: rgba(255,255,255,.06);
+.bgGrid{
+  position:fixed; inset:-40px; pointer-events:none; z-index:-1; opacity:.65;
+  background-image:
+    linear-gradient(to right, rgba(255,255,255,.055) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,.055) 1px, transparent 1px);
+  background-size: 52px 52px;
+  mask-image: radial-gradient(50% 50% at 50% 18%, #000 10%, transparent 65%);
 }
-.stickyRow a.stGold{background: linear-gradient(180deg, var(--accent2), var(--accent)); color:#111; border-color: transparent;}
 
-.foot{padding:26px 0; text-align:center; color: rgba(255,255,255,.65); font-size:12px;}
-
-.lightbox{position:fixed; inset:0; display:none; align-items:center; justify-content:center; background: rgba(0,0,0,.78); padding:16px; z-index:9999;}
-.lightbox.open{display:flex;}
-.lightboxInner{width:min(1120px, 96vw); max-height:92vh; display:flex; flex-direction:column; gap:10px;}
-.lightboxClose{align-self:flex-end; border:0; background: rgba(255,255,255,.12); color:#fff; font-weight:1000; padding:10px 12px; border-radius:12px; cursor:pointer;}
-.lightboxImg{width:100%; max-height:82vh; object-fit:contain; border-radius:16px; background:#111; border:1px solid rgba(255,255,255,.10);}
-
-.compareGrid{display:grid;gap:14px;grid-template-columns:1fr 1fr; margin-top:14px;}
-@media(max-width:920px){.compareGrid{grid-template-columns:1fr;}}
-.compareCard{
-  border:1px solid rgba(255,255,255,.14);
-  background: rgba(0,0,0,.38);
-  border-radius:18px;
-  padding:16px;
-}
-.compareCard h3{margin:0 0 8px}
-.tagBad{display:inline-flex;padding:6px 10px;border-radius:999px;font-weight:1000;font-size:12px;border:1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.06);}
-.tagGood{display:inline-flex;padding:6px 10px;border-radius:999px;font-weight:1000;font-size:12px;border:1px solid rgba(255,196,0,.35); background: rgba(255,196,0,.14); color:#fff2b0;}
 </style>
 </head>
 <body>
+<div class="bgGrid"></div>
 
-<header class="section">
+<header class="section" style="padding-top:42px;">
   <div class="container">
-    <div class="badge">🎯 LOTOFÁCIL PRIME ANALYTICS • 🧠 SISTEMA PREDITIVO • 📱 MOBILE</div>
-    <h1>O diferencial não é “sorte”.<br>É <span style="color:var(--accent2)">processo</span>.</h1>
-    <p class="lead">
-      Se você está cansado de “montar jogo no olho”, o Prime te dá um caminho:
-      <b>gerar → entender → salvar → conferir → repetir</b>.
-    </p>
+    <div class="badge">🛰️ PRIME • Futurista • Direto ao ponto</div>
+    <h1>Três botões. Três vantagens.<br><span style='color:var(--accent2)'>PRINCIPAL</span> • <span style='color:var(--accent2)'>ELITE</span> • <span style='color:var(--accent2)'>15P</span>.</h1>
+    <p class="lead">Modelo com vitrine de prints e CTA lateral (muito bom para conversão no mobile).</p>
 
-    <div class="ctaRow">
-      <a class="btn btnPrimary" href="#preditivo">Entender o Preditivo</a>
-      <a class="btn btnGhost" href="#oferta">Ver planos</a>
-      <a class="btn btnDark" href="https://nv-sistemas.github.io/lotofacil-pro/" target="_blank" rel="noopener">Testar FREE</a>
+    <div class="btnRow">
+      <a class="btn btnGold" href="#planos">🚀 Ver planos</a>
+      <a class="btn btnGhost" href="#como">🧠 Entender o Preditivo</a>
+      <a class="btn" href="https://nv-sistemas.github.io/lotofacil-pro/" target="_blank" rel="noopener">🎯 Testar FREE</a>
     </div>
 
-    <div class="compareGrid">
-      <div class="compareCard">
-        <div class="tagBad">❌ Jeito comum</div>
-        <h3>“Chute + repetição sem critério”</h3>
-        <ul class="list">
-          <li><i>•</i><span>Você muda os números sem saber por quê</span></li>
-          <li><i>•</i><span>Sem organização: não sabe o que repetiu</span></li>
-          <li><i>•</i><span>Fica refazendo do zero toda vez</span></li>
-        </ul>
-      </div>
-      <div class="compareCard">
-        <div class="tagGood">✅ Sistema Preditivo</div>
-        <h3>“Fluxo replicável + organização”</h3>
-        <ul class="list">
-          <li><i>•</i><span>Você segue um método (processo)</span></li>
-          <li><i>•</i><span>Geração automática em segundos</span></li>
-          <li><i>•</i><span>Salvar e conferir pra evoluir estratégia</span></li>
-        </ul>
-      </div>
+    <div class="pills">
+      <div class="pill">⚡ 4 jogos no PRINCIPAL (padrões)</div>
+      <div class="pill">💎 ELITE (COMBO) 6 jogos exclusivos</div>
+      <div class="pill">✅ EXTRA 15P (10 jogos por linhas)</div>
     </div>
 
-    <div class="kpiRow">
-      <div class="kpi">🧠 Preditivo <span>Significa padrão + regra.</span></div>
-      <div class="kpi">⚡ Automação <span>Você ganha velocidade.</span></div>
-      <div class="kpi">💾 Controle <span>Você organiza seus jogos.</span></div>
+    <div class="kpis">
+      <div class="kpi"><b>Processo</b><span>Gerar → salvar → conferir → repetir.</span></div>
+      <div class="kpi"><b>Velocidade</b><span>Decisão em segundos, sem “montar no olho”.</span></div>
+      <div class="kpi"><b>Organização</b><span>Você mantém controle de jogos e resultados.</span></div>
     </div>
+
+    <div class="mini" style="margin-top:10px;opacity:.9">Modelo: <b>Modelo 2 — Vitrine + CTA lateral (mobile forte)</b> • Substitua as imagens em <code>assets/</code> (prints do seu sistema).</div>
   </div>
 </header>
 
 
-<section id="preditivo" class="section" style="padding-top:10px;">
+<section id="como" class="section" style="padding-top:10px;">
   <div class="container">
     <div class="card">
-      <div class="badge">🧠 O que é “SISTEMA PREDITIVO”?</div>
-      <h2 style="margin:12px 0 8px;">Preditivo = método que replica padrões (não é chute, não é “quente/frio”).</h2>
-      <p class="lead" style="max-width:80ch">
-        Aqui, “preditivo” significa <b>usar comportamento histórico como regra</b> para montar jogos com um fluxo consistente.
-        O sistema analisa como as dezenas costumam se comportar e <b>gera combinações seguindo esse padrão</b>.
+      <div class="badge">🧠 Sistema Preditivo</div>
+      <h2>Você entra em um fluxo. Não em um palpite.</h2>
+      <p class="lead" style="max-width:82ch">
+        O Prime foi desenhado para quem quer <b>rotina</b> e <b>controle</b>: gerar jogos consistentes, salvar e conferir sem bagunça.
       </p>
-
       <div class="hr"></div>
 
       <div class="grid grid3">
-        <div class="noteBox">
-          <b>✅ NÃO é aleatório</b>
-          <div class="mini">Você não depende de sorteio de números. O foco é seguir um padrão de decisão.</div>
+        <div class="feature">
+          <h3>🎯 PRINCIPAL</h3>
+          <div class="mini"><b>4 jogos</b> para sua rotina. Ideal pra rodar a cada concurso e acompanhar evolução.</div>
         </div>
-        <div class="noteBox">
-          <b>✅ NÃO é só “quente/frio”</b>
-          <div class="mini">Em vez de “dezenas quentes”, você usa <b>comportamento</b> (repetição/variação/estrutura).</div>
+        <div class="feature">
+          <h3>💎 ELITE (COMBO)</h3>
+          <div class="mini"><b>6 jogos</b> com padrões ELITE fixos — o nível avançado para quem quer mais variação.</div>
         </div>
-        <div class="noteBox">
-          <b>✅ É um fluxo replicável</b>
-          <div class="mini">O objetivo é você ter <b>processo</b>: gerar, salvar, comparar, ajustar e repetir.</div>
+        <div class="feature">
+          <h3>✅ EXTRA 15P</h3>
+          <div class="mini">Estratégia por linhas: <b>5 linhas → 10 jogos</b> em uma tela dedicada.</div>
         </div>
       </div>
 
       <div class="hr"></div>
 
-      <h3 style="margin:0 0 10px;">Como funciona (simples e direto)</h3>
-      <div class="steps">
-        <div class="step"><div class="n">1</div><div><b>Você escolhe uma janela</b><div class="mini">Ex.: 10, 20, 30 concursos (quanto maior, mais “macro”).</div></div></div>
-        <div class="step"><div class="n">2</div><div><b>O sistema organiza o comportamento</b><div class="mini">Ele consolida padrões e estrutura as escolhas para você.</div></div></div>
-        <div class="step"><div class="n">3</div><div><b>Você gera os jogos</b><div class="mini">Principal / Invertida / Técnica e, se quiser, o Extra 15P.</div></div></div>
-        <div class="step"><div class="n">4</div><div><b>Você salva e confere</b><div class="mini">Comparação e conferência para organizar sua estratégia de apostas.</div></div></div>
-      </div>
+      <div class="grid grid2" style="align-items:start">
+        <div class="feature">
+          <h3 style="margin-bottom:6px">🛰️ Como você usa (3 passos)</h3>
+          <ul class="list" style="margin:0;">
+            <li><i>1</i><span>Escolha a janela (ex.: 10–30 concursos)</span></li>
+            <li><i>2</i><span>Gere: Principal / Elite / 15P</span></li>
+            <li><i>3</i><span>Salve e confira pra manter controle</span></li>
+          </ul>
+          <div class="mini" style="margin-top:10px">Você cria rotina. Não “reinventa” jogo toda vez.</div>
+        </div>
 
-      <div class="mini" style="margin-top:12px;">
-        ⚠️ Importante: loterias envolvem risco. Este sistema oferece <b>método e organização</b>, não garantia de premiação.
-      </div>
-
-      <div class="ctaRow" style="margin-top:14px;">
-        <a class="btn btnPrimary" href="#oferta">Ver planos</a>
-        <a class="btn btnGhost" href="#video">Ver o vídeo</a>
-        <a class="btn btnDark" href="https://nv-sistemas.github.io/lotofacil-pro/" target="_blank" rel="noopener">Testar FREE</a>
+        <div class="feature">
+          <h3 style="margin-bottom:6px">📸 Prints recomendados</h3>
+          <div class="mini">
+            <b>Foque nestas telas</b> (fica futurista e vende o que importa):
+            Home, Principal, Elite, 15P e Jogos Salvos.
+          </div>
+          <div class="hr"></div>
+          <div class="mini">Arquivos esperados:</div>
+          <ul class="list" style="margin:6px 0 0;">
+            <li><i>•</i><span><code>1-HOME.png</code> (print Home ou montagem)</span></li>
+            <li><i>•</i><span><code>2-JOGO PRINCIPAL.png</code> (Principal)</span></li>
+            <li><i>•</i><span><code>3-JOGO ELITE.png</code> (Elite)</span></li>
+            <li><i>•</i><span><code>4-15P.png</code> (15P)</span></li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
-
-<section id="video" class="section" style="padding-top:10px;">
+<section class="section" style="padding-top:10px;">
   <div class="container grid grid2">
-    <div class="videoWrap">
-      <div class="badge" style="margin-bottom:10px;">▶ Demonstração real</div>
-      <video controls playsinline preload="metadata">
-        <source src="vendas.mp4" type="video/mp4" />
-        Seu navegador não suporta vídeo.
-      </video>
-      <div class="mini" style="margin-top:10px;">✅ Se você se identificar com o fluxo, escolha um plano abaixo.</div>
+    <div class="card">
+      <div class="badge">🖼️ Vitrine do sistema</div>
+      <h2>Mostre o que a pessoa vai receber</h2>
+      <p class="mini">Substitua as imagens abaixo pelos seus prints (sem vídeo, do jeito que você pediu).</p>
+      <div class="hr"></div>
+      <div class="shots" style="grid-template-columns:repeat(2,1fr)">
+        <div class="shotWrap">
+          <img class="shot" style="aspect-ratio: 16/11" src="2-JOGO PRINCIPAL.png" alt="Print: Principal" />
+          <div class="shotCap">PRINCIPAL — 4 jogos + motivos</div>
+        </div>
+        <div class="shotWrap">
+          <img class="shot" style="aspect-ratio: 16/11" src="3-JOGO ELITE.png" alt="Print: Elite" />
+          <div class="shotCap">ELITE — 6 jogos (COMBO)</div>
+        </div>
+        <div class="shotWrap">
+          <img class="shot" style="aspect-ratio: 16/11" src="4-15P.png" alt="Print: 15P" />
+          <div class="shotCap">EXTRA 15P — 10 jogos por linhas</div>
+        </div>
+        <div class="shotWrap">
+          <img class="shot" style="aspect-ratio: 16/11" src="5-JOGOS SALVOS.png" alt="Print: Jogos Salvos" />
+          <div class="shotCap">JOGOS SALVOS — conferência e histórico</div>
+        </div>
+      </div>
     </div>
 
     <aside class="card">
-      <h2 style="margin:0 0 6px;">Resumo do fluxo</h2>
-      <div class="mini">O Prime foi feito pra te tirar do “tenta e erra”.</div>
+      <div class="badge">⚡ CTA rápido</div>
+      <h2 style="margin:10px 0 8px;">Escolha seu acesso agora</h2>
+      <p class="mini">Se a pessoa quer começar hoje, o caminho é simples:</p>
       <div class="hr"></div>
-      <div class="steps">
-        <div class="step"><div class="n">1</div><div><b>Defina a janela</b><div class="mini">Você escolhe quantos concursos quer analisar.</div></div></div>
-        <div class="step"><div class="n">2</div><div><b>Gere os jogos</b><div class="mini">Principal / Invertida / Técnica e Extra 15P.</div></div></div>
-        <div class="step"><div class="n">3</div><div><b>Salve e confira</b><div class="mini">Organização para repetir estratégia com clareza.</div></div></div>
+      <div class="btnRow" style="margin:0;">
+        <a class="btn btnGold" style="width:100%" href="https://pay.hotmart.com/S104212403J?off=qbcz91p3" target="_blank" rel="noopener">🚀 Quero COMBO (Mais recomendado)</a>
+        <a class="btn" style="width:100%" href="https://pay.hotmart.com/O104148865Y?off=c4m0nezi" target="_blank" rel="noopener">Quero só Premium</a>
+        <a class="btn" style="width:100%" href="https://pay.hotmart.com/Y104149008G?off=eehchnv4" target="_blank" rel="noopener">Quero Extra 15P</a>
       </div>
-      <div class="ctaRow" style="margin-top:14px;">
-        <a class="btn btnPrimary" style="flex:1" href="#oferta">Ver planos</a>
-        <a class="btn btnGhost" style="flex:1" href="#provas">Ver prints</a>
-      </div>
+      <div class="mini" style="margin-top:10px">Dica: deixe o COMBO como “principal” na sua divulgação (maior ticket).</div>
     </aside>
   </div>
 </section>
 
-
-<section id="provas" class="section" style="padding-top:10px;">
+<section id="planos" class="section" style="padding-top:10px;">
   <div class="container">
     <div class="card">
-      <h2 style="margin:0 0 6px;">📸 Prints reais do sistema</h2>
-      <p class="mini" style="margin:0 0 14px;">Clique para ampliar.</p>
-
-      <div class="shots">
-        <div>
-          <div class="shotWrap"><img class="shot" src="JOGO%20PRINCIPAL.png" alt="Print do Jogo Principal" loading="lazy"></div>
-          <div class="mini" style="margin-top:10px;"><b>Jogo Principal</b> (15 dezenas + resumo).</div>
-        </div>
-        <div>
-          <div class="shotWrap"><img class="shot" src="JOGOS%20SALVOS.png" alt="Print de Jogos Salvos" loading="lazy"></div>
-          <div class="mini" style="margin-top:10px;"><b>Jogos Salvos</b> + conferência.</div>
-        </div>
-        <div>
-          <div class="shotWrap"><img class="shot" src="EXTRA%2015%20PONTOS.png" alt="Print do Extra 15 Pontos" loading="lazy"></div>
-          <div class="mini" style="margin-top:10px;"><b>Extra 15P</b> (estratégia + geração).</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-
-<section id="oferta" class="section" style="padding-top:10px;">
-  <div class="container">
-    <div class="card">
-      <h2 style="margin:0 0 6px;">Escolha seu plano</h2>
-      <div class="mini">Acesso imediato após pagamento • use o mesmo email para login</div>
+      <div class="badge">💳 Planos</div>
+      <h2>Planos para cada perfil</h2>
       <div class="hr"></div>
-
       <div class="offerGrid">
         <div class="offer">
-          <div class="pill">✅ FREE</div>
-          <h3 style="margin:10px 0 6px;">Testar antes de comprar</h3>
-          <div class="mini">Gere <b>1 jogo grátis</b> e veja o sistema por dentro.</div>
-          <div class="price"><span>R$</span> <b>0,00</b></div>
+          <h3>Premium</h3>
+          <div class="mini">Para quem quer o básico premium do fluxo.</div>
+          <div class="price"><span>R$</span><b>59,90</b></div>
           <ul class="list">
-            <li><i>🎯</i><span>1 geração grátis</span></li>
-            <li><i>📩</i><span>Cadastro rápido</span></li>
-            <li><i>🔒</i><span>Depois: Premium/Combo</span></li>
+            <li><i>🎯</i><span>Jogo Principal</span></li>
+            <li><i>📈</i><span>Gerar Análise</span></li>
+            <li><i>💾</i><span>Jogos Salvos</span></li>
           </ul>
-          <a class="btn btnPrimary" href="https://nv-sistemas.github.io/lotofacil-pro/" target="_blank" rel="noopener">Entrar no FREE</a>
+          <a class="btn" href="https://pay.hotmart.com/O104148865Y?off=c4m0nezi" target="_blank" rel="noopener">Comprar Premium</a>
         </div>
-
         <div class="offer">
-          <div class="pill">👑 PREMIUM</div>
-          <h3 style="margin:10px 0 6px;">Painel Premium</h3>
-          <div class="mini">Libera ferramentas principais + jogos salvos.</div>
-          <div class="price"><span>R$</span> <b>69,90</b></div>
+          <h3>Extra 15P</h3>
+          <div class="mini">Estratégia separada (tela própria).</div>
+          <div class="price"><span>R$</span><b>49,90</b></div>
           <ul class="list">
-            <li><i>📈</i><span>Análises</span></li>
-            <li><i>🔄</i><span>Invertida</span></li>
-            <li><i>🏆</i><span>Técnica Premiada</span></li>
-            <li><i>💾</i><span>Jogos salvos</span></li>
+            <li><i>✅</i><span>10 jogos por linhas</span></li>
+            <li><i>🧩</i><span>Foco em 15P</span></li>
+            <li><i>⚡</i><span>Rápido</span></li>
           </ul>
-          <a class="btn btnPrimary" href="https://pay.hotmart.com/O104148865Y?off=c4m0nezi" target="_blank" rel="noopener">Comprar Premium</a>
+          <a class="btn" href="https://pay.hotmart.com/Y104149008G?off=eehchnv4" target="_blank" rel="noopener">Comprar 15P</a>
         </div>
-
         <div class="offer">
-          <div class="pill">✨ EXTRA 15P</div>
-          <h3 style="margin:10px 0 6px;">Módulo Extra 15P</h3>
-          <div class="mini">Estratégia por linhas + geração (módulo separado).</div>
-          <div class="price"><span>R$</span> <b>49,90</b></div>
+          <div class="ribbon">🔥 MELHOR</div>
+          <h3>COMBO ELITE</h3>
+          <div class="mini">Premium + ELITE + Extra 15P (total).</div>
+          <div class="price"><span>R$</span><b>99,90</b></div>
           <ul class="list">
-            <li><i>🧩</i><span>Estratégia (10 jogos)</span></li>
-            <li><i>📏</i><span>Linhas / montagem</span></li>
-            <li><i>⚡</i><span>Fluxo exclusivo</span></li>
+            <li><i>👑</i><span>Premium</span></li>
+            <li><i>💎</i><span>ELITE (6 jogos)</span></li>
+            <li><i>✨</i><span>Extra 15P</span></li>
           </ul>
-          <a class="btn btnPrimary" href="https://pay.hotmart.com/Y104149008G?off=eehchnv4" target="_blank" rel="noopener">Comprar Extra 15P</a>
+          <a class="btn btnGold" href="https://pay.hotmart.com/S104212403J?off=qbcz91p3" target="_blank" rel="noopener">🚀 Comprar COMBO</a>
         </div>
-
-        <div class="offer">
-          <div class="ribbon">🔥 MAIS VENDIDO</div>
-          <div class="pill">🔥 COMBO ELITE</div>
-          <h3 style="margin:10px 0 6px;">Acesso Total</h3>
-          <div class="mini">Premium + Extra 15P (melhor custo-benefício).</div>
-          <div class="price"><span>R$</span> <b>99,90</b></div>
-          <ul class="list">
-            <li><i>👑</i><span>Premium completo</span></li>
-            <li><i>✨</i><span>Extra 15P completo</span></li>
-            <li><i>💰</i><span>Mais barato que separado</span></li>
-          </ul>
-          <a class="btn btnPrimary" href="https://pay.hotmart.com/S104212403J?off=qbcz91p3" target="_blank" rel="noopener">🚀 Quero o Combo</a>
-        </div>
-      </div>
-
-      <div class="hr"></div>
-
-      <div class="grid" style="gap:10px;">
-        <details open>
-          <summary>🔒 Compra é segura?</summary>
-          <p>Sim. O pagamento é via Hotmart (checkout seguro). Acesso imediato após confirmação.</p>
-        </details>
-        <details>
-          <summary>📱 Funciona no celular?</summary>
-          <p>Sim. A página e o sistema são focados em mobile, com botões grandes e fluxo simples.</p>
-        </details>
-        <details>
-          <summary>⚠️ Tem garantia de prêmio?</summary>
-          <p>Não. Loterias envolvem risco. O Prime oferece método e organização, não promessa de premiação.</p>
-        </details>
       </div>
     </div>
   </div>
@@ -456,9 +392,9 @@ details p{margin:10px 0 0; color: rgba(255,255,255,.78)}
       <h2 style="margin:0 0 6px;">📩 Suporte</h2>
       <div class="mini">Dúvidas de acesso, pagamento ou uso:</div>
       <div class="hr"></div>
-      <div class="ctaRow" style="margin:0;">
+      <div class="btnRow" style="margin:0;">
         <a class="btn btnGhost" style="flex:1" href="mailto:marketingia2026.digital@gmail.com">Email: marketingia2026.digital@gmail.com</a>
-        <a class="btn btnPrimary" style="flex:1" href="https://wa.me/5527988336359" target="_blank" rel="noopener">WhatsApp: +55 27 98833-6359</a>
+        <a class="btn btnGold" style="flex:1" href="https://wa.me/5527988336359" target="_blank" rel="noopener">WhatsApp: +55 27 98833-6359</a>
       </div>
     </div>
   </div>
@@ -478,16 +414,8 @@ details p{margin:10px 0 0; color: rgba(255,255,255,.78)}
   </div>
 </div>
 
-<div class="lightbox" id="lightbox">
-  <div class="lightboxInner" role="dialog" aria-modal="true" aria-label="Imagem ampliada">
-    <button class="lightboxClose" id="lightboxClose">✕ Fechar</button>
-    <img class="lightboxImg" id="lightboxImg" alt="Imagem ampliada" />
-  </div>
-</div>
-
 <script>
   document.getElementById("year").textContent = new Date().getFullYear();
-
   document.querySelectorAll('a[href^="#"]').forEach(a=>{
     a.addEventListener("click",(e)=>{
       const id = a.getAttribute("href");
@@ -498,30 +426,6 @@ details p{margin:10px 0 0; color: rgba(255,255,255,.78)}
       el.scrollIntoView({behavior:"smooth", block:"start"});
     });
   });
-
-  const lb = document.getElementById("lightbox");
-  const lbImg = document.getElementById("lightboxImg");
-  const lbClose = document.getElementById("lightboxClose");
-
-  function openLB(src, alt){
-    lbImg.src = src;
-    lbImg.alt = alt || "Imagem ampliada";
-    lb.classList.add("open");
-    document.body.style.overflow = "hidden";
-  }
-  function closeLB(){
-    lb.classList.remove("open");
-    lbImg.src = "";
-    document.body.style.overflow = "";
-  }
-  document.querySelectorAll(".shot").forEach(img=>{
-    img.addEventListener("click", ()=> openLB(img.getAttribute("src"), img.getAttribute("alt")));
-  });
-  lbClose.addEventListener("click", closeLB);
-  lb.addEventListener("click", (e)=>{ if(e.target===lb) closeLB(); });
-  document.addEventListener("keydown", (e)=>{ if(e.key==="Escape") closeLB(); });
 </script>
-
-
 </body>
 </html>
