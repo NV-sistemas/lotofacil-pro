@@ -205,6 +205,62 @@ h3{margin:0 0 8px}
   mask-image: radial-gradient(50% 50% at 50% 18%, #000 10%, transparent 65%);
 }
 
+
+.shotBtn{
+  all: unset;
+  cursor: zoom-in;
+  display:block;
+}
+.shotBtn:focus-visible{
+  outline: 2px solid rgba(234,179,8,.65);
+  outline-offset: 4px;
+  border-radius: 18px;
+}
+.lightbox{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.82);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding: 18px;
+  z-index: 9999;
+  backdrop-filter: blur(10px);
+}
+.lightbox.open{display:flex}
+.lbCard{
+  width: min(1100px, 96vw);
+  max-height: 92vh;
+  border-radius: 22px;
+  border: 1px solid rgba(255,255,255,.14);
+  background: linear-gradient(180deg, rgba(22,22,24,.72), rgba(0,0,0,.72));
+  box-shadow: 0 22px 80px rgba(0,0,0,.72);
+  overflow:hidden;
+}
+.lbTop{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(255,255,255,.10);
+}
+.lbTitle{font-weight:1000;font-size:12px;color: rgba(255,255,255,.78)}
+.lbClose{
+  cursor:pointer;
+  border-radius: 14px;
+  padding: 10px 12px;
+  font-weight: 1000;
+  border:1px solid rgba(255,255,255,.14);
+  background: rgba(255,255,255,.06);
+}
+.lbImgWrap{background: rgba(0,0,0,.55)}
+.lbImg{
+  width: 100%;
+  height: auto;
+  display:block;
+}
+
 </style>
 </head>
 <body>
@@ -213,8 +269,8 @@ h3{margin:0 0 8px}
 <header class="section" style="padding-top:42px;">
   <div class="container">
     <div class="badge">🛰️ PRIME • Futurista • Direto ao ponto</div>
-    <h1>Três botões. Três vantagens.<br><span style='color:var(--accent2)'>PRINCIPAL</span> • <span style='color:var(--accent2)'>ELITE</span> • <span style='color:var(--accent2)'>15P</span>.</h1>
-    <p class="lead">Modelo com vitrine de prints e CTA lateral (muito bom para conversão no mobile).</p>
+    <h1>Sistema Preditivo para Lotofácil.<br><span style='color:var(--accent2)'>PRINCIPAL</span> • <span style='color:var(--accent2)'>ELITE</span> • <span style='color:var(--accent2)'>15P</span>.</h1>
+    <p class="lead">Página profissional e objetiva: explique rápido, mostre o sistema com prints e leve direto para o checkout.</p>
 
     <div class="btnRow">
       <a class="btn btnGold" href="#planos">🚀 Ver planos</a>
@@ -234,8 +290,7 @@ h3{margin:0 0 8px}
       <div class="kpi"><b>Organização</b><span>Você mantém controle de jogos e resultados.</span></div>
     </div>
 
-    <div class="mini" style="margin-top:10px;opacity:.9">Modelo: <b>Modelo 2 — Vitrine + CTA lateral (mobile forte)</b> • Substitua as imagens em <code>assets/</code> (prints do seu sistema).</div>
-  </div>
+    </div>
 </header>
 
 
@@ -305,23 +360,39 @@ h3{margin:0 0 8px}
       <p class="mini">Substitua as imagens abaixo pelos seus prints (sem vídeo, do jeito que você pediu).</p>
       <div class="hr"></div>
       <div class="shots" style="grid-template-columns:repeat(2,1fr)">
+      <div class="shots" style="grid-template-columns:repeat(2,1fr)">
         <div class="shotWrap">
-          <img class="shot" style="aspect-ratio: 16/11" src="2-JOGO PRINCIPAL.png" alt="Print: Principal" />
+          <button class="shotBtn" data-full="1-HOME.png" aria-label="Abrir HOME em tamanho maior">
+            <img class="shot" style="aspect-ratio: 16/11" src="1-HOME.png" alt="Print: HOME" />
+          </button>
+          <div class="shotCap">HOME — visão geral (botões e navegação)</div>
+        </div>
+        <div class="shotWrap">
+          <button class="shotBtn" data-full="2-JOGO PRINCIPAL.png" aria-label="Abrir PRINCIPAL em tamanho maior">
+            <img class="shot" style="aspect-ratio: 16/11" src="2-JOGO PRINCIPAL.png" alt="Print: Jogo Principal" />
+          </button>
           <div class="shotCap">PRINCIPAL — 4 jogos + motivos</div>
         </div>
         <div class="shotWrap">
-          <img class="shot" style="aspect-ratio: 16/11" src="3-JOGO ELITE.png" alt="Print: Elite" />
+          <button class="shotBtn" data-full="3-JOGO ELITE.png" aria-label="Abrir ELITE em tamanho maior">
+            <img class="shot" style="aspect-ratio: 16/11" src="3-JOGO ELITE.png" alt="Print: Jogo Elite" />
+          </button>
           <div class="shotCap">ELITE — 6 jogos (COMBO)</div>
         </div>
         <div class="shotWrap">
-          <img class="shot" style="aspect-ratio: 16/11" src="4-15P.png" alt="Print: 15P" />
+          <button class="shotBtn" data-full="4-15P.png" aria-label="Abrir 15P em tamanho maior">
+            <img class="shot" style="aspect-ratio: 16/11" src="4-15P.png" alt="Print: 15P" />
+          </button>
           <div class="shotCap">EXTRA 15P — 10 jogos por linhas</div>
         </div>
-        <div class="shotWrap">
-          <img class="shot" style="aspect-ratio: 16/11" src="5-JOGOS SALVOS.png" alt="Print: Jogos Salvos" />
+        <div class="shotWrap" style="grid-column: 1 / -1;">
+          <button class="shotBtn" data-full="5-JOGOS SALVOS.png" aria-label="Abrir JOGOS SALVOS em tamanho maior">
+            <img class="shot" style="aspect-ratio: 21/9" src="5-JOGOS SALVOS.png" alt="Print: Jogos Salvos" />
+          </button>
           <div class="shotCap">JOGOS SALVOS — conferência e histórico</div>
         </div>
       </div>
+    </div>
     </div>
 
     <aside class="card">
@@ -416,6 +487,41 @@ h3{margin:0 0 8px}
 
 <script>
   document.getElementById("year").textContent = new Date().getFullYear();
+
+  // Lightbox (clique para ampliar)
+  const lb = document.getElementById("lightbox");
+  const lbImg = document.getElementById("lbImg");
+  const lbTitle = document.getElementById("lbTitle");
+  const lbClose = document.getElementById("lbClose");
+  let lastFocus = null;
+
+  function openLb(src, title){
+    lastFocus = document.activeElement;
+    lbImg.src = src;
+    lbTitle.textContent = title || "Visualização";
+    lb.classList.add("open");
+    lbClose.focus();
+    document.body.style.overflow = "hidden";
+  }
+  function closeLb(){
+    lb.classList.remove("open");
+    lbImg.src = "";
+    document.body.style.overflow = "";
+    if(lastFocus) lastFocus.focus();
+  }
+
+  document.querySelectorAll(".shotBtn").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const src = btn.getAttribute("data-full") || btn.querySelector("img")?.getAttribute("src");
+      const cap = btn.closest(".shotWrap")?.querySelector(".shotCap")?.textContent?.trim();
+      if(src) openLb(src, cap);
+    });
+  });
+
+  lbClose.addEventListener("click", closeLb);
+  lb.addEventListener("click", (e)=>{ if(e.target === lb) closeLb(); });
+  window.addEventListener("keydown", (e)=>{ if(e.key === "Escape" && lb.classList.contains("open")) closeLb(); });
+
   document.querySelectorAll('a[href^="#"]').forEach(a=>{
     a.addEventListener("click",(e)=>{
       const id = a.getAttribute("href");
@@ -427,5 +533,18 @@ h3{margin:0 0 8px}
     });
   });
 </script>
+
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Imagem ampliada">
+  <div class="lbCard">
+    <div class="lbTop">
+      <div class="lbTitle" id="lbTitle">Visualização</div>
+      <button class="lbClose" id="lbClose" type="button">Fechar ✕</button>
+    </div>
+    <div class="lbImgWrap">
+      <img class="lbImg" id="lbImg" src="" alt="Imagem ampliada" />
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
