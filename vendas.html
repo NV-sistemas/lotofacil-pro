@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Lotofácil Prime Analytics — Página de Vendas</title>
-<meta name="description" content="Sistema Preditivo com 6 módulos: Principal, Análises, Jogos Salvos, Criar seus Jogos, ELITE e Extra 15P." />
+<meta name="description" content="Sistema Preditivo com 6 módulos. Premium, COMBO ELITE e Extra 15P." />
 <meta name="theme-color" content="#000000" />
 
 <style>
@@ -50,7 +50,7 @@ body{
 
 a{color:inherit}
 .container{width:min(1120px, 92vw); margin:0 auto;}
-.section{padding:58px 0}
+.section{padding:56px 0}
 @media(max-width:640px){ .section{padding:44px 0} }
 
 .card{
@@ -61,18 +61,6 @@ a{color:inherit}
   box-shadow:var(--shadow);
   backdrop-filter: blur(10px);
 }
-
-.hero{
-  padding-top:54px;
-  padding-bottom:38px;
-}
-.heroGrid{
-  display:grid;
-  grid-template-columns: 1.25fr .75fr;
-  gap:16px;
-  align-items:stretch;
-}
-@media(max-width:980px){ .heroGrid{grid-template-columns:1fr} }
 
 .badge{
   display:inline-flex;
@@ -101,6 +89,12 @@ h2{
   font-size: clamp(18px, 2.2vw, 26px);
   font-weight:1000;
   letter-spacing:.25px;
+}
+h3{
+  margin:0 0 6px;
+  font-size:16px;
+  font-weight:1000;
+  letter-spacing:.2px;
 }
 p{ margin:0; color:var(--muted); line-height:1.55; font-size:15.2px; }
 .mini{ color:var(--muted2); font-size:13px; line-height:1.45; }
@@ -131,9 +125,7 @@ p{ margin:0; color:var(--muted); line-height:1.55; font-size:15.2px; }
   border:1px solid rgba(0,0,0,.35);
   box-shadow: 0 14px 30px rgba(234,179,8,.18);
 }
-.btnGhost{
-  background: rgba(0,0,0,.55);
-}
+.btnGhost{ background: rgba(0,0,0,.55); }
 
 .kpis{
   display:grid;
@@ -151,42 +143,47 @@ p{ margin:0; color:var(--muted); line-height:1.55; font-size:15.2px; }
 .kpi b{display:block; color:var(--accent2); font-size:12.5px; letter-spacing:.25px}
 .kpi span{display:block; margin-top:6px; font-weight:900}
 
-.modulesGrid{
+.heroGrid{
   display:grid;
-  grid-template-columns: repeat(3, minmax(0,1fr));
-  gap:12px;
-  margin-top:12px;
+  grid-template-columns: 1.25fr .75fr;
+  gap:16px;
+  align-items:stretch;
 }
-@media(max-width:980px){ .modulesGrid{grid-template-columns:1fr} }
-.mod{
-  background: radial-gradient(700px 240px at 20% 0%, rgba(255,255,255,.06), transparent 60%),
-              linear-gradient(180deg, rgba(0,0,0,.30), rgba(0,0,0,.44));
-  border:1px solid rgba(255,255,255,.10);
-  border-radius:18px;
-  padding:14px;
-}
-.mod h3{
-  margin:0 0 6px;
-  font-size:15px;
-  font-weight:1000;
-  color: var(--accent);
-  letter-spacing:.25px;
-}
-.mod p{font-size:14px}
+@media(max-width:980px){ .heroGrid{grid-template-columns:1fr} }
 
-.shotsGrid{
+.ctaBox{
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-start;
+}
+.ctaBox .btn{flex:0 0 auto}
+.ctaNote{margin-top:10px}
+
+.split{
   display:grid;
   grid-template-columns: 1fr 1fr;
-  gap:12px;
-  margin-top:12px;
+  gap:14px;
+  align-items:center;
 }
-@media(max-width:860px){ .shotsGrid{grid-template-columns:1fr} }
+@media(max-width:980px){ .split{grid-template-columns:1fr} }
+
+.feature{
+  border:1px solid rgba(255,255,255,.12);
+  background: rgba(0,0,0,.40);
+  border-radius:18px;
+  padding:16px;
+}
+.feature ul{margin:10px 0 0; padding:0; list-style:none; display:grid; gap:8px}
+.feature li{display:flex; gap:10px; align-items:flex-start; color: rgba(243,244,246,.88); font-weight:750}
+.feature i{font-style:normal; width:22px; opacity:.95}
 
 .shotWrap{
   border:1px solid rgba(255,255,255,.12);
-  background: rgba(0,0,0,.45);
+  background: rgba(0,0,0,.40);
   border-radius:18px;
   overflow:hidden;
+  box-shadow: 0 18px 55px rgba(0,0,0,.35);
 }
 .shotBtn{
   width:100%;
@@ -199,12 +196,11 @@ p{ margin:0; color:var(--muted); line-height:1.55; font-size:15.2px; }
 .shot{
   width:100%;
   display:block;
-  aspect-ratio: 16/10;
+  aspect-ratio: 16/9;
   object-fit: cover;
-  transform: scale(1.001);
   transition: .18s ease;
 }
-.shotBtn:hover .shot{ transform: scale(1.02); filter: brightness(1.05); }
+.shotBtn:hover .shot{ transform: scale(1.02); filter: brightness(1.06); }
 .shotCap{
   padding:10px 12px;
   font-weight:950;
@@ -221,7 +217,6 @@ p{ margin:0; color:var(--muted); line-height:1.55; font-size:15.2px; }
   margin-top:12px;
 }
 @media(max-width:980px){ .offerGrid{grid-template-columns:1fr} }
-
 .offer{
   position:relative;
   border:1px solid rgba(255,255,255,.12);
@@ -231,24 +226,10 @@ p{ margin:0; color:var(--muted); line-height:1.55; font-size:15.2px; }
     radial-gradient(900px 260px at 30% 0%, rgba(255,255,255,.06), transparent 60%),
     linear-gradient(180deg, rgba(0,0,0,.35), rgba(0,0,0,.55));
   box-shadow: 0 18px 55px rgba(0,0,0,.42);
-  min-height: 220px;
+  min-height: 230px;
 }
-.offer h3{margin:0 0 8px; font-weight:1000; letter-spacing:.25px}
-.price{
-  display:flex; align-items:flex-end; gap:8px;
-  margin:10px 0 10px;
-}
-.price .old{
-  color: rgba(243,244,246,.55);
-  text-decoration: line-through;
-  font-weight:900;
-  font-size:14px;
-}
-.price .now{
-  font-weight:1100;
-  font-size:28px;
-  letter-spacing:.3px;
-}
+.offer h3{margin:0 0 8px}
+.priceRow{display:flex; align-items:center; gap:10px; margin-top:10px}
 .tagPromo{
   display:inline-flex; align-items:center; justify-content:center;
   padding:6px 10px;
@@ -259,6 +240,17 @@ p{ margin:0; color:var(--muted); line-height:1.55; font-size:15.2px; }
   background: rgba(234,179,8,.14);
   border:1px solid rgba(234,179,8,.32);
   color: rgba(255,255,255,.92);
+}
+.old{
+  color: rgba(243,244,246,.55);
+  text-decoration: line-through;
+  font-weight:900;
+  font-size:14px;
+}
+.now{
+  font-weight:1100;
+  font-size:28px;
+  letter-spacing:.3px;
 }
 .ribbon{
   position:absolute; top:12px; right:12px;
@@ -271,23 +263,6 @@ p{ margin:0; color:var(--muted); line-height:1.55; font-size:15.2px; }
   letter-spacing:.35px;
 }
 
-.list{margin:10px 0 0; padding:0; list-style:none; display:grid; gap:8px}
-.list li{
-  display:flex; gap:10px; align-items:flex-start;
-  color: rgba(243,244,246,.86);
-  font-weight:750;
-}
-.list i{ font-style:normal; width:22px; opacity:.95 }
-
-.offer .btn{margin-top:12px}
-
-.supportRow{
-  display:grid;
-  grid-template-columns: 1fr 1fr;
-  gap:10px;
-}
-@media(max-width:860px){ .supportRow{grid-template-columns:1fr} }
-
 .faq{display:grid; gap:10px; margin-top:10px}
 .faq .q{
   border:1px solid rgba(255,255,255,.12);
@@ -296,15 +271,23 @@ p{ margin:0; color:var(--muted); line-height:1.55; font-size:15.2px; }
   background: rgba(0,0,0,.42);
 }
 .faq .q b{color: var(--accent2)}
+
+.supportRow{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:10px;
+}
+@media(max-width:860px){ .supportRow{grid-template-columns:1fr} }
+
 .foot{
   text-align:center;
-  padding:30px 0 12px;
+  padding:26px 0 10px;
   color: rgba(243,244,246,.55);
   font-size:12px;
   line-height:1.5;
 }
 
-/* ===== Lightbox (prints) ===== */
+/* Lightbox */
 .lightbox{
   position:fixed; inset:0;
   background: rgba(0,0,0,.78);
@@ -346,7 +329,7 @@ p{ margin:0; color:var(--muted); line-height:1.55; font-size:15.2px; }
   background:#000;
 }
 
-/* ===== Sticky CTA (mobile) ===== */
+/* Sticky CTA (mobile) */
 .stickyCta{
   position:fixed;
   left:0; right:0; bottom:0;
@@ -380,48 +363,106 @@ p{ margin:0; color:var(--muted); line-height:1.55; font-size:15.2px; }
   color:#111827;
   border:1px solid rgba(0,0,0,.35);
 }
-@media(min-width:980px){
-  .stickyCta{display:none}
-}
+@media(min-width:980px){ .stickyCta{display:none} }
 </style>
 </head>
 
 <body>
 
 <script>
-/* ========= LINKS CORRETOS (da sua página antiga) ========= */
+/* LINKS (Hotmart) */
 const LINK_PREMIUM = "https://pay.hotmart.com/O104148865Y?off=c4m0nezi";
 const LINK_15P     = "https://pay.hotmart.com/Y104149008G?off=eehchnv4";
 const LINK_COMBO   = "https://pay.hotmart.com/S104212403J?off=qbcz91p3";
 
-/* ========= SUPORTE (da sua página antiga) ========= */
+/* SUPORTE */
 const SUP_EMAIL = "marketingia2026.digital@gmail.com";
 const SUP_WA    = "https://wa.me/5527988336359";
 
-/* ========= PRINTS (5 prints com nomes EXATOS) ========= */
-const SHOTS = [
-  {src:"1-HOME.png",            cap:"HOME — Tela inicial"},
-  {src:"2-JOGO PRINCIPAL.png",  cap:"JOGO PRINCIPAL — 4 jogos (Principal/Invertida/Técnicas)"},
-  {src:"3-JOGO ELITE.png",      cap:"ELITE — 6 jogos (COMBO)"},
-  {src:"4-15P.png",             cap:"EXTRA 15P — 10 jogos por linhas"},
-  {src:"5-JOGOS SALVOS.png",    cap:"JOGOS SALVOS — conferência e histórico"}
-];
-
-/* ========= PREÇOS (AJUSTE AQUI) =========
-   Você reclamou que os valores ficaram errados.
-   Eu deixei os valores como estavam na página velha (59,90 / 49,90 / 99,90),
-   e com “DE → POR” pra ficar cara de promoção.
-   Se seus valores novos forem outros, altere SÓ aqui:
-*/
+/* PREÇOS NOVOS */
 const PRICES = {
-  premium: { old: "97,00",  now: "59,90" },
-  p15:     { old: "67,00",  now: "49,90" },
-  combo:   { old: "147,00", now: "99,90" }
+  premium: { old: "97,00",  now: "39,90" },
+  p15:     { old: "67,00",  now: "39,90" },
+  combo:   { old: "147,00", now: "64,90" }
 };
+
+/* PRINTS (nomes EXATOS do seu repo) */
+const SHOTS = [
+  {
+    title: "HOME",
+    src: "HOME.png",
+    cap: "HOME — Tela inicial (painel com os 6 módulos)",
+    bullets: [
+      "Acesso rápido a todos os módulos",
+      "Escolha a janela de concursos (3, 4, 12, 20...)",
+      "Interface premium, direta e mobile-first"
+    ]
+  },
+  {
+    title: "JOGO PRINCIPAL",
+    src: "2-JOGO PRINCIPAL.png",
+    cap: "JOGO PRINCIPAL — 4 jogos (Principal / Invertida / Técnica 1 e 2)",
+    bullets: [
+      "Gera 4 jogos estruturados automaticamente",
+      "Padrões do sistema aplicados no conjunto",
+      "Ideal para a rotina do concurso"
+    ]
+  },
+  {
+    title: "ANÁLISE PRIME",
+    src: "ANALISE_PRIME.png",
+    cap: "ANÁLISE PRIME — leitura do cenário (janela selecionada)",
+    bullets: [
+      "Mostra padrões dominantes (paridade, primos, linhas, colunas...)",
+      "Ajuda a montar jogo manual com clareza",
+      "Resumo objetivo do comportamento da janela"
+    ]
+  },
+  {
+    title: "CRIAR SEUS JOGOS",
+    src: "CRIAR_SEUS_JOGOS.png",
+    cap: "CRIAR SEUS JOGOS — você escolhe dezenas e o sistema monta variações",
+    bullets: [
+      "Sem explicações: só os jogos e botão Salvar",
+      "Gera: Principal (4), ELITE (6) ou 15P (10)",
+      "Perfeito pra quem gosta de controlar as dezenas"
+    ]
+  },
+  {
+    title: "JOGOS SALVOS",
+    src: "5-JOGOS SALVOS.png",
+    cap: "JOGOS SALVOS — guardar, conferir e acompanhar resultados",
+    bullets: [
+      "Salve suas apostas",
+      "Conferência por concursos selecionados",
+      "Histórico simples e prático"
+    ]
+  },
+  {
+    title: "JOGO ELITE",
+    src: "3-JOGO ELITE.png",
+    cap: "JOGO ELITE (COMBO) — 6 jogos exclusivos com padrões ELITE",
+    bullets: [
+      "6 jogos exclusivos",
+      "Estrutura voltada pro perfil agressivo",
+      "Módulo COMBO (mais recomendado)"
+    ]
+  },
+  {
+    title: "EXTRA 15P",
+    src: "4-15P.png",
+    cap: "15 PONTOS GARANTIDO (EXTRA) — estratégia por linhas (10 jogos)",
+    bullets: [
+      "Estratégia por linhas",
+      "Gera 10 jogos",
+      "Módulo EXTRA comprado separadamente"
+    ]
+  }
+];
 </script>
 
-<!-- HERO -->
-<section class="section hero">
+<!-- HERO (IGUAL AO QUE FICOU BOM) -->
+<section class="section" style="padding-top:52px; padding-bottom:34px;">
   <div class="container">
     <div class="heroGrid">
       <div class="card">
@@ -443,75 +484,40 @@ const PRICES = {
 
         <div class="btnRow">
           <a class="btn btnGold" href="#planos">🔥 Ver promoção agora</a>
-          <a class="btn btnGhost" href="#prints">🖼️ Ver prints do sistema</a>
+          <div class="mini" style="margin-top:8px"><b style="color:var(--accent2)">⏳ Promoção para os 50 primeiros compradores.</b></div>
+          <a class="btn btnGhost" href="#modulos">🖼️ Ver prints do sistema</a>
           <a class="btn" href="#suporte">📩 Falar no suporte</a>
         </div>
       </div>
 
-      <aside class="card">
+      <aside class="card ctaBox">
         <div class="badge">⚡ CTA rápido</div>
         <h2 style="margin:10px 0 6px;">Escolha seu acesso</h2>
-        <p class="mini">Se quer começar hoje, o caminho é simples:</p>
+        <div class="mini">Se quer começar hoje, o caminho é simples:</div>
         <div class="hr"></div>
-        <div class="btnRow" style="margin:0;">
-          <a class="btn btnGold" href="javascript:void(0)" onclick="window.open(LINK_COMBO,'_blank')" rel="noopener">🚀 Quero COMBO (Mais recomendado)</a>
-          <a class="btn" href="javascript:void(0)" onclick="window.open(LINK_PREMIUM,'_blank')" rel="noopener">Quero só Premium</a>
-          <a class="btn" href="javascript:void(0)" onclick="window.open(LINK_15P,'_blank')" rel="noopener">Quero Extra 15P</a>
+
+        <a class="btn btnGold" href="javascript:void(0)" onclick="window.open(LINK_COMBO,'_blank')" rel="noopener">🚀 Quero COMBO (Mais recomendado)</a>
+        <a class="btn" href="javascript:void(0)" onclick="window.open(LINK_PREMIUM,'_blank')" rel="noopener">Quero só Premium</a>
+        <a class="btn" href="javascript:void(0)" onclick="window.open(LINK_15P,'_blank')" rel="noopener">Quero Extra 15P</a>
+
+        <div class="mini ctaNote">
+          Dica: divulgue o <b>COMBO</b> no Kwai (maior ticket e mais completo).
         </div>
-        <div class="mini" style="margin-top:10px">Dica: divulgue o <b>COMBO</b> no Kwai (maior ticket e mais completo).</div>
       </aside>
     </div>
   </div>
 </section>
 
-<!-- 6 MÓDULOS -->
-<section class="section">
+<!-- MÓDULOS COM PRINT (1 A 1) -->
+<section id="modulos" class="section" style="padding-top:10px;">
   <div class="container">
     <div class="card">
-      <div class="badge">🧠 SISTEMA PREDITIVO</div>
-      <h2>6 módulos (o que cada um faz)</h2>
+      <div class="badge">🧩 COMO FUNCIONA (COM EXEMPLOS)</div>
+      <h2>Veja cada módulo com print real</h2>
+      <div class="mini">Clique na imagem para ampliar.</div>
       <div class="hr"></div>
 
-      <div class="modulesGrid">
-        <div class="mod">
-          <h3>🎯 Jogo Principal</h3>
-          <p>Gera <b>4 jogos</b> estruturados (Principal, Invertida, Técnica 1 e Técnica 2) com base no padrão do sistema.</p>
-        </div>
-        <div class="mod">
-          <h3>📈 Gerar Análise</h3>
-          <p>Resumo PRIME do período (frequência, comportamento, padrão do conjunto) para você entender o cenário.</p>
-        </div>
-        <div class="mod">
-          <h3>🧩 Criar seus jogos</h3>
-          <p>Você escolhe as dezenas e o sistema cria as variações automaticamente: Principal (4), ELITE (6) ou 15P (10).</p>
-        </div>
-        <div class="mod">
-          <h3>💾 Jogos Salvos</h3>
-          <p>Guarda seus jogos e permite conferir resultados e histórico de acertos com praticidade.</p>
-        </div>
-        <div class="mod">
-          <h3>💎 JOGO ELITE</h3>
-          <p>Gera <b>6 jogos exclusivos</b> (padrões ELITE fixos) para o perfil mais agressivo.</p>
-        </div>
-        <div class="mod">
-          <h3>✅ 15 Pontos Garantido</h3>
-          <p>Estratégia por linhas que gera <b>10 jogos</b> com foco na montagem estrutural do 15P.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- PRINTS (5) -->
-<section id="prints" class="section" style="padding-top:10px;">
-  <div class="container">
-    <div class="card">
-      <div class="badge">🖼️ PRINTS</div>
-      <h2>Veja o sistema por dentro (clique para ampliar)</h2>
-      <div class="mini">Mantenha os 5 arquivos PNG na mesma pasta do HTML (raiz do projeto).</div>
-      <div class="hr"></div>
-
-      <div class="shotsGrid" id="shotsGrid"></div>
+      <div id="modulesList" style="display:grid; gap:14px;"></div>
     </div>
   </div>
 </section>
@@ -521,76 +527,62 @@ const PRICES = {
   <div class="container">
     <div class="card">
       <div class="badge">🔥 PROMOÇÃO ESPECIAL</div>
-      <h2>Planos para cada perfil</h2>
-      <div class="mini">Valores promocionais — aproveite enquanto estiver ativo.</div>
+      <h2>Valores atualizados (promoção)</h2>
+     <div class="mini"><b style="color:var(--accent2)">🔥 Promoção limitada:</b> válida para os <b>50 primeiros</b> que comprarem.</div>
       <div class="hr"></div>
 
       <div class="offerGrid">
         <div class="offer">
           <h3>Premium</h3>
-          <div class="mini">Para quem quer o básico premium do fluxo.</div>
+          <div class="mini">Acesso ao Sistema Principal + Análises + Jogos Salvos.</div>
 
-          <div class="price">
+          <div class="priceRow">
             <span class="tagPromo">PROMO</span>
-            <span class="old">R$ <b id="pOld"></b></span>
+            <span class="old">de R$ <b id="pOld"></b></span>
           </div>
-          <div class="price" style="margin-top:-4px">
+          <div class="priceRow" style="margin-top:6px;">
             <span class="mini">por</span>
             <span class="now">R$ <b id="pNow"></b></span>
           </div>
 
-          <ul class="list">
-            <li><i>🎯</i><span>Jogo Principal (4 jogos)</span></li>
-            <li><i>📈</i><span>Gerar Análise</span></li>
-            <li><i>💾</i><span>Jogos Salvos</span></li>
-          </ul>
-
+          <div class="hr"></div>
           <a class="btn" href="javascript:void(0)" onclick="window.open(LINK_PREMIUM,'_blank')" rel="noopener">Comprar Premium</a>
         </div>
 
         <div class="offer" style="border-color: rgba(234,179,8,.35); box-shadow: var(--glowGold), 0 18px 55px rgba(0,0,0,.42);">
           <div class="ribbon">MAIS VENDIDO</div>
           <h3>COMBO ELITE</h3>
-          <div class="mini">Premium + ELITE + Extra 15P (total).</div>
+          <div class="mini">Premium + ELITE + Extra 15P (pacote total).</div>
 
-          <div class="price">
+          <div class="priceRow">
             <span class="tagPromo">PROMO</span>
-            <span class="old">R$ <b id="cOld"></b></span>
+            <span class="old">de R$ <b id="cOld"></b></span>
           </div>
-          <div class="price" style="margin-top:-4px">
+          <div class="priceRow" style="margin-top:6px;">
             <span class="mini">por</span>
             <span class="now">R$ <b id="cNow"></b></span>
           </div>
 
-          <ul class="list">
-            <li><i>👑</i><span>Premium</span></li>
-            <li><i>💎</i><span>ELITE (6 jogos)</span></li>
-            <li><i>✅</i><span>Extra 15P</span></li>
-          </ul>
-
-          <a class="btn btnGold" href="javascript:void(0)" onclick="window.open(LINK_COMBO,'_blank')" rel="noopener">🚀 Comprar COMBO</a>
+          <div class="hr"></div>
+          <a class="btn btnGold" href="javascript:void(0)" onclick="window.open(LINK_COMBO,'_blank')" rel="noopener">🚀 Comprar COMBO (50 primeiros)
+</a>
         </div>
 
         <div class="offer">
           <h3>Extra 15P</h3>
-          <div class="mini">Estratégia separada (tela própria).</div>
+          <div class="mini">Módulo 15 pontos garantido (tela própria).</div>
 
-          <div class="price">
+          <div class="priceRow">
             <span class="tagPromo">PROMO</span>
-            <span class="old">R$ <b id="eOld"></b></span>
+            <span class="old">de R$ <b id="eOld"></b></span>
           </div>
-          <div class="price" style="margin-top:-4px">
+          <div class="priceRow" style="margin-top:6px;">
             <span class="mini">por</span>
             <span class="now">R$ <b id="eNow"></b></span>
           </div>
 
-          <ul class="list">
-            <li><i>✅</i><span>10 jogos por linhas</span></li>
-            <li><i>🧩</i><span>Foco em 15P</span></li>
-            <li><i>⚡</i><span>Rápido e direto</span></li>
-          </ul>
-
-          <a class="btn" href="javascript:void(0)" onclick="window.open(LINK_15P,'_blank')" rel="noopener">Comprar 15P</a>
+          <div class="hr"></div>
+          <a class="btn" href="javascript:void(0)" onclick="window.open(LINK_15P,'_blank')" rel="noopener">Comprar Extra 15P</a>
         </div>
       </div>
 
@@ -617,19 +609,19 @@ const PRICES = {
         </div>
         <div class="q">
           <b>2) O sistema “garante” 15 pontos?</b>
-          <div class="mini" style="margin-top:6px">Não existe garantia de premiação. O sistema aumenta organização e estratégia com padrão e análise.</div>
+          <div class="mini" style="margin-top:6px">Não existe garantia de premiação. O sistema organiza padrões e estratégia com base em dados.</div>
         </div>
         <div class="q">
           <b>3) Funciona no celular?</b>
-          <div class="mini" style="margin-top:6px">Sim — a página e o sistema são mobile-first.</div>
+          <div class="mini" style="margin-top:6px">Sim — sistema e página são mobile-first.</div>
         </div>
         <div class="q">
-          <b>4) O que eu compro se quero o mais completo?</b>
-          <div class="mini" style="margin-top:6px">O <b>COMBO ELITE</b> (Premium + ELITE + Extra 15P) é o pacote total.</div>
+          <b>4) Qual é o mais recomendado?</b>
+          <div class="mini" style="margin-top:6px"><b>COMBO ELITE</b>: Premium + ELITE + Extra 15P (pacote completo).</div>
         </div>
         <div class="q">
           <b>5) Posso falar com suporte?</b>
-          <div class="mini" style="margin-top:6px">Sim — email e WhatsApp estão logo abaixo.</div>
+          <div class="mini" style="margin-top:6px">Sim — email e WhatsApp abaixo.</div>
         </div>
       </div>
     </div>
@@ -670,47 +662,69 @@ const PRICES = {
 </div>
 
 <!-- STICKY CTA (MOBILE) -->
-<div class="stickyCta" aria-hidden="false">
+<div class="stickyCta">
   <div class="stickyRow">
-    <a href="#prints">PRINTS</a>
+    <a href="#modulos">MÓDULOS</a>
     <a href="javascript:void(0)" onclick="window.open(LINK_PREMIUM,'_blank')" rel="noopener">PREMIUM</a>
-    <a href="javascript:void(0)" onclick="window.open(LINK_15P,'_blank')" rel="noopener">EXTRA15P</a>
+    <a href="javascript:void(0)" onclick="window.open(LINK_15P,'_blank')" rel="noopener">15P</a>
     <a class="stGold" href="javascript:void(0)" onclick="window.open(LINK_COMBO,'_blank')" rel="noopener">COMBO</a>
   </div>
 </div>
 
 <script>
-/* ===== YEAR ===== */
+/* Ano + suporte */
 document.getElementById("year").textContent = new Date().getFullYear();
 document.getElementById("supEmail").textContent = SUP_EMAIL;
 
-/* ===== PREÇOS ===== */
+/* Preços */
 document.getElementById("pOld").textContent = PRICES.premium.old;
 document.getElementById("pNow").textContent = PRICES.premium.now;
-
 document.getElementById("eOld").textContent = PRICES.p15.old;
 document.getElementById("eNow").textContent = PRICES.p15.now;
-
 document.getElementById("cOld").textContent = PRICES.combo.old;
 document.getElementById("cNow").textContent = PRICES.combo.now;
 
-/* ===== PRINTS (5) ===== */
-const grid = document.getElementById("shotsGrid");
-function shotTpl(src, cap){
+/* Monta blocos (um módulo = uma foto + explicação) */
+const list = document.getElementById("modulesList");
+
+function moduleBlock(item, idx){
+  const invert = (idx % 2 === 1);
+  const bullets = (item.bullets || []).map(b => `<li><i>✓</i><span>${b}</span></li>`).join("");
+
   return `
-    <div class="shotWrap">
-      <button class="shotBtn" data-full="${src}" aria-label="Abrir ${cap} em tamanho maior">
-        <img class="shot" src="${src}" alt="Print: ${cap}" />
-      </button>
-      <div class="shotCap">${cap}</div>
+    <div class="split">
+      ${invert ? renderText(item, bullets) + renderShot(item) : renderShot(item) + renderText(item, bullets)}
     </div>
   `;
 }
-grid.innerHTML = SHOTS
-  .map(s => shotTpl(s.src, s.cap))
-  .join("");
+function renderShot(item){
+  return `
+    <div class="shotWrap">
+      <button class="shotBtn" data-full="${item.src}" data-title="${item.title}">
+        <img class="shot" src="${item.src}" alt="${item.cap}">
+      </button>
+      <div class="shotCap"><b>${item.title}</b> — ${item.cap}</div>
+    </div>
+  `;
+}
+function renderText(item, bulletsHtml){
+  return `
+    <div class="feature">
+      <div class="badge"><span class="dot"></span> ${item.title}</div>
+      <h3 style="margin-top:10px;">O que este módulo faz</h3>
+      <div class="mini" style="margin-top:6px">${item.cap}</div>
+      <ul>${bulletsHtml}</ul>
+      <div class="btnRow" style="margin-top:12px;">
+        <a class="btn btnGhost" href="#planos">Ver planos</a>
+        <a class="btn btnGold" href="javascript:void(0)" onclick="window.open(LINK_COMBO,'_blank')" rel="noopener">Quero COMBO</a>
+      </div>
+    </div>
+  `;
+}
 
-/* ===== LIGHTBOX ===== */
+list.innerHTML = SHOTS.map(moduleBlock).join("");
+
+/* Lightbox */
 const lb = document.getElementById("lightbox");
 const lbImg = document.getElementById("lbImg");
 const lbTitle = document.getElementById("lbTitle");
@@ -731,16 +745,15 @@ function closeLb(){
   document.body.style.overflow = "";
   if(lastFocus) lastFocus.focus();
 }
-
 lbClose.addEventListener("click", closeLb);
 lb.addEventListener("click", (e)=>{ if(e.target === lb) closeLb(); });
 document.addEventListener("keydown", (e)=>{ if(e.key === "Escape" && lb.classList.contains("open")) closeLb(); });
 
 document.querySelectorAll(".shotBtn").forEach(btn=>{
   btn.addEventListener("click", ()=>{
-    const src = btn.getAttribute("data-full") || btn.querySelector("img")?.getAttribute("src");
-    const cap = btn.closest(".shotWrap")?.querySelector(".shotCap")?.textContent?.trim();
-    if(src) openLb(src, cap);
+    const src = btn.getAttribute("data-full");
+    const title = btn.getAttribute("data-title") || "Print";
+    if(src) openLb(src, title);
   });
 });
 </script>
