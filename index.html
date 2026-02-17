@@ -244,7 +244,7 @@
   .actionGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-top:12px}
   .actionCard{
     text-align:left;
-    border:1cm solid #000; /* BLACK PIANO */
+    border:3px solid #000; /* BLACK PIANO */
     background:
       radial-gradient(700px 260px at 22% 0%, rgba(255,255,255,.06), transparent 60%),
       radial-gradient(700px 260px at 78% 0%, rgba(255,255,255,.05), transparent 62%),
@@ -1487,14 +1487,99 @@ function renderPickGridAny(id, selectedSet, lockedSet){
 }
 
 
+function _blockCounts(nums){
+  const c = [0,0,0,0,0,0]; // 1..5
+  (nums||[]).forEach(n=>{
+    const b = blocoIndex(n);
+    c[b] = (c[b]||0)+1;
+  });
+  return c;
+}
+function _complementOf(base){
+  const s = new Set(base||[]);
+  const out = [];
+  for(let n=1;n<=25;n++) if(!s.has(n)) out.push(n);
+  return out;
+}
+function _pickFromBlock(list, block, preferHigh=false){
+  const items = list.filter(n=>blocoIndex(n)===block).sort((a,b)=>a-b);
+  return preferHigh ? (items[items.length-1]||null) : (items[0]||null);
+}
+function _mutateFromBase(base, swaps, seed){
+  // swaps = quantas dezenas serão trocadas (remove/add)
+  const b0 = _ensure15(base);
+  if(swaps<=0) return b0.slice();
+
+  const comp = _complementOf(b0);
+  const out = b0.slice();
+
+  for(let k=0;k<swaps;k++){
+    // Recalcula contagens a cada troca para ficar estável e diferente
+    const counts = _blockCounts(out);
+
+    // bloco mais cheio (remove) e mais vazio (add)
+    const blocks = [1,2,3,4,5];
+    const sortedByFull = blocks.slice().sort((a,b)=> (counts[b]-counts[a]) || (a-b));
+    const sortedByEmpty = blocks.slice().sort((a,b)=> (counts[a]-counts[b]) || (a-b));
+
+    // seed alterna quais blocos escolhemos primeiro para diversificar jogos
+    const removeBlock = sortedByFull[(seed + k) % sortedByFull.length];
+    const addBlock    = sortedByEmpty[(seed + 2*k) % sortedByEmpty.length];
+
+    // remove: pega uma dezena do bloco mais cheio (preferindo alta para ser determinístico)
+    const toRemove = _pickFromBlock(out, removeBlock, true);
+    if(toRemove!=null){
+      const ix = out.indexOf(toRemove);
+      if(ix>=0) out.splice(ix,1);
+    }
+
+    // add: pega uma dezena do complemento no bloco mais vazio (preferindo baixa)
+    let toAdd = _pickFromBlock(comp, addBlock, false);
+    if(toAdd==null){
+      // fallback: menor do complemento que ainda não está no jogo
+      toAdd = comp.find(n=>!out.includes(n)) || null;
+    }
+    if(toAdd!=null && !out.includes(toAdd)) out.push(toAdd);
+
+    // garante 15 e ordena
+    while(out.length>15) out.pop();
+    while(out.length<15){
+      const fill = comp.find(n=>!out.includes(n));
+      if(fill==null) break;
+      out.push(fill);
+    }
+    out.sort((a,b)=>a-b);
+  }
+  return _ensure15(out);
+}
+
 function gerarCreatePrincipal(){
   const base = _setFromPickToArray();
   if(base.length !== 15) return alert("Selecione exatamente 15 dezenas.");
 
-  const principal = base.slice();
-  const invertida = _remapGame(principal, [5,4,3,2,1]);
-  const tecnica1  = _remapGame(principal, [2,3,4,5,1]);
-  const tecnica2  = _remapGame(principal, [3,4,5,1,2]);
+  // ✅ Regra: manual cria o 1º jogo igual ao escolhido e os próximos com ajustes
+  const principal = _ensure15(base);
+  let invertida = _mutateFromBase(principal, 1, 1);
+  let tecnica1  = _mutateFromBase(principal, 2, 2);
+  let tecnica2  = _mutateFromBase(principal, 2, 3);
+
+  // Garantia: não repetir (somente no manual)
+  const seen = new Set([_uniqueKey(principal)]);
+  function uniq(g, swaps, seed){
+    let gg = g.slice();
+    let key = _uniqueKey(gg);
+    let tries = 0;
+    while(seen.has(key) && tries<6){
+      gg = _mutateFromBase(principal, swaps + tries, seed + tries);
+      key = _uniqueKey(gg);
+      tries++;
+    }
+    seen.add(key);
+    return gg;
+  }
+  invertida = uniq(invertida, 1, 1);
+  tecnica1  = uniq(tecnica1, 2, 2);
+  tecnica2  = uniq(tecnica2, 2, 3);
 
   createResult = { tipo:"principal4", principal, invertida, tecnica1, tecnica2 };
   renderCreate();
@@ -1506,35 +1591,24 @@ function gerarCreateElite(){
   const base = _setFromPickToArray();
   if(base.length !== 15) return alert("Selecione exatamente 15 dezenas.");
 
-  const perms = [
-    null,
-    [5,4,3,2,1],
-    [2,1,4,3,5],
-    [3,5,1,2,4],
-    [4,5,2,1,3],
-    [2,4,5,1,3]
-  ];
-
+  const principal = _ensure15(base);
   const games = [];
   const seen = new Set();
-  perms.forEach((p, idx)=>{
-    const g = p ? _remapGame(base, p) : _ensure15(base);
+
+  // ✅ 6 jogos com variação determinística (somente manual)
+  const swapPlan = [0,1,1,2,2,3];
+  for(let i=0;i<6;i++){
+    let g = _mutateFromBase(principal, swapPlan[i], i+1);
     let key = _uniqueKey(g);
-    if(seen.has(key)){
-      // ajuste determinístico mínimo para evitar duplicatas
-      const used = new Set(g);
-      for(let n=25;n>=1;n--){
-        if(!used.has(n)){
-          g[g.length-1] = n;
-          break;
-        }
-      }
-      g.sort((a,b)=>a-b);
+    let tries = 0;
+    while(seen.has(key) && tries<8){
+      g = _mutateFromBase(principal, swapPlan[i] + 1 + tries, (i+1) + tries);
       key = _uniqueKey(g);
+      tries++;
     }
     seen.add(key);
-    games.push({ nome:`ELITE ${idx+1}`, dezenas:g });
-  });
+    games.push({ nome:`ELITE ${i+1}`, dezenas:g });
+  }
 
   createResult = { tipo:"elite6", games };
   renderCreate();
