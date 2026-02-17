@@ -1469,10 +1469,6 @@ function goView(id){
 
 
   if(id === 'viewElite'){
-    const canElite = ((access.premium && access.addonElite) || access.isAdmin);
-    if(canElite){
-      gerarElite(true);
-    }
     return;
   }
 
@@ -1778,6 +1774,69 @@ function setCardEnabled(el, enabled, onClick, msg){
   el.classList.toggle("disabled", !enabled);
   el.onclick = enabled ? onClick : ()=>alert(msg);
 }
+
+async function acaoAnalise(){
+  // Abre a tela e gera a Análise PRIME baseada na janela selecionada
+  goView('viewAnalise');
+  const area = document.getElementById('analiseArea');
+  try{
+    const qtd = qtdSelecionada();
+    await prepararContextoBase(qtd);
+    const payload = lastPayload || {};
+    const concursos = (payload.concursos || []).slice(-qtd);
+    if(!concursos.length){
+      if(area) area.innerHTML = `<div class="box"><b>⚠️</b><div class="mini" style="margin-top:8px">Não foi possível carregar concursos para a análise.</div></div>`;
+      return;
+    }
+    const total = concursos.length;
+    const evenOdd = calcEvenOddDistribution(concursos);
+    const primeDist = calcPrimeCountDistribution(concursos);
+    const linesDist = calcLinesPatternDistribution(concursos);
+    const colsDist = calcColsPatternDistribution(concursos);
+    const sums = calcSumDistribution(concursos);
+    const blockPatterns = calcBlockPatternDistribution(concursos);
+
+    function renderBlockPatterns(blockPatterns, totalConcursos){
+      const top = (blockPatterns||[]).slice(0,6);
+      const dom = top[0] || null;
+      const donutPct = dom ? Math.round((dom.count/Math.max(1,totalConcursos))*100) : 0;
+      const donutLabel = dom ? dom.key : '—';
+      const rows = top.map(x=> _primeRow({
+        labelLeft: x.key,
+        subLeft: 'A-B-C-D-E',
+        pctBar: Math.round((x.count/Math.max(1,totalConcursos))*100),
+        countRight: `${x.count}x`,
+        pctRight: `${Math.round((x.count/Math.max(1,totalConcursos))*100)}%`
+      })).join('');
+      return _primeSectionBox({
+        title: '🧱 Padrões de blocos A–E',
+        subtitle: 'Distribuição por blocos (01–05 / 06–10 / 11–15 / 16–20 / 21–25). Ex: 3-4-2-3-3.',
+        dominantLine: dom ? `Dominante: <b>${dom.key}</b> • ${donutPct}% na janela (${dom.count}x)` : 'Dominante: —',
+        pill: '5/7',
+        leftTitle: 'Blocos (visual)',
+        donutHtml: _primeDonut({ pct: donutPct, label: donutLabel }),
+        rightTitle: 'Distribuições na janela',
+        rowsHtml: rows || '<div class="mini">—</div>',
+        footerHtml: '✅ Uso prático: blocos muito concentrados tendem a “quebrar” o padrão da janela.'
+      });
+    }
+
+    const html =
+      renderPrimeKpis(payload, evenOdd, primeDist, linesDist, colsDist, blockPatterns) +
+      renderEvenOddDist(evenOdd, total) +
+      renderPrimeCountDist(primeDist, total) +
+      renderLinesPatterns(linesDist, total) +
+      renderColsPatterns(colsDist, total) +
+      renderSumsTop(sums, total) +
+      renderBlockPatterns(blockPatterns, total);
+
+    if(area) area.innerHTML = html;
+  }catch(e){
+    console.error(e);
+    if(area) area.innerHTML = `<div class="box"><b>⚠️ Erro</b><div class="mini" style="margin-top:8px">${String(e?.message || e)}</div></div>`;
+  }
+}
+
 
 function aplicarAcessos(){
   const can15p = ((access.premium && access.addon15) || access.isAdmin);
@@ -3326,20 +3385,6 @@ function renderPrimeKpis(payload, evenOdd, primeDist, linesDist, colsDist, block
         </div>
       </div>
     `;
-
-    goView("viewPrincipal");
-
-    updateCheckButtons();
-  }catch(e){
-    setStatus(false,""); setProgress(0);
-    document.getElementById("principalArea").innerHTML = `
-      <div class="box">
-        <b>⚠️ Erro</b>
-        <div class="mini" style="margin-top:8px">${String(e?.message || e)}</div>
-      </div>
-    `;
-    goView("viewPrincipal");
-  }
 }
 </script>
 
@@ -4399,9 +4444,9 @@ function gerar15PComMinhasLinhas(){
   }
 
   if(systemLinesBox){
-    systemLinesBox.innerHTML = manualLinesHTML + `
-      `;
-  }).join("") + `</div>`;
+    systemLinesBox.innerHTML = manualLinesHTML;
+  }
+
 }
 
 function renderExplainBoxInner(lines){
