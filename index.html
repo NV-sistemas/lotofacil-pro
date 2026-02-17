@@ -1060,8 +1060,15 @@ const functions = firebase.app().functions("us-central1");
 <div class="actionCard" id="btnHomePrincipal" role="button" tabindex="0">
           <span class="badge free">FREE 1x</span>
           <p class="actionTitle">🎯 Jogo principal</p>
-          <p class="actionDesc">JOGO PRINCIPAL/INVERTIDA/TECNICAS 1 E 2 (4JOGOS) . Você também pode montar o seu jogo manualmente.</p>
+          <p class="actionDesc">JOGO PRINCIPAL/INVERTIDA/TÉCNICAS 1 E 2 (4 jogos) • geração automática pelo Sistema Preditivo.</p>
         </div>
+
+<div class="actionCard" id="btnHomeCriarJogos" role="button" tabindex="0">
+          <span class="badge premium">PRIME</span>
+          <p class="actionTitle">🧩 Criar seus jogos</p>
+          <p class="actionDesc">Área única para criar pacotes (Principal + Invertida + Técnicas), ELITE e 15P, com opção de salvar.</p>
+        </div>
+
 
 <div class="actionCard" id="btnHomeAnalise" role="button" tabindex="0">
           <span class="badge premium">PREMIUM</span>
@@ -1408,20 +1415,23 @@ function goView(id){
 
 
   if(id === 'viewElite'){
-    const canElite = ((access.premium && access.addonElite) || access.isAdmin);
-    if(canElite){
-      gerarElite(true);
-    }
+    // ✅ ELITE só gera quando clicar no botão amarelo (Gerar ELITE)
     return;
   }
 
-  if(id === 'viewTecnica'){
+if(id === 'viewTecnica'){
     if(access?.premium && lastPrincipalGame){
       gerarTecnicaPremiada(true);
     }
     return;
   }
+
+  if(id === 'view15p'){
+    setP15Targets('p15Area','editor15Area','user15Output','view15p');
+    return;
+  }
 }
+
 </script>
 
 <script>
@@ -1492,8 +1502,14 @@ function aplicarAcessos(){
   const btnTecnica  = document.getElementById("btnHomeTecnica");
   const btn15       = document.getElementById("btnHome15p");
   const btnElite    = document.getElementById("btnHomeElite");
+  const btnCriar    = document.getElementById("btnHomeCriarJogos");
 
 setCardEnabled(btnAnalise, access.premium, acaoAnalise, "🔒 Gerar análise exige Premium.");
+
+  if(btnCriar){
+    btnCriar.classList.remove("disabled");
+    btnCriar.onclick = ()=>goView("viewCriarJogos");
+  }
 
   setCardEnabled(btnInvertida, access.premium, ()=>{
     goView("viewInvertida"); gerarInvertida();
@@ -1504,7 +1520,7 @@ setCardEnabled(btnAnalise, access.premium, acaoAnalise, "🔒 Gerar análise exi
   }, "🔒 Técnica premiada exige Premium.");
 
   // 💎 ELITE (somente COMBO)
-  setCardEnabled(btnElite, canElite, ()=>{ goView("viewElite"); gerarElite(); }, "🔒 O recurso 'JOGO ELITE' está disponível somente no pacote COMBO.");
+  setCardEnabled(btnElite, canElite, ()=>{ goView("viewElite"); }, "🔒 O recurso 'JOGO ELITE' está disponível somente no pacote COMBO.");
 
   if(!access.premium && isFreeUsed()){
     btnPrincipal?.classList.add("disabled");
@@ -1521,6 +1537,40 @@ setCardEnabled(btnAnalise, access.premium, acaoAnalise, "🔒 Gerar análise exi
     btn15?.classList.remove("disabled");
     if(btn15) btn15.onclick = ()=>{ goView("view15p"); };
   }
+}
+
+
+// =========================
+// CRIAR SEUS JOGOS (MENU)
+// =========================
+async function criarPacotePrincipalCompleto(){
+  // Gera Principal (respeita FREE 1x / Premium) e depois gera Invertida + Técnicas automaticamente
+  await acaoPrincipal();
+  try{
+    if(access?.premium){
+      gerarInvertida(true);
+      gerarTecnicaPremiada(true);
+    }
+  }catch(e){}
+  montarTelaCheck();
+  goView("viewCheck");
+}
+
+async function abrirCriador15P(){
+  const can15p = ((access.premium && access.addon15) || access.isAdmin);
+  if(!can15p){
+    alert("🔒 O recurso '15 pontos garantido' é um EXTRA comprado separadamente (libera via claims).");
+    return;
+  }
+
+  // Renderiza o 15P dentro do CRIADOR e abre o editor de linhas
+  goView("viewCriarJogos");
+  setP15Targets("p15CreateArea","editor15AreaCreate","user15OutputCreate","viewCriarJogos");
+
+  await gerar15P();
+  // inicia editor com as linhas atuais e abre
+  try{ initUserLines15FromSystem(linesSystem15); }catch(e){}
+  render15Editor();
 }
 
 function abrirApp(){
@@ -3361,6 +3411,18 @@ let linesSystem15 = null;
 let linesUser15 = null;
 let activeLine15 = 4; // começa na linha 5 (em branco)
 
+
+let p15Targets = { areaId:"p15Area", editorId:"editor15Area", outputId:"user15Output", returnView:"view15p" };
+function setP15Targets(areaId, editorId, outputId, returnView){
+  p15Targets = {
+    areaId: areaId || "p15Area",
+    editorId: editorId || "editor15Area",
+    outputId: outputId || "user15Output",
+    returnView: returnView || "view15p"
+  };
+}
+
+
 const SAVE_PACK_KEY = "lf_save_pack_v1";
 const SAVE_15P_KEY  = "lf_save_15p_v1";
 
@@ -3578,7 +3640,7 @@ function renderManualPrincipalUI(){
       if(manualPrincipalSet.size>=15) return alert("Você já marcou 15 dezenas.");
       manualPrincipalSet.add(n);
     }
-    renderManualPrincipalUI();
+    
   });
 }
 
@@ -3776,10 +3838,6 @@ const motivosHtml = `
         <div class="box">
           <b>🤖 Jogo do Sistema (atual)</b>
           <div class="numbers" style="justify-content:flex-start;margin-top:10px">${jogo.map(n=>`<div class="ball">${format2(n)}</div>`).join("")}</div>
-          <div class="mini">Você pode usar este ou montar o seu jogo manual e substituir o principal.</div>
-        </div>
-        <div class="box">
-          <div id="manualPrincipalArea"></div>
         </div>
       </div>
 
@@ -3804,7 +3862,7 @@ const motivosHtml = `
     goView("viewPrincipal");
 
     manualPrincipalSet = new Set();
-    renderManualPrincipalUI();
+    
 
     updateCheckButtons();
   }catch(e){
@@ -4830,7 +4888,7 @@ function gerar15PComMinhasLinhas(){
   const userOut = document.getElementById("user15Output");
   if(userOut) userOut.innerHTML = "";
 
-  const p15 = document.getElementById("p15Area") || document;
+  const p15 = document.getElementById(p15Targets.areaId) || document;
   const boxes = Array.from(p15.querySelectorAll(".box"));
   const systemGamesBox = boxes.find(b=>{
     const bb = b.querySelector("b");
@@ -5101,7 +5159,7 @@ async function gerar15P(){
       `;
     }).join("");
 
-    document.getElementById("p15Area").innerHTML = `
+    document.getElementById(p15Targets.areaId).innerHTML = `
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
         <div>
           <div style="font-weight:1000;font-size:16px">✅ 15 Pontos (Estratégia) • 10 jogos</div>
@@ -5149,24 +5207,107 @@ async function gerar15P(){
             </tbody>
           </table>
         </div>
+      </div>
+
+      
+      
+
+      </div>
+
+
+      <div class="box" id="p15ExplainBox" style="ma
+  <!-- TELA: CRIAR SEUS JOGOS -->
+  <div class="view" id="viewCriarJogos">
+    <div class="topNav">
+      <div class="left">
+        <button class="btn btnGhost" type="button" onclick="goView('viewHome')">⬅ Voltar</button>
+      </div>
+      <div class="right">
+        <button class="btn btnGhost" type="button" onclick="goView('viewSavedGames')">💾 Jogos Salvos</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="box">
+        <b>🧩 CRIAR SEUS JOGOS</b>
+        <div class="mini" style="margin-top:8px">
+          Aqui você cria pacotes completos (automáticos) e pode salvar o que gerar.
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="box">
+        <b>🎯 Pacote PRINCIPAL (4 jogos)</b>
+        <div class="mini" style="margin-top:8px">
+          Ao criar, o sistema gera automaticamente: <b>Principal + Invertida + Técnicas 1 e 2</b>.
+        </div>
+
+        <div class="row" style="margin-top:12px">
+          <div class="col">
+            <button class="btn btnPrimary btnWide" type="button" onclick="criarPacotePrincipalCompleto()">🚀 Criar pacote (4 jogos)</button>
+          </div>
+          <div class="col">
+            <button class="btn btnGhost btnWide" type="button" onclick="salvarPacotePrincipal()">💾 Salvar pacote</button>
+          </div>
+        </div>
 
         <div class="row" style="margin-top:10px">
           <div class="col">
-            <button class="btn btnBlue" type="button" onclick="render15Editor()">✍️ Criar minhas linhas (manual)</button>
+            <button class="btn btnBlue btnWide" type="button" onclick="goView('viewPrincipal')">👁️ Ver Principal</button>
           </div>
           <div class="col">
-            <button class="btn btnGhost" type="button" onclick="document.getElementById('user15Output').innerHTML=''">Limpar resultado manual</button>
+            <button class="btn btnGhost btnWide" type="button" onclick="goView('viewCheck')">✅ Verificar gerados</button>
           </div>
         </div>
       </div>
 
-      <div id="editor15Area"></div>
-      <div id="user15Output"></div>
+      <div class="hr"></div>
 
+      <div class="box eliteCard">
+        <span class="eliteBadge">COMBO</span>
+        <b>💎 JOGO ELITE (6 jogos)</b>
+        <div class="mini" style="margin-top:8px">
+          Abra o módulo e clique no botão amarelo <b>“Gerar ELITE (6 jogos)”</b> para criar os 6 jogos.
+        </div>
+        <div class="row" style="margin-top:12px">
+          <div class="col">
+            <button class="btn btnPrimary btnWide" type="button" onclick="goView('viewElite')">💎 Abrir ELITE</button>
+          </div>
+          <div class="col">
+            <button class="btn btnGhost btnWide" type="button" onclick="salvarElite()">💾 Salvar ELITE</button>
+          </div>
+        </div>
       </div>
 
+      <div class="hr"></div>
 
-      <div class="box" id="p15ExplainBox" style="margin-top:12px">
+      <div class="box">
+        <b>🧠 15 Pontos (10 jogos)</b>
+        <div class="mini" style="margin-top:8px">
+          Monte 5 linhas (5 dezenas cada). Ao gerar, o sistema monta automaticamente <b>10 jogos</b> (combinações de 3 linhas).
+        </div>
+
+        <div class="row" style="margin-top:12px">
+          <div class="col">
+            <button class="btn btnBlue btnWide" type="button" onclick="abrirCriador15P()">✍️ Criar linhas 15P</button>
+          </div>
+          <div class="col">
+            <button class="btn btnGhost btnWide" type="button" onclick="salvar15P()">💾 Salvar 15P</button>
+          </div>
+        </div>
+
+        <div id="p15CreateArea" style="margin-top:12px">
+          <div class="footerNote">Clique em “Criar linhas 15P” para carregar a base e montar suas linhas.</div>
+        </div>
+
+        <div id="editor15AreaCreate"></div>
+        <div id="user15OutputCreate"></div>
+      </div>
+    </div>
+  </div>
+
+rgin-top:12px">
         ${renderExplainBoxInner(lines)}
       </div>
 
@@ -5184,7 +5325,7 @@ async function gerar15P(){
     goView("view15p");
   }catch(e){
     setStatus(false,""); setProgress(0);
-    document.getElementById("p15Area").innerHTML = `
+    document.getElementById(p15Targets.areaId).innerHTML = `
       <div class="box">
         <b>⚠️ Erro</b>
         <div class="mini" style="margin-top:8px">${String(e?.message || e)}</div>
