@@ -86,7 +86,7 @@
 
   .btnGhost, .btn, .btnBlue, .btnGreen, .btnOrange{
     background: rgba(0,0,0,.55) !important;
-    border:1px solid rgba(0,0,0,.12) !important;
+    border:1px solid rgba(255,255,255,.12) !important;
     color: var(--text) !important;
     box-shadow: 0 14px 40px rgba(0,0,0,.28);
   }
@@ -159,7 +159,7 @@
   .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:12px}
   .box{
     background: linear-gradient(180deg, rgba(55,55,60,.28), rgba(20,20,22,.18));
-    border:1px solid rgba(0,0,0,.11);
+    border:1px solid rgba(255,255,255,.11);
     border-radius:20px;
     padding:14px;
     box-shadow: var(--glowSoft);
@@ -187,7 +187,7 @@
     max-width:100%;
     padding:14px 14px;
     border-radius:18px;
-    border:1px solid rgba(0,0,0,.14);
+    border:1px solid rgba(255,255,255,.14);
     background: rgba(0,0,0,.70);
     color:var(--text);
     outline:none;
@@ -214,12 +214,12 @@
   .btn:active{transform:translateY(0px);filter:brightness(.98)}
   .btn:disabled{opacity:.55;cursor:not-allowed;transform:none;box-shadow:none}
   .btnPrimary{background:linear-gradient(135deg,var(--yellow),var(--yellow2));box-shadow: var(--glowGold);color:#111111;border:1px solid rgba(250,204,21,.55)}
-  .btnBlue{background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow: var(--glowGold);color:#111111;border:1px solid rgba(0,0,0,.28)}
-  .btnPurple{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#111111;box-shadow: var(--glowGold);border:1px solid rgba(0,0,0,.28)}
-  .btnDanger{background: linear-gradient(180deg, rgba(64,64,70,.45), rgba(20,20,22,.55)) !important;border: 1px solid rgba(0,0,0,.14) !important;color: var(--text) !important;box-shadow: 0 10px 26px rgba(0,0,0,.45) !important;}
+  .btnBlue{background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow: var(--glowGold);color:#111111;border:1px solid rgba(255,255,255,.28)}
+  .btnPurple{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#111111;box-shadow: var(--glowGold);border:1px solid rgba(255,255,255,.28)}
+  .btnDanger{background: linear-gradient(180deg, rgba(64,64,70,.45), rgba(20,20,22,.55)) !important;border: 1px solid rgba(255,255,255,.14) !important;color: var(--text) !important;box-shadow: 0 10px 26px rgba(0,0,0,.45) !important;}
   .btnGhost{
     background: rgba(255,255,255,.06) !important;
-    border:1px solid rgba(0,0,0,.14) !important;
+    border:1px solid rgba(255,255,255,.14) !important;
     color: rgba(255,255,255,.92) !important;
     box-shadow: 0 14px 40px rgba(0,0,0,.26);
     width:auto;
@@ -227,7 +227,7 @@
 
   .status{display:none;margin-top:10px;padding:12px;border-radius:14px;background:rgba(56,189,248,.10);
           border:1px solid rgba(56,189,248,.22);color:#e6f8ff;font-size:13px;font-weight:950;}
-  .bar{height:10px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.08);border:1px solid rgba(0,0,0,.08);margin-top:10px}
+  .bar{height:10px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.08);margin-top:10px}
   .bar>div{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .2s ease}
 
 
@@ -244,7 +244,7 @@
   .actionGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-top:12px}
   .actionCard{
     text-align:left;
-    border:3px solid rgba(0,0,0,.92);
+    border:1cm solid #000; /* BLACK PIANO */
     background:
       radial-gradient(700px 260px at 22% 0%, rgba(255,255,255,.06), transparent 60%),
       radial-gradient(700px 260px at 78% 0%, rgba(255,255,255,.05), transparent 62%),
@@ -332,7 +332,7 @@
   .cel{
     width:44px;height:44px;border-radius:12px;
     display:flex;align-items:center;justify-content:center;
-    border:1px solid rgba(0,0,0,.14);
+    border:1px solid rgba(255,255,255,.14);
     background: rgba(0,0,0,.70);
     color:var(--text);font-weight:1000;
   }
@@ -384,7 +384,7 @@
     padding:10px 12px;
     border-radius:12px;
     background:rgba(2,6,23,.92);
-    border:1px solid rgba(0,0,0,.14);
+    border:1px solid rgba(255,255,255,.14);
     color:rgba(248,250,252,.95);
     box-shadow: 0 18px 55px rgba(0,0,0,.55);
     opacity:0;
@@ -415,7 +415,7 @@
 .pickCell{
   height:44px;border-radius:12px;
   display:flex;align-items:center;justify-content:center;
-  border:1px solid rgba(0,0,0,.14);
+  border:1px solid rgba(255,255,255,.14);
   background: rgba(0,0,0,.70);
   font-weight:1000;cursor:pointer;user-select:none;
 }
@@ -431,7 +431,7 @@
 .lineTabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .lineBtn{
   padding:8px 10px;border-radius:12px;
-  border:1px solid rgba(0,0,0,.14);
+  border:1px solid rgba(255,255,255,.14);
   background: rgba(0,0,0,.70);
   color:var(--text);font-weight:1000;cursor:pointer
 }
@@ -440,7 +440,7 @@
 .slot{
   min-width:52px;
   padding:8px 10px;border-radius:12px;
-  border:1px dashed rgba(0,0,0,.18);
+  border:1px dashed rgba(255,255,255,.18);
   background: rgba(0,0,0,.66);
   font-weight:1000;
 }
@@ -469,7 +469,7 @@
     align-items:start;
   }
   .swapImgWrap{
-    border:1px solid rgba(0,0,0,.14);
+    border:1px solid rgba(255,255,255,.14);
     background: rgba(0,0,0,.66);
     border-radius:16px;
     padding:12px;
@@ -493,7 +493,7 @@
   .swapRow{ display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
   .swapMini{
     flex: 1 1 260px;
-    border:1px solid rgba(0,0,0,.14);
+    border:1px solid rgba(255,255,255,.14);
     background: rgba(0,0,0,.66);
     border-radius:16px;
     padding:12px;
@@ -714,7 +714,7 @@
 
   .btnGhost, .btn, .btnRed, .btnOrange, .btnBlue, .btnGreen, .btnYellow{
     background: linear-gradient(180deg, rgba(64,64,70,.45), rgba(20,20,22,.55)) !important;
-    border: 1px solid rgba(0,0,0,.14) !important;
+    border: 1px solid rgba(255,255,255,.14) !important;
     color: var(--text) !important;
     box-shadow: 0 10px 26px rgba(0,0,0,.45);
   }
@@ -734,7 +734,7 @@
   }
   .table tbody tr{
     background: linear-gradient(180deg, rgba(0,0,0,.22), rgba(0,0,0,.35));
-    border:1px solid rgba(0,0,0,.10);
+    border:1px solid rgba(255,255,255,.10);
     box-shadow: 0 10px 22px rgba(0,0,0,.35);
   }
   .table tbody td{padding:12px 12px; font-weight:650; color: rgba(243,244,246,.92)}
@@ -758,7 +758,7 @@
   @media(max-width:920px){.primeGrid2{grid-template-columns:1fr}}
   .primePanel{
     background: linear-gradient(180deg, rgba(0,0,0,.28), rgba(0,0,0,.40));
-    border:1px solid rgba(0,0,0,.10);
+    border:1px solid rgba(255,255,255,.10);
     border-radius:22px;
     padding:14px;
   }
@@ -767,7 +767,7 @@
   @media(max-width:720px){.primeDonutWrap{grid-template-columns:1fr}}
   .primeRowCard{
     background: linear-gradient(180deg, rgba(0,0,0,.26), rgba(0,0,0,.42));
-    border:1px solid rgba(0,0,0,.10);
+    border:1px solid rgba(255,255,255,.10);
     border-radius:18px;
     padding:12px;
     margin:10px 0;
@@ -780,7 +780,7 @@
 .eliteMotives{
   margin-top:14px;
   background: linear-gradient(180deg, rgba(0,0,0,.25), rgba(0,0,0,.45));
-  border:1px solid rgba(0,0,0,.10);
+  border:1px solid rgba(255,255,255,.10);
   border-radius:20px;
   padding:14px;
 }
@@ -817,7 +817,7 @@
   gap:8px;
   padding:12px;
   border-radius:16px;
-  border:1px solid rgba(0,0,0,.10);
+  border:1px solid rgba(255,255,255,.10);
   background: rgba(0,0,0,.55);
 }
 
@@ -826,7 +826,7 @@
   font-weight:950;
   color: rgba(255,255,255,.85);
   background: rgba(255,255,255,.06);
-  border:1px solid rgba(0,0,0,.12);
+  border:1px solid rgba(255,255,255,.12);
   border-radius:999px;
   padding:6px 10px;
   align-self:flex-start;
@@ -890,7 +890,7 @@
   .primeBar{
     height:10px;border-radius:999px;overflow:hidden;
     background: rgba(255,255,255,.10);
-    border:1px solid rgba(0,0,0,.10);
+    border:1px solid rgba(255,255,255,.10);
   }
   .primeBar > div{
     height:100%;
@@ -961,7 +961,7 @@ const functions = firebase.app().functions("us-central1");
 
     <button id="btnEntrar" class="btn btnPrimary" type="button">Entrar / Criar conta</button>
 
-    <button id="btnForgot" class="btn" type="button" style="margin-top:10px;background: rgba(0,0,0,.72);border:1px solid rgba(0,0,0,.14);color:var(--text);box-shadow:none">
+    <button id="btnForgot" class="btn" type="button" style="margin-top:10px;background: rgba(0,0,0,.72);border:1px solid rgba(255,255,255,.14);color:var(--text);box-shadow:none">
       Esqueci minha senha
     </button>
 
@@ -1060,20 +1060,20 @@ const functions = firebase.app().functions("us-central1");
 <div class="actionCard" id="btnHomePrincipal" role="button" tabindex="0">
           <span class="badge free">FREE 1x</span>
           <p class="actionTitle">🎯 Jogo principal</p>
-          <p class="actionDesc">JOGO PRINCIPAL/INVERTIDA/TECNICAS 1 E 2 (4JOGOS) . </p>
-        </div>
-
-
-<div class="actionCard premiumCard" id="btnHomeCreate" role="button" tabindex="0">
-          <span class="badge premium">PREMIUM</span>
-          <p class="actionTitle">🛠️ CRIAR SEUS JOGOS</p>
-          <p class="actionDesc">Crie seus jogos (Principal/ELITE/15P) e salve em JOGOS SALVOS.</p>
+          <p class="actionDesc">JOGO PRINCIPAL/INVERTIDA/TECNICAS 1 E 2 (4JOGOS) . Você também pode montar o seu jogo manualmente.</p>
         </div>
 
 <div class="actionCard" id="btnHomeAnalise" role="button" tabindex="0">
           <span class="badge premium">PREMIUM</span>
           <p class="actionTitle">📈 Gerar análise</p>
           <p class="actionDesc">Resumo PRIME do "SISTEMA PREDITIVO" do período selecionado (sem jogo).</p>
+        </div>
+
+
+<div class="actionCard" id="btnHomeCreate" role="button" tabindex="0">
+          <span class="badge premium">PREMIUM</span>
+          <p class="actionTitle">🧩 Criar seus jogos</p>
+          <p class="actionDesc">Escolha suas dezenas e gere automaticamente: PRINCIPAL (4), ELITE (6) ou 15P (10). Sem explicações • com botão Salvar.</p>
         </div>
 
 <div class="actionCard" id="btnHomeSaved" role="button" tabindex="0">
@@ -1129,7 +1129,50 @@ const functions = firebase.app().functions("us-central1");
     </div>
   </div>
 
-  <!-- TELA: JOGO PRINCIPAL -->
+  
+  <!-- TELA: CRIAR SEUS JOGOS (PREMIUM) -->
+  <div class="view" id="viewCreateGames">
+    <div class="topNav">
+      <div class="left">
+        <button class="btn btnGhost" type="button" onclick="goView('viewHome')">⬅ Voltar</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="box">
+        <b>🧩 CRIAR SEUS JOGOS (PREMIUM)</b>
+        <div class="mini" style="margin-top:8px">
+          Escolha suas dezenas e gere automaticamente os jogos do módulo — <b>sem explicações</b>. Depois, clique em <b>Salvar</b>.
+        </div>
+
+        <div class="row" style="margin-top:12px">
+          <div class="col">
+            <button class="btn btnGhost btnWide" type="button" onclick="openCreateMode('principal')">🎯 Principal (4 jogos)</button>
+          </div>
+          <div class="col">
+            <button class="btn btnPrimary btnWide" type="button" onclick="openCreateMode('elite')">💎 ELITE (6 jogos)</button>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:10px">
+          <div class="col">
+            <button class="btn btnGhost btnWide" type="button" onclick="openCreateMode('p15')">✅ 15P (10 jogos)</button>
+          </div>
+          <div class="col">
+            <button class="btn btnGhost btnWide" type="button" onclick="clearCreate()">🧹 Limpar seleção</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div id="createArea">
+        <div class="footerNote">Escolha uma opção acima.</div>
+      </div>
+    </div>
+  </div>
+
+<!-- TELA: JOGO PRINCIPAL -->
   <div class="view" id="viewPrincipal">
     <div class="topNav">
       <div class="left">
@@ -1247,79 +1290,6 @@ const functions = firebase.app().functions("us-central1");
       <div class="footerNote">Clique em “Gerar análise 15P”. Essa tela exige o EXTRA ativado (via claims).</div>
     </div>
   </div>
-<!-- =========================
-   TELA: CRIAR SEUS JOGOS (PREMIUM)
-========================= -->
-<div class="view" id="viewCreate">
-  <div class="topNav">
-    <div class="left">
-      <button class="btn btnGhost" type="button" onclick="goView('viewHome')">⬅ Voltar</button>
-    </div>
-  </div>
-
-  <div class="card">
-    <div style="font-weight:1000;font-size:16px">🛠️ CRIAR SEUS JOGOS (PREMIUM)</div>
-    <div class="mini" style="margin-top:6px">Escolha uma opção abaixo para criar e salvar seus jogos.</div>
-
-    <div class="grid" style="margin-top:14px">
-      <div class="actionCard" role="button" tabindex="0" onclick="openCreatePrincipal()">
-        <p class="actionTitle">🎯 Criar (Principal)</p>
-        <p class="actionDesc">Você escolhe 15 dezenas e o sistema gera automaticamente 4 jogos (Principal + Invertida + Técnicas 1/2) sem explicações.</p>
-      </div>
-
-      <div class="actionCard eliteCard" role="button" tabindex="0" onclick="openCreateElite()">
-        <span class="eliteBadge">COMBO</span>
-        <p class="actionTitle">💎 Criar (ELITE)</p>
-        <p class="actionDesc">Acesso COMBO. Gere 6 jogos pelo botão amarelo e salve.</p>
-      </div>
-
-      <div class="actionCard extraCard" role="button" tabindex="0" onclick="openCreate15P()">
-        <span class="extraBadge">EXTRA</span>
-        <p class="actionTitle">✅ Criar (15P)</p>
-        <p class="actionDesc">Crie 5 linhas e gere automaticamente 10 jogos (3 linhas entre 5). Depois, salve.</p>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="view" id="viewCreatePrincipal">
-  <div class="topNav">
-    <div class="left">
-      <button class="btn btnGhost" type="button" onclick="goView('viewCreate')">⬅ Voltar</button>
-    </div>
-  </div>
-  <div class="card" id="createPrincipalArea"></div>
-</div>
-
-<div class="view" id="viewCreate15p">
-  <div class="topNav">
-    <div class="left">
-      <button class="btn btnGhost" type="button" onclick="goView('viewCreate')">⬅ Voltar</button>
-    </div>
-    <div class="right">
-      <button class="btn btnPrimary" type="button" onclick="gerar15PCriarJogos()">Gerar 10 jogos</button>
-    </div>
-  </div>
-
-  <div class="card">
-    <div style="font-weight:1000;font-size:16px">✅ CRIAR 15P (10 jogos)</div>
-    <div class="mini" style="margin-top:6px">Preencha 5 linhas com 5 dezenas cada. Ao gerar, você cria 10 jogos (combinações de 3 linhas entre 5).</div>
-
-    <div id="editor15Area"></div>
-    <div id="create15pOutput" style="margin-top:12px"></div>
-
-    <div class="row" style="margin-top:12px">
-      <div class="col">
-        <button class="btn btnGhost" type="button" onclick="initUserLines15FromSystem(linesSystem15);render15Editor();document.getElementById('create15pOutput').innerHTML=''">Resetar</button>
-      </div>
-      <div class="col">
-        <button class="btn btnPrimary" type="button" onclick="salvar15P()">Salvar 15P</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-
 <!-- =========================
    TELA: JOGOS SALVOS
 ========================= -->
@@ -1446,6 +1416,281 @@ function abrirModal(){ document.getElementById("modalBack").style.display="flex"
 function fecharModal(){ document.getElementById("modalBack").style.display="none"; }
 function fecharGraficoBlocos(){ document.getElementById("modalBlocosBack").style.display="none"; }
 
+
+/* ===================== CRIAR SEUS JOGOS (PREMIUM) ===================== */
+
+let createMode = "principal";
+let createPick15 = new Set();
+let createResult = null; // {tipo, principal?, invertida?, tecnica1?, tecnica2?, eliteGames?, p15Lines?, p15Games?}
+
+function openCreateMode(mode){
+  if(!access?.premium){
+    alert("🔒 Este recurso exige PREMIUM.");
+    return;
+  }
+  createMode = mode || "principal";
+  createResult = null;
+
+  // para 15P, usamos as mesmas vars do módulo 15P
+  if(createMode === "p15"){
+    if(!linesUser15 || !Array.isArray(linesUser15) || linesUser15.length !== 5){
+      linesUser15 = [[],[],[],[],[]];
+      activeLine15 = 4;
+    }
+  }
+  renderCreate();
+  goView("viewCreateGames");
+}
+
+function clearCreate(){
+  createPick15 = new Set();
+  createResult = null;
+  if(createMode === "p15"){
+    linesUser15 = [[],[],[],[],[]];
+    linesSystem15 = null;
+    activeLine15 = 4;
+  }
+  renderCreate();
+}
+
+function _setFromPickToArray(){
+  const arr = Array.from(createPick15).map(Number).filter(n=>n>=1 && n<=25);
+  arr.sort((a,b)=>a-b);
+  return arr;
+}
+
+function _ensure15(arr){
+  // garante 15 únicas dentro de 1..25 (fallback determinístico)
+  const used = new Set((arr||[]).map(Number).filter(n=>n>=1 && n<=25));
+  const out = Array.from(used).slice(0,15);
+  for(let n=1;n<=25 && out.length<15;n++){
+    if(!used.has(n)){ used.add(n); out.push(n); }
+  }
+  out.sort((a,b)=>a-b);
+  return out.slice(0,15);
+}
+
+function _remapGame(game, perm){
+  const mapped = (game||[]).map(n=>remapPorPermutacao(n, perm));
+  return _ensure15(mapped);
+}
+
+function renderPickGridAny(id, selectedSet, lockedSet){
+  let html = `<div class="pickGrid" id="${id}">`;
+  for(let n=1;n<=25;n++){
+    const sel = selectedSet && selectedSet.has(n) ? " sel" : "";
+    const lock = lockedSet && lockedSet.has(n) ? " lock" : "";
+    html += `<div class="pickCell${sel}${lock}" data-n="${n}">${format2(n)}</div>`;
+  }
+  html += `</div>`;
+  return html;
+}
+
+
+function gerarCreatePrincipal(){
+  const base = _setFromPickToArray();
+  if(base.length !== 15) return alert("Selecione exatamente 15 dezenas.");
+
+  const principal = base.slice();
+  const invertida = _remapGame(principal, [5,4,3,2,1]);
+  const tecnica1  = _remapGame(principal, [2,3,4,5,1]);
+  const tecnica2  = _remapGame(principal, [3,4,5,1,2]);
+
+  createResult = { tipo:"principal4", principal, invertida, tecnica1, tecnica2 };
+  renderCreate();
+}
+
+function _uniqueKey(nums){ return (nums||[]).slice().sort((a,b)=>a-b).join("-"); }
+
+function gerarCreateElite(){
+  const base = _setFromPickToArray();
+  if(base.length !== 15) return alert("Selecione exatamente 15 dezenas.");
+
+  const perms = [
+    null,
+    [5,4,3,2,1],
+    [2,1,4,3,5],
+    [3,5,1,2,4],
+    [4,5,2,1,3],
+    [2,4,5,1,3]
+  ];
+
+  const games = [];
+  const seen = new Set();
+  perms.forEach((p, idx)=>{
+    const g = p ? _remapGame(base, p) : _ensure15(base);
+    let key = _uniqueKey(g);
+    if(seen.has(key)){
+      // ajuste determinístico mínimo para evitar duplicatas
+      const used = new Set(g);
+      for(let n=25;n>=1;n--){
+        if(!used.has(n)){
+          g[g.length-1] = n;
+          break;
+        }
+      }
+      g.sort((a,b)=>a-b);
+      key = _uniqueKey(g);
+    }
+    seen.add(key);
+    games.push({ nome:`ELITE ${idx+1}`, dezenas:g });
+  });
+
+  createResult = { tipo:"elite6", games };
+  renderCreate();
+}
+
+function gerarCreate15P(){
+  if(!allLinesComplete(linesUser15)){
+    return alert("Complete as 5 linhas com 5 dezenas cada.");
+  }
+  linesSystem15 = linesUser15.map(l=>l.slice()); // base do 15P manual
+  const jogos = gerarJogos15P(linesSystem15);
+  createResult = { tipo:"p15", lines: linesSystem15, jogos };
+  renderCreate();
+}
+
+function salvarCreate(){
+  if(!createResult) return alert("Gere os jogos primeiro.");
+
+  if(createResult.tipo === "principal4"){
+    lastPrincipalGame = createResult.principal.slice();
+    lastInvertidaGame = createResult.invertida.slice();
+    lastTecnicaGames = { g1: createResult.tecnica1.slice(), g2: createResult.tecnica2.slice() };
+    salvarPacotePrincipal();
+    return;
+  }
+
+  if(createResult.tipo === "elite6"){
+    lastEliteGames = { ok:true, games: (createResult.games||[]).map(g=>({ nome:g.nome, dezenas:g.dezenas })) };
+    salvarElite();
+    return;
+  }
+
+  if(createResult.tipo === "p15"){
+    // usa salvar15P existente (salva em jogos salvos)
+    salvar15P();
+    return;
+  }
+}
+
+function renderCreate(){
+  const area = document.getElementById("createArea");
+  if(!area) return;
+
+  const mode = createMode;
+
+  const header = `
+    <div class="box">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+        <b>${mode==="principal" ? "🎯 Criar PRINCIPAL (4 jogos)" : mode==="elite" ? "💎 Criar ELITE (6 jogos)" : "✅ Criar 15P (10 jogos)"}</b>
+        <span class="badge premium">PREMIUM</span>
+      </div>
+      <div class="mini" style="margin-top:8px">
+        ${mode==="p15" ? "Monte 5 linhas de 5 dezenas. Depois clique em <b>Gerar 10 jogos</b>." : "Selecione <b>15 dezenas</b> no grid. Depois clique em <b>Gerar</b>."}
+      </div>
+    </div>
+  `;
+
+  if(mode === "p15"){
+    // reusa o editor 15P dentro do create
+    area.innerHTML = header + `
+      <div class="box" style="margin-top:12px">
+        <div id="editor15Area"></div>
+        <div class="row" style="margin-top:10px">
+          <div class="col">
+            <button class="btn btnPrimary btnWide" type="button" onclick="gerarCreate15P()">🚀 Gerar 10 jogos (minhas linhas)</button>
+          </div>
+          <div class="col">
+            <button class="btn btnGhost btnWide" type="button" onclick="salvarCreate()">💾 Salvar</button>
+          </div>
+        </div>
+        <div id="create15Output" style="margin-top:12px"></div>
+      </div>
+    `;
+    render15Editor(); // usa linesUser15 / activeLine15
+    if(createResult?.tipo==="p15"){
+      const jogosHtml = (createResult.jogos||[]).map((j, idx)=>`
+        <div class="box">
+          <b>Jogo ${idx+1}</b>
+          <div class="numbers" style="justify-content:flex-start;margin-top:10px">${renderBallsInline(j)}</div>
+        </div>
+      `).join("");
+      const out = document.getElementById("create15Output");
+      if(out) out.innerHTML = `<b>🎯 10 jogos (MANUAL)</b><div class="grid" style="margin-top:12px">${jogosHtml}</div>`;
+    }
+    return;
+  }
+
+  // principal / elite: grid 1..25
+  const selected = _setFromPickToArray();
+  area.innerHTML = header + `
+    <div class="box" style="margin-top:12px">
+      <div class="mini">
+        Selecionadas: <b>${selected.length}</b>/15 • ${selected.length ? selected.map(format2).join(" - ") : "—"}
+      </div>
+
+      ${renderPickGridAny("pickGridCreate", createPick15, null)}
+
+      <div class="row" style="margin-top:12px">
+        <div class="col">
+          <button class="btn btnPrimary btnWide" type="button" onclick="${mode==="principal" ? "gerarCreatePrincipal()" : "gerarCreateElite()"}">🚀 Gerar ${mode==="principal" ? "4 jogos" : "ELITE (6 jogos)"} </button>
+        </div>
+        <div class="col">
+          <button class="btn btnGhost btnWide" type="button" onclick="salvarCreate()">💾 Salvar</button>
+        </div>
+      </div>
+    </div>
+    <div id="createOut" style="margin-top:12px"></div>
+  `;
+
+  // bind grid
+  bindPickGrid("pickGridCreate", (n)=>{
+    if(createPick15.has(n)) createPick15.delete(n);
+    else{
+      if(createPick15.size>=15) return alert("Você já selecionou 15 dezenas.");
+      createPick15.add(n);
+    }
+    renderCreate(); // re-render para atualizar seleção
+  });
+
+  // output
+  const out = document.getElementById("createOut");
+  if(!out) return;
+
+  if(createResult?.tipo==="principal4"){
+    const pack = createResult;
+    const box4 = (label, nums)=>`
+      <div class="box" style="margin-top:12px">
+        <b>${label}</b>
+        <div class="numbers" style="justify-content:flex-start;margin-top:10px">${renderBallsInline(nums)}</div>
+      </div>
+    `;
+    out.innerHTML =
+      box4("🎯 Principal", pack.principal) +
+      box4("🔄 Invertida", pack.invertida) +
+      box4("🏆 Técnica 1", pack.tecnica1) +
+      box4("🏆 Técnica 2", pack.tecnica2);
+    return;
+  }
+
+  if(createResult?.tipo==="elite6"){
+    const games = createResult.games || [];
+    out.innerHTML = games.map((g, idx)=>`
+      <div class="box" style="margin-top:12px">
+        <b>💎 ${g.nome}</b>
+        <div class="numbers" style="justify-content:flex-start;margin-top:10px">${renderBallsInline(g.dezenas)}</div>
+      </div>
+    `).join("");
+    return;
+  }
+
+  out.innerHTML = `<div class="footerNote">Selecione e clique em “Gerar”.</div>`;
+}
+
+/* ===================== /CRIAR SEUS JOGOS ===================== */
+
+
 function goView(id){
   document.querySelectorAll('.view').forEach(v => v.style.display='none');
   document.getElementById(id).style.display='block';
@@ -1483,12 +1728,6 @@ function goView(id){
     if(access?.premium && lastPrincipalGame){
       gerarInvertida(true);
     }
-    return;
-  }
-
-
-  if(id === 'viewElite'){
-    // Não gerar automaticamente: somente ao clicar no botão amarelo "Gerar ELITE 6 jogos".
     return;
   }
 
@@ -1569,11 +1808,11 @@ function aplicarAcessos(){
   const btnTecnica  = document.getElementById("btnHomeTecnica");
   const btn15       = document.getElementById("btnHome15p");
   const btnElite    = document.getElementById("btnHomeElite");
-
   const btnCreate  = document.getElementById("btnHomeCreate");
+
 setCardEnabled(btnAnalise, access.premium, acaoAnalise, "🔒 Gerar análise exige Premium.");
 
-  setCardEnabled(btnCreate, (access.premium || access.isAdmin), ()=>{ goView("viewCreate"); }, "🔒 CRIAR SEUS JOGOS exige Premium.");
+  setCardEnabled(btnCreate, access.premium, ()=>openCreateMode("principal"), "🔒 Criar seus jogos exige Premium.");
 
   setCardEnabled(btnInvertida, access.premium, ()=>{
     goView("viewInvertida"); gerarInvertida();
@@ -2777,7 +3016,7 @@ function renderEvenOddDist(evenOdd, total){
               <div style="
                 width:128px;height:128px;border-radius:999px;
                 background: rgba(0,0,0,.42);
-                border:1px solid rgba(0,0,0,.10);
+                border:1px solid rgba(255,255,255,.10);
                 display:flex;align-items:center;justify-content:center;
                 font-weight:1000;letter-spacing:.6px
               ">${donutLabel}</div>
@@ -2820,13 +3059,13 @@ function _primeDonut({ pct=0, label="—", legendHtml="" }){
         width:170px;height:170px;border-radius:999px;
         background: conic-gradient(var(--accent) 0 ${safe}%, rgba(255,255,255,16) ${safe}% 100%);
         display:flex;align-items:center;justify-content:center;
-        border:1px solid rgba(0,0,0,12);
+        border:1px solid rgba(255,255,255,12);
         box-shadow: 0 18px 38px rgba(0,0,0,45);
       ">
         <div style="
           width:128px;height:128px;border-radius:999px;
           background: rgba(0,0,0,42);
-          border:1px solid rgba(0,0,0,10);
+          border:1px solid rgba(255,255,255,10);
           display:flex;align-items:center;justify-content:center;
           font-weight:1000;letter-spacing:.6px;text-align:center;padding:10px
         ">${label}</div>
@@ -3662,169 +3901,6 @@ function renderManualPrincipalUI(){
   });
 }
 
-// =====================
-// CRIAR SEUS JOGOS (PREMIUM)
-// =====================
-let createPrincipalSet = new Set();
-
-function openCreatePrincipal(){
-  if(!access.premium && !access.isAdmin) return alert("🔒 CRIAR (Principal) exige Premium.");
-  goView("viewCreatePrincipal");
-  createPrincipalSet = new Set();
-  renderCreatePrincipalUI();
-}
-
-function openCreateElite(){
-  const canElite = ((access.premium && access.addonElite) || access.isAdmin);
-  if(!canElite) return alert("🔒 O recurso 'JOGO ELITE' está disponível somente no pacote COMBO.");
-  goView("viewElite");
-}
-
-function openCreate15P(){
-  const can15p = ((access.premium && access.addon15) || access.isAdmin);
-  if(!can15p) return alert("🔒 O recurso '15 pontos garantido' é um EXTRA comprado separadamente (libera via claims).");
-  goView("viewCreate15p");
-  if(!linesSystem15 || !Array.isArray(linesSystem15) || linesSystem15.length!==5){
-    linesSystem15 = Array.from({length:5}, ()=>[]);
-  }
-  initUserLines15FromSystem(linesSystem15);
-  render15Editor();
-  const out = document.getElementById("create15pOutput");
-  if(out) out.innerHTML = "";
-}
-
-function renderCreatePrincipalUI(){
-  const area = document.getElementById("createPrincipalArea");
-  if(!area) return;
-
-  const selected = [...createPrincipalSet].sort((a,b)=>a-b);
-
-  area.innerHTML = `
-    <div class="box">
-      <b>🎯 CRIAR (Principal) — escolha 15 dezenas</b>
-      <div class="mini" style="margin-top:6px">
-        Ao confirmar, o sistema cria automaticamente: <b>Principal + Invertida + Técnica 1 + Técnica 2</b> (sem explicações).
-      </div>
-
-      <div class="numbers" style="justify-content:flex-start;margin-top:10px">
-        ${selected.length ? selected.map(n=>`<div class="ball">${format2(n)}</div>`).join("") : `<div class="mini">—</div>`}
-      </div>
-
-      <div class="mini" style="margin-top:8px">Selecionadas: <b>${selected.length}/15</b></div>
-
-      ${renderPickGrid(createPrincipalSet)}
-
-      <div class="row" style="margin-top:12px">
-        <div class="col">
-          <button class="btn btnGhost" type="button" onclick="createPrincipalSet=new Set();renderCreatePrincipalUI()">Limpar</button>
-        </div>
-        <div class="col">
-          <button class="btn btnPrimary" type="button" onclick="confirmCreatePrincipal()">Criar 4 jogos</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="box" style="margin-top:12px" id="createPrincipalOutput"></div>
-  `;
-
-  bindPickGrid("pickGridPrincipal", (n)=>{
-    if(createPrincipalSet.has(n)) createPrincipalSet.delete(n);
-    else{
-      if(createPrincipalSet.size>=15) return alert("Você já selecionou 15 dezenas.");
-      createPrincipalSet.add(n);
-    }
-    renderCreatePrincipalUI();
-  });
-}
-
-function confirmCreatePrincipal(){
-  if(createPrincipalSet.size !== 15){
-    return alert("Selecione exatamente 15 dezenas.");
-  }
-  const jogo = [...createPrincipalSet].sort((a,b)=>a-b);
-  lastPrincipalGame = jogo.slice();
-  lastInvertidaGame = null;
-  lastTecnicaGames = null;
-
-  Promise.resolve().then(async ()=>{
-    try{
-      await gerarInvertida(true);
-      await gerarTecnicaPremiada(true);
-    }catch(e){}
-  }).finally(()=>{
-    const out = document.getElementById("createPrincipalOutput");
-    if(!out) return;
-
-    const inv = lastInvertidaGame || [];
-    const t1 = lastTecnicaGames?.g1 || [];
-    const t2 = lastTecnicaGames?.g2 || [];
-
-    out.innerHTML = `
-      <b>✅ 4 jogos criados</b>
-      <div class="grid" style="margin-top:12px">
-        <div class="box">
-          <b>Principal</b>
-          <div class="numbers" style="justify-content:flex-start;margin-top:10px">${renderBallsInline(lastPrincipalGame)}</div>
-        </div>
-        <div class="box">
-          <b>Invertida</b>
-          <div class="numbers" style="justify-content:flex-start;margin-top:10px">${inv.length?renderBallsInline(inv):'<div class="mini">—</div>'}</div>
-        </div>
-        <div class="box">
-          <b>Técnica 1</b>
-          <div class="numbers" style="justify-content:flex-start;margin-top:10px">${t1.length?renderBallsInline(t1):'<div class="mini">—</div>'}</div>
-        </div>
-        <div class="box">
-          <b>Técnica 2</b>
-          <div class="numbers" style="justify-content:flex-start;margin-top:10px">${t2.length?renderBallsInline(t2):'<div class="mini">—</div>'}</div>
-        </div>
-      </div>
-
-      <div class="row" style="margin-top:12px">
-        <div class="col">
-          <button class="btn btnPrimary" type="button" onclick="salvarPacotePrincipal()">Salvar pacote</button>
-        </div>
-        <div class="col">
-          <button class="btn btnGhost" type="button" onclick="goView('viewSavedGames')">Ir para Jogos Salvos</button>
-        </div>
-      </div>
-    `;
-  });
-}
-
-function gerar15PCriarJogos(){
-  if(!linesUser15 || !Array.isArray(linesUser15) || linesUser15.length!==5){
-    return alert("Inicialize as linhas primeiro.");
-  }
-  if(typeof allLinesComplete==="function" && !allLinesComplete(linesUser15)){
-    return alert("Complete as 5 linhas com 5 dezenas cada.");
-  }
-  linesSystem15 = linesUser15.map(l=>l.slice());
-
-  const jogos = gerarJogos15P(linesSystem15);
-  const jogosHtml = jogos.map((j, idx)=>`
-    <div class="box">
-      <b>Jogo ${idx+1}</b>
-      <div class="numbers" style="justify-content:flex-start;margin-top:10px">${renderBallsInline(j)}</div>
-    </div>
-  `).join("");
-
-  const out = document.getElementById("create15pOutput");
-  if(out){
-    out.innerHTML = `
-      <div class="box">
-        <b>🎯 10 jogos criados</b>
-        <div class="mini" style="margin-top:8px">
-          Regra: combinações de <b>3 linhas entre 5</b>. <b style="text-transform:uppercase">Acertando 3 linhas completas, você forma 1 dos 10 jogos.</b>
-        </div>
-        <div class="grid" style="margin-top:12px">${jogosHtml}</div>
-      </div>
-    `;
-  }
-}
-
-
-
 function usarManualComoPrincipal(){
   if(manualPrincipalSet.size !== 15){
     return alert("Marque exatamente 15 dezenas.");
@@ -3974,7 +4050,7 @@ const motivosHtml = `
   <div class="mini" style="margin-top:8px">
     Explicação preditiva (comportamento nos últimos 5 concursos + estágios 3–6 antes • IN/OUT).
   </div>
-  <div style="margin-top:10px;border:1px solid rgba(0,0,0,.10);border-radius:14px;overflow:hidden">
+  <div style="margin-top:10px;border:1px solid rgba(255,255,255,.10);border-radius:14px;overflow:hidden">
     ${motivosHtml}
   </div>
 </div>
@@ -4045,6 +4121,9 @@ const motivosHtml = `
     `;
 
     goView("viewPrincipal");
+
+    manualPrincipalSet = new Set();
+    renderManualPrincipalUI();
 
     updateCheckButtons();
   }catch(e){
@@ -5011,7 +5090,399 @@ function render15Editor(){
           <button class="btn btnPrimary" type="button" onclick="gerar15PComMinhasLinhas()">Gerar 10 jogos (minhas linhas)</button>
         </div>
       </div>
+
+      <div class="row" style="margin-top:10px">
+        <div class="col">
+          <button class="btn btnGhost" type="button" onclick="initUserLines15FromSystem(linesSystem15);render15Editor();document.getElementById('user15Output').innerHTML=''">Resetar para linhas do sistema</button>
+        </div>
+        <div class="col">
+          <button class="btn btnGhost" type="button" onclick="goView('view15p')">Ok</button>
+        </div>
+      </div>
+
+      <div class="mini" style="margin-top:10px">
+        Dica PRIME: em cada linha, tente manter <b>2/3 pares</b>, mix de frequência e evitar 4+ no mesmo bloco.
+      </div>
+    </div>
+  `;
+
+  bindPickGrid("pickGrid15", (n)=>{
+    if(used.has(n)) return;
+    const line = linesUser15[activeLine15];
+    const idx = line.indexOf(n);
+    if(idx>=0) line.splice(idx,1);
+    else{
+      if(line.length>=5) return alert("Essa linha já tem 5 dezenas.");
+      line.push(n); line.sort((a,b)=>a-b);
+    }
+    render15Editor();
+  });
+}
+
+function allLinesComplete(lines){
+  return lines && lines.length===5 && lines.every(l=>Array.isArray(l) && l.length===5);
+}
+
+function gerar15PComMinhasLinhas(){
+  if(!allLinesComplete(linesUser15)){
+    return alert("Complete as 5 linhas com 5 dezenas cada.");
+  }
+
+  linesSystem15 = linesUser15.map(l=>l.slice());
+
+  const jogos = gerarJogos15P(linesSystem15);
+
+  const jogosHtml = jogos.map((j, idx)=>`
+    <div class="box">
+      <b>Jogo ${idx+1}</b>
+      <div class="numbers" style="justify-content:flex-start;margin-top:10px">${renderBallsInline(j)}</div>
+    </div>
+  `).join("");
+
+  const linesTable = linesSystem15.map((l,idx)=>`
+    <tr>
+      <td><b>${idx+1}</b></td>
+      <td class="mono">${l.map(format2).join(" - ")}</td>
+    </tr>
+  `).join("");
+
+  const userOut = document.getElementById("user15Output");
+  if(userOut) userOut.innerHTML = "";
+
+  const p15 = document.getElementById("p15Area") || document;
+  const boxes = Array.from(p15.querySelectorAll(".box"));
+  const systemGamesBox = boxes.find(b=>{
+    const bb = b.querySelector("b");
+    return bb && /10 jogos do sistema/i.test(bb.textContent || "");
+  });
+
+  const systemLinesBox = boxes.find(b=>{
+    const bb = b.querySelector("b");
+    return bb && /Linhas 1 a 5/i.test(bb.textContent || "");
+  });
+
+  const manualPackHTML = `
+    <b>🎯 10 jogos (MANUAL — substituiu o automático)</b>
+    <div class="mini" style="margin-top:10px">
+      Você está usando suas <b>5 linhas manuais</b> como base. Este método cobre todas as combinações de 3 linhas entre 5 (10 jogos).
+      <b style="text-transform:uppercase">Acertando 3 linhas completas, você forma 1 dos 10 jogos.</b>
+    </div>
+    <div class="grid" style="margin-top:12px">${jogosHtml}</div>
+  `;
+
+  const manualLinesHTML = `
+    <b>📌 Linhas 1 a 5 (MANUAIS — ativas)</b>
+    <div class="mini" style="margin-top:6px">
+      Estas são as linhas que você montou manualmente e que foram usadas para gerar os 10 jogos abaixo.
+    </div>
+    <div style="margin-top:12px;overflow:auto">
+      <table class="table">
+        <thead><tr><th>Linha</th><th>Dezenas</th></tr></thead>
+        <tbody>${linesTable}</tbody>
+      </table>
+    </div>
+  `;
+
+  if(systemGamesBox){
+    systemGamesBox.innerHTML = manualPackHTML;
+  }else{
+    if(userOut){
+      userOut.innerHTML = `
+        <div class="box" style="margin-top:12px">${manualLinesHTML}</div>
+        <div class="box" style="margin-top:12px">${manualPackHTML}</div>
+      `;
+    }
+  }
+
+  if(systemLinesBox){
+    systemLinesBox.innerHTML = manualLinesHTML + `
+      <div class="row" style="margin-top:10px">
+        <div class="col">
+          <button class="btn btnBlue" type="button" onclick="render15Editor()">✍️ Editar minhas linhas (manual)</button>
+        </div>
+        <div class="col">
+          <button class="btn btnGhost" type="button" onclick="initUserLines15FromSystem(linesSystem15);render15Editor();">Continuar com estas linhas</button>
+        </div>
+      </div>
+    `;
+  }
+
+  const explainBox = document.getElementById("p15ExplainBox");
+  if(explainBox){
+    explainBox.innerHTML = renderExplainBoxInner(linesSystem15);
+  }
+
+  alert("✅ Manual substituiu o automático!");
+}
+
+function buildP15ExplainCtx(payload){
+  try{
+    const raw = (payload && Array.isArray(payload.concursos)) ? payload.concursos : [];
+
+    const concursos = raw.map(c=>({
+      dezenas: (c?.dezenas || c?.nums || c?.numeros || []).map(toNum).filter(n=>n>=1 && n<=25)
+    }));
+
+    const last = concursos.slice(-4);
+    const toSet = (c)=> new Set((c?.dezenas||[]).map(toNum));
+    const s1 = toSet(last[3] || last[last.length-1]); // último
+    const s2 = toSet(last[2] || last[last.length-2]);
+    const s3 = toSet(last[1] || last[last.length-3]);
+    const s4 = toSet(last[0] || last[last.length-4]);
+
+    const stats = calcCoocAndStats(concursos);
+
+    return { s1, s2, s3, s4, concursos, stats, ok:true };
+  }catch(e){
+    return { ok:false, err:String(e?.message||e) };
+  }
+}
+function classifyRG(ctx, n){
+  const s1=ctx?.s1, s2=ctx?.s2, s3=ctx?.s3, s4=ctx?.s4;
+  if(s1 && s1.has(n)) return "R";
+  if(s2 && s2.has(n) && (!s1 || !s1.has(n))) return "G2";
+  if(s3 && s3.has(n) && (!s2 || !s2.has(n)) && (!s1 || !s1.has(n))) return "G3";
+  if(s4 && s4.has(n) && (!s3 || !s3.has(n)) && (!s2 || !s2.has(n)) && (!s1 || !s1.has(n))) return "G4";
+  return "OUTROS";
+}
+function buildExplainRowsHTML(lines){
+  const ctx = window._p15ExplainCtx;
+  if(!ctx || !ctx.ok){
+    return `<div class="mini" style="margin-top:8px">⚠️ Não foi possível montar a explicação (contexto insuficiente).</div>`;
+  }
+  const concursos = ctx.concursos || [];
+  const stats = ctx.stats;
+
+  const fmt1 = (v)=> (Number.isFinite(v)? v.toFixed(1) : "0.0");
+  const fmt2d = (v)=> (Number.isFinite(v)? v.toFixed(2) : "0.00");
+
+  function resumoReal(line){
+    const base = line.slice().sort((a,b)=>a-b);
+    const out = [];
+
+    const c5 = countGroupTogetherInWindow(base, concursos);
+    out.push(`5 juntas: <span class="mono">${base.map(format2).join("-")}</span> • <b>${c5}x</b>`);
+
+    [4,3,2].forEach(k=>{
+      const comb = combosK(base, k);
+      const scored = comb.map(g=>({
+        g,
+        c: countGroupTogetherInWindow(g, concursos)
+      })).sort((a,b)=> (b.c-a.c) || (a.g.join(",").localeCompare(b.g.join(","))));
+
+      const top = scored.slice(0,2);
+      top.forEach((x,idx)=>{
+        out.push(`${k} juntas: <span class="mono">${x.g.map(format2).join("-")}</span> • <b>${x.c}x</b>`);
+      });
+    });
+
+    return out.map(s=>`<div>${s}</div>`).join("");
+  }
+
+  function leastCommonPairs(line){
+    if(!stats) return `<div class="mini">—</div>`;
+    const g = line.slice().sort((a,b)=>a-b);
+    const pairs = [];
+    for(let i=0;i<g.length;i++){
+      for(let j=i+1;j<g.length;j++){
+        const a=g[i], b=g[j];
+        const c = stats.co?.[a]?.[b] ?? 0;
+        pairs.push({a,b,c});
+      }
+    }
+    pairs.sort((x,y)=> (x.c-y.c) || (`${x.a}-${x.b}`.localeCompare(`${y.a}-${y.b}`)));
+    return pairs.slice(0,3).map(p=>{
+      return `<div>⚠️ <span class="mono">${format2(p.a)}-${format2(p.b)}</span> • sem sair juntas: <b>${p.c}x</b></div>`;
+    }).join("");
+  }
+
+  function justificativa(idx, line){
+    if(idx===4){
+      return `Linha montada para ser mais diferente (hedge), encaixando o padrão fixo em posições com menor correlação e evitando repetir as mesmas combinações das linhas 1–3.`;
+    }
+    return `Linha montada por encaixe no padrão fixo (R/G2/G3/G4 + paridade + blocos/colunas), mantendo consistência e evitando repetir estrutura entre as linhas (sem aleatório).`;
+  }
+
+  function metrics(line){
+    if(!stats){
+      return {forca:"0.0", lift:"0.00", co:"0.00", somaFreq:"0"};
+    }
+    const gs = groupStrength(line, stats);
+    const gl = groupLiftAvg(line, stats);
+    const gc = groupCoSum(line, stats);
+    const sf = groupFreqSum(line, stats);
+
+    return {
+      forca: fmt1(gs.avg),
+      lift: fmt2d(gl.avg),
+      co: fmt2d(gc.avg),
+      somaFreq: String(sf)
+    };
+  }
+
+  return `<div class="p15CardsGrid">` + (lines||[]).map((line,idx)=>{
+    const m = metrics(line||[]);
+    const tag = (idx===4) ? "DIVERSA" : "PADRÃO";
+
+    const bolas = (line||[]).slice().sort((a,b)=>a-b).map(n=>`<div class="p15-ball">${format2(n)}</div>`).join("");
+
+    return `
+      <div class="p15-card">
+        <div class="p15-title">Linha ${idx+1} (${tag})</div>
+
+        <div class="p15-metrics">
+          <div class="p15-chip">Força: ${m.forca}</div>
+          <div class="p15-chip">Lift médio: ${m.lift}</div>
+          <div class="p15-chip">Co médio: ${m.co}</div>
+          <div class="p15-chip">Soma freq: ${m.somaFreq}</div>
+        </div>
+
+        <div class="p15-numbers">${bolas}</div>
+
+        <div class="p15-section">
+          <b>Por que se juntaram:</b> ${justificativa(idx,line||[])}
+        </div>
+
+        <div class="p15-section">
+          ⭐ <b>Resumo real (juntas na janela):</b>
+          <div style="margin-top:6px">${resumoReal(line||[])}</div>
+          <div class="mini" style="margin-top:6px">As <b>5 juntas</b> é raro, então olhe principalmente as melhores <b>4/3/2</b> que mais se repetem.</div>
+        </div>
+
+        <div class="p15-warning">
+          <b>Combinações menos comuns (2 dezenas):</b>
+          <div style="margin-top:6px">${leastCommonPairs(line||[])}</div>
+        </div>
+      </div>
+    `;
+  }).join("") + `</div>`;
+}
+
+function renderExplainBoxInner(lines){
+  return `
+    <b>✅ Explicação por linha (padrão antigo)</b>
+    <div class="mini" style="margin-top:8px">
+      Abaixo está o mesmo layout clássico (Força / Lift / Co / Soma freq + resumo real na janela).
+    </div>
+    ${buildExplainRowsHTML(lines||[])}
+  `;
+}
+async function gerar15P(){
+  const can15p = ((access.premium && access.addon15) || access.isAdmin);
+  if(!can15p) return alert("🔒 O recurso '15 pontos garantido' é um EXTRA comprado separadamente (libera via claims).");
+
+  const qtd = qtdSelecionada();
+  try{
+    await prepararContextoBase(qtd);
+    const payload = lastPayload;
+
+    window._p15ExplainCtx = buildP15ExplainCtx(payload);
+
+    setStatus(true,"15P: analisando e montando 5 linhas…");
+    setProgress(82);
+
+    const adv = buildLines15PFixedPattern(payload, qtd);
+    const lines = adv.lines;
+
+    const jogos = gerarJogos15P(lines);
+    const sourceInfo = { source: payload.source, mode: payload.mode };
+
+    setStatus(false,"");
+    setProgress(0);
+
+    initUserLines15FromSystem(lines);
+    const lineMeta = lines.map((l,idx)=>{
+      const kind = ([0,2,4].includes(idx)) ? "PREDIZ SAIR (IN)" : "PREDIZ NÃO SAIR (OUT)";
+      const odds = l.filter(n=>n%2===1).length;
+      const primes = l.filter(isPrime).length;
+      const blocks = {A:0,B:0,C:0,D:0,E:0};
+      l.forEach(n=>{ blocks[blockOf(n)] = (blocks[blockOf(n)]||0)+1; });
+      return { idx: idx+1, kind, line:l, odds, primes, blocks };
+    });
+
+    const letterMap = adv.map || [];
+    const letterHtml = letterMap
+      .slice()
+      .sort((a,b)=> a.letter.localeCompare(b.letter))
+      .map(o=>`<tr>
+        <td class="mono"><b>${o.letter}</b></td>
+        <td class="mono">${format2(o.num)}</td>
+        <td>${o.kind==="IN" ? "IN (sair)" : "OUT (não sair)"}</td>
+        <td class="mini">L${rowOf(o.num)} C${colOf(o.num)} Bloco ${blockOf(o.num)} • ${o.num%2===0?"Par":"Ímpar"}${isPrime(o.num)?" • Primo":""}</td>
+      </tr>`).join("");
+
+    const jogosHtml = jogos.map((j, idx)=>{
+      return `
+        <div class="box">
+          <b>Jogo ${idx+1}</b>
+          <div class="numbers" style="justify-content:flex-start;margin-top:10px">${renderBallsInline(j)}</div>
+        </div>
+      `;
+    }).join("");
+
+    document.getElementById("p15Area").innerHTML = `
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
+        <div>
+          <div style="font-weight:1000;font-size:16px">✅ 15 Pontos (Estratégia) • 10 jogos</div>
+          <div class="mini">Janela: <b>${payload.inicio}</b> a <b>${payload.ultimo}</b> (${payload.concursos.length} concursos)</div>
+          <div class="mini" style="margin-top:8px">
+            📌 Regra do método: cobrimos todas as combinações de <b>3 linhas entre 5</b> (10 jogos).
+<b style="text-transform:uppercase">Se você acertar as 3 linhas completas, você fecha 1 dos 10 jogos.</b>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+  <button class="btn btnGhost" type="button" onclick="verConcursos()">📅 Ver concursos</button>
+  <button class="btn btnBlue" type="button" onclick="salvar15P()">💾 Salvar 15P</button>
+  <button class="btn btnGhost" type="button" onclick="carregar15P()">📂 Carregar 15P salvo</button>
 </div>
+      </div>
+
+      <div class="box" style="margin-top:12px">
+        <b>📌 Linhas 1 a 5 (geradas pelo sistema)</b>
+        <div class="mini" style="margin-top:6px">
+          Motor atual: <b>SISTEMA PREDITIVO FIXO (treinado)</b>. A janela escolhida só atualiza os <b>dados do momento</b>; o padrão não muda. As 5 linhas são montadas por <b>encaixe determinístico</b> (R/G2/G3/G4, paridade, blocos/colunas) para manter consistência e diversidade — <b>sem aleatório</b>.
+        </div>
+        <div style="margin-top:12px;overflow:auto">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Linha</th>
+                <th>Tipo</th>
+                <th>Dezenas</th>
+                <th>Ímpares</th>
+                <th>Primos</th>
+                <th>Blocos (A–E)</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${lineMeta.map(m=>`
+                <tr>
+                  <td><b>${m.idx}</b></td>
+                  <td>${String(m.kind).includes("IN") ? "PREDIZ SAIR (IN)" : "PREDIZ NÃO SAIR (OUT)"}</td>
+                  <td class="mono">${m.line.map(format2).join(" - ")}</td>
+                  <td><b>${m.odds}</b></td>
+                  <td>${m.primes}</td>
+                  <td class="mono">A${m.blocks.A}-B${m.blocks.B}-C${m.blocks.C}-D${m.blocks.D}-E${m.blocks.E}</td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="row" style="margin-top:10px">
+          <div class="col">
+            <button class="btn btnBlue" type="button" onclick="render15Editor()">✍️ Criar minhas linhas (manual)</button>
+          </div>
+          <div class="col">
+            <button class="btn btnGhost" type="button" onclick="document.getElementById('user15Output').innerHTML=''">Limpar resultado manual</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="editor15Area"></div>
+      <div id="user15Output"></div>
+
+      </div>
 
 
       <div class="box" id="p15ExplainBox" style="margin-top:12px">
@@ -5434,7 +5905,7 @@ document.getElementById("btnSair").addEventListener("click", sair);
 document.getElementById("btnComprar15p").addEventListener("click", comprar15p);
 document.getElementById("btnAtivar15p").addEventListener("click", jaComprei15p);
 
-["btnHomePrincipal","btnHomeCreate","btnHomeAnalise","btnHomeInvertida","btnHomeTecnica","btnHomeElite","btnHome15p","btnHomeSaved"].forEach(id=>{
+["btnHomePrincipal","btnHomeAnalise","btnHomeCreate","btnHomeInvertida","btnHomeTecnica","btnHomeElite","btnHome15p","btnHomeSaved"].forEach(id=>{
   const el = document.getElementById(id);
   if(el) bindCardKey(el);
 });
@@ -5442,16 +5913,6 @@ document.getElementById("btnAtivar15p").addEventListener("click", jaComprei15p);
 document.getElementById("btnHomeSaved").onclick = ()=>{
   goView("viewSavedGames");
 };
-
-// CRIAR SEUS JOGOS (PREMIUM)
-const __btnHomeCreate = document.getElementById("btnHomeCreate");
-if(__btnHomeCreate){
-  __btnHomeCreate.onclick = ()=>{
-    if(!access.premium && !access.isAdmin) return alert("🔒 CRIAR SEUS JOGOS exige Premium.");
-    goView("viewCreate");
-  };
-}
-
 
 function checkSavedGames(){
   const qtd = Number(document.getElementById("savedCheckQtd").value);
@@ -5683,7 +6144,7 @@ function renderJogosSalvosAoAbrir(){
     const isOn = (item.slot === selectedSavedSlot);
 
     html += `
-      <div class="box savedPack ${isOn ? "on" : ""}" style="margin-top:10px;cursor:pointer;border:1px solid ${isOn ? "rgba(250,204,21,.75)" : "rgba(0,0,0,.22)"};background:${isOn ? "rgba(250,204,21,.18)" : "rgba(255,255,255,.03)"};color:${isOn ? "#0b0b0b" : "#ffffff"}"
+      <div class="box savedPack ${isOn ? "on" : ""}" style="margin-top:10px;cursor:pointer;border:1px solid ${isOn ? "rgba(250,204,21,.75)" : "rgba(255,255,255,.22)"};background:${isOn ? "rgba(250,204,21,.18)" : "rgba(255,255,255,.03)"};color:${isOn ? "#0b0b0b" : "#ffffff"}"
         onclick="selectedSavedSlot='${item.slot}'; renderJogosSalvosAoAbrir();">
         <b>💾 ${item.nome || item.slot}</b><br/>
         <span class="mini">Salvo em: ${item.at ? new Date(item.at).toLocaleString("pt-BR") : "-"}</span>
