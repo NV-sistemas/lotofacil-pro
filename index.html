@@ -244,7 +244,7 @@
   .actionGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-top:12px}
   .actionCard{
     text-align:left;
-    border:3px solid rgba(255,255,255,.92);
+    border:3px solid rgba(0,0,0,.92);
     background:
       radial-gradient(700px 260px at 22% 0%, rgba(255,255,255,.06), transparent 60%),
       radial-gradient(700px 260px at 78% 0%, rgba(255,255,255,.05), transparent 62%),
@@ -1094,7 +1094,6 @@ const functions = firebase.app().functions("us-central1");
           <span class="extraBadge">EXTRA</span>
           <div class="extraHeadline">
             <p class="actionTitle" style="margin:0">✅ 15 pontos garantido</p>
-            <span class="extraHighlight">ESTRATÉGIA (10 JOGOS)</span>
           </div>
           <p class="actionDesc">5 LINHAS geram 10 jogos "EXCLUSIVOS".</p>
         </div>
@@ -5306,34 +5305,6 @@ async function gerar15P(){
       </div>
     </div>
   </div>
-
-rgin-top:12px">
-        ${renderExplainBoxInner(lines)}
-      </div>
-
-<div class="box" style="margin-top:12px">
-        <b>🎯 10 jogos do sistema</b>
-        <div class="grid" style="margin-top:12px">${jogosHtml}</div>
-        <div class="mini" style="margin-top:10px">
-          Estratégia estatística com base na janela selecionada. <b>Não há garantia de acerto</b>.
-        </div>
-      </div>
-
-      <div class="tinyFoot">Fonte: ${sourceInfo.source || "—"} • Modo: ${String(sourceInfo.mode||"—").toUpperCase()}</div>
-    `;
-
-    goView("view15p");
-  }catch(e){
-    setStatus(false,""); setProgress(0);
-    document.getElementById(p15Targets.areaId).innerHTML = `
-      <div class="box">
-        <b>⚠️ Erro</b>
-        <div class="mini" style="margin-top:8px">${String(e?.message || e)}</div>
-      </div>
-    `;
-    goView("view15p");
-  }
-}
 
 /* ===================== JOGO ELITE (6 jogos) ===================== */
 
