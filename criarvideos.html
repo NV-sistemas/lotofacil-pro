@@ -174,6 +174,7 @@
       <div class="overlayHelp">
         <span class="kbd">E</span> editar slot &nbsp;|&nbsp;
         <span class="kbd">C</span> cortar mídia (zoom/pan) &nbsp;|&nbsp;
+        <span class="kbd">T</span> mover texto &nbsp;|&nbsp;
         <span class="kbd">Espaço</span> play cena
       </div>
     </div>
@@ -200,48 +201,7 @@
   <section class="card">
     <h2>3) Cenas (texto + mídia + narração)</h2>
 
-    
-
-    <label>Prompt (cola aqui) → criar cenas automático</label>
-    <textarea id="promptBox" placeholder='Cole um prompt no formato abaixo:
-
-#CENA 1 | dur=4 | anim=type | pos=bottom
-HEAD: 6 padrões fixos treinados em 50 concursos.
-SUB: Elite + 15P: estratégia agressiva pra 14/15.
-
-#CENA 2 | dur=4 | anim=slide | pos=bottom
-HEAD: O Elite gera 6 jogos com padrões fixos.
-SUB: Você só executa. Sem achismo.
-
-#CENA 3 | dur=4
-HEAD: 15P: fechando 3 linhas, o sistema busca 15 pontos.
-SUB: Link na bio para acesso imediato.
-'></textarea>
-
-    <div class="row">
-      <div>
-        <label>Padrão de duração (se não vier no prompt)</label>
-        <input id="promptDefaultDur" type="number" min="1" step="0.5" value="4"/>
-      </div>
-      <div>
-        <label>Nome base</label>
-        <input id="promptNameBase" value="Cena"/>
-      </div>
-    </div>
-
     <div class="btns">
-      <button onclick="generateScenesFromPrompt()">Gerar cenas do prompt</button>
-      <button class="secondary" onclick="appendScenesFromPrompt()">Adicionar cenas (sem apagar)</button>
-      <button class="secondary" onclick="fillPromptExample()">Exemplo pronto</button>
-    </div>
-
-    <p class="hint">
-      Cole o prompt e clique em <b>Gerar cenas do prompt</b>. Ele cria a lista completa, com texto + duração + animação.
-      Depois você só coloca a mídia de cada cena e grava a narração.
-    </p>
-
-    <hr style="border:none;border-top:1px solid var(--line);margin:12px 0"/>
-<div class="btns">
       <button onclick="addScene()">+ Nova cena</button>
       <button class="secondary" onclick="duplicateScene()">Duplicar</button>
       <button class="danger" onclick="deleteScene()">Excluir</button>
@@ -289,6 +249,34 @@ SUB: Link na bio para acesso imediato.
         </div>
       </div>
 
+
+      <div class="row">
+        <div>
+          <label>Tamanho Headline</label>
+          <input id="scHeadSize" type="number" min="24" max="120" step="1"/>
+        </div>
+        <div>
+          <label>Tamanho Sub</label>
+          <input id="scSubSize" type="number" min="16" max="80" step="1"/>
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>Largura do bloco de texto (0.40–1.00)</label>
+          <input id="scBoxW" type="number" min="0.4" max="1" step="0.02"/>
+        </div>
+        <div>
+          <label>Offset X / Offset Y (ou arraste com “T” ativo)</label>
+          <input id="scOff" disabled value="Use tecla T e arraste"/>
+        </div>
+      </div>
+
+      <div class="btns">
+        <button class="secondary" onclick="toggleEditText()">Mover texto (T)</button>
+        <button class="secondary" onclick="resetTextPos()">Reset texto</button>
+      </div>
+
       <label>Mídia da tela (imagem ou vídeo) — entra dentro do slot</label>
       <input id="scMedia" type="file" accept="image/*,video/*"/>
 
@@ -305,7 +293,6 @@ SUB: Link na bio para acesso imediato.
 
       <div class="btns">
         <button class="secondary" onclick="toggleCropMode()">Modo Corte (C)</button>
-        <button class="secondary" onclick="copyPrevMediaCrop()">Copiar mídia/corte da anterior</button>
         <button class="secondary" onclick="resetCrop()">Reset corte</button>
       </div>
 
@@ -341,6 +328,7 @@ const state = {
   active: 0,
   editSlot: false,
   cropMode: false,
+  editText: false,
   playing: false,
   exporting: false,
 };
@@ -354,6 +342,7 @@ function defaultScene(i=1){
     sub: "",
     textAnim: "type",
     textPos: "bottom",
+    text: { offX: 0, offY: 0, boxW: 0.88, headSize: 64, subSize: 34 },
     media: { type:null, dataUrl:null, el:null, w:0, h:0 },
     crop: { zoom:1, panX:0, panY:0 },
     audio: { blob:null, url:null }
@@ -410,7 +399,32 @@ function draw(frame){
     }
   }
 
-  // slot overlay (quando editando)
+  
+  // texto overlay (quando editando)
+  if(state.editText){
+    const sc = state.scenes[state.active];
+    const tp = sc?.text || {offX:0,offY:0,boxW:0.88,headSize:64,subSize:34};
+    const baseY = textBaseY(sc?.textPos || "bottom");
+    const x = (cv.width/2) + (tp.offX||0);
+    const y0 = baseY + (tp.offY||0);
+    ctx.save();
+    ctx.strokeStyle = "rgba(245,200,75,.75)";
+    ctx.lineWidth = 3;
+    // caixa aproximada (texto)
+    const bw = cv.width * clamp(tp.boxW ?? 0.88, 0.4, 1);
+    const bx = x - bw/2;
+    const by = y0 - Math.round(tp.headSize*0.95);
+    const bh = Math.round(tp.headSize*1.25) + Math.round(tp.subSize*1.25) + Math.round(tp.headSize*2.0);
+    ctx.strokeRect(bx, by, bw, bh);
+    ctx.fillStyle = "rgba(0,0,0,.60)";
+    ctx.fillRect(bx, by-34, 220, 28);
+    ctx.fillStyle = "#fff";
+    ctx.font = "800 14px system-ui";
+    ctx.fillText("EDITANDO TEXTO", bx+10, by-14);
+    ctx.restore();
+  }
+
+// slot overlay (quando editando)
   if(state.editSlot){
     ctx.save();
     ctx.strokeStyle = "rgba(245,200,75,.85)";
@@ -512,26 +526,29 @@ function drawMediaInSlot(sc){
 
 function drawTextStatic(sc){
   const baseY = textBaseY(sc.textPos);
-  const pad = 56;
+  const tprops = sc.text || { offX:0, offY:0, boxW:0.88, headSize:64, subSize:34 };
+  const maxW = cv.width * clamp(tprops.boxW ?? 0.88, 0.4, 1);
+  const x = (cv.width/2) + (tprops.offX || 0);
+  const y0 = baseY + (tprops.offY || 0);
 
   ctx.save();
   ctx.textAlign = "center";
 
   // headline
   if(sc.headline){
-    ctx.font = "900 64px system-ui";
+    ctx.font = `900 ${tprops.headSize}px system-ui`;
     ctx.lineWidth = 10;
     ctx.strokeStyle = "rgba(0,0,0,.65)";
     ctx.fillStyle = "#ffd34d";
-    drawWrapped(sc.headline, cv.width/2, baseY, cv.width - pad*2, 74, true);
+    drawWrapped(sc.headline, x, y0, maxW, Math.round(tprops.headSize*1.15), true);
   }
   // sub
   if(sc.sub){
-    ctx.font = "800 34px system-ui";
+    ctx.font = `800 ${tprops.subSize}px system-ui`;
     ctx.lineWidth = 8;
     ctx.strokeStyle = "rgba(0,0,0,.60)";
     ctx.fillStyle = "#ffffff";
-    drawWrapped(sc.sub, cv.width/2, baseY+170, cv.width - pad*2, 44, true);
+    drawWrapped(sc.sub, x, y0 + Math.round(tprops.headSize*2.6), maxW, Math.round(tprops.subSize*1.25), true);
   }
 
   ctx.restore();
@@ -540,7 +557,10 @@ function drawTextStatic(sc){
 function drawTextAnimated(sc, t, dur){
   // t em segundos da cena
   const baseY = textBaseY(sc.textPos);
-  const pad = 56;
+  const tprops = sc.text || { offX:0, offY:0, boxW:0.88, headSize:64, subSize:34 };
+  const maxW = cv.width * clamp(tprops.boxW ?? 0.88, 0.4, 1);
+  const x = (cv.width/2) + (tprops.offX || 0);
+  const y0 = baseY + (tprops.offY || 0);
   ctx.save();
   ctx.textAlign = "center";
 
@@ -550,11 +570,11 @@ function drawTextAnimated(sc, t, dur){
   let alpha = Math.min(inTime, outTime);
   if(sc.textAnim==="fade"){
     ctx.globalAlpha = alpha;
-    drawTextBlock(sc, baseY, pad, 1, 0);
+    drawTextBlock(sc, x, y0, maxW, tprops);
   } else if(sc.textAnim==="slide"){
     ctx.globalAlpha = alpha;
     const slide = (1-inTime) * 60; // entra de baixo
-    drawTextBlock(sc, baseY+slide, pad, 1, 0);
+    drawTextBlock(sc, x, y0+slide, maxW, tprops);
   } else {
     // typewriter: revela headline e sub por tempo
     ctx.globalAlpha = alpha;
@@ -569,29 +589,31 @@ function drawTextAnimated(sc, t, dur){
       const sLen = Math.max(0, chars - head.length - 1);
       sTxt = sub.slice(0, Math.min(sub.length, sLen));
     }
-    drawTextBlock({headline:hTxt, sub:sTxt}, baseY, pad, 1, 0);
+    drawTextBlock({headline:hTxt, sub:sTxt}, x, y0, maxW, tprops);
   }
 
   ctx.restore();
 }
 
-function drawTextBlock(sc, baseY, pad){
-  // headline
+function drawTextBlock(sc, x, y0, maxW, tprops){
+  const tp = tprops || (sc.text || { offX:0, offY:0, boxW:0.88, headSize:64, subSize:34 });
+
   if(sc.headline){
-    ctx.font = "900 64px system-ui";
-    ctx.lineWidth = 10;
+    ctx.font = `900 ${tp.headSize}px system-ui`;
+    ctx.lineWidth = Math.max(6, Math.round(tp.headSize/6));
     ctx.strokeStyle = "rgba(0,0,0,.65)";
     ctx.fillStyle = "#ffd34d";
-    drawWrapped(sc.headline, cv.width/2, baseY, cv.width - pad*2, 74, true);
+    drawWrapped(sc.headline, x, y0, maxW, Math.round(tp.headSize*1.15), true);
   }
   if(sc.sub){
-    ctx.font = "800 34px system-ui";
-    ctx.lineWidth = 8;
+    ctx.font = `800 ${tp.subSize}px system-ui`;
+    ctx.lineWidth = Math.max(4, Math.round(tp.subSize/6));
     ctx.strokeStyle = "rgba(0,0,0,.60)";
     ctx.fillStyle = "#ffffff";
-    drawWrapped(sc.sub, cv.width/2, baseY+170, cv.width - pad*2, 44, true);
+    drawWrapped(sc.sub, x, y0 + Math.round(tp.headSize*2.6), maxW, Math.round(tp.subSize*1.25), true);
   }
 }
+
 
 function textBaseY(pos){
   if(pos==="top") return 160;
@@ -663,6 +685,21 @@ function toggleCropMode(){
   el("renderInfo").textContent = state.cropMode ? "Modo corte: arraste dentro do slot." : "Pronto.";
   draw();
 }
+
+function toggleEditText(){
+  state.editText = !state.editText;
+  el("renderInfo").textContent = state.editText ? "Modo texto: arraste o texto no preview." : "Pronto.";
+  draw();
+}
+function resetTextPos(){
+  const sc = state.scenes[state.active]; if(!sc) return;
+  if(!sc.text) sc.text = { offX:0, offY:0, boxW:0.88, headSize:64, subSize:34 };
+  sc.text.offX = 0; sc.text.offY = 0;
+  sc.text.boxW = 0.88;
+  // mantém tamanhos
+  el("scBoxW").value = sc.text.boxW.toFixed(2);
+  draw();
+}
 function centerSlot(){
   state.slot.w = Math.round(state.size.w*0.66);
   state.slot.h = Math.round(state.size.h*0.22);
@@ -714,6 +751,12 @@ function renderSceneEditor(){
   el("scSub").value = sc.sub;
   el("scTextAnim").value = sc.textAnim;
   el("scTextPos").value = sc.textPos;
+  // garante estrutura de texto
+  if(!sc.text) sc.text = { offX:0, offY:0, boxW:0.88, headSize:64, subSize:34 };
+
+  el("scHeadSize").value = sc.text.headSize;
+  el("scSubSize").value = sc.text.subSize;
+  el("scBoxW").value = sc.text.boxW.toFixed(2);
   el("scZoom").value = sc.crop.zoom.toFixed(2);
   updateRecStatus();
 
@@ -723,6 +766,9 @@ function renderSceneEditor(){
   el("scSub").oninput = ()=>{ sc.sub = el("scSub").value; draw(); };
   el("scTextAnim").onchange = ()=>{ sc.textAnim = el("scTextAnim").value; draw(); };
   el("scTextPos").onchange = ()=>{ sc.textPos = el("scTextPos").value; draw(); };
+  el("scHeadSize").oninput = ()=>{ sc.text.headSize = clamp(parseFloat(el("scHeadSize").value||64),24,120); draw(); };
+  el("scSubSize").oninput = ()=>{ sc.text.subSize = clamp(parseFloat(el("scSubSize").value||34),16,80); draw(); };
+  el("scBoxW").oninput = ()=>{ sc.text.boxW = clamp(parseFloat(el("scBoxW").value||0.88),0.4,1); draw(); };
   el("scZoom").oninput = ()=>{ sc.crop.zoom = clamp(parseFloat(el("scZoom").value||1),0.2,5); draw(); };
 
   el("scMedia").value = "";
@@ -809,8 +855,14 @@ function resetCrop(){
  *  INPUT (MOUSE/KEY)
  *  ========================= */
 let drag = { on:false, mode:null, sx:0, sy:0, ox:0, oy:0 };
+let canvasHot = false;
+window.addEventListener("focusin", (e)=>{
+  const tag = (e.target && e.target.tagName) ? e.target.tagName.toUpperCase() : "";
+  if(["INPUT","TEXTAREA","SELECT"].includes(tag)) canvasHot = false;
+});
 
 cv.addEventListener("mousedown", (e)=>{
+  canvasHot = true;
   const p = canvasPos(e);
   if(state.editSlot){
     if(pointInRect(p.x,p.y,state.slot)){
@@ -822,10 +874,18 @@ cv.addEventListener("mousedown", (e)=>{
       drag = { on:true, mode:"crop", sx:p.x, sy:p.y, ox:sc.crop.panX, oy:sc.crop.panY };
     }
   }
+  } else if(state.editText){
+    const sc = state.scenes[state.active]; if(!sc) return;
+    if(!sc.text) sc.text = { offX:0, offY:0, boxW:0.88, headSize:64, subSize:34 };
+    // permite arrastar texto em qualquer ponto do canvas (mais liberdade)
+    drag = { on:true, mode:"text", sx:p.x, sy:p.y, ox:sc.text.offX||0, oy:sc.text.offY||0 };
+  }
+
 });
 
 window.addEventListener("mousemove", (e)=>{
   if(!drag.on) return;
+  canvasHot = true;
   const p = canvasPos(e);
   const dx = p.x - drag.sx;
   const dy = p.y - drag.sy;
@@ -838,6 +898,12 @@ window.addEventListener("mousemove", (e)=>{
     const sc = state.scenes[state.active]; if(!sc) return;
     sc.crop.panX = Math.round(drag.ox + dx);
     sc.crop.panY = Math.round(drag.oy + dy);
+    draw();
+  } else if(drag.mode==="text"){
+    const sc = state.scenes[state.active]; if(!sc) return;
+    if(!sc.text) sc.text = { offX:0, offY:0, boxW:0.88, headSize:64, subSize:34 };
+    sc.text.offX = Math.round(drag.ox + dx);
+    sc.text.offY = Math.round(drag.oy + dy);
     draw();
   }
 });
@@ -855,9 +921,21 @@ cv.addEventListener("wheel", (e)=>{
 },{passive:false});
 
 window.addEventListener("keydown", (e)=>{
+  const tag = (e.target && e.target.tagName) ? e.target.tagName.toUpperCase() : "";
+  const typing = ["INPUT","TEXTAREA","SELECT"].includes(tag);
+
   if(e.key==="e" || e.key==="E") toggleEditSlot();
   if(e.key==="c" || e.key==="C") toggleCropMode();
-  if(e.code==="Space"){ e.preventDefault(); playScene(); }
+  if(e.key==="t" || e.key==="T") toggleEditText();
+
+  const isSpace = (e.code==="Space" || e.code==="Spacebar" || e.key===" " || e.key==="Spacebar");
+  if(isSpace){
+    // Só dispara play quando o foco está no preview (canvas) e você não está digitando em campos
+    if(canvasHot && !typing){
+      e.preventDefault();
+      playScene();
+    }
+  }
 });
 
 /** =========================
@@ -1229,186 +1307,6 @@ function fileToDataURL(file){
     r.onerror = rej;
     r.readAsDataURL(file);
   });
-}
-
-/** =========================
- *  PROMPT → AUTO CENAS + COPIAR MÍDIA/CORTE
- *  ========================= */
-
-// Formatos aceitos:
-// 1) “#CENA X | dur=4 | anim=type | pos=bottom” + linhas HEAD:/SUB:
-// 2) JSON: { "scenes": [ { "name":"...", "dur":4, "headline":"...", "sub":"...", "anim":"type", "pos":"bottom" } ] }
-
-function parsePromptToScenes(raw){
-  const text = (raw || "").trim();
-  if(!text) return [];
-
-  // tenta JSON
-  try{
-    const obj = JSON.parse(text);
-    const arr = obj?.scenes || obj;
-    if(Array.isArray(arr)){
-      return arr.map((s, i)=> normalizePromptScene(s, i));
-    }
-  }catch(e){ /* ignore */ }
-
-  // modo texto
-  const lines = text.split(/\r?\n/);
-  const scenes = [];
-  let cur = null;
-
-  function pushCur(){
-    if(cur && (cur.headline || cur.sub)){
-      scenes.push(cur);
-    }
-  }
-
-  for(const lineRaw of lines){
-    const ln = (lineRaw || "").trim();
-
-    // início de cena
-    if(/^#\s*(cena|scene)\s*\d+/i.test(ln)){
-      pushCur();
-      cur = { name: ln.replace(/^#\s*/,"").split("|")[0].trim(), dur:null, anim:null, pos:null, headline:"", sub:"" };
-
-      const parts = ln.split("|").slice(1).map(s=>s.trim()).filter(Boolean);
-      for(const p of parts){
-        const [k,v] = p.split("=").map(x=>x.trim());
-        if(!k || v==null) continue;
-        if(k.toLowerCase()==="dur") cur.dur = parseFloat(v);
-        if(k.toLowerCase()==="anim") cur.anim = v;
-        if(k.toLowerCase()==="pos") cur.pos = v;
-      }
-      continue;
-    }
-
-    if(!cur){
-      cur = { name:"Cena 1", dur:null, anim:null, pos:null, headline:"", sub:"" };
-    }
-
-    if(/^head\s*:/i.test(ln)){ cur.headline = ln.replace(/^head\s*:\s*/i,"").trim(); continue; }
-    if(/^sub\s*:/i.test(ln)){ cur.sub = ln.replace(/^sub\s*:\s*/i,"").trim(); continue; }
-
-    if(ln){
-      if(!cur.headline) cur.headline = ln;
-      else if(!cur.sub) cur.sub = ln;
-      else cur.sub += " " + ln;
-    }
-  }
-  pushCur();
-  return scenes.map((s,i)=> normalizePromptScene(s,i));
-}
-
-function normalizePromptScene(s, idx){
-  const nameBase = (document.getElementById("promptNameBase")?.value || "Cena").trim() || "Cena";
-  const defDur = parseFloat(document.getElementById("promptDefaultDur")?.value || "4") || 4;
-
-  const out = {
-    name: (s.name && String(s.name).trim()) || `${nameBase} ${idx+1}`,
-    dur: isFinite(Number(s.dur)) ? Number(s.dur) : defDur,
-    anim: (s.anim || s.textAnim || s.animation || "type").toString().trim(),
-    pos: (s.pos || s.textPos || s.position || "bottom").toString().trim(),
-    headline: (s.headline || s.head || "").toString(),
-    sub: (s.sub || s.subtitle || "").toString(),
-  };
-
-  if(!["type","fade","slide"].includes(out.anim)) out.anim = "type";
-  if(!["bottom","top","center"].includes(out.pos)) out.pos = "bottom";
-  if(out.dur < 1) out.dur = 1;
-
-  return out;
-}
-
-async function applyPromptScenes(parsed, { append=false } = {}){
-  if(!parsed.length){
-    alert("Prompt vazio ou sem cenas reconhecíveis.");
-    return;
-  }
-
-  if(!append){
-    state.scenes = [];
-    state.active = 0;
-  }
-
-  const startIndex = state.scenes.length;
-
-  for(let i=0;i<parsed.length;i++){
-    const p = parsed[i];
-    const sc = defaultScene(startIndex + i + 1);
-    sc.name = p.name;
-    sc.dur = p.dur;
-    sc.headline = p.headline || "";
-    sc.sub = p.sub || "";
-    sc.textAnim = p.anim;
-    sc.textPos = p.pos;
-    state.scenes.push(sc);
-  }
-
-  state.active = startIndex;
-  renderSceneList();
-  renderSceneEditor();
-  draw();
-
-  el("renderInfo").textContent = append ? "Cenas adicionadas do prompt." : "Cenas geradas do prompt.";
-}
-
-function generateScenesFromPrompt(){
-  const raw = document.getElementById("promptBox").value;
-  const parsed = parsePromptToScenes(raw);
-  applyPromptScenes(parsed, { append:false });
-}
-
-function appendScenesFromPrompt(){
-  const raw = document.getElementById("promptBox").value;
-  const parsed = parsePromptToScenes(raw);
-  applyPromptScenes(parsed, { append:true });
-}
-
-function fillPromptExample(){
-  document.getElementById("promptBox").value =
-`#CENA 1 | dur=4 | anim=type | pos=bottom
-HEAD: 6 padrões fixos treinados em 50 concursos.
-SUB: Lotofácil Prime Analytics — forte, objetivo e sem achismo.
-
-#CENA 2 | dur=4 | anim=slide | pos=bottom
-HEAD: JOGO ELITE: 6 jogos, padrões fixos e treinados.
-SUB: Você executa o método. O sistema entrega estrutura.
-
-#CENA 3 | dur=4 | anim=fade | pos=bottom
-HEAD: 15P: com 3 linhas fechadas, busca agressiva do 15.
-SUB: Estratégia focada em 14/15 pontos.
-
-#CENA 4 | dur=4 | anim=type | pos=bottom
-HEAD: Quer acesso ao sistema completo?
-SUB: Link na bio • Garanta seu Premium/Combo/15P hoje.`;
-}
-
-// Botão: copia mídia + corte (zoom/pan) da cena anterior.
-// Truque: depois de copiar, você pode trocar o arquivo da mídia e manter o mesmo enquadramento.
-async function copyPrevMediaCrop(){
-  const idx = state.active;
-  if(idx <= 0) return alert("Não há cena anterior para copiar.");
-  const cur = state.scenes[idx];
-  const prev = state.scenes[idx-1];
-  if(!cur || !prev) return;
-
-  // copia crop sempre
-  cur.crop.zoom = prev.crop.zoom;
-  cur.crop.panX = prev.crop.panX;
-  cur.crop.panY = prev.crop.panY;
-
-  // copia mídia se existir (opcional, mas ajuda a manter o mesmo frame antes de trocar)
-  if(prev.media?.dataUrl){
-    cur.media.dataUrl = prev.media.dataUrl;
-    cur.media.type = prev.media.type;
-    await loadSceneMedia(cur);
-  }
-
-  // atualiza UI
-  if(el("scZoom")) el("scZoom").value = cur.crop.zoom.toFixed(2);
-  renderSceneList();
-  draw();
-  el("renderInfo").textContent = "Mídia/corte copiados da cena anterior. Agora troque a mídia se quiser, mantendo o enquadramento.";
 }
 
 /** =========================
