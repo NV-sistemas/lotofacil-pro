@@ -154,7 +154,7 @@
 
     <div class="btns">
       <button onclick="centerSlot()">Centralizar slot</button>
-      <button class="secondary" onclick="toggleEditSlot()">Editar slot (arrastar)</button>
+      <button class="secondary" onclick="editTemplateSlot()">Editar slot (arrastar)</button>
       <button class="secondary" onclick="saveProject()">Salvar</button>
       <button class="secondary" onclick="loadProject()">Carregar</button>
       <button class="secondary" onclick="exportProject()">Export JSON</button>
@@ -317,6 +317,132 @@ SUB: Link na bio para acesso imediato.
       <div class="btns">
         <button class="secondary" onclick="toggleEditText()">Mover texto (T)</button>
         <button class="secondary" onclick="resetTextPos()">Reset texto</button>
+
+      <hr style="border:none;border-top:1px solid var(--line);margin:12px 0"/>
+
+      <label>Estilo do texto (por cena)</label>
+      <div class="row">
+        <div>
+          <label>Fonte</label>
+          <select id="scFont" onchange="updateStyleFromUI()">
+            <option value="system-ui">Padrão (system-ui)</option>
+            <option value="Segoe UI">Segoe UI</option>
+            <option value="Arial">Arial</option>
+            <option value="Impact">Impact (forte)</option>
+            <option value="Montserrat">Montserrat</option>
+            <option value="Poppins">Poppins</option>
+          </select>
+        </div>
+        <div>
+          <label>Stroke (borda)</label>
+          <select id="scStrokeOn" onchange="updateStyleFromUI()">
+            <option value="on">Ligado (recomendado)</option>
+            <option value="off">Desligado</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>Cor Headline</label>
+          <input id="scHeadColor" type="color" oninput="updateStyleFromUI()" type="color"/>
+        </div>
+        <div>
+          <label>Cor Sub</label>
+          <input id="scSubColor" type="color" oninput="updateStyleFromUI()" type="color"/>
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>Cor do stroke</label>
+          <input id="scStrokeColor" type="color" oninput="updateStyleFromUI()" type="color"/>
+        </div>
+        <div>
+          <label>Peso (Headline / Sub)</label>
+          <select id="scWeights" onchange="updateStyleFromUI()">
+            <option value="900/800">900 / 800 (padrão)</option>
+            <option value="900/700">900 / 700</option>
+            <option value="800/700">800 / 700</option>
+            <option value="800/600">800 / 600</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="btns" style="margin-top:8px">
+        <button class="secondary" onclick="applyPreset('gold')">Preset Dourado</button>
+        <button class="secondary" onclick="applyPreset('white')">Preset Branco</button>
+        <button class="secondary" onclick="applyPreset('alert')">Preset Urgência</button>
+        <button class="secondary" onclick="applyPreset('green')">Preset Verde</button>
+        <button class="secondary" onclick="copyPrevStyle()">Copiar estilo da anterior</button>
+      </div>
+
+      <hr style="border:none;border-top:1px solid var(--line);margin:12px 0"/>
+
+      <label>Slot por cena (opcional)</label>
+      <div class="row">
+        <div>
+          <label>Usar slot personalizado nesta cena</label>
+          <select id="scSlotMode" onchange="updateSceneSlotMode(this.value)">
+            <option value="template">Usar slot do template</option>
+            <option value="scene">Usar slot desta cena</option>
+          </select>
+        </div>
+        <div>
+          <label>&nbsp;</label>
+          <button class="secondary" style="width:100%" onclick="attachTemplateSlotToScene()">Anexar slot do template</button>
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>Slot (cena) X / Y</label>
+          <input id="scSlotXY" disabled value="Ative 'slot desta cena' para editar"/>
+        </div>
+        <div>
+          <label>&nbsp;</label>
+          <button class="secondary" style="width:100%" onclick="editSceneSlot()">Editar slot da cena (E)</button>
+        </div>
+      </div>
+
+      <div class="btns" style="margin-top:8px">
+        <button class="secondary" onclick="resetSceneSlot()">Reset slot da cena</button>
+        <button class="secondary" onclick="editTemplateSlot()">Editar slot do template (E)</button>
+      </div>
+
+      <hr style="border:none;border-top:1px solid var(--line);margin:12px 0"/>
+
+      <label>Narração (texto + TTS opcional)</label>
+      <textarea id="scNarrText" oninput="updateNarrFromUI()" placeholder="Cole aqui o texto da narração desta cena (opcional)."></textarea>
+
+      <div class="row">
+        <div>
+          <label>Voz (TTS do navegador)</label>
+          <select id="scTtsVoice" onchange="updateNarrFromUI()"></select>
+        </div>
+        <div>
+          <label>Velocidade / Tom</label>
+          <input id="scTtsRatePitch" disabled value="Use os controles abaixo"/>
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>Velocidade (0.6–1.4)</label>
+          <input id="scTtsRate" type="number" min="0.6" max="1.4" step="0.05" value="1" oninput="updateNarrFromUI()" type="number" min="0.6" max="1.4" step="0.05" value="1"/>
+        </div>
+        <div>
+          <label>Tom (0.6–1.4)</label>
+          <input id="scTtsPitch" type="number" min="0.6" max="1.4" step="0.05" value="1" oninput="updateNarrFromUI()" type="number" min="0.6" max="1.4" step="0.05" value="1"/>
+        </div>
+      </div>
+
+      <div class="btns">
+        <button class="secondary" onclick="fillNarrFromText()">Usar HEAD+SUB como narração</button>
+        <button class="secondary" onclick="speakTts()">Ouvir TTS</button>
+        <button class="secondary" onclick="stopTts()">Parar TTS</button>
+      </div>
+
       </div>
 
       <label>Mídia da tela (imagem ou vídeo) — entra dentro do slot</label>
@@ -405,6 +531,7 @@ const state = {
   editText: false,
   playing: false,
   exporting: false,
+  editSlotScope: "template", // template | scene
 };
 
 function defaultScene(i=1){
@@ -412,16 +539,43 @@ function defaultScene(i=1){
     id: crypto.randomUUID(),
     name: `Cena ${i}`,
     dur: 4,
+
+    // Texto na tela
     headline: "",
     sub: "",
     textAnim: "type",
     textPos: "bottom",
     text: { offX: 0, offY: 0, boxW: 0.88, headSize: 64, subSize: 34 },
+
+    // Estilo do texto (por cena)
+    style: {
+      fontFamily: "system-ui",
+      headWeight: 900,
+      subWeight: 800,
+      headColor: "#ffd34d",
+      subColor: "#ffffff",
+      strokeColor: "rgba(0,0,0,.65)",
+      strokeOn: true
+    },
+
+    // Slot por cena (override opcional)
+    slotOverride: { enabled:false, x:0, y:0, w:0, h:0 },
+
+    // Mídia e corte dentro do slot
     media: { type:null, dataUrl:null, el:null, w:0, h:0 },
     crop: { zoom:1, panX:0, panY:0 },
+
+    // Narração
+    narration: {
+      text: "",
+      tts: { voice: "", rate: 1.0, pitch: 1.0 }
+    },
     audio: { blob:null, url:null },
+
+    // Movimento realista
     float: { enabled:true, level:"low" }
   };
+}
 }
 
 /** =========================
@@ -501,46 +655,71 @@ function draw(frame){
 
 // slot overlay (quando editando)
   if(state.editSlot){
+    const sc = state.scenes[state.active];
+    let slot = state.slot;
+    let label = "EDITANDO SLOT (TEMPLATE)";
+    if(state.editSlotScope === "scene" && sc){
+      if(!sc.slotOverride) sc.slotOverride = { enabled:false, x:0, y:0, w:0, h:0 };
+      if(!sc.slotOverride.enabled || (sc.slotOverride.w<=0 || sc.slotOverride.h<=0)){
+        // se não existir ainda, cria baseado no template
+        sc.slotOverride = { enabled:true, x: state.slot.x, y: state.slot.y, w: state.slot.w, h: state.slot.h };
+      }
+      slot = sc.slotOverride;
+      label = "EDITANDO SLOT (CENA)";
+    }
     ctx.save();
     ctx.strokeStyle = "rgba(245,200,75,.85)";
     ctx.lineWidth = 6;
-    ctx.strokeRect(state.slot.x, state.slot.y, state.slot.w, state.slot.h);
+    ctx.strokeRect(slot.x, slot.y, slot.w, slot.h);
     ctx.fillStyle = "rgba(245,200,75,.10)";
-    ctx.fillRect(state.slot.x, state.slot.y, state.slot.w, state.slot.h);
+    ctx.fillRect(slot.x, slot.y, slot.w, slot.h);
     ctx.fillStyle = "rgba(0,0,0,.65)";
-    ctx.fillRect(state.slot.x, state.slot.y-42, 300, 36);
+    ctx.fillRect(slot.x, slot.y-42, 340, 36);
     ctx.fillStyle = "#fff";
     ctx.font = "800 18px system-ui";
-    ctx.fillText("EDITANDO SLOT", state.slot.x+10, state.slot.y-18);
+    ctx.fillText(label, slot.x+10, slot.y-18);
     ctx.restore();
   }
 
+
   // crop overlay (não apaga a mídia; apenas escurece fora do slot)
   if(state.cropMode){
+    const sc = state.scenes[state.active];
+    const slot = getActiveSlot(sc);
     ctx.save();
     // escurece fora do slot usando even-odd fill
     ctx.fillStyle = "rgba(0,0,0,.42)";
     ctx.beginPath();
     ctx.rect(0,0,cv.width,cv.height);
-    ctx.rect(state.slot.x, state.slot.y, state.slot.w, state.slot.h);
+    ctx.rect(slot.x, slot.y, slot.w, slot.h);
     ctx.fill("evenodd");
 
     // borda do slot
     ctx.strokeStyle = "rgba(156,255,199,.90)";
     ctx.lineWidth = 4;
-    ctx.strokeRect(state.slot.x, state.slot.y, state.slot.w, state.slot.h);
+    ctx.strokeRect(slot.x, slot.y, slot.w, slot.h);
 
     // HUD
-    const sc = state.scenes[state.active];
     const z = sc ? sc.crop.zoom : 1;
     ctx.fillStyle = "rgba(0,0,0,.70)";
-    ctx.fillRect(state.slot.x, state.slot.y + state.slot.h + 10, 420, 34);
+    ctx.fillRect(slot.x, slot.y + slot.h + 10, 420, 34);
     ctx.fillStyle = "#fff";
     ctx.font = "800 16px system-ui";
-    ctx.fillText(`CROP: arraste para mover | scroll = zoom (${z.toFixed(2)}x)`, state.slot.x + 10, state.slot.y + state.slot.h + 33);
+    ctx.fillText(`CROP: arraste para mover | scroll = zoom (${z.toFixed(2)}x)`, slot.x + 10, slot.y + slot.h + 33);
     ctx.restore();
   }
 
+
+}
+
+
+function getActiveSlot(sc){
+  if(sc && sc.slotOverride && sc.slotOverride.enabled){
+    const s = sc.slotOverride;
+    // se ainda não foi definido, cai pro template
+    if((s.w||0) > 0 && (s.h||0) > 0) return s;
+  }
+  return state.slot;
 }
 
 function drawCover(img, x,y,w,h){
@@ -562,7 +741,8 @@ function drawContain(img, x,y,w,h){
 }
 
 function drawMediaInSlot(sc, frame){
-  const {x,y,w,h} = state.slot;
+  const slot = getActiveSlot(sc);
+  const {x,y,w,h} = slot;
   ctx.save();
   ctx.beginPath();
   ctx.rect(x,y,w,h);
@@ -624,6 +804,8 @@ function drawMediaInSlot(sc, frame){
 function drawTextStatic(sc){
   const baseY = textBaseY(sc.textPos);
   const tprops = sc.text || { offX:0, offY:0, boxW:0.88, headSize:64, subSize:34 };
+  const st = sc.style || { fontFamily:"system-ui", headWeight:900, subWeight:800, headColor:"#ffd34d", subColor:"#ffffff", strokeColor:"rgba(0,0,0,.65)", strokeOn:true };
+
   const maxW = cv.width * clamp(tprops.boxW ?? 0.88, 0.4, 1);
   const x = (cv.width/2) + (tprops.offX || 0);
   const y0 = baseY + (tprops.offY || 0);
@@ -633,23 +815,24 @@ function drawTextStatic(sc){
 
   // headline
   if(sc.headline){
-    ctx.font = `900 ${tprops.headSize}px system-ui`;
+    ctx.font = `${st.headWeight||900} ${tprops.headSize}px ${st.fontFamily||"system-ui"}`;
     ctx.lineWidth = 10;
-    ctx.strokeStyle = "rgba(0,0,0,.65)";
-    ctx.fillStyle = "#ffd34d";
-    drawWrapped(sc.headline, x, y0, maxW, Math.round(tprops.headSize*1.15), true);
+    ctx.strokeStyle = st.strokeColor || "rgba(0,0,0,.65)";
+    ctx.fillStyle = st.headColor || "#ffd34d";
+    drawWrapped(sc.headline, x, y0, maxW, Math.round(tprops.headSize*1.15), !!st.strokeOn);
   }
   // sub
   if(sc.sub){
-    ctx.font = `800 ${tprops.subSize}px system-ui`;
+    ctx.font = `${st.subWeight||800} ${tprops.subSize}px ${st.fontFamily||"system-ui"}`;
     ctx.lineWidth = 8;
-    ctx.strokeStyle = "rgba(0,0,0,.60)";
-    ctx.fillStyle = "#ffffff";
-    drawWrapped(sc.sub, x, y0 + Math.round(tprops.headSize*2.6), maxW, Math.round(tprops.subSize*1.25), true);
+    ctx.strokeStyle = st.strokeColor || "rgba(0,0,0,.60)";
+    ctx.fillStyle = st.subColor || "#ffffff";
+    drawWrapped(sc.sub, x, y0 + Math.round(tprops.headSize*2.6), maxW, Math.round(tprops.subSize*1.25), !!st.strokeOn);
   }
 
   ctx.restore();
 }
+
 
 function drawTextAnimated(sc, t, dur){
   // t em segundos da cena
@@ -686,7 +869,7 @@ function drawTextAnimated(sc, t, dur){
       const sLen = Math.max(0, chars - head.length - 1);
       sTxt = sub.slice(0, Math.min(sub.length, sLen));
     }
-    drawTextBlock({headline:hTxt, sub:sTxt}, x, y0, maxW, tprops);
+    drawTextBlock({headline:hTxt, sub:sTxt, style: sc.style}, x, y0, maxW, tprops);
   }
 
   ctx.restore();
@@ -694,22 +877,24 @@ function drawTextAnimated(sc, t, dur){
 
 function drawTextBlock(sc, x, y0, maxW, tprops){
   const tp = tprops || (sc.text || { offX:0, offY:0, boxW:0.88, headSize:64, subSize:34 });
+  const st = sc.style || { fontFamily:"system-ui", headWeight:900, subWeight:800, headColor:"#ffd34d", subColor:"#ffffff", strokeColor:"rgba(0,0,0,.65)", strokeOn:true };
 
   if(sc.headline){
-    ctx.font = `900 ${tp.headSize}px system-ui`;
+    ctx.font = `${st.headWeight||900} ${tp.headSize}px ${st.fontFamily||"system-ui"}`;
     ctx.lineWidth = Math.max(6, Math.round(tp.headSize/6));
-    ctx.strokeStyle = "rgba(0,0,0,.65)";
-    ctx.fillStyle = "#ffd34d";
-    drawWrapped(sc.headline, x, y0, maxW, Math.round(tp.headSize*1.15), true);
+    ctx.strokeStyle = st.strokeColor || "rgba(0,0,0,.65)";
+    ctx.fillStyle = st.headColor || "#ffd34d";
+    drawWrapped(sc.headline, x, y0, maxW, Math.round(tp.headSize*1.15), !!st.strokeOn);
   }
   if(sc.sub){
-    ctx.font = `800 ${tp.subSize}px system-ui`;
+    ctx.font = `${st.subWeight||800} ${tp.subSize}px ${st.fontFamily||"system-ui"}`;
     ctx.lineWidth = Math.max(4, Math.round(tp.subSize/6));
-    ctx.strokeStyle = "rgba(0,0,0,.60)";
-    ctx.fillStyle = "#ffffff";
-    drawWrapped(sc.sub, x, y0 + Math.round(tp.headSize*2.6), maxW, Math.round(tp.subSize*1.25), true);
+    ctx.strokeStyle = st.strokeColor || "rgba(0,0,0,.60)";
+    ctx.fillStyle = st.subColor || "#ffffff";
+    drawWrapped(sc.sub, x, y0 + Math.round(tp.headSize*2.6), maxW, Math.round(tp.subSize*1.25), !!st.strokeOn);
   }
 }
+
 
 
 function textBaseY(pos){
@@ -862,6 +1047,32 @@ function renderSceneEditor(){
 
   el("scHeadSize").value = sc.text.headSize;
   el("scSubSize").value = sc.text.subSize;
+
+  // estilo
+  if(!sc.style) sc.style = { fontFamily:"system-ui", headWeight:900, subWeight:800, headColor:"#ffd34d", subColor:"#ffffff", strokeColor:"rgba(0,0,0,.65)", strokeOn:true };
+  el("scFont").value = sc.style.fontFamily || "system-ui";
+  el("scStrokeOn").value = (sc.style.strokeOn === false) ? "off" : "on";
+
+  // inputs type="color" precisam de #rrggbb; converte stroke rgba para #000000 se vier diferente
+  el("scHeadColor").value = toHex(sc.style.headColor || "#ffd34d");
+  el("scSubColor").value  = toHex(sc.style.subColor  || "#ffffff");
+  el("scStrokeColor").value = toHex(sc.style.strokeColor || "#000000");
+  const wKey = `${sc.style.headWeight||900}/${sc.style.subWeight||800}`;
+  el("scWeights").value = ["900/800","900/700","800/700","800/600"].includes(wKey) ? wKey : "900/800";
+
+  // slot por cena
+  if(!sc.slotOverride) sc.slotOverride = { enabled:false, x:0, y:0, w:0, h:0 };
+  el("scSlotMode").value = sc.slotOverride.enabled ? "scene" : "template";
+  el("scSlotXY").value = sc.slotOverride.enabled ? `x:${Math.round(sc.slotOverride.x)} y:${Math.round(sc.slotOverride.y)} w:${Math.round(sc.slotOverride.w)} h:${Math.round(sc.slotOverride.h)}` : "Usando slot do template";
+
+  // narração + TTS
+  if(!sc.narration) sc.narration = { text:"", tts:{ voice:"", rate:1, pitch:1 } };
+  if(!sc.narration.tts) sc.narration.tts = { voice:"", rate:1, pitch:1 };
+  el("scNarrText").value = sc.narration.text || "";
+  el("scTtsRate").value = sc.narration.tts.rate ?? 1;
+  el("scTtsPitch").value = sc.narration.tts.pitch ?? 1;
+  // preenche vozes (assíncrono)
+  populateVoices(sc.narration.tts.voice || "");
   el("scBoxW").value = sc.text.boxW.toFixed(2);
   el("scZoom").value = sc.crop.zoom.toFixed(2);
   // float
@@ -913,6 +1124,146 @@ function renderSceneEditor(){
     renderSceneList();
     draw();
   };
+}
+
+// ===== Scene editor bindings (PROv7) =====
+let _sceneEditorBound = false;
+function bindSceneEditor(){
+  if(_sceneEditorBound) return;
+  _sceneEditorBound = true;
+
+  const mapInput = (id, fn, evt="input")=>{
+    const e = el(id);
+    if(!e) return;
+    e.addEventListener(evt, ()=>{ fn(e.value); draw(); });
+  };
+
+  mapInput("scName", (v)=>{ const sc=state.scenes[state.active]; if(sc){ sc.name=v; renderSceneList(); }});
+  mapInput("scDur", (v)=>{ const sc=state.scenes[state.active]; if(sc){ sc.dur=clamp(parseFloat(v)||1, 0.5, 60); }});
+  mapInput("scHeadline", (v)=>{ const sc=state.scenes[state.active]; if(sc){ sc.headline=v; }});
+  mapInput("scSub", (v)=>{ const sc=state.scenes[state.active]; if(sc){ sc.sub=v; }});
+  el("scTextAnim")?.addEventListener("change", ()=>{ const sc=state.scenes[state.active]; if(sc){ sc.textAnim=el("scTextAnim").value; draw(); }});
+  el("scTextPos")?.addEventListener("change", ()=>{ const sc=state.scenes[state.active]; if(sc){ sc.textPos=el("scTextPos").value; draw(); }});
+
+  ["scOffX","scOffY","scHeadSize","scSubSize","scBoxW","scZoom"].forEach(id=>{
+    el(id)?.addEventListener("input", ()=>{
+      const sc = state.scenes[state.active]; if(!sc) return;
+      if(!sc.text) sc.text={offX:0,offY:0,boxW:0.88,headSize:64,subSize:34};
+      sc.text.offX = parseFloat(el("scOffX").value||0);
+      sc.text.offY = parseFloat(el("scOffY").value||0);
+      sc.text.headSize = clamp(parseInt(el("scHeadSize").value||64,10), 18, 180);
+      sc.text.subSize  = clamp(parseInt(el("scSubSize").value||34,10), 14, 140);
+      sc.text.boxW = clamp(parseFloat(el("scBoxW").value||0.88), 0.4, 1);
+      sc.crop.zoom = clamp(parseFloat(el("scZoom").value||1), 0.5, 4);
+      draw();
+    });
+  });
+
+  // novos campos PRO
+  ["scFont","scStrokeOn","scHeadColor","scSubColor","scStrokeColor","scWeights"].forEach(id=>{
+    el(id)?.addEventListener("change", updateStyleFromUI);
+    el(id)?.addEventListener("input", updateStyleFromUI);
+  });
+  el("scSlotMode")?.addEventListener("change", ()=>updateSceneSlotMode(el("scSlotMode").value));
+  el("scNarrText")?.addEventListener("input", updateNarrFromUI);
+  el("scTtsVoice")?.addEventListener("change", updateNarrFromUI);
+  el("scTtsRate")?.addEventListener("input", updateNarrFromUI);
+  el("scTtsPitch")?.addEventListener("input", updateNarrFromUI);
+}
+
+// estilo do texto
+function updateStyleFromUI(){
+  const sc = state.scenes[state.active]; if(!sc) return;
+  if(!sc.style) sc.style = { fontFamily:"system-ui", headWeight:900, subWeight:800, headColor:"#ffd34d", subColor:"#ffffff", strokeColor:"rgba(0,0,0,.65)", strokeOn:true };
+  sc.style.fontFamily = el("scFont")?.value || "system-ui";
+  sc.style.strokeOn = (el("scStrokeOn")?.value !== "off");
+  sc.style.headColor = el("scHeadColor")?.value || "#ffd34d";
+  sc.style.subColor  = el("scSubColor")?.value  || "#ffffff";
+  const stc = el("scStrokeColor")?.value || "#000000";
+  sc.style.strokeColor = stc;
+  const weights = (el("scWeights")?.value || "900/800").split("/");
+  sc.style.headWeight = parseInt(weights[0]||900,10);
+  sc.style.subWeight  = parseInt(weights[1]||800,10);
+  renderSceneEditor();
+  draw();
+}
+
+function applyPreset(kind){
+  const sc = state.scenes[state.active]; if(!sc) return;
+  if(!sc.style) sc.style = { fontFamily:"system-ui", headWeight:900, subWeight:800, headColor:"#ffd34d", subColor:"#ffffff", strokeColor:"#000000", strokeOn:true };
+  if(kind==="gold"){
+    sc.style.headColor="#ffd34d"; sc.style.subColor="#ffffff"; sc.style.strokeOn=true; sc.style.strokeColor="#000000";
+  }else if(kind==="white"){
+    sc.style.headColor="#ffffff"; sc.style.subColor="#ffffff"; sc.style.strokeOn=true; sc.style.strokeColor="#000000";
+  }else if(kind==="alert"){
+    sc.style.headColor="#ff3b30"; sc.style.subColor="#ffffff"; sc.style.strokeOn=true; sc.style.strokeColor="#000000";
+  }else if(kind==="green"){
+    sc.style.headColor="#00ff88"; sc.style.subColor="#ffffff"; sc.style.strokeOn=true; sc.style.strokeColor="#000000";
+  }
+  renderSceneEditor(); draw();
+}
+
+function copyPrevStyle(){
+  const i = state.active;
+  if(i<=0) return toast("Não existe cena anterior.");
+  const prev = state.scenes[i-1];
+  const sc = state.scenes[i];
+  sc.style = JSON.parse(JSON.stringify(prev.style || sc.style));
+  renderSceneEditor(); draw();
+}
+
+// slot por cena
+function updateSceneSlotMode(v){
+  const sc = state.scenes[state.active]; if(!sc) return;
+  if(!sc.slotOverride) sc.slotOverride = { enabled:false, x:0,y:0,w:0,h:0 };
+  sc.slotOverride.enabled = (v==="scene");
+  if(sc.slotOverride.enabled && (sc.slotOverride.w<=0 || sc.slotOverride.h<=0)){
+    sc.slotOverride = { enabled:true, x:state.slot.x, y:state.slot.y, w:state.slot.w, h:state.slot.h };
+  }
+  renderSceneEditor(); draw();
+}
+function attachTemplateSlotToScene(){
+  const sc = state.scenes[state.active]; if(!sc) return;
+  sc.slotOverride = { enabled:true, x:state.slot.x, y:state.slot.y, w:state.slot.w, h:state.slot.h };
+  el("scSlotMode").value="scene";
+  renderSceneEditor(); draw();
+  toast("Slot do template anexado nesta cena.");
+}
+function resetSceneSlot(){
+  const sc = state.scenes[state.active]; if(!sc) return;
+  sc.slotOverride = { enabled:false, x:0,y:0,w:0,h:0 };
+  el("scSlotMode").value="template";
+  state.editSlot=false; state.editSlotScope="template";
+  renderSceneEditor(); draw();
+  toast("Cena voltou a usar o slot do template.");
+}
+function editTemplateSlot(){
+  state.editSlot = !state.editSlot || state.editSlotScope!=="template";
+  state.editSlotScope="template";
+  state.cropMode=false; state.editText=false;
+  draw();
+}
+function editSceneSlot(){
+  const sc = state.scenes[state.active]; if(!sc) return;
+  if(!sc.slotOverride) sc.slotOverride={enabled:true,x:state.slot.x,y:state.slot.y,w:state.slot.w,h:state.slot.h};
+  sc.slotOverride.enabled = true;
+  el("scSlotMode").value="scene";
+  state.editSlot = !state.editSlot || state.editSlotScope!=="scene";
+  state.editSlotScope="scene";
+  state.cropMode=false; state.editText=false;
+  renderSceneEditor();
+  draw();
+}
+
+// narração
+function updateNarrFromUI(){
+  const sc = state.scenes[state.active]; if(!sc) return;
+  sc.narration = sc.narration || { text:"", tts:{voice:"", rate:1, pitch:1} };
+  sc.narration.text = el("scNarrText")?.value || "";
+  sc.narration.tts = sc.narration.tts || { voice:"", rate:1, pitch:1 };
+  sc.narration.tts.voice = el("scTtsVoice")?.value || sc.narration.tts.voice || "";
+  sc.narration.tts.rate = parseFloat(el("scTtsRate")?.value || 1) || 1;
+  sc.narration.tts.pitch = parseFloat(el("scTtsPitch")?.value || 1) || 1;
 }
 
 async function loadSceneMedia(sc){
@@ -998,15 +1349,18 @@ cv.addEventListener("mousedown", (e)=>{
   const p = canvasPos(e);
 
   if(state.editSlot){
-    if(pointInRect(p.x,p.y,state.slot)){
-      drag = { on:true, mode:"slot", sx:p.x, sy:p.y, ox:state.slot.x, oy:state.slot.y };
+    const sc = state.scenes[state.active];
+    const slot = (state.editSlotScope==="scene" && sc && sc.slotOverride && sc.slotOverride.enabled) ? sc.slotOverride : state.slot;
+    if(pointInRect(p.x,p.y,slot)){
+      drag = { on:true, mode:"slot", target: slot, sx:p.x, sy:p.y, ox:slot.x, oy:slot.y };
     }
   } else if(state.cropMode){
-    if(pointInRect(p.x,p.y,state.slot)){
-      const sc = state.scenes[state.active]; if(!sc) return;
+    const sc = state.scenes[state.active]; if(!sc) return;
+    const slot = getActiveSlot(sc);
+    if(pointInRect(p.x,p.y,slot)){
       drag = { on:true, mode:"crop", sx:p.x, sy:p.y, ox:sc.crop.panX, oy:sc.crop.panY };
     }
-  } else if(state.editText){
+  }} else if(state.editText){
     const sc = state.scenes[state.active]; if(!sc) return;
     if(!sc.text) sc.text = { offX:0, offY:0, boxW:0.86, headSize:64, subSize:34 };
     drag = { on:true, mode:"text", sx:p.x, sy:p.y, ox:sc.text.offX||0, oy:sc.text.offY||0 };
@@ -1019,9 +1373,11 @@ window.addEventListener("mousemove", (e)=>{
   const dx = p.x - drag.sx;
   const dy = p.y - drag.sy;
   if(drag.mode==="slot"){
-    state.slot.x = Math.round(drag.ox + dx);
-    state.slot.y = Math.round(drag.oy + dy);
-    syncSlotInputs();
+    const t = drag.target || state.slot;
+    t.x = Math.round(drag.ox + dx);
+    t.y = Math.round(drag.oy + dy);
+    if(t === state.slot) syncSlotInputs();
+    renderSceneEditor();
     draw();
   } else if(drag.mode==="crop"){
     const sc = state.scenes[state.active]; if(!sc) return;
@@ -1421,6 +1777,89 @@ function importProject(){
  *  HELPERS
  *  ========================= */
 function clamp(v,min,max){ return Math.max(min, Math.min(max,v)); }
+
+function toHex(c){
+  if(!c) return "#000000";
+  c = String(c).trim();
+  // já é hex
+  if(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(c)){
+    if(c.length===4){ // #rgb -> #rrggbb
+      return "#" + c.slice(1).split("").map(ch=>ch+ch).join("");
+    }
+    return c.toLowerCase();
+  }
+  // rgb/rgba
+  const m = c.match(/rgba?\((\d+)\s*,\s*(\d+)\s*,\s*(\d+)/i);
+  if(m){
+    const r = (+m[1]).toString(16).padStart(2,"0");
+    const g = (+m[2]).toString(16).padStart(2,"0");
+    const b = (+m[3]).toString(16).padStart(2,"0");
+    return `#${r}${g}${b}`.toLowerCase();
+  }
+  return "#000000";
+}
+
+// ====== TTS (gratuito do navegador) ======
+let _voices = [];
+let _ttsReady = false;
+function populateVoices(preferName=""){
+  const sel = el("scTtsVoice");
+  if(!sel) return;
+  const voices = speechSynthesis.getVoices ? speechSynthesis.getVoices() : [];
+  if(voices && voices.length){
+    _voices = voices;
+    _ttsReady = true;
+    const cur = sel.value || preferName || "";
+    sel.innerHTML = voices.map(v=>{
+      const label = `${v.name} — ${v.lang}${v.default ? " (padrão)" : ""}`;
+      const val = v.name;
+      return `<option value="${escapeHtml(val)}">${escapeHtml(label)}</option>`;
+    }).join("");
+    // tenta selecionar
+    const target = preferName || cur;
+    if(target){
+      const opt = Array.from(sel.options).find(o=>o.value===target);
+      if(opt) sel.value = target;
+    }
+  }
+}
+if("speechSynthesis" in window){
+  window.speechSynthesis.onvoiceschanged = ()=>populateVoices(el("scTtsVoice")?.value || "");
+  setTimeout(()=>populateVoices(""), 250);
+}
+
+function speakTts(){
+  if(!("speechSynthesis" in window)) return toast("TTS não disponível neste navegador.");
+  const sc = state.scenes[state.active]; if(!sc) return;
+  const text = (el("scNarrText")?.value || sc.narration?.text || "").trim();
+  if(!text) return toast("Coloque um texto de narração primeiro.");
+  stopTts();
+  const u = new SpeechSynthesisUtterance(text);
+  const voiceName = el("scTtsVoice")?.value || sc.narration?.tts?.voice || "";
+  const v = _voices.find(v=>v.name===voiceName);
+  if(v) u.voice = v;
+  u.rate = parseFloat(el("scTtsRate")?.value || sc.narration?.tts?.rate || 1) || 1;
+  u.pitch = parseFloat(el("scTtsPitch")?.value || sc.narration?.tts?.pitch || 1) || 1;
+  // salva na cena
+  sc.narration = sc.narration || { text:"", tts:{voice:"", rate:1, pitch:1} };
+  sc.narration.text = text;
+  sc.narration.tts.voice = voiceName;
+  sc.narration.tts.rate = u.rate;
+  sc.narration.tts.pitch = u.pitch;
+  speechSynthesis.speak(u);
+  toast("TTS tocando (ouça no preview).");
+}
+function stopTts(){
+  if("speechSynthesis" in window) speechSynthesis.cancel();
+}
+function fillNarrFromText(){
+  const sc = state.scenes[state.active]; if(!sc) return;
+  const t = [el("scHeadline")?.value||sc.headline||"", el("scSub")?.value||sc.sub||""].filter(Boolean).join(". ");
+  el("scNarrText").value = t;
+  sc.narration = sc.narration || { text:"", tts:{voice:"", rate:1, pitch:1} };
+  sc.narration.text = t;
+  toast("Narração preenchida com HEAD+SUB.");
+}
 function pointInRect(x,y,r){ return x>=r.x && x<=r.x+r.w && y>=r.y && y<=r.y+r.h; }
 function canvasPos(e){
   const rect = cv.getBoundingClientRect();
