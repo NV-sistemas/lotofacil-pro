@@ -977,6 +977,7 @@ window.addEventListener("focusin", (e)=>{
 cv.addEventListener("mousedown", (e)=>{
   canvasHot = true;
   const p = canvasPos(e);
+
   if(state.editSlot){
     if(pointInRect(p.x,p.y,state.slot)){
       drag = { on:true, mode:"slot", sx:p.x, sy:p.y, ox:state.slot.x, oy:state.slot.y };
@@ -986,16 +987,12 @@ cv.addEventListener("mousedown", (e)=>{
       const sc = state.scenes[state.active]; if(!sc) return;
       drag = { on:true, mode:"crop", sx:p.x, sy:p.y, ox:sc.crop.panX, oy:sc.crop.panY };
     }
-  }
   } else if(state.editText){
     const sc = state.scenes[state.active]; if(!sc) return;
-    if(!sc.text) sc.text = { offX:0, offY:0, boxW:0.88, headSize:64, subSize:34 };
-    // permite arrastar texto em qualquer ponto do canvas (mais liberdade)
+    if(!sc.text) sc.text = { offX:0, offY:0, boxW:0.86, headSize:64, subSize:34 };
     drag = { on:true, mode:"text", sx:p.x, sy:p.y, ox:sc.text.offX||0, oy:sc.text.offY||0 };
   }
-
 });
-
 window.addEventListener("mousemove", (e)=>{
   if(!drag.on) return;
   canvasHot = true;
