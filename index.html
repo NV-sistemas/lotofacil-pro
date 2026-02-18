@@ -6759,66 +6759,97 @@ if(!concursos.length){
         });
       }
       else if(item.tipo === "15p" && item.payload){
+        // ✅ 15P em Jogos Salvos: conferir APENAS as 5 LINHAS (não mostrar os 10 jogos)
+        const lines = Array.isArray(item?.payload?.linesSystem15) ? item.payload.linesSystem15
+                    : (Array.isArray(item?.payload?.linesUser15) ? item.payload.linesUser15 : null);
 
-  const lines = Array.isArray(item?.payload?.linesSystem15)
-              ? item.payload.linesSystem15
-              : (Array.isArray(item?.payload?.linesUser15)
-                 ? item.payload.linesUser15
-                 : null);
-
-  if(!Array.isArray(lines) || lines.length !== 5){
-    alert("Esse 15P salvo não possui as 5 linhas.");
-    return;
-  }
-
-  html += `
-    <div class="box" style="margin-top:10px">
-      <b>📌 Linhas 1 a 5 (do Extra 15P)</b>
-      <div class="mini" style="margin-top:6px">
-        Conferência por linha • Base: últimos <b>${qtd}</b> concursos
-      </div>
-    </div>
-  `;
-
-  concursos.forEach(c=>{
-
-    html += `
-      <div class="box" style="margin-top:10px">
-        <b>Concurso ${c.concurso}</b>
-    `;
-
-    lines.forEach((linha, idx)=>{
-
-      const sorteadas = new Set((c.dezenas || []).map(Number));
-      const nums = linha.slice().map(Number).sort((a,b)=>a-b);
-
-      let hits = 0;
-
-      const linhaRender = nums.map(n=>{
-        if(sorteadas.has(n)){
-          hits++;
-          return `<span style="color:#22c55e;font-weight:900">${format2(n)}</span>`;
+        if(!Array.isArray(lines) || lines.length !== 5){
+          alert("Esse 15P salvo não tem as 5 linhas para conferência.");
+          return;
         }
-        return format2(n);
-      }).join(" - ");
 
-      html += `
-        <div style="font-size:12px;margin-top:6px">
-          <b>L${idx+1}</b> (${hits})
-          <div style="margin-top:2px">${linhaRender}</div>
-        </div>
-      `;
-    });
+        // estilos compactos (mobile-first)
+        html += `
+          <style>
+            .p15lineRow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:6px 0}
+            .p15lineTag{min-width:52px;font-weight:900}
+            .p15lineHits{min-width:46px;font-weight:900;opacity:.95}
+            .p15nums{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size:13px; line-height:1.35}
+            .p15num{display:inline-block;padding:1px 4px;border-radius:7px}
+            .p15hit{background:rgba(0,255,0,.14);border:1px solid rgba(0,255,0,.55);color:#b9ffbf}
+            @media (max-width:520px){
+              .p15nums{font-size:12px}
+              .p15lineTag{min-width:46px}
+              .p15lineHits{min-width:40px}
+            }
+          </style>
+        `;
 
-    html += `</div>`;
-  });
-}
+        // normaliza linhas (ordenadas)
+        const normLines = lines.map(l => (l||[]).slice().map(Number).sort((a,b)=>a-b));
 
+        concursos.forEach(c=>{
+          const set = new Set((c.dezenas || []).map(toNum));
+
+          let rows = "";
+          normLines.forEach((l, idx)=>{
+            const hits = l.filter(n=>set.has(Number(n))).length;
+            const kind = (idx < 3) ? "PREDIZ SAIR (IN)" : "PREDIZ NÃO SAIR (OUT)";
+
+            const numsHtml = l.map((n, i)=>{
+              const s = format2(n);
+              const hit = set.has(Number(n));
+              const cls = hit ? "p15num p15hit" : "p15num";
+              const sep = (i === l.length-1) ? "" : " - ";
+              return `<span class="${cls}">${s}</span>${sep}`;
+            }).join("");
+
+            rows += `
+              <div class="p15lineRow">
+                <div class="p15lineTag">L${idx+1}</div>
+                <div class="p15lineHits">(${hits})</div>
+                <div class="mini" style="min-width:160px;opacity:.9">${kind}</div>
+                <div class="p15nums">${numsHtml}</div>
+              </div>
+            `;
+          });
+
+          html += `
+            <div class="box" style="margin-top:10px">
+              <b>Concurso ${c.concurso}</b>
+              <div style="margin-top:6px">${rows}</div>
+            </div>
+          `;
+        });
+      }
 
       else if(item.tipo === "elite6" && Array.isArray(item.jogos)){
         const jogos = item.jogos;
 
-        );
+        jogos.forEach((jogoNums, idx)=>{
+          const jogo = jogoNums.slice().map(Number).sort((a,b)=>a-b);
+
+          let linhasResultados = "";
+          concursos.forEach(c=>{
+            const hits = hitsCount(jogo, c.dezenas);
+            const cls = (hits >= 11 && hits <= 15) ? `hit-${hits}` : "";
+            linhasResultados += `
+              <div class="mini ${cls}">
+                Concurso <b>${c.concurso}</b> → <b>${hits} acertos</b>
+              </div>
+            `;
+          });
+
+          html += `
+            <div class="box" style="margin-top:10px">
+              <b>💎 ELITE • Jogo ${idx+1}</b>
+              <div class="numbers" style="justify-content:flex-start;margin-top:8px">
+                ${jogo.map(format2).join(" - ")}
+              </div>
+              <div style="margin-top:10px">${linhasResultados}</div>
+            </div>
+          `;
+        });
       }
 
       else{
