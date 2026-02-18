@@ -6722,6 +6722,71 @@ function checkSavedGames(){
     alert("Selecione um jogo salvo.");
     return;
   }
+  // ===============================
+// 15P – CONFERÊNCIA SOMENTE LINHAS
+// ===============================
+if(item?.tipo === "15p" && item?.payload?.linesSystem15){
+
+  const qtd = Number(document.getElementById("savedCheckQtd").value);
+  const linhas = item.payload.linesSystem15;
+
+  (async ()=>{
+    try{
+
+      const need = Math.max(qtd, qtdSelecionada());
+      if(!lastPayload || !lastPayload.concursos || (lastPayload.concursos.length < qtd)){
+        await prepararContextoBase(need);
+      }
+
+      const concursos = (lastPayload.concursos || []).slice(-qtd);
+
+      let html = "";
+
+      concursos.forEach(c=>{
+
+        html += `
+          <div class="box" style="margin-top:8px;padding:10px">
+            <div style="font-weight:700;font-size:13px;margin-bottom:6px">
+              Concurso ${c.concurso}
+            </div>
+        `;
+
+        linhas.forEach((linha, idx)=>{
+
+          const sorteadas = new Set(c.dezenas.map(Number));
+          let hits = 0;
+
+          const nums = linha.slice().map(Number).sort((a,b)=>a-b);
+
+          const linhaRender = nums.map(n=>{
+            if(sorteadas.has(n)){
+              hits++;
+              return `<span style="color:#22c55e;font-weight:900">${format2(n)}</span>`;
+            }
+            return format2(n);
+          }).join(" - ");
+
+          html += `
+            <div style="font-size:12px;margin-top:4px">
+              <b>L${idx+1}</b> (${hits})
+              <div style="margin-top:2px">${linhaRender}</div>
+            </div>
+          `;
+        });
+
+        html += `</div>`;
+      });
+
+      document.getElementById("savedGamesResult").innerHTML = html;
+
+    }catch(e){
+      alert("Erro ao conferir: " + (e?.message || e));
+    }
+  })();
+
+  return; // <<< ESSENCIAL – impede fluxo antigo
+}
+
 
   (async ()=>{
     try{
