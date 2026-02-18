@@ -5488,10 +5488,11 @@ function buildExplainRowsHTML(lines){
   }
 
   function justificativa(idx, line){
-    if(idx===4){
-      return `Linha montada para ser mais diferente (hedge), encaixando o padrão fixo em posições com menor correlação e evitando repetir as mesmas combinações das linhas 1–3.`;
+    // idx é 0-based: 0,1,2 = IN (convergência) | 3,4 = OUT (divergência)
+    if(idx<=2){
+      return `Convergência (IN): linha montada a partir dos padrões treinados (3578–3614), priorizando dezenas que mostram sinais de \"andarem juntas\" quando comparamos os <b>últimos 4 concursos</b>. O objetivo é capturar o bloco que tende a reaparecer em conjunto.`;
     }
-    return `Linha montada por encaixe no padrão fixo (R/G2/G3/G4 + paridade + blocos/colunas), mantendo consistência e evitando repetir estrutura entre as linhas (sem aleatório).`;
+    return `Divergência (OUT): linha montada para reduzir coocorrência (tendem a \"não vir juntas\"), funcionando como hedge estrutural. Isso aumenta a chance do cenário \"2 linhas vazias\" acontecer e ainda assim você fechar 15 em um dos 10 jogos.`;
   }
 
   function metrics(line){
@@ -5551,9 +5552,10 @@ function buildExplainRowsHTML(lines){
 
 function renderExplainBoxInner(lines){
   return `
-    <b>✅ Explicação por linha (padrão antigo)</b>
+    <b>✅ Explicação por linha (padrão NOVO 15P)</b>
     <div class="mini" style="margin-top:8px">
-      Abaixo está o mesmo layout clássico (Força / Lift / Co / Soma freq + resumo real na janela).
+      Mesmo <b>layout por linha</b> de antes (cards), porém com justificativas do <b>novo motor 15P</b>:
+      <b>Linhas 1–3</b> = convergência (IN / “tendem a sair juntas”) • <b>Linhas 4–5</b> = divergência (OUT / “tendem a não sair juntas”).
     </div>
     ${buildExplainRowsHTML(lines||[])}
   `;
@@ -5825,6 +5827,9 @@ async function gerar15P(){
     await prepararContextoBase(qtd);
     const payload = lastPayload;
 
+    // ✅ contexto para explicações (mesmo layout de antes)
+    window._p15ExplainCtx = buildP15ExplainCtx(payload);
+
     setStatus(true,"15P: montando 5 linhas (treino fixo / base: últimos 4)…");
     setProgress(82);
 
@@ -5907,7 +5912,12 @@ async function gerar15P(){
         </div>
       </div>
 
-      <div class="box" style="margin-top:12px">
+      
+      <div class="box" id="p15ExplainBox" style="margin-top:12px">
+        ${renderExplainBoxInner(lines)}
+      </div>
+
+<div class="box" style="margin-top:12px">
         <b>🎯 10 jogos (combinações das 5 linhas)</b>
         <div class="mini" style="margin-top:6px">Gerado automaticamente a partir das linhas (3 linhas por jogo).</div>
         <div style="margin-top:10px" class="grid2">${jogosHtml}</div>
