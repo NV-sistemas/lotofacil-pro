@@ -898,29 +898,6 @@
     border-radius:999px;
   }
 
-
-/* ===== COMPACT SAVED CHECK (MOBILE FRIENDLY) ===== */
-.saved-compact-line{
-  font-size:12px;
-  line-height:1.4;
-  margin-top:4px;
-}
-
-.saved-compact-header{
-  font-size:13px;
-  font-weight:700;
-  margin-top:8px;
-}
-
-.saved-hit{
-  background: rgba(34,197,94,.18);
-  border:1px solid rgba(34,197,94,.55);
-  color:#22c55e;
-  font-weight:900;
-  border-radius:6px;
-  padding:2px 5px;
-}
-
 </style>
 </head>
 
@@ -6686,9 +6663,9 @@ document.getElementById("btnHomeSaved").onclick = ()=>{
   goView("viewSavedGames");
 };
 
-
 function checkSavedGames(){
   const qtd = Number(document.getElementById("savedCheckQtd").value);
+
   carregarJogosDoStorage();
 
   if(!jogosSalvos.length){
@@ -6704,80 +6681,196 @@ function checkSavedGames(){
 
   (async ()=>{
     try{
-      const need = Math.max(qtd, qtdSelecionada());
+      const need = Math.max(qtd, qtdSelecionada()); // mantém compatível com o seletor da Home, sem limitar Jogos Salvos
       if(!lastPayload || !lastPayload.concursos || (lastPayload.concursos.length < qtd)){
         await prepararContextoBase(need);
       }
 
       const concursos = (lastPayload.concursos || []).slice(-qtd);
-      if(!concursos.length){
-        alert("Não foi possível carregar concursos.");
+if(!concursos.length){
+        alert("Não foi possível carregar concursos para conferência.");
         return;
       }
 
-      function renderLinha(gameNums, dezenasSorteadas){
-        const sorteadas = new Set(dezenasSorteadas.map(Number));
-        let hits = 0;
-
-        const linha = gameNums.map(n=>{
-          const num = Number(n);
-          if(sorteadas.has(num)){
-            hits++;
-            return `<span class="saved-hit">${format2(num)}</span>`;
-          }
-          return `<span>${format2(num)}</span>`;
-        }).join(" - ");
-
-        return { linha, hits };
+      function hitsCount(gameNums, concursoDezenas){
+        const set = new Set((concursoDezenas || []).map(toNum));
+        return (gameNums || []).filter(n => set.has(Number(n))).length;
       }
 
-      let html = "";
+      let html = `
+        <div class="box" style="margin-top:10px">
+          <b>📌 Conferindo:</b> <b>${item.nome || item.slot}</b>
+          <div class="mini" style="margin-top:6px">Base: últimos <b>${qtd}</b> concursos</div>
+        </div>
+      `;
 
-      let jogos = [];
       if(item.tipo === "pack" && item.pack){
-        jogos = [
-          item.pack.principal,
-          item.pack.invertida,
-          item.pack.tecnica1,
-          item.pack.tecnica2
-        ].filter(x=>Array.isArray(x));
-      }
-      else if(item.tipo === "elite6" && Array.isArray(item.jogos)){
-        jogos = item.jogos;
-      }
-      else{
-        alert("Tipo não reconhecido.");
-        return;
-      }
+        const pack = item.pack;
 
-      concursos.forEach(c=>{
-        html += `<div class="box" style="margin-top:8px;padding:10px">`;
-        html += `<div class="saved-compact-header">Concurso ${c.concurso}</div>`;
+        const principalRef = Array.isArray(pack.principal)
+          ? pack.principal.slice().map(Number).sort((a,b)=>a-b)
+          : null;
 
-        jogos.forEach((jogo, idx)=>{
-          const nums = jogo.slice().map(Number).sort((a,b)=>a-b);
-          const r = renderLinha(nums, c.dezenas);
+        const jogos = [
+          { nome: "🎯 Principal (salvo)", nums: Array.isArray(pack.principal) ? pack.principal : null },
+          { nome: "🔄 Invertida (salva)", nums: Array.isArray(pack.invertida) ? pack.invertida : null },
+          { nome: "🏆 Técnica 1 (salva)", nums: Array.isArray(pack.tecnica1) ? pack.tecnica1 : null },
+          { nome: "🏆 Técnica 2 (salva)", nums: Array.isArray(pack.tecnica2) ? pack.tecnica2 : null }
+        ].filter(x => Array.isArray(x.nums) && x.nums.length);
+
+        if(!jogos.length){
+          alert("O pacote salvo não tem jogos válidos.");
+          return;
+        }
+
+        jogos.forEach(obj=>{
+          const jogo = obj.nums.slice().map(Number).sort((a,b)=>a-b);
+
+          let principalLine = "";
+          if(obj.nome !== "🎯 Principal (salvo)" && Array.isArray(principalRef) && principalRef.length){
+            principalLine = `
+              <div class="mini" style="margin-top:6px">
+                🎯 <b>Principal:</b> <span class="mono">${principalRef.map(format2).join(" - ")}</span>
+              </div>
+            `;
+          }
+
+          let linhasResultados = "";
+          concursos.forEach(c=>{
+            const hits = hitsCount(jogo, c.dezenas);
+            const cls = (hits >= 11 && hits <= 15) ? `hit-${hits}` : "";
+            linhasResultados += `
+              <div class="mini ${cls}">
+                Concurso <b>${c.concurso}</b> → <b>${hits} acertos</b>
+              </div>
+            `;
+          });
 
           html += `
-            <div class="saved-compact-line">
-              <b>L${idx+1}</b> (${r.hits})<br/>
-              ${r.linha}
+            <div class="box" style="margin-top:10px">
+              <b>${obj.nome}</b>
+              ${principalLine}
+              <div class="numbers" style="justify-content:flex-start;margin-top:8px">
+                ${jogo.map(format2).join(" - ")}
+              </div>
+              <div style="margin-top:10px">${linhasResultados}</div>
             </div>
           `;
         });
+      }
+      else if(item.tipo === "15p" && item.payload){
+        const jogos = Array.isArray(item.payload.jogosSystem) ? item.payload.jogosSystem : null;
 
-        html += `</div>`;
-      });
+        if(!jogos || !jogos.length){
+          alert("Esse 15P salvo não tem os 10 jogos do sistema.");
+          return;
+        }
+
+
+        const lines = Array.isArray(item?.payload?.linesSystem15) ? item.payload.linesSystem15
+                    : (Array.isArray(item?.payload?.linesUser15) ? item.payload.linesUser15 : null);
+
+        if(Array.isArray(lines) && lines.length === 5){
+          const lineRows = lines.map((l,idx)=>{
+            const kind = (idx < 3) ? "PREDIZ SAIR (IN)" : "PREDIZ NÃO SAIR (OUT)";
+            const dezenas = (l||[]).slice().map(Number).sort((a,b)=>a-b).map(format2).join(" - ");
+            return `
+              <tr>
+                <td><b>${idx+1}</b></td>
+                <td>${kind}</td>
+                <td class="mono">${dezenas}</td>
+              </tr>
+            `;
+          }).join("");
+
+          html += `
+            <div class="box" style="margin-top:10px">
+              <b>📌 Linhas 1 a 5 (do Extra 15P)</b>
+              <div style="margin-top:10px;overflow:auto">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Linha</th>
+                      <th>Tipo</th>
+                      <th>Dezenas</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${lineRows}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          `;
+        }
+jogos.forEach((jogoNums, idx)=>{
+          const jogo = jogoNums.slice().map(Number).sort((a,b)=>a-b);
+
+          let linhasResultados = "";
+          concursos.forEach(c=>{
+            const hits = hitsCount(jogo, c.dezenas);
+            const cls = (hits >= 11 && hits <= 15) ? `hit-${hits}` : "";
+            linhasResultados += `
+              <div class="mini ${cls}">
+                Concurso <b>${c.concurso}</b> → <b>${hits} acertos</b>
+              </div>
+            `;
+          });
+
+          html += `
+            <div class="box" style="margin-top:10px">
+              <b>✅ 15P • Jogo ${idx+1}</b>
+              <div class="numbers" style="justify-content:flex-start;margin-top:8px">
+                ${jogo.map(format2).join(" - ")}
+              </div>
+              <div style="margin-top:10px">${linhasResultados}</div>
+            </div>
+          `;
+        });
+      }
+
+      else if(item.tipo === "elite6" && Array.isArray(item.jogos)){
+        const jogos = item.jogos;
+
+        jogos.forEach((jogoNums, idx)=>{
+          const jogo = jogoNums.slice().map(Number).sort((a,b)=>a-b);
+
+          let linhasResultados = "";
+          concursos.forEach(c=>{
+            const hits = hitsCount(jogo, c.dezenas);
+            const cls = (hits >= 11 && hits <= 15) ? `hit-${hits}` : "";
+            linhasResultados += `
+              <div class="mini ${cls}">
+                Concurso <b>${c.concurso}</b> → <b>${hits} acertos</b>
+              </div>
+            `;
+          });
+
+          html += `
+            <div class="box" style="margin-top:10px">
+              <b>💎 ELITE • Jogo ${idx+1}</b>
+              <div class="numbers" style="justify-content:flex-start;margin-top:8px">
+                ${jogo.map(format2).join(" - ")}
+              </div>
+              <div style="margin-top:10px">${linhasResultados}</div>
+            </div>
+          `;
+        });
+      }
+
+      else{
+        alert("Tipo de jogo salvo não reconhecido.");
+        return;
+      }
 
       document.getElementById("savedGamesResult").innerHTML = html;
 
     }catch(e){
       console.log(e);
-      alert("Erro ao conferir: " + (e?.message || e));
+      alert("Erro ao conferir jogos salvos: " + (e?.message || e));
     }
   })();
 }
-
 function renderJogosSalvosAoAbrir(){
   carregarJogosDoStorage();
 
