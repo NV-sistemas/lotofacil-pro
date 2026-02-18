@@ -6829,8 +6829,8 @@ jogos.forEach((jogoNums, idx)=>{
         });
       }
 
-      else if(item.tipo === "elite6" && Array.isArray(item.jogos)){
-        const jogos = item.jogos;
+      else if((item.tipo === "elite6" && Array.isArray(item.jogos)) || (item.tipo === "15p" && item.payload?.linesSystem15)){
+        const jogos = item.tipo === "15p" ? item.payload.linesSystem15 : item.jogos;
 
         jogos.forEach((jogoNums, idx)=>{
           const jogo = jogoNums.slice().map(Number).sort((a,b)=>a-b);
