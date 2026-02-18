@@ -5274,7 +5274,51 @@ function gerarJogos15P(linhas){
     return [];
   }
 
-  const jogos = [];
+  const 
+      // =============================
+      // CONFERÊNCIA EXCLUSIVA 15P (LINHAS APENAS)
+      // =============================
+      if(item.tipo === "15p" && item.payload?.linesSystem15){
+
+        const linhas = item.payload.linesSystem15;
+        let html15 = "";
+
+        concursos.forEach(c=>{
+
+          html15 += `<div class="box" style="margin-top:8px;padding:10px">`;
+          html15 += `<div style="font-weight:700;font-size:13px;margin-bottom:6px">Concurso ${c.concurso}</div>`;
+
+          linhas.forEach((linha, idx)=>{
+
+            const sorteadas = new Set(c.dezenas.map(Number));
+            let hits = 0;
+
+            const nums = linha.slice().map(Number).sort((a,b)=>a-b);
+
+            const linhaRender = nums.map(n=>{
+              if(sorteadas.has(n)){
+                hits++;
+                return `<span style="color:#22c55e;font-weight:900">${format2(n)}</span>`;
+              }
+              return format2(n);
+            }).join(" - ");
+
+            html15 += `
+              <div style="font-size:12px;margin-top:4px">
+                <b>L${idx+1}</b> (${hits})
+                <div style="margin-top:2px">${linhaRender}</div>
+              </div>
+            `;
+          });
+
+          html15 += `</div>`;
+        });
+
+        document.getElementById("savedGamesResult").innerHTML = html15;
+        return;
+      }
+
+      jogos = [];
 
   const combinacoes = [
     [0,1,2],
@@ -6829,8 +6873,8 @@ jogos.forEach((jogoNums, idx)=>{
         });
       }
 
-      else if((item.tipo === "elite6" && Array.isArray(item.jogos)) || (item.tipo === "15p" && item.payload?.linesSystem15)){
-        const jogos = item.tipo === "15p" ? item.payload.linesSystem15 : item.jogos;
+      else if(item.tipo === "elite6" && Array.isArray(item.jogos)){
+        const jogos = item.jogos;
 
         jogos.forEach((jogoNums, idx)=>{
           const jogo = jogoNums.slice().map(Number).sort((a,b)=>a-b);
