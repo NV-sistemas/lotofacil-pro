@@ -762,22 +762,31 @@ el("bgFile").addEventListener("change", async (e)=>{
   img.src = dataUrl;
 });
 
-function toggleEditSlot(){
-  state.editSlot = !state.editSlot;
-  el("renderInfo").textContent = state.editSlot ? "Modo slot: arraste o retângulo." : "Pronto.";
-  draw();
-}
-function toggleCropMode(){
-  state.cropMode = !state.cropMode;
-  el("renderInfo").textContent = state.cropMode ? "Modo corte: arraste dentro do slot." : "Pronto.";
+function setMode(next){
+  // deixa os modos mutuamente exclusivos (evita sumir texto/cena por overlay)
+  const wantSlot = (next === "slot") ? !state.editSlot : false;
+  const wantCrop = (next === "crop") ? !state.cropMode : false;
+  const wantText = (next === "text") ? !state.editText : false;
+
+  state.editSlot = false;
+  state.cropMode = false;
+  state.editText = false;
+
+  if(wantSlot) state.editSlot = true;
+  if(wantCrop) state.cropMode = true;
+  if(wantText) state.editText = true;
+
+  const msg = state.editSlot ? "Modo slot: arraste o retângulo."
+            : state.cropMode ? "Modo corte: arraste dentro do slot."
+            : state.editText ? "Modo texto: arraste o texto no preview."
+            : "Pronto.";
+  el("renderInfo").textContent = msg;
   draw();
 }
 
-function toggleEditText(){
-  state.editText = !state.editText;
-  el("renderInfo").textContent = state.editText ? "Modo texto: arraste o texto no preview." : "Pronto.";
-  draw();
-}
+function toggleEditSlot(){ setMode("slot"); }
+function toggleCropMode(){ setMode("crop"); }
+function toggleEditText(){ setMode("text"); }
 function resetTextPos(){
   const sc = state.scenes[state.active]; if(!sc) return;
   if(!sc.text) sc.text = { offX:0, offY:0, boxW:0.88, headSize:64, subSize:34 };
