@@ -83,10 +83,11 @@
     }
     canvas{display:block;width:100%;height:auto}
     .overlayHelp{
-      position:absolute;left:10px;bottom:10px;
-      padding:7px 10px;border-radius:999px;border:1px solid rgba(245,200,75,.25);
-      background:rgba(0,0,0,.55); color:var(--text); font-size:12px;
+      padding:8px 10px;border-radius:12px;border:1px solid rgba(245,200,75,.25);
+      background:rgba(0,0,0,.40); color:var(--text); font-size:12px;
       backdrop-filter: blur(6px);
+      margin-top:10px;
+      display:flex;gap:8px;flex-wrap:wrap;align-items:center;
     }
     .kbd{padding:2px 6px;border:1px solid rgba(255,255,255,.25);border-bottom-width:2px;border-radius:8px;font-weight:800;font-size:11px}
     .miniBar{
@@ -171,13 +172,13 @@
     <h2>2) Preview</h2>
     <div class="previewWrap">
       <canvas id="cv"></canvas>
-      <div class="overlayHelp">
+    </div>
+    <div class="overlayHelp">
         <span class="kbd">E</span> editar slot &nbsp;|&nbsp;
         <span class="kbd">C</span> cortar mídia (zoom/pan) &nbsp;|&nbsp;
         <span class="kbd">T</span> mover texto &nbsp;|&nbsp;
         <span class="kbd">Espaço</span> play cena
       </div>
-    </div>
 
     <div class="miniBar">
       <div class="split">
@@ -514,23 +515,32 @@ function draw(frame){
     ctx.restore();
   }
 
-  // crop overlay
+  // crop overlay (não apaga a mídia; apenas escurece fora do slot)
   if(state.cropMode){
     ctx.save();
-    ctx.strokeStyle = "rgba(156,255,199,.85)";
+    // escurece fora do slot usando even-odd fill
+    ctx.fillStyle = "rgba(0,0,0,.42)";
+    ctx.beginPath();
+    ctx.rect(0,0,cv.width,cv.height);
+    ctx.rect(state.slot.x, state.slot.y, state.slot.w, state.slot.h);
+    ctx.fill("evenodd");
+
+    // borda do slot
+    ctx.strokeStyle = "rgba(156,255,199,.90)";
     ctx.lineWidth = 4;
     ctx.strokeRect(state.slot.x, state.slot.y, state.slot.w, state.slot.h);
-    ctx.fillStyle = "rgba(0,0,0,.40)";
-    ctx.fillRect(0,0,cv.width,cv.height);
-    ctx.clearRect(state.slot.x, state.slot.y, state.slot.w, state.slot.h);
-    ctx.strokeRect(state.slot.x, state.slot.y, state.slot.w, state.slot.h);
-    ctx.fillStyle = "rgba(0,0,0,.65)";
-    ctx.fillRect(state.slot.x, state.slot.y+state.slot.h+8, 360, 34);
+
+    // HUD
+    const sc = state.scenes[state.active];
+    const z = sc ? sc.crop.zoom : 1;
+    ctx.fillStyle = "rgba(0,0,0,.70)";
+    ctx.fillRect(state.slot.x, state.slot.y + state.slot.h + 10, 420, 34);
     ctx.fillStyle = "#fff";
     ctx.font = "800 16px system-ui";
-    ctx.fillText("CROP: arraste para pan | mousewheel = zoom", state.slot.x+10, state.slot.y+state.slot.h+30);
+    ctx.fillText(`CROP: arraste para mover | scroll = zoom (${z.toFixed(2)}x)`, state.slot.x + 10, state.slot.y + state.slot.h + 33);
     ctx.restore();
   }
+
 }
 
 function drawCover(img, x,y,w,h){
