@@ -5869,205 +5869,232 @@ function __buildLineApart(candidates, used, coTrain, coRecent){
   return line.slice().sort((a,b)=>a-b);
 }
 
+
 function buildLines15P_TrainedFixed(prev4Draws){
   // =========================================================
-  // ✅ NOVO 15P (REENCENAÇÃO COMPORTAMENTAL PURA • V4)
+  // ✅ 15P (REENCENAÇÃO DO TREINO • SEM ESTRUTURA) • V5
   // Base FIXA: últimos 4 concursos.
-  // Objetivo: replicar o "estado pré-convergência" mais recorrente no treino,
-  // sem copiar o último resultado e sem heurística de quente/frio tradicional.
   //
-  // 5 padrões FIXOS (3 IN / 2 OUT), determinístico.
-  // Regra global: dezenas NÃO se repetem entre as linhas.
-  //
-  // Regra de fallback (somente ao FINAL):
-  // - Primeiro tenta montar cada padrão com candidatos estritos.
-  // - Depois de analisar TODOS os padrões, se faltar dezena em alguma linha,
-  //   completa com as DEZENAS RESTANTES (ainda não usadas), respeitando a intenção
-  //   (IN puxa mais baixa presença; OUT puxa mais alta presença).
+  // O que muda aqui:
+  // - NÃO usa paridade/blocos/colunas/template como "meta"
+  // - Aprende no TREINO (3578–3614) como a presença nos 4 anteriores
+  //   se converte em "sair / não sair" no sorteio seguinte.
+  // - Aplica isso nos 4 últimos reais e monta:
+  //   3 linhas IN (prediz sair) + 2 linhas OUT (prediz não sair)
+  // - 25 dezenas únicas (sem repetição entre linhas), determinístico.
   // =========================================================
 
   const draws = Array.isArray(prev4Draws) ? prev4Draws.slice(-4) : [];
   if(draws.length !== 4){
-    // fail-safe: se algo vier errado, não quebra o sistema
-    return { lines: [[],[],[],[],[]], mode:"REENCENACAO_PURA_V4" };
+    return { lines: [[],[],[],[],[]], mode:"REENCENACAO_PURA_V5" };
   }
 
   const toN = (x)=> Number(x);
   const numsAll = Array.from({length:25}, (_,k)=>k+1);
 
-  // presença por draw (oldest -> newest)
-  const pres = {};
-  numsAll.forEach(n=> pres[n] = [0,0,0,0]);
+  // ----- TREINO FIXO (fornecido por você) -----
+  // Inclui 3574–3577 como pré-janela para treinar o caso 3578.
+  const TRAIN_SERIES = [
+    {c:3574, d:[1,3,4,5,6,8,12,13,15,16,17,18,20,21,25]},
+    {c:3575, d:[2,4,5,7,8,9,10,12,13,14,15,17,21,22,25]},
+    {c:3576, d:[1,2,3,5,7,8,10,13,16,18,19,21,22,23,25]},
+    {c:3577, d:[1,2,4,5,6,8,9,10,12,16,18,20,23,24,25]},
+    {c:3578, d:[2,3,4,5,6,7,9,10,14,17,19,20,22,23,24]},
+    {c:3579, d:[1,2,3,4,8,10,11,13,15,17,19,20,21,23,25]},
+    {c:3580, d:[1,4,5,6,8,9,12,13,15,16,19,20,21,23,25]},
+    {c:3581, d:[2,3,4,5,6,7,8,10,12,15,16,17,20,22,24]},
+    {c:3582, d:[2,5,6,7,8,9,10,11,12,13,16,18,23,24,25]},
+    {c:3583, d:[2,3,4,6,9,10,12,13,14,15,21,22,23,24,25]},
+    {c:3584, d:[1,2,4,7,8,9,13,15,16,17,18,20,21,23,25]},
+    {c:3585, d:[1,2,4,8,9,10,13,16,17,19,20,21,22,23,25]},
+    {c:3586, d:[1,2,6,10,11,12,13,14,15,17,18,21,22,24,25]},
+    {c:3587, d:[1,2,4,8,9,10,11,12,13,16,17,18,19,20,22]},
+    {c:3588, d:[3,5,7,8,9,11,14,15,16,17,19,21,22,23,24]},
+    {c:3589, d:[1,2,3,4,8,10,11,12,15,18,19,21,22,24,25]},
+    {c:3590, d:[4,6,8,10,11,12,13,15,16,17,19,20,21,22,23]},
+    {c:3591, d:[1,2,3,4,6,7,10,11,13,14,15,17,18,19,20]},
+    {c:3592, d:[1,4,5,6,7,9,12,13,17,18,20,21,22,23,25]},
+    {c:3593, d:[1,3,4,6,7,8,9,10,12,15,18,19,23,24,25]},
+    {c:3594, d:[1,2,4,5,7,8,9,11,14,15,18,20,21,23,24]},
+    {c:3595, d:[1,2,4,5,6,8,10,12,13,15,16,20,21,22,25]},
+    {c:3596, d:[1,2,3,4,5,6,7,8,14,15,16,18,20,21,22]},
+    {c:3597, d:[1,4,5,7,10,11,13,14,15,16,19,20,21,23,25]},
+    {c:3598, d:[1,3,4,5,6,7,8,9,11,16,18,21,22,23,24]},
+    {c:3599, d:[1,4,6,7,8,9,11,12,13,16,19,20,21,23,24]},
+    {c:3600, d:[3,4,5,6,7,8,9,11,12,16,17,20,21,22,25]},
+    {c:3601, d:[2,3,4,6,7,8,9,11,16,17,20,21,23,24,25]},
+    {c:3602, d:[1,2,3,4,5,6,8,9,15,18,19,20,22,23,24]},
+    {c:3603, d:[2,4,5,9,10,11,12,14,15,17,19,20,21,22,24]},
+    {c:3604, d:[1,2,3,6,7,8,11,13,15,16,19,21,22,23,24]},
+    {c:3605, d:[1,3,4,7,10,12,13,14,19,20,21,22,23,24,25]},
+    {c:3606, d:[2,3,6,7,9,11,12,14,15,17,19,20,21,23,24]},
+    {c:3607, d:[1,2,4,5,6,8,9,13,14,15,16,18,19,20,23]},
+    {c:3608, d:[2,5,6,8,9,11,14,16,17,18,19,20,22,23,25]},
+    {c:3609, d:[2,5,6,8,9,10,11,12,13,17,19,20,22,24,25]},
+    {c:3610, d:[1,3,5,7,8,10,13,14,17,20,21,22,23,24,25]},
+    {c:3611, d:[1,2,3,4,5,6,10,11,12,14,15,17,18,19,25]},
+    {c:3612, d:[4,6,8,9,11,14,15,16,17,18,19,20,21,22,25]},
+    {c:3613, d:[1,3,4,7,9,10,11,12,15,16,18,20,21,22,23]},
+    {c:3614, d:[2,4,5,6,9,10,11,12,14,15,16,17,20,23,25]}
+  ];
 
-  draws.forEach((d,di)=>{
-    (d||[]).map(toN).forEach(n=>{
-      if(pres[n]) pres[n][di] = 1;
+  function drawSet(arr){ return new Set((arr||[]).map(toN)); }
+
+  // stats[k] = {hit,total} onde k é presença (0..4) nos 4 anteriores
+  const stats = Array.from({length:5}, ()=>({hit:0,total:0}));
+  // perNum[n][k] = {hit,total} (com smoothing depois)
+  const perNum = {};
+  numsAll.forEach(n=> perNum[n] = Array.from({length:5}, ()=>({hit:0,total:0})));
+
+  // co-ocorrência no "resultado seguinte" do treino (captura encontros reais)
+  const coTrain = {};
+  numsAll.forEach(a=>{ coTrain[a]={}; numsAll.forEach(b=>{ if(a!==b) coTrain[a][b]=0; }); });
+  const coTrainTot = {};
+  numsAll.forEach(a=> coTrainTot[a]=0);
+
+  // percorre treino a partir do primeiro alvo treinável (3578 = index 4)
+  for(let i=4;i<TRAIN_SERIES.length;i++){
+    const prev = TRAIN_SERIES.slice(i-4,i).map(o=>o.d);
+    const target = TRAIN_SERIES[i].d;
+    const tSet = drawSet(target);
+
+    // presença nos 4 anteriores
+    const presCount = {};
+    numsAll.forEach(n=> presCount[n]=0);
+    prev.forEach(d=>{
+      const s = drawSet(d);
+      numsAll.forEach(n=>{ if(s.has(n)) presCount[n]++; });
     });
+
+    // estatística de "sair / não sair" condicionado à presença
+    numsAll.forEach(n=>{
+      const k = presCount[n]; // 0..4
+      const hit = tSet.has(n) ? 1 : 0;
+      stats[k].total++; stats[k].hit += hit;
+      perNum[n][k].total++; perNum[n][k].hit += hit;
+    });
+
+    // co-ocorrência no alvo
+    const tArr = Array.from(tSet).sort((a,b)=>a-b);
+    for(let aIdx=0;aIdx<tArr.length;aIdx++){
+      const a = tArr[aIdx];
+      coTrainTot[a] += 1;
+      for(let bIdx=aIdx+1;bIdx<tArr.length;bIdx++){
+        const b = tArr[bIdx];
+        coTrain[a][b] += 1;
+        coTrain[b][a] += 1;
+      }
+    }
+  }
+
+  function pGlobal(k){
+    const s = stats[k];
+    return s.total ? (s.hit/s.total) : 0.5;
+  }
+  function pNumGiven(n,k){
+    const s = perNum[n][k];
+    // Laplace smoothing: (hit+1)/(total+2)
+    return (s.hit + 1) / (s.total + 2);
+  }
+
+  // ----- estado atual (4 últimos reais) -----
+  const presNow = {};
+  numsAll.forEach(n=> presNow[n]=[0,0,0,0]);
+  draws.forEach((d,di)=>{
+    const s = drawSet(d);
+    numsAll.forEach(n=>{ if(s.has(n)) presNow[n][di]=1; });
   });
-
   const count4 = {};
-  numsAll.forEach(n=> count4[n] = pres[n].reduce((a,b)=>a+b,0));
+  numsAll.forEach(n=> count4[n] = presNow[n].reduce((a,b)=>a+b,0));
 
-  const lastSet = new Set(draws[3].map(toN));
-  const prevSet = new Set(draws[2].map(toN));
+  const lastSet = drawSet(draws[3]);
+  const prevSet = drawSet(draws[2]);
   const consec12 = (n)=> lastSet.has(n) && prevSet.has(n);
 
-  // blocos A–E (usa blockOf já existente no sistema)
-  const blocks = ["A","B","C","D","E"];
-  const blockTotals = {A:0,B:0,C:0,D:0,E:0};
+  // co-ocorrência recente (nos 4 últimos) - reforça "estado atual"
+  const coRecent = {};
+  numsAll.forEach(a=>{ coRecent[a]={}; numsAll.forEach(b=>{ if(a!==b) coRecent[a][b]=0; }); });
+  draws.forEach(d=>{
+    const s = drawSet(d);
+    const arr = Array.from(s).sort((a,b)=>a-b);
+    for(let i=0;i<arr.length;i++){
+      const a = arr[i];
+      for(let j=i+1;j<arr.length;j++){
+        const b = arr[j];
+        coRecent[a][b] += 1;
+        coRecent[b][a] += 1;
+      }
+    }
+  });
+
+  // ----- Score "reenact" (sem estrutura) -----
+  const baseIn = {};
+  const baseOut = {};
+
   numsAll.forEach(n=>{
-    const b = blockOf(n);
-    blockTotals[b] += count4[n];
+    const k = count4[n];
+    const pg = pGlobal(k);
+    const pn = pNumGiven(n,k);
+
+    // IN: probabilidade de sair + leve bônus se já vem 2 seguidos (convergindo)
+    baseIn[n] = (pg + 0.65*(pn - pg)) + 0.12*(k/4) + (consec12(n)?0.06:0);
+
+    // OUT: probabilidade de NÃO sair (anti) + leve bônus para baixa presença
+    baseOut[n] = ((1-pg) + 0.65*((1-pn) - (1-pg))) + 0.12*((4-k)/4);
   });
 
-  // contagem por bloco no ÚLTIMO concurso (evitar copiar)
-  const lastBlock = {A:0,B:0,C:0,D:0,E:0};
-  draws[3].map(toN).forEach(n=>{
-    lastBlock[blockOf(n)] = (lastBlock[blockOf(n)]||0)+1;
+  // normaliza coTrain por total do a (para virar "força relativa")
+  const coTrainNorm = {};
+  numsAll.forEach(a=>{
+    coTrainNorm[a]={};
+    const denom = Math.max(1, coTrainTot[a]);
+    numsAll.forEach(b=>{ if(a!==b) coTrainNorm[a][b] = coTrain[a][b] / denom; });
   });
 
+  // ----- montagem das 5 linhas (25 únicas) -----
   const used = new Set();
+  const lines = [[],[],[],[],[]];
 
-  function pickFrom(pool, need, sorter){
-    const arr = pool.slice().filter(n=> !used.has(n));
-    if(sorter) arr.sort(sorter);
-    const out = [];
-    for(const n of arr){
-      if(out.length >= need) break;
+  // pools determinísticos
+  const inPool = numsAll.slice().sort((a,b)=> (baseIn[b]-baseIn[a]) || a-b);
+  const outPool = numsAll.slice().sort((a,b)=> (baseOut[b]-baseOut[a]) || a-b);
+
+  // candidatos focados (para forçar agressividade sem inventar estrutura)
+  const inCandidates = inPool.slice(0, 18);
+  const outCandidates = outPool.slice(0, 14);
+
+  // 3 IN = "sair junto" (usa conexão do treino e do recente)
+  lines[0] = __buildLineTogether(inCandidates, used, baseIn, coTrainNorm, coRecent);
+  lines[1] = __buildLineTogether(inCandidates, used, baseIn, coTrainNorm, coRecent);
+  lines[2] = __buildLineTogether(inCandidates, used, baseIn, coTrainNorm, coRecent);
+
+  // 2 OUT = "não sair junto" (evita conexão e puxa anti)
+  lines[3] = __buildLineApart(outCandidates, used, coTrainNorm, coRecent);
+  lines[4] = __buildLineApart(outCandidates, used, coTrainNorm, coRecent);
+
+  // fallback final (somente se alguma linha ficou incompleta)
+  function fill(lineIdx, prefer){
+    while(lines[lineIdx].length < 5){
+      const pool = prefer.filter(n=>!used.has(n));
+      if(pool.length===0) break;
+      const n = pool[0];
       used.add(n);
-      out.push(n);
-    }
-    return out;
-  }
-
-  // -------------------------------
-  // PADRÃO 1 (IN): "Convergência Média"
-  // mais recorrente no treino: segunda camada (1–2 presenças nos últimos 4),
-  // preferindo NÃO estar no último draw.
-  // -------------------------------
-  const p1_strict = numsAll.filter(n=> (count4[n]===1 || count4[n]===2) && !lastSet.has(n));
-  const line1 = pickFrom(p1_strict, 5, (a,b)=> (count4[a]-count4[b]) || (a-b));
-
-  // -------------------------------
-  // PADRÃO 2 (IN): "Bloco Morno Reativo"
-  // escolhe 1 bloco com total próximo do centro (≈12), mas fraco no último draw,
-  // simulando reativação.
-  // -------------------------------
-  const center = 12;
-  const blockOrder = blocks
-    .slice()
-    .sort((x,y)=>{
-      const dx = Math.abs(blockTotals[x]-center);
-      const dy = Math.abs(blockTotals[y]-center);
-      if(dx !== dy) return dx-dy;
-      // preferir bloco menos presente no último draw
-      if((lastBlock[x]||0) !== (lastBlock[y]||0)) return (lastBlock[x]||0) - (lastBlock[y]||0);
-      return x.localeCompare(y);
-    });
-
-  const chosenBlock = blockOrder[0];
-  const p2_blockStrict = numsAll.filter(n=>{
-    if(blockOf(n) !== chosenBlock) return false;
-    if(lastSet.has(n)) return false;
-    return (count4[n]===1 || count4[n]===2); // morno
-  });
-
-  const line2 = [];
-  // pega 3 do bloco reativo (se der), depois completa com neutras médias fora do último
-  line2.push(...pickFrom(p2_blockStrict, 3, (a,b)=> (count4[a]-count4[b]) || (a-b)));
-
-  const p2_fillStrict = numsAll.filter(n=>{
-    if(lastSet.has(n)) return false;
-    if(count4[n]!==1 && count4[n]!==2) return false;
-    // evita encher com o mesmo bloco
-    if(blockOf(n) === chosenBlock) return false;
-    return true;
-  });
-  line2.push(...pickFrom(p2_fillStrict, 5-line2.length, (a,b)=> (count4[a]-count4[b]) || (a-b)));
-
-  // -------------------------------
-  // PADRÃO 3 (IN): "Alternância Latente"
-  // muito recorrente pré-convergência: presença alternada (2/4) sem estar "quente".
-  // -------------------------------
-  function isAlternating2of4(bits){
-    const s = bits.join("");
-    if(bits.reduce((a,b)=>a+b,0) !== 2) return false;
-    // rejeita consecutivo no final (não virar quente)
-    if(bits[2]===1 && bits[3]===1) return false;
-    // aceita padrões alternantes/espalhados mais típicos
-    return ["1010","0101","1001","0110","0101","1010","0011","1100"].includes(s) ? true
-         : (s==="1001" || s==="0110" || s==="1010" || s==="0101");
-  }
-
-  const p3_strict = numsAll.filter(n=>{
-    const bits = pres[n];
-    if(!isAlternating2of4(bits)) return false;
-    if(lastSet.has(n)) return false; // evita copiar
-    return true;
-  });
-
-  const line3 = pickFrom(p3_strict, 5, (a,b)=> {
-    // alternância "mais pura": mais distante do último
-    const al = pres[a][3];
-    const bl = pres[b][3];
-    if(al !== bl) return al - bl;
-    return (a-b);
-  });
-
-  // -------------------------------
-  // PADRÃO 4 (OUT): "Saturação Estrutural"
-  // pré-retração comum no treino: hiperativas (3-4 presenças) e/ou consecutivas.
-  // -------------------------------
-  const p4_strict = numsAll.filter(n=>{
-    return (count4[n] >= 3) || consec12(n);
-  });
-
-  const line4 = pickFrom(p4_strict, 5, (a,b)=> (count4[b]-count4[a]) || (b-a));
-
-  // -------------------------------
-  // PADRÃO 5 (OUT): "Cluster Recente (dominância falsa)"
-  // números do último draw que vêm em "pacote" (interseção com o anterior) + alta presença.
-  // -------------------------------
-  const inter12 = numsAll.filter(n=> lastSet.has(n) && prevSet.has(n));
-  const lastHigh = numsAll.filter(n=> lastSet.has(n) && count4[n] >= 2);
-
-  const p5_pool = Array.from(new Set([...inter12, ...lastHigh]));
-  const line5 = pickFrom(p5_pool, 5, (a,b)=> (count4[b]-count4[a]) || (b-a));
-
-  // =========================================================
-  // FILL FINAL (somente após todos os padrões analisados)
-  // =========================================================
-  const lines = [line1, line2, line3, line4, line5];
-
-  const remaining = numsAll.filter(n=> !used.has(n));
-
-  // critérios de preenchimento final (ainda determinístico)
-  const remainingForIN = remaining.slice().sort((a,b)=> (count4[a]-count4[b]) || (a-b));
-  const remainingForOUT = remaining.slice().sort((a,b)=> (count4[b]-count4[a]) || (b-a));
-
-  function fillLine(idx, sourceArr){
-    while(lines[idx].length < 5 && sourceArr.length){
-      const n = sourceArr.shift();
-      if(used.has(n)) continue;
-      used.add(n);
-      lines[idx].push(n);
+      lines[lineIdx].push(n);
     }
   }
 
-  // completa IN (1,2,3) primeiro com baixa presença
-  fillLine(0, remainingForIN);
-  fillLine(1, remainingForIN);
-  fillLine(2, remainingForIN);
+  // completa IN com melhores IN restantes
+  fill(0, inPool);
+  fill(1, inPool);
+  fill(2, inPool);
+  // completa OUT com melhores OUT restantes
+  fill(3, outPool);
+  fill(4, outPool);
 
-  // completa OUT (4,5) com alta presença
-  fillLine(3, remainingForOUT);
-  fillLine(4, remainingForOUT);
-
-  // ordena e garante tamanho 5
-  const finalLines = lines.map(l=> (l||[]).slice(0,5).sort((x,y)=>x-y));
-
-  return { lines: finalLines, mode:"REENCENACAO_PURA_V4" };
+  const finalLines = lines.map(l=> (l||[]).slice(0,5).map(toN).sort((a,b)=>a-b));
+  return { lines: finalLines, mode:"REENCENACAO_PURA_V5" };
 }
+
 
 
 async function gerar15P(){
