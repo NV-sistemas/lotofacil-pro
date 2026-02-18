@@ -5880,62 +5880,247 @@ function __buildLineApart(candidates, used, coTrain, coRecent){
 }
 
 function buildLines15P_TrainedFixed(prev4Draws){
-  // motor NOVO: padrões treinados + encaixe determinístico no momento (base últimos 4)
-  const train = __buildTrain15PStats();
-  const coRecent = __buildCoMatrixFromDraws(prev4Draws||[]);
-  const coTrain = train.co;
+  // =========================================================
+  // ✅ NOVO 15P (AGRESSIVO FORTE • CONVERGÊNCIA LATENTE)
+  // - NÃO espelha o passado (evita blocos óbvios do último)
+  // - Procura o "pré-encontro": cobertura 2-1-1-1 / 2-2-1,
+  //   micro-pares fracos/médios nos 4 anteriores e encaixe treinado.
+  // - 3 linhas IN (latentes) + 2 linhas OUT (anti-convergência)
+  // - Determinístico (sem aleatório), base: últimos 4.
+  // =========================================================
 
-  // candidatos: união dos últimos 4; se faltar, completa com 01–25
-  const candSet = new Set();
-  (prev4Draws||[]).forEach(d=> (d||[]).forEach(n=> candSet.add(n)));
-  const candidates = [];
-  for(let n=1;n<=25;n++){
-    if(candSet.has(n)) candidates.push(n);
+  const prev4 = (prev4Draws||[]).slice(0,4).map(d=>(d||[]).slice());
+  const train = __buildTrain15PStats(); // {freq, co, coh}
+
+  // presença nos 4 (para cobertura e travas anti-espelho)
+  const inDraw = Array.from({length:26}, ()=>[0,0,0,0]);
+  const countIn4 = Array(26).fill(0);
+  for(let i=0;i<4;i++){
+    const s = new Set(prev4[i]||[]);
+    for(let n=1;n<=25;n++){
+      if(s.has(n)){ inDraw[n][i]=1; countIn4[n]++; }
+    }
   }
-  // completa (se por algum motivo não tiver 25)
-  for(let n=1;n<=25 && candidates.length<25;n++){
-    if(!candidates.includes(n)) candidates.push(n);
+  const lastSet = new Set(prev4[0]||[]); // último concurso = prev4[0] no seu payload
+
+  // coocorrência recente (0..4) e treino (mais longo)
+  const coRecent = __buildCoMatrixFromDraws(prev4);
+  const coTrain  = train.co;
+
+  // peso de par "latente": preferimos 1–2 ocorrências (sinal), evitamos 3–4 (espelho)
+  function pairLatentWeight(c){
+    if(c<=0) return 0.35;   // sem cooc → pode ser "do nada" (mas controlado)
+    if(c===1) return 1.00;  // sinal forte (micro-encontro)
+    if(c===2) return 0.70;  // ok
+    if(c===3) return 0.20;  // espelhando
+    return 0.00;            // 4 = sempre juntos (espelho)
   }
 
-  // score base: frequência no treino + coesão no treino + bônus recente leve
-  const baseScore = Array(26).fill(0);
-  for(let n=1;n<=25;n++){
-    const recentCoh = (()=>{ let s=0; for(let m=1;m<=25;m++) if(m!==n) s += (coRecent[n][m]||0); return s; })();
-    baseScore[n] = (train.freq[n]||0) + 0.25*(train.coh[n]||0) + 0.40*recentCoh;
+  // score individual (treino + leve bônus por ausência no último)
+  function sN(n){
+    const f = (train.freq[n]||0);
+    const coh = (train.coh[n]||0);
+    const awayLast = lastSet.has(n) ? 0 : 0.65; // agressivo: favorece "virar" do último
+    const away4 = (countIn4[n]===0) ? 0.45 : 0; // permite 1 "do nada" controlado
+    return (1.00*f) + (0.18*coh) + awayLast + away4;
   }
 
+  // calcula sinergia do candidato com uma linha parcial (latente)
+  function marginalScore(n, line, perDrawCounts, cfg){
+    if(line.includes(n)) return -1e9;
+
+    // trava dura: IN não pode puxar >2 do mesmo concurso
+    for(let i=0;i<4;i++){
+      if(inDraw[n][i]){
+        if(perDrawCounts[i] >= cfg.maxPerDraw) return -1e9;
+      }
+    }
+    // trava dura: IN não pode puxar >cfg.maxLast do último
+    if(lastSet.has(n) && perDrawCounts[0] >= cfg.maxLast) return -1e9;
+
+    let micro = 0;
+    for(const a of line){
+      const cR = coRecent[a][n] || 0;
+      const wR = pairLatentWeight(cR);
+      const cT = coTrain[a][n] || 0;
+      micro += (wR * (0.75 + 0.15*cT)); // treino dá respaldo, mas recente manda
+    }
+
+    // cobertura: preferimos espalhar (ajuda pré-encontro)
+    let covGain = 0;
+    for(let i=0;i<4;i++){
+      if(inDraw[n][i] && perDrawCounts[i]===0) covGain += 1.0;
+    }
+
+    // penaliza espelho: muitos do último e/ou muito "concentrado"
+    const mirrorPenalty = (lastSet.has(n) ? 0.45 : 0) + (countIn4[n]>=3 ? 0.55 : 0);
+
+    return (cfg.wN * sN(n)) + (cfg.wMicro * micro) + (cfg.wCov * covGain) - (cfg.wMirror * mirrorPenalty);
+  }
+
+  function pickBest(pool, line, perDrawCounts, cfg){
+    let best = null;
+    let bestScore = -1e18;
+    for(const n of pool){
+      const sc = marginalScore(n, line, perDrawCounts, cfg);
+      if(sc > bestScore || (sc===bestScore && n < best)){
+        best = n; bestScore = sc;
+      }
+    }
+    return best;
+  }
+
+  function buildINLine(available, used, cfg){
+    const line = [];
+    const perDrawCounts = [0,0,0,0];
+
+    // seed: melhor score individual (com travas)
+    const pool = available.filter(n=>!used.has(n));
+    pool.sort((a,b)=>{
+      const da = sN(a), db = sN(b);
+      if(db!==da) return db-da;
+      return a-b;
+    });
+
+    // escolhe semente respeitando limites de origem
+    let seed = null;
+    for(const n of pool){
+      // trava: não iniciar com "espelho total"
+      if(cfg.avoidPureLastSeed && lastSet.has(n) && countIn4[n]>=3) continue;
+      // respeita limites por draw na semente
+      let ok = true;
+      for(let i=0;i<4;i++){
+        if(inDraw[n][i] && perDrawCounts[i]>=cfg.maxPerDraw) ok=false;
+      }
+      if(ok && (!lastSet.has(n) || perDrawCounts[0] < cfg.maxLast)){
+        seed = n; break;
+      }
+    }
+    if(seed==null) seed = pool[0] || null;
+    if(seed!=null){
+      line.push(seed); used.add(seed);
+      for(let i=0;i<4;i++) if(inDraw[seed][i]) perDrawCounts[i]++;
+    }
+
+    while(line.length < 5){
+      const candPool = available.filter(n=>!used.has(n));
+      const pick = pickBest(candPool, line, perDrawCounts, cfg);
+      if(pick==null) break;
+      line.push(pick); used.add(pick);
+      for(let i=0;i<4;i++) if(inDraw[pick][i]) perDrawCounts[i]++;
+    }
+    return line.slice().sort((a,b)=>a-b);
+  }
+
+  function injectDoNada(line, used){
+    // injeta 1 dezena "do nada" (não apareceu nos 4), escolhida pelo treino (determinístico)
+    const pool = [];
+    for(let n=1;n<=25;n++){
+      if(used.has(n)) continue;
+      if(countIn4[n]===0) pool.push(n);
+    }
+    if(pool.length===0) return line;
+    pool.sort((a,b)=>{
+      const da = sN(a), db = sN(b);
+      if(db!==da) return db-da;
+      return a-b;
+    });
+    const dn = pool[0];
+
+    // substitui a pior dezena da linha em termos de "espelho"
+    let worstIdx = 0;
+    let worst = -1e18;
+    for(let i=0;i<line.length;i++){
+      const n = line[i];
+      // pior = mais espelho (no último e presente em 3-4)
+      const w = (lastSet.has(n)?1:0) + (countIn4[n]>=3?1:0);
+      if(w > worst){ worst = w; worstIdx = i; }
+    }
+    used.delete(line[worstIdx]);
+    line[worstIdx] = dn;
+    used.add(dn);
+    return line.slice().sort((a,b)=>a-b);
+  }
+
+  function buildOUTLine(used, cfg){
+    // OUT = anti-convergência: minimiza micro-pares recentes + evita puxar do último
+    const line = [];
+    const perDrawCounts = [0,0,0,0];
+
+    function outScore(n){
+      // quanto menor, melhor
+      let s = 0;
+      for(const a of line){
+        const cR = coRecent[a][n] || 0;
+        s += (pairLatentWeight(cR) * 10); // penaliza qualquer sinal de encontro
+        s += 0.15*(coTrain[a][n]||0);
+      }
+      // evita último no OUT (pra aumentar chance de ficar vazio)
+      if(lastSet.has(n)) s += 2.0;
+      // prefere n que apareceram muito nos 4 (pra OUT segurar e "ficar de fora")
+      s -= 0.35*(countIn4[n]||0);
+      return s;
+    }
+
+    while(line.length<5){
+      let best=null, bestS=1e18;
+      for(let n=1;n<=25;n++){
+        if(used.has(n) || line.includes(n)) continue;
+
+        // trava: OUT também não pode concentrar demais em um concurso
+        let ok=true;
+        for(let i=0;i<4;i++){
+          if(inDraw[n][i] && perDrawCounts[i]>=cfg.maxPerDrawOut) ok=false;
+        }
+        if(!ok) continue;
+
+        const sc = outScore(n);
+        if(sc < bestS || (sc===bestS && n<best)){
+          best=n; bestS=sc;
+        }
+      }
+      if(best==null) break;
+      line.push(best); used.add(best);
+      for(let i=0;i<4;i++) if(inDraw[best][i]) perDrawCounts[i]++;
+    }
+    return line.slice().sort((a,b)=>a-b);
+  }
+
+  // pool total 1..25 (permite "do nada"), determinístico
   const used = new Set();
-  const line1 = __buildLineTogether(candidates, used, baseScore, coTrain, coRecent);
-  const line2 = __buildLineTogether(candidates, used, baseScore, coTrain, coRecent);
-  const line3 = __buildLineTogether(candidates, used, baseScore, coTrain, coRecent);
 
-  const line4 = __buildLineApart(candidates, used, coTrain, coRecent);
-  const line5 = __buildLineApart(candidates, used, coTrain, coRecent);
+  const inCfg1 = { wN:1.05, wMicro:1.30, wCov:0.80, wMirror:1.15, maxPerDraw:2, maxLast:2, avoidPureLastSeed:true };
+  const inCfg2 = { wN:1.10, wMicro:1.00, wCov:1.35, wMirror:1.25, maxPerDraw:2, maxLast:2, avoidPureLastSeed:true }; // transição (cobertura)
+  const inCfg3 = { wN:1.00, wMicro:1.10, wCov:1.05, wMirror:1.05, maxPerDraw:2, maxLast:2, avoidPureLastSeed:false };
 
-  // garantia final: 5 linhas completas (caso raro de pool curto)
+  const line1 = buildINLine([...Array(25)].map((_,i)=>i+1), used, inCfg1);
+  let line2 = buildINLine([...Array(25)].map((_,i)=>i+1), used, inCfg2);
+  line2 = injectDoNada(line2, used); // força 1 "do nada" controlado
+  const line3 = buildINLine([...Array(25)].map((_,i)=>i+1), used, inCfg3);
+
+  const outCfg = { maxPerDrawOut:3 };
+  const line4 = buildOUTLine(used, outCfg);
+  const line5 = buildOUTLine(used, outCfg);
+
+  // garantia: completa faltantes (caso extremo)
   const allUsed = new Set([...(line1||[]),...(line2||[]),...(line3||[]),...(line4||[]),...(line5||[])]);
   const remaining = [];
   for(let n=1;n<=25;n++) if(!allUsed.has(n)) remaining.push(n);
 
   function fillTo5(line){
-    while(line.length<5){
+    const a = (line||[]).slice();
+    while(a.length<5){
       const n = remaining.shift();
       if(n==null) break;
-      line.push(n);
+      a.push(n);
     }
-    return line.slice().sort((a,b)=>a-b);
+    return a.slice().sort((x,y)=>x-y);
   }
 
-  const lines = [
-    fillTo5(line1||[]),
-    fillTo5(line2||[]),
-    fillTo5(line3||[]),
-    fillTo5(line4||[]),
-    fillTo5(line5||[])
-  ];
-
-  return { lines };
+  const lines = [fillTo5(line1), fillTo5(line2), fillTo5(line3), fillTo5(line4), fillTo5(line5)];
+  return { lines, mode:"LATENTE_AGRESSIVO_FORTE_V2" };
 }
+
 
 async function gerar15P(){
   const can15p = ((access.premium && access.addon15) || access.isAdmin);
@@ -6003,7 +6188,7 @@ async function gerar15P(){
       <div class="box" style="margin-top:12px">
         <b>📌 Linhas 1 a 5 (geradas pelo sistema)</b>
         <div class="mini" style="margin-top:6px">
-          Motor: <b>NOVO 15P • PADRÕES FIXOS TREINADOS</b> • Base: <b>últimos 4</b> • Sem janela variável • Sem diversificação por usuário.
+          Motor: <b>NOVO 15P • LATENTE AGRESSIVO FORTE (v2)</b> • Base: <b>últimos 4</b> • Sem janela variável • Sem diversificação por usuário.
         </div>
         <div style="margin-top:12px;overflow:auto">
           <table class="table">
