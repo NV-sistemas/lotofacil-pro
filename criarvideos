@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Kwai Video Studio — N&V Sistemas</title>
+  <style>
+    :root{
+      --bg:#07080b;
+      --card:#0e1117;
+      --card2:#0b0d12;
+      --text:#e8e8ea;
+      --muted:#a7a7ad;
+      --gold:#f5c84b;
+      --line:#1f2633;
+      --btn:#141a24;
+      --btn2:#0f1420;
+      --shadow: 0 10px 30px rgba(0,0,0,.45);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(1200px 600px at 20% 0%, rgba(245,200,75,.10), transparent 60%),
+                  radial-gradient(900px 500px at 80% 10%, rgba(245,200,75,.07), transparent 55%),
+                  var(--bg);
+      color:var(--text);
+    }
+    header{
+      padding:20px 16px 10px;
+      max-width:1100px;
+      margin:0 auto;
+    }
+    .brand{
+      display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+    }
+    .dot{
+      width:10px;height:10px;border-radius:50%;
+      background:var(--gold);
+      box-shadow:0 0 18px rgba(245,200,75,.55);
+    }
+    h1{margin:0;font-size:18px;letter-spacing:.4px}
+    .sub{margin:6px 0 0;color:var(--muted);font-size:13px;line-height:1.35}
+    main{
+      max-width:1100px;
+      margin:0 auto;
+      padding:10px 16px 26px;
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:14px;
+    }
+    @media(min-width:980px){
+      main{grid-template-columns: 0.95fr 1.05fr}
+    }
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.03), transparent 45%),
+                  var(--card);
+      border:1px solid var(--line);
+      border-radius:16px;
+      box-shadow: var(--shadow);
+      padding:14px;
+    }
+    .card h2{
+      margin:0 0 10px;
+      font-size:14px;
+      color:var(--gold);
+      letter-spacing:.35px;
+    }
+    label{
+      display:block;
+      color:var(--muted);
+      font-size:12px;
+      margin:10px 0 6px;
+    }
+    textarea, input, select{
+      width:100%;
+      background: var(--card2);
+      border:1px solid var(--line);
+      color:var(--text);
+      border-radius:12px;
+      padding:10px 12px;
+      outline:none;
+      font-size:13px;
+      line-height:1.35;
+    }
+    textarea{min-height:140px; resize:vertical}
+    .row{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:10px;
+    }
+    @media(min-width:520px){
+      .row{grid-template-columns: 1fr 1fr}
+    }
+    .btns{
+      display:flex; flex-wrap:wrap; gap:10px;
+      margin-top:12px;
+    }
+    button{
+      background: linear-gradient(180deg, rgba(245,200,75,.12), transparent 55%),
+                  var(--btn);
+      border:1px solid rgba(245,200,75,.28);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:12px;
+      cursor:pointer;
+      font-weight:600;
+      font-size:13px;
+    }
+    button.secondary{
+      background: var(--btn2);
+      border:1px solid var(--line);
+      color:var(--muted);
+      font-weight:600;
+    }
+    button:active{transform: translateY(1px)}
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:7px 10px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.02);
+      color:var(--muted);
+      font-size:12px;
+    }
+    .outTabs{
+      display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px;
+    }
+    .tab{
+      padding:8px 10px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.02);
+      color:var(--muted);
+      cursor:pointer;
+      font-size:12px;
+      font-weight:700;
+    }
+    .tab.active{
+      border-color: rgba(245,200,75,.35);
+      color: var(--text);
+      background: rgba(245,200,75,.08);
+    }
+    pre{
+      margin:0;
+      white-space:pre-wrap;
+      word-wrap:break-word;
+      background: var(--card2);
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:12px;
+      color: var(--text);
+      font-size:12.5px;
+      line-height:1.45;
+      min-height:220px;
+    }
+    .mini{
+      color:var(--muted);
+      font-size:12px;
+      margin-top:10px;
+      line-height:1.35;
+    }
+    .ok{
+      color:#9cffc7;
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <div class="dot"></div>
+    <h1>Kwai Video Studio — N&V Sistemas</h1>
+    <span class="pill">Gerador de roteiros + cenas + SRT (grátis, GitHub Pages)</span>
+  </div>
+  <p class="sub">
+    Cole um prompt pronto e gere: roteiro (30s/15s), timeline por cenas, copy de tela, narração, CTA, hashtags e legenda SRT.
+  </p>
+</header>
+
+<main>
+  <section class="card">
+    <h2>1) Entrada (Prompt + Config)</h2>
+
+    <label>Seu PROMPT (cole o prompt pronto aqui)</label>
+    <textarea id="prompt" placeholder="Cole aqui o prompt pronto que eu vou te mandar..."></textarea>
+
+    <div class="row">
+      <div>
+        <label>Produto/Oferta</label>
+        <input id="offer" placeholder="Ex: Lotofácil Prime Analytics — Premium / Combo / 15P" />
+      </div>
+      <div>
+        <label>CTA (ação final)</label>
+        <input id="cta" placeholder="Ex: Link na bio • Garanta acesso • Teste hoje" />
+      </div>
+    </div>
+
+    <div class="row">
+      <div>
+        <label>Tom</label>
+        <select id="tone">
+          <option value="forte">Forte e direto</option>
+          <option value="didatico">Didático e objetivo</option>
+          <option value="misterio">Misterioso (curiosidade)</option>
+        </select>
+      </div>
+      <div>
+        <label>Âncora (o que NÃO pode faltar)</label>
+        <input id="anchor" placeholder="Ex: Sistema Preditivo + Jogo Elite + 15P (3 linhas)" />
+      </div>
+    </div>
+
+    <div class="btns">
+      <button onclick="generate('30')">Gerar vídeo 30s</button>
+      <button onclick="generate('15')">Gerar vídeo 15s</button>
+      <button onclick="generate('both')">Gerar 30s + 15s</button>
+      <button class="secondary" onclick="fillExample()">Preencher exemplo</button>
+      <button class="secondary" onclick="clearAll()">Limpar</button>
+    </div>
+
+    <p class="mini">
+      Dica prática: grave só 6–10 takes curtos (mãos/telefone/tela do sistema), e use o roteiro/timeline pra montar rápido no editor do Kwai.
+    </p>
+  </section>
+
+  <section class="card">
+    <h2>2) Saída (copiar / baixar)</h2>
+
+    <div class="outTabs">
+      <div class="tab active" data-tab="roteiro" onclick="setTab('roteiro')">Roteiro</div>
+      <div class="tab" data-tab="cenas" onclick="setTab('cenas')">Cenas (timeline)</div>
+      <div class="tab" data-tab="srt" onclick="setTab('srt')">Legenda SRT</div>
+      <div class="tab" data-tab="hashtags" onclick="setTab('hashtags')">Hashtags</div>
+      <div class="tab" data-tab="json" onclick="setTab('json')">JSON</div>
+    </div>
+
+    <pre id="output"></pre>
+
+    <div class="btns" style="margin-top:10px">
+      <button onclick="copyOutput()">Copiar</button>
+      <button class="secondary" onclick="downloadCurrent()">Baixar arquivo</button>
+    </div>
+
+    <p class="mini ok" id="status" style="display:none;">Gerado!</p>
+  </section>
+</main>
+
+<script>
+  let last = { roteiro:"", cenas:"", srt:"", hashtags:"", json:"{}" };
+  let currentTab = "roteiro";
+
+  function setTab(tab){
+    currentTab = tab;
+    document.querySelectorAll(".tab").forEach(t=>{
+      t.classList.toggle("active", t.dataset.tab === tab);
+    });
+    document.getElementById("output").textContent = last[tab] || "";
+  }
+
+  function clearAll(){
+    document.getElementById("prompt").value="";
+    document.getElementById("offer").value="";
+    document.getElementById("cta").value="";
+    document.getElementById("anchor").value="";
+    document.getElementById("output").textContent="";
+    last = { roteiro:"", cenas:"", srt:"", hashtags:"", json:"{}" };
+    setTab("roteiro");
+    toast("");
+  }
+
+  function fillExample(){
+    document.getElementById("prompt").value =
+`OBJETIVO: Vender o acesso do sistema (Premium/Combo/15P) usando curiosidade + prova + CTA.
+PÚBLICO: Lotofácil (quer 14/15 pontos).
+PROVAS: “padrões treinados”, “Jogo Elite (6 jogos)”, “15P fecha 3 linhas”.
+FORMATO: vídeo curto (cortes rápidos), texto grande, narração direta.
+REGRAS: 1 gancho forte nos 2 primeiros segundos, 1 prova visual, 1 CTA final.`;
+    document.getElementById("offer").value = "Lotofácil Prime Analytics — Premium / Combo / 15P";
+    document.getElementById("cta").value = "Link na bio • Garanta seu acesso hoje";
+    document.getElementById("anchor").value = "Sistema Preditivo + Jogo Elite + 15P (3 linhas)";
+    document.getElementById("tone").value = "forte";
+  }
+
+  function generate(mode){
+    const prompt = (document.getElementById("prompt").value || "").trim();
+    const offer = (document.getElementById("offer").value || "").trim();
+    const cta = (document.getElementById("cta").value || "").trim();
+    const tone = document.getElementById("tone").value;
+    const anchor = (document.getElementById("anchor").value || "").trim();
+
+    if(!prompt){
+      alert("Cole um prompt primeiro.");
+      return;
+    }
+
+    const config = { offer, cta, tone, anchor };
+    const out = buildOutputs(prompt, config, mode);
+
+    last = out;
+    setTab(currentTab);
+    toast("Gerado!");
+  }
+
+  function tonePack(tone){
+    if(tone==="misterio"){
+      return {
+        hookA: "Você já percebeu que as dezenas ‘se encontram’ do nada?",
+        hookB: "Quando o padrão vira… ele paga.",
+        hookC: "Tem concurso que ‘liga’ um ciclo… e quase ninguém vê."
+      };
+    }
+    if(tone==="didatico"){
+      return {
+        hookA: "Vou te mostrar o método que eu uso pra montar jogos.",
+        hookB: "É simples: padrão + estrutura + execução.",
+        hookC: "Olha como eu organizo em módulos."
+      };
+    }
+    return {
+      hookA: "Se você quer buscar 14/15, para de apostar no escuro.",
+      hookB: "Aqui é padrão treinado. Sem chute.",
+      hookC: "Quer jogo forte? Então olha isso."
+    };
+  }
+
+  function buildVideo(duration, prompt, cfg){
+    const t = tonePack(cfg.tone);
+    const offer = cfg.offer || "Seu sistema";
+    const cta = cfg.cta || "Link na bio";
+    const anchor = cfg.anchor || "Sistema Preditivo + Elite + 15P";
+
+    // Estrutura base (gancho > prova visual > mecanismo > CTA)
+    const is30 = duration === 30;
+
+    const scenes = is30 ? [
+      { start:0.0, end:2.2,  on:"GANCHO", text:`${t.hookA}`, vo:`${t.hookA}` },
+      { start:2.2, end:6.5,  on:"PROMESSA", text:"Padrões + estrutura pra buscar 14/15", vo:"Eu uso padrões e estrutura pra mirar alto: 14 e 15 pontos." },
+      { start:6.5, end:12.5, on:"PROVA VISUAL", text:"Mostre a tela: Jogos / Módulos", vo:"Olha a tela do sistema: Principal, Elite e o 15P. Tudo organizado." },
+      { start:12.5,end:19.5, on:"MECÂNICA", text:"Elite = 6 jogos (Combo) • 15P fecha 3 linhas", vo:"O Elite gera 6 jogos no Combo. E o 15P tem estratégia de fechar 3 linhas." },
+      { start:19.5,end:26.0, on:"DIFERENCIAL", text:`Âncora: ${anchor}`, vo:`O foco é replicar comportamento e encaixar dezenas na estrutura. ${anchor}.` },
+      { start:26.0,end:30.0, on:"CTA", text:`${cta}`, vo:`Quer ver isso rodando no próximo concurso? ${cta}.` },
+    ] : [
+      { start:0.0, end:2.0, on:"GANCHO", text:`${t.hookB}`, vo:`${t.hookB}` },
+      { start:2.0, end:6.5, on:"PROVA", text:"Mostre a tela do sistema (rápido)", vo:"Olha isso aqui no sistema em segundos." },
+      { start:6.5, end:12.0, on:"PONTO FORTE", text:"Elite + 15P (3 linhas) = estratégia agressiva", vo:"Elite e 15P são a parte mais agressiva pra buscar 14/15." },
+      { start:12.0,end:15.0, on:"CTA", text:`${cta}`, vo:`${cta}.` },
+    ];
+
+    const roteiro =
+`🎬 ROTEIRO — ${duration}s
+Produto/Oferta: ${offer}
+Tom: ${cfg.tone.toUpperCase()}
+Base do prompt:
+- ${prompt.replace(/\n/g,"\n- ")}
+
+✅ Estrutura:
+1) Gancho (0–2s)
+2) Prova visual (tela/print)
+3) Mecânica (o que muda o jogo)
+4) CTA (fechamento)
+
+🧠 Narração (voz):
+${scenes.map((s,i)=>`${i+1}. [${fmt(s.start)}–${fmt(s.end)}] ${s.vo}`).join("\n")}
+
+🟨 Texto na tela (grande):
+${scenes.map((s,i)=>`${i+1}. ${s.text}`).join("\n")}
+
+📌 Observação:
+- Use cortes rápidos e close na tela.
+- Texto grande, 1 ideia por cena.`;
+
+    const timeline =
+`⏱️ CENAS (TIMELINE) — ${duration}s
+${scenes.map((s,i)=>(
+`${i+1}) ${fmt(s.start)}–${fmt(s.end)} | ${s.on}
+   Tela: ${s.text}
+   VO:   ${s.vo}`
+)).join("\n\n")}
+
+📸 Sugestão de take por cena:
+- Mãos no celular / print da home / print do Elite / print do 15P / botão “Gerar” / resultado na tela.`;
+
+    const srt = toSRT(scenes);
+    const hashtags = buildHashtags(cfg.tone);
+
+    return { roteiro, timeline, srt, scenes };
+  }
+
+  function buildHashtags(tone){
+    const base = [
+      "#lotofacil", "#lotofácil", "#loteria", "#loterias", "#dicaslotofacil",
+      "#estrategia", "#apostas", "#numeros", "#kwai", "#brasil"
+    ];
+    const extra = tone==="misterio"
+      ? ["#segredo", "#padrao", "#ciclos"]
+      : tone==="didatico"
+      ? ["#metodo", "#passoapasso", "#analise"]
+      : ["#forte", "#foco", "#resultado"];
+    return [...base, ...extra].join(" ");
+  }
+
+  function buildOutputs(prompt, cfg, mode){
+    let pack30=null, pack15=null;
+    if(mode==="30") pack30 = buildVideo(30, prompt, cfg);
+    if(mode==="15") pack15 = buildVideo(15, prompt, cfg);
+    if(mode==="both"){
+      pack30 = buildVideo(30, prompt, cfg);
+      pack15 = buildVideo(15, prompt, cfg);
+    }
+
+    const roteiro =
+      (pack30 ? pack30.roteiro : "") +
+      (pack30 && pack15 ? "\n\n" + "—".repeat(40) + "\n\n" : "") +
+      (pack15 ? pack15.roteiro : "");
+
+    const cenas =
+      (pack30 ? pack30.timeline : "") +
+      (pack30 && pack15 ? "\n\n" + "—".repeat(40) + "\n\n" : "") +
+      (pack15 ? pack15.timeline : "");
+
+    const srt =
+      (pack30 ? `; SRT 30s\n${pack30.srt}` : "") +
+      (pack30 && pack15 ? "\n\n" : "") +
+      (pack15 ? `; SRT 15s\n${pack15.srt}` : "");
+
+    const hashtags = buildHashtags(cfg.tone);
+
+    const jsonObj = {
+      createdAt: new Date().toISOString(),
+      config: cfg,
+      prompt,
+      video30: pack30 ? pack30.scenes : null,
+      video15: pack15 ? pack15.scenes : null,
+      hashtags
+    };
+
+    return {
+      roteiro,
+      cenas,
+      srt,
+      hashtags,
+      json: JSON.stringify(jsonObj, null, 2)
+    };
+  }
+
+  function fmt(sec){
+    return sec.toFixed(1).padStart(4,"0")+"s";
+  }
+
+  function toSRT(scenes){
+    // Quebra em blocos curtos por cena
+    let idx = 1;
+    return scenes.map(s=>{
+      const start = srtTime(s.start);
+      const end = srtTime(s.end);
+      const line = compactSubtitle(s.vo);
+      return `${idx++}\n${start} --> ${end}\n${line}\n`;
+    }).join("\n");
+  }
+
+  function srtTime(seconds){
+    const msTotal = Math.round(seconds*1000);
+    const h = Math.floor(msTotal / 3600000);
+    const m = Math.floor((msTotal % 3600000) / 60000);
+    const s = Math.floor((msTotal % 60000) / 1000);
+    const ms = msTotal % 1000;
+    return `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")},${String(ms).padStart(3,"0")}`;
+  }
+
+  function compactSubtitle(text){
+    // deixa curto pra caber na tela
+    return text
+      .replace(/\s+/g," ")
+      .trim()
+      .slice(0, 84);
+  }
+
+  async function copyOutput(){
+    const text = document.getElementById("output").textContent || "";
+    if(!text){ alert("Nada para copiar."); return; }
+    await navigator.clipboard.writeText(text);
+    toast("Copiado!");
+  }
+
+  function downloadCurrent(){
+    const content = last[currentTab] || "";
+    if(!content){ alert("Nada para baixar."); return; }
+    const ext = currentTab === "srt" ? "srt" : currentTab === "json" ? "json" : "txt";
+    const blob = new Blob([content], {type: "text/plain;charset=utf-8"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `kwai_${currentTab}.${ext}`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(a.href);
+    toast("Baixado!");
+  }
+
+  function toast(msg){
+    const el = document.getElementById("status");
+    if(!msg){ el.style.display="none"; return; }
+    el.textContent = msg;
+    el.style.display="block";
+    setTimeout(()=>{ el.style.display="none"; }, 1400);
+  }
+
+  // init output
+  setTab("roteiro");
+</script>
+</body>
+</html>
