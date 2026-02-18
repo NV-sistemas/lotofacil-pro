@@ -200,7 +200,48 @@
   <section class="card">
     <h2>3) Cenas (texto + mídia + narração)</h2>
 
+    
+
+    <label>Prompt (cola aqui) → criar cenas automático</label>
+    <textarea id="promptBox" placeholder='Cole um prompt no formato abaixo:
+
+#CENA 1 | dur=4 | anim=type | pos=bottom
+HEAD: 6 padrões fixos treinados em 50 concursos.
+SUB: Elite + 15P: estratégia agressiva pra 14/15.
+
+#CENA 2 | dur=4 | anim=slide | pos=bottom
+HEAD: O Elite gera 6 jogos com padrões fixos.
+SUB: Você só executa. Sem achismo.
+
+#CENA 3 | dur=4
+HEAD: 15P: fechando 3 linhas, o sistema busca 15 pontos.
+SUB: Link na bio para acesso imediato.
+'></textarea>
+
+    <div class="row">
+      <div>
+        <label>Padrão de duração (se não vier no prompt)</label>
+        <input id="promptDefaultDur" type="number" min="1" step="0.5" value="4"/>
+      </div>
+      <div>
+        <label>Nome base</label>
+        <input id="promptNameBase" value="Cena"/>
+      </div>
+    </div>
+
     <div class="btns">
+      <button onclick="generateScenesFromPrompt()">Gerar cenas do prompt</button>
+      <button class="secondary" onclick="appendScenesFromPrompt()">Adicionar cenas (sem apagar)</button>
+      <button class="secondary" onclick="fillPromptExample()">Exemplo pronto</button>
+    </div>
+
+    <p class="hint">
+      Cole o prompt e clique em <b>Gerar cenas do prompt</b>. Ele cria a lista completa, com texto + duração + animação.
+      Depois você só coloca a mídia de cada cena e grava a narração.
+    </p>
+
+    <hr style="border:none;border-top:1px solid var(--line);margin:12px 0"/>
+<div class="btns">
       <button onclick="addScene()">+ Nova cena</button>
       <button class="secondary" onclick="duplicateScene()">Duplicar</button>
       <button class="danger" onclick="deleteScene()">Excluir</button>
@@ -264,6 +305,7 @@
 
       <div class="btns">
         <button class="secondary" onclick="toggleCropMode()">Modo Corte (C)</button>
+        <button class="secondary" onclick="copyPrevMediaCrop()">Copiar mídia/corte da anterior</button>
         <button class="secondary" onclick="resetCrop()">Reset corte</button>
       </div>
 
@@ -1187,6 +1229,186 @@ function fileToDataURL(file){
     r.onerror = rej;
     r.readAsDataURL(file);
   });
+}
+
+/** =========================
+ *  PROMPT → AUTO CENAS + COPIAR MÍDIA/CORTE
+ *  ========================= */
+
+// Formatos aceitos:
+// 1) “#CENA X | dur=4 | anim=type | pos=bottom” + linhas HEAD:/SUB:
+// 2) JSON: { "scenes": [ { "name":"...", "dur":4, "headline":"...", "sub":"...", "anim":"type", "pos":"bottom" } ] }
+
+function parsePromptToScenes(raw){
+  const text = (raw || "").trim();
+  if(!text) return [];
+
+  // tenta JSON
+  try{
+    const obj = JSON.parse(text);
+    const arr = obj?.scenes || obj;
+    if(Array.isArray(arr)){
+      return arr.map((s, i)=> normalizePromptScene(s, i));
+    }
+  }catch(e){ /* ignore */ }
+
+  // modo texto
+  const lines = text.split(/\r?\n/);
+  const scenes = [];
+  let cur = null;
+
+  function pushCur(){
+    if(cur && (cur.headline || cur.sub)){
+      scenes.push(cur);
+    }
+  }
+
+  for(const lineRaw of lines){
+    const ln = (lineRaw || "").trim();
+
+    // início de cena
+    if(/^#\s*(cena|scene)\s*\d+/i.test(ln)){
+      pushCur();
+      cur = { name: ln.replace(/^#\s*/,"").split("|")[0].trim(), dur:null, anim:null, pos:null, headline:"", sub:"" };
+
+      const parts = ln.split("|").slice(1).map(s=>s.trim()).filter(Boolean);
+      for(const p of parts){
+        const [k,v] = p.split("=").map(x=>x.trim());
+        if(!k || v==null) continue;
+        if(k.toLowerCase()==="dur") cur.dur = parseFloat(v);
+        if(k.toLowerCase()==="anim") cur.anim = v;
+        if(k.toLowerCase()==="pos") cur.pos = v;
+      }
+      continue;
+    }
+
+    if(!cur){
+      cur = { name:"Cena 1", dur:null, anim:null, pos:null, headline:"", sub:"" };
+    }
+
+    if(/^head\s*:/i.test(ln)){ cur.headline = ln.replace(/^head\s*:\s*/i,"").trim(); continue; }
+    if(/^sub\s*:/i.test(ln)){ cur.sub = ln.replace(/^sub\s*:\s*/i,"").trim(); continue; }
+
+    if(ln){
+      if(!cur.headline) cur.headline = ln;
+      else if(!cur.sub) cur.sub = ln;
+      else cur.sub += " " + ln;
+    }
+  }
+  pushCur();
+  return scenes.map((s,i)=> normalizePromptScene(s,i));
+}
+
+function normalizePromptScene(s, idx){
+  const nameBase = (document.getElementById("promptNameBase")?.value || "Cena").trim() || "Cena";
+  const defDur = parseFloat(document.getElementById("promptDefaultDur")?.value || "4") || 4;
+
+  const out = {
+    name: (s.name && String(s.name).trim()) || `${nameBase} ${idx+1}`,
+    dur: isFinite(Number(s.dur)) ? Number(s.dur) : defDur,
+    anim: (s.anim || s.textAnim || s.animation || "type").toString().trim(),
+    pos: (s.pos || s.textPos || s.position || "bottom").toString().trim(),
+    headline: (s.headline || s.head || "").toString(),
+    sub: (s.sub || s.subtitle || "").toString(),
+  };
+
+  if(!["type","fade","slide"].includes(out.anim)) out.anim = "type";
+  if(!["bottom","top","center"].includes(out.pos)) out.pos = "bottom";
+  if(out.dur < 1) out.dur = 1;
+
+  return out;
+}
+
+async function applyPromptScenes(parsed, { append=false } = {}){
+  if(!parsed.length){
+    alert("Prompt vazio ou sem cenas reconhecíveis.");
+    return;
+  }
+
+  if(!append){
+    state.scenes = [];
+    state.active = 0;
+  }
+
+  const startIndex = state.scenes.length;
+
+  for(let i=0;i<parsed.length;i++){
+    const p = parsed[i];
+    const sc = defaultScene(startIndex + i + 1);
+    sc.name = p.name;
+    sc.dur = p.dur;
+    sc.headline = p.headline || "";
+    sc.sub = p.sub || "";
+    sc.textAnim = p.anim;
+    sc.textPos = p.pos;
+    state.scenes.push(sc);
+  }
+
+  state.active = startIndex;
+  renderSceneList();
+  renderSceneEditor();
+  draw();
+
+  el("renderInfo").textContent = append ? "Cenas adicionadas do prompt." : "Cenas geradas do prompt.";
+}
+
+function generateScenesFromPrompt(){
+  const raw = document.getElementById("promptBox").value;
+  const parsed = parsePromptToScenes(raw);
+  applyPromptScenes(parsed, { append:false });
+}
+
+function appendScenesFromPrompt(){
+  const raw = document.getElementById("promptBox").value;
+  const parsed = parsePromptToScenes(raw);
+  applyPromptScenes(parsed, { append:true });
+}
+
+function fillPromptExample(){
+  document.getElementById("promptBox").value =
+`#CENA 1 | dur=4 | anim=type | pos=bottom
+HEAD: 6 padrões fixos treinados em 50 concursos.
+SUB: Lotofácil Prime Analytics — forte, objetivo e sem achismo.
+
+#CENA 2 | dur=4 | anim=slide | pos=bottom
+HEAD: JOGO ELITE: 6 jogos, padrões fixos e treinados.
+SUB: Você executa o método. O sistema entrega estrutura.
+
+#CENA 3 | dur=4 | anim=fade | pos=bottom
+HEAD: 15P: com 3 linhas fechadas, busca agressiva do 15.
+SUB: Estratégia focada em 14/15 pontos.
+
+#CENA 4 | dur=4 | anim=type | pos=bottom
+HEAD: Quer acesso ao sistema completo?
+SUB: Link na bio • Garanta seu Premium/Combo/15P hoje.`;
+}
+
+// Botão: copia mídia + corte (zoom/pan) da cena anterior.
+// Truque: depois de copiar, você pode trocar o arquivo da mídia e manter o mesmo enquadramento.
+async function copyPrevMediaCrop(){
+  const idx = state.active;
+  if(idx <= 0) return alert("Não há cena anterior para copiar.");
+  const cur = state.scenes[idx];
+  const prev = state.scenes[idx-1];
+  if(!cur || !prev) return;
+
+  // copia crop sempre
+  cur.crop.zoom = prev.crop.zoom;
+  cur.crop.panX = prev.crop.panX;
+  cur.crop.panY = prev.crop.panY;
+
+  // copia mídia se existir (opcional, mas ajuda a manter o mesmo frame antes de trocar)
+  if(prev.media?.dataUrl){
+    cur.media.dataUrl = prev.media.dataUrl;
+    cur.media.type = prev.media.type;
+    await loadSceneMedia(cur);
+  }
+
+  // atualiza UI
+  if(el("scZoom")) el("scZoom").value = cur.crop.zoom.toFixed(2);
+  renderSceneList();
+  draw();
+  el("renderInfo").textContent = "Mídia/corte copiados da cena anterior. Agora troque a mídia se quiser, mantendo o enquadramento.";
 }
 
 /** =========================
