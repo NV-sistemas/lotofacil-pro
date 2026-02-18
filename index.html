@@ -4949,185 +4949,306 @@ function countInSet(arr, set){
   return k;
 }
 
-function buildWindowFeatures(concursos){
-  const freq = Array(26).fill(0);
-  const lastSeen = Array(26).fill(null); // idx dentro da janela (0..len-1)
-  const streak = Array(26).fill(0);
-  const len = concursos.length;
+function buildLines15PFixedPattern(payloadShort, qtdShort){
+  // ============================================================
+  // ✅ 15P • PADRÕES FIXOS (TREINO ULTRA FINO) • AGRESSIVO FORTE
+  // Objetivo: NÃO "espelhar" o passado. Detectar CONVERGÊNCIA LATENTE
+  // (pré-encontro) para tentar capturar 14/15 quando o ciclo encaixa.
+  //
+  // Regras:
+  // - Geração sempre com os ÚLTIMOS 4 concursos (igual ELITE)
+  // - 5 linhas de 5 dezenas (25 únicas)
+  // - 3 linhas IN = convergência latente (sair)
+  // - 2 linhas OUT = divergência/anti-convergência (não sair)
+  // - Determinístico (sem aleatório)
+  // ============================================================
 
-  for(let i=0;i<len;i++){
-    const set = new Set(getDezenas(concursos[i]));
+  // ---------- Treino fixo (base estatística) ----------
+  // Inclui 3574–3577 como "pré-janela" para treinar o caso 3578.
+  const TRAIN_SERIES = [
+    {c:3574, d:[1,3,4,5,6,8,12,13,15,16,17,18,20,21,25]},
+    {c:3575, d:[2,4,5,7,8,9,10,12,13,14,15,17,21,22,25]},
+    {c:3576, d:[1,2,3,5,7,8,10,13,16,18,19,21,22,23,25]},
+    {c:3577, d:[1,2,4,5,6,8,9,10,12,16,18,20,23,24,25]},
+    {c:3578, d:[2,3,4,5,6,7,9,10,14,17,19,20,22,23,24]},
+    {c:3579, d:[1,2,3,4,8,10,11,13,15,17,19,20,21,23,25]},
+    {c:3580, d:[1,4,5,6,8,9,12,13,15,16,19,20,21,23,25]},
+    {c:3581, d:[2,3,4,5,6,7,8,10,12,15,16,17,20,22,24]},
+    {c:3582, d:[2,5,6,7,8,9,10,11,12,13,16,18,23,24,25]},
+    {c:3583, d:[2,3,4,6,9,10,12,13,14,15,21,22,23,24,25]},
+    {c:3584, d:[1,2,4,7,8,9,13,15,16,17,18,20,21,23,25]},
+    {c:3585, d:[1,2,4,8,9,10,13,16,17,19,20,21,22,23,25]},
+    {c:3586, d:[1,2,6,10,11,12,13,14,15,17,18,21,22,24,25]},
+    {c:3587, d:[1,2,4,8,9,10,11,12,13,16,17,18,19,20,22]},
+    {c:3588, d:[3,5,7,8,9,11,14,15,16,17,19,21,22,23,24]},
+    {c:3589, d:[1,2,3,4,8,10,11,12,15,18,19,21,22,24,25]},
+    {c:3590, d:[4,6,8,10,11,12,13,15,16,17,19,20,21,22,23]},
+    {c:3591, d:[1,2,3,4,6,7,10,11,13,14,15,17,18,19,20]},
+    {c:3592, d:[1,4,5,6,7,9,12,13,17,18,20,21,22,23,25]},
+    {c:3593, d:[1,3,4,6,7,8,9,10,12,15,18,19,23,24,25]},
+    {c:3594, d:[1,2,4,5,7,8,9,11,14,15,18,20,21,23,24]},
+    {c:3595, d:[1,2,4,5,6,8,10,12,13,15,16,20,21,22,25]},
+    {c:3596, d:[1,2,3,4,5,6,7,8,14,15,16,18,20,21,22]},
+    {c:3597, d:[1,4,5,7,10,11,13,14,15,16,19,20,21,23,25]},
+    {c:3598, d:[1,3,4,5,6,7,8,9,11,16,18,21,22,23,24]},
+    {c:3599, d:[1,4,6,7,8,9,11,12,13,16,19,20,21,23,24]},
+    {c:3600, d:[3,4,5,6,7,8,9,11,12,16,17,20,21,22,25]},
+    {c:3601, d:[2,3,4,6,7,8,9,11,16,17,20,21,23,24,25]},
+    {c:3602, d:[1,2,3,4,5,6,8,9,15,18,19,20,22,23,24]},
+    {c:3603, d:[2,4,5,9,10,11,12,14,15,17,19,20,21,22,24]},
+    {c:3604, d:[1,2,3,6,7,8,11,13,15,16,19,21,22,23,24]},
+    {c:3605, d:[1,3,4,7,10,12,13,14,19,20,21,22,23,24,25]},
+    {c:3606, d:[2,3,6,7,9,11,12,14,15,17,19,20,21,23,24]},
+    {c:3607, d:[1,2,4,5,6,8,9,13,14,15,16,18,19,20,23]},
+    {c:3608, d:[2,5,6,8,9,11,14,16,17,18,19,20,22,23,25]},
+    {c:3609, d:[2,5,6,8,9,10,11,12,13,17,19,20,22,24,25]},
+    {c:3610, d:[1,3,5,7,8,10,13,14,17,20,21,22,23,24,25]},
+    {c:3611, d:[1,2,3,4,5,6,10,11,12,14,15,17,18,19,25]},
+    {c:3612, d:[4,6,8,9,11,14,15,16,17,18,19,20,21,22,25]},
+    {c:3613, d:[1,3,4,7,9,10,11,12,15,16,18,20,21,22,23]},
+    {c:3614, d:[2,4,5,6,9,10,11,12,14,15,16,17,20,23,25]}
+  ];
+
+  // ---------- Calibração do "vem do nada" (comeback) ----------
+  // comebackScore[n] alto => quando n estava AUSENTE nos 4 anteriores, mesmo assim costuma entrar no alvo.
+  const comebackScore = Array(26).fill(0);
+  const absentCt = Array(26).fill(0);
+  const comebackCt = Array(26).fill(0);
+
+  const byIndex = TRAIN_SERIES.slice().sort((a,b)=>a.c-b.c);
+  const idxMap = new Map(byIndex.map((o,i)=>[o.c,i]));
+
+  for(let i=0;i<byIndex.length;i++){
+    const target = byIndex[i];
+    if(target.c < 3578) continue;
+    const prev = byIndex.slice(Math.max(0,i-4), i);
+    if(prev.length !== 4) continue;
+
+    const prevUnion = new Set();
+    prev.forEach(p=>p.d.forEach(n=>prevUnion.add(n)));
+    const targetSet = new Set(target.d);
+
     for(let n=1;n<=25;n++){
-      if(set.has(n)){
-        freq[n] += 1;
-        lastSeen[n] = i;
+      if(!prevUnion.has(n)){
+        absentCt[n] += 1;
+        if(targetSet.has(n)) comebackCt[n] += 1;
       }
     }
   }
-
   for(let n=1;n<=25;n++){
-    let s=0;
-    for(let i=len-1;i>=0;i--){
-      const set = new Set(getDezenas(concursos[i]));
-      if(set.has(n)) s++; else break;
-    }
-    streak[n]=s;
+    comebackScore[n] = absentCt[n] ? (comebackCt[n] / absentCt[n]) : 0;
   }
 
-  const last3 = concursos.slice(-3);
-  const freq3 = Array(26).fill(0);
-  const inLast = Array(26).fill(false);
-  for(let i=0;i<last3.length;i++){
-    const set = new Set(getDezenas(last3[i]));
-    for(let n=1;n<=25;n++){
-      if(set.has(n)) freq3[n] += 1;
-    }
-  }
-  if(len>0){
-    const setLast = new Set(getDezenas(concursos[len-1]));
-    for(let n=1;n<=25;n++) inLast[n] = setLast.has(n);
-  }
-
-  return {freq, freq3, inLast, lastSeen, streak, len};
-}
-
-function scoreOUT(n, F){
-  const par = (n%2===0)?1:0;
-  const prime = isPrime(n)?1:0;
-  const base = (F.freq3[n]*2.2) + (F.inLast[n]?1.4:0) + (F.streak[n]*1.2) + (F.freq[n]*0.25);
-  return base + (par*0.25) - (prime*0.15);
-}
-
-function scoreIN(n, F){
-  const par = (n%2===0)?1:0;
-  const prime = isPrime(n)?1:0;
-  const recentlySeen = (F.lastSeen[n] !== null) ? (F.len-1 - F.lastSeen[n]) : 99; // 0 = saiu no último
-  const reactivationBoost = (F.freq3[n]===0 ? 0.9 : (F.freq3[n]===1 ? 0.5 : 0.0));
-  const base = (F.inLast[n]?1.6:0) + (F.freq3[n]*1.1) + (F.freq[n]*0.22) + reactivationBoost;
-  const satPenalty = (F.freq3[n]===3 ? 0.9 : 0) + (F.streak[n]>=3 ? 0.6 : 0);
-  return base - satPenalty + ((1-par)*0.15) + (prime*0.20) - (Math.min(recentlySeen,5)*0.02);
-}
-
-function pickTopByScore(candidates, scoreFn, F, k){
-  const arr = candidates.slice().sort((a,b)=>{
-    const sa = scoreFn(a,F), sb = scoreFn(b,F);
-    if(sb!==sa) return sb-sa;
-    return a-b; // determinístico
-  });
-  return arr.slice(0,k);
-}
-
-function balanceLine(line, targetOdds){
-  const odds = line.filter(n=>n%2===1).length;
-  return {odds, targetOdds};
-}
-
-function distributeIntoLines(nums, linesCount){
-  const lines = Array.from({length:linesCount}, ()=>[]);
-  const sorted = nums.slice().sort((a,b)=>a-b);
-
-  const buckets = {A:[],B:[],C:[],D:[],E:[]};
-  for(const n of sorted) buckets[blockOf(n)].push(n);
-
-  const orderBlocks = ["C","B","D","A","E"]; // centro primeiro (treino tende equilibrar)
-  let idx=0;
-  for(const bl of orderBlocks){
-    for(const n of buckets[bl]){
-      lines[idx % linesCount].push(n);
-      idx++;
-    }
-  }
-
-  for(let i=0;i<linesCount;i++){
-    lines[i].sort((a,b)=>a-b);
-  }
-  return lines;
-}
-
-function buildLines15PFixedPattern(payloadShort, qtdShort){
-
+  // ---------- Últimos 4 concursos (motor ao vivo) ----------
   const concursos = (payloadShort?.concursos || [])
     .slice()
     .map(c=>({ ...c, dezenas: getDezenas(c) }))
     .sort((a,b)=>a.concurso-b.concurso);
 
-  const window = (qtdShort && concursos.length>qtdShort) ? concursos.slice(-qtdShort) : concursos;
-  const F = buildWindowFeatures(window);
+  const last4 = concursos.slice(-4);
+  const sets4 = last4.map(c=> new Set((c.dezenas||[]).map(toNum)));
 
-  const all = Array.from({length:25},(_,i)=>i+1);
+  const lastDrawSet = sets4[3] || new Set();
+  const allNums = Array.from({length:25},(_,i)=>i+1);
 
-  const out10 = pickTopByScore(all, scoreOUT, F, 10);
-  const outSet = new Set(out10);
-
-  const in15 = all.filter(n=>!outSet.has(n)).sort((a,b)=>a-b);
-  const inSet = new Set(in15);
-
-  function countPrimes(arr){ return arr.filter(isPrime).length; }
-  function countOdds(arr){ return arr.filter(n=>n%2===1).length; }
-
-  const targetOddsIN = 8; // em 15
-  const targetPrimesIN_min = 4;
-  const targetPrimesIN_max = 5;
-
-  let IN = in15.slice();
-  let OUT = out10.slice();
-
-  function trySwap(){
-    const odds = countOdds(IN);
-    const primes = countPrimes(IN);
-
-    const needOdd = odds < targetOddsIN;
-    const needEven = odds > targetOddsIN;
-    const needPrime = primes < targetPrimesIN_min;
-    const tooPrime = primes > targetPrimesIN_max;
-
-    let candIn = null;
-    if(needOdd){
-      candIn = OUT.filter(n=>n%2===1).sort((a,b)=>scoreIN(b,F)-scoreIN(a,F))[0] || null;
-    }else if(needEven){
-      candIn = OUT.filter(n=>n%2===0).sort((a,b)=>scoreIN(b,F)-scoreIN(a,F))[0] || null;
-    }else if(needPrime){
-      candIn = OUT.filter(isPrime).sort((a,b)=>scoreIN(b,F)-scoreIN(a,F))[0] || null;
-    }else if(tooPrime){
-      candIn = OUT.filter(n=>!isPrime(n)).sort((a,b)=>scoreIN(b,F)-scoreIN(a,F))[0] || null;
-    }
-
-    if(candIn===null) return false;
-
-    let candOut = null;
-    if(needOdd){
-      candOut = IN.filter(n=>n%2===0).sort((a,b)=>scoreOUT(b,F)-scoreOUT(a,F))[0] || null;
-    }else if(needEven){
-      candOut = IN.filter(n=>n%2===1).sort((a,b)=>scoreOUT(b,F)-scoreOUT(a,F))[0] || null;
-    }else if(needPrime){
-      candOut = IN.filter(n=>!isPrime(n)).sort((a,b)=>scoreOUT(b,F)-scoreOUT(a,F))[0] || null;
-    }else if(tooPrime){
-      candOut = IN.filter(isPrime).sort((a,b)=>scoreOUT(b,F)-scoreOUT(a,F))[0] || null;
-    }
-
-    if(candOut===null) return false;
-
-    IN = IN.filter(n=>n!==candOut); IN.push(candIn);
-    OUT = OUT.filter(n=>n!==candIn); OUT.push(candOut);
-    IN.sort((a,b)=>a-b); OUT.sort((a,b)=>a-b);
-    return true;
+  // Presença por dezena nos 4 (vector + freq)
+  const pres = {};
+  for(const n of allNums){
+    const vec = sets4.map(s=> s.has(n) ? 1 : 0);
+    const freq = vec.reduce((a,b)=>a+b,0);
+    pres[n] = { vec, freq, inLast: lastDrawSet.has(n) ? 1 : 0 };
   }
 
-  for(let i=0;i<4;i++) trySwap(); // poucas trocas (determinístico e leve)
+  // coocorrência de par nos 4 (0..4)
+  function pairCooc(a,b){
+    let ct=0;
+    for(const s of sets4) if(s.has(a) && s.has(b)) ct++;
+    return ct;
+  }
 
-  const inLines = distributeIntoLines(IN, 3);   // 3 linhas de 5
-  const outLines = distributeIntoLines(OUT, 2); // 2 linhas de 5
+  function blockOfLocal(n){ return blockOf(n); } // usa a mesma do sistema
 
+  // ---------- Scoring (convergência latente agressiva) ----------
+  // Ideia: premiar cobertura distribuída + microblocos (pares 1x/2x) + 1 "gatilho" comeback por linha
+  function scoreAddToLine(n, line, drawCounts, usedInLineFromLast){
+    const p = pres[n];
+    const isComeback = (p.freq===0);
+
+    // trava: não espelhar passado (limite de dezenas do último concurso por linha IN)
+    if(line.__type === "IN" && p.inLast && usedInLineFromLast >= 2) return -99999;
+
+    // trava: por linha, no máximo 2 dezenas do mesmo concurso nos 4 anteriores
+    // (força a distribuição e evita "copiar um sorteio")
+    for(let di=0; di<4; di++){
+      if(p.vec[di] && (drawCounts[di]||0) >= 2) return -99999;
+    }
+
+    // cobertura: quanto mais concursos diferentes dentro da linha, melhor
+    let covBefore = 0, covAfter = 0;
+    for(let di=0; di<4; di++){
+      if((drawCounts[di]||0) > 0) covBefore++;
+      if((drawCounts[di]||0) + (p.vec[di] ? 1 : 0) > 0) covAfter++;
+    }
+    const coverageGain = (covAfter - covBefore);
+
+    // microblocos: pares que aparecem 1x/2x contam; 3x/4x penaliza (espelho)
+    let micro = 0;
+    for(const m of (line.nums||[])){
+      const co = pairCooc(n, m);
+      if(co===1) micro += 2;
+      else if(co===2) micro += 1;
+      else if(co>=3) micro -= 3;
+    }
+
+    // estrutura: penaliza concentração de bloco
+    const blk = blockOfLocal(n);
+    const blkCount = (line.blocks?.[blk]||0);
+    let struct = 0;
+    if(blkCount >= 2) struct -= 2; // evita 3+ no mesmo bloco
+    else if(blkCount === 0) struct += 1; // incentiva variedade
+
+    // "gatilho do nada": se não apareceu nos 4, usa comebackScore forte
+    let comeback = 0;
+    if(isComeback){
+      // agressivo forte: valoriza muito "entrada do nada"
+      comeback = 8 * comebackScore[n];
+    }
+
+    // recência leve (não dominar): se apareceu no último concurso, +0.5 (mas já travado por limite)
+    let rec = 0;
+    if(p.inLast && line.__type==="IN") rec += 0.5;
+
+    // total incremental
+    return (coverageGain*3) + micro + struct + comeback + rec;
+  }
+
+  function initLine(type){
+    return { __type:type, nums:[], blocks:{A:0,B:0,C:0,D:0,E:0} };
+  }
+
+  function addNumToLine(n, line, drawCounts){
+    line.nums.push(n);
+    const b = blockOfLocal(n);
+    line.blocks[b] = (line.blocks[b]||0) + 1;
+    for(let di=0; di<4; di++){
+      if(pres[n].vec[di]) drawCounts[di] = (drawCounts[di]||0) + 1;
+    }
+  }
+
+  function buildINLine(available, forcedComeback){
+    const line = initLine("IN");
+    const drawCounts = [0,0,0,0];
+    let usedFromLast = 0;
+    let usedComeback = 0;
+
+    for(let step=0; step<5; step++){
+      let best = null;
+      for(const n of available){
+        const p = pres[n];
+        const isComeback = (p.freq===0);
+
+        // regra agressiva: 1 (e somente 1) comeback por linha IN, quando possível
+        if(forcedComeback && step===2){ // injeta no meio para não virar bloco
+          if(!isComeback) continue;
+        }else{
+          if(isComeback && usedComeback>=1) continue;
+        }
+
+        const sc = scoreAddToLine(n, line, drawCounts, usedFromLast);
+        if(sc <= -9999) continue;
+
+        // tie-break determinístico: score desc, depois dezenas menores primeiro
+        if(best===null || sc > best.sc || (sc===best.sc && n < best.n)){
+          best = { n, sc, isComeback, inLast: p.inLast };
+        }
+      }
+
+      // fallback interno (determinístico): se não achou com regra do forcedComeback, relaxa forcedComeback naquele passo
+      if(best===null && forcedComeback && step===2){
+        for(const n of available){
+          const p = pres[n];
+          const isComeback = (p.freq===0);
+          if(isComeback && usedComeback>=1) continue;
+          const sc = scoreAddToLine(n, line, drawCounts, usedFromLast);
+          if(sc <= -9999) continue;
+          if(best===null || sc > best.sc || (sc===best.sc && n < best.n)){
+            best = { n, sc, isComeback, inLast: p.inLast };
+          }
+        }
+      }
+
+      if(best===null){
+        // último recurso: pega o menor número disponível (não quebra determinismo)
+        const n = available.slice().sort((a,b)=>a-b)[0];
+        best = { n, sc:0, isComeback:(pres[n].freq===0), inLast:pres[n].inLast };
+      }
+
+      addNumToLine(best.n, line, drawCounts);
+      if(best.inLast) usedFromLast++;
+      if(best.isComeback) usedComeback++;
+
+      // remove do pool
+      available.delete(best.n);
+    }
+
+    line.nums.sort((a,b)=>a-b);
+    return line;
+  }
+
+  // ---------- Construção das linhas ----------
+  const available = new Set(allNums);
+
+  // IN1: âncora latente (sem forçar comeback)
+  const in1 = buildINLine(available, false);
+
+  // IN2: transição (força 1 comeback se existir)
+  const in2 = buildINLine(available, true);
+
+  // IN3: reforço (sem forçar, mas aceita 1 comeback se aparecer como melhor)
+  const in3 = buildINLine(available, false);
+
+  // OUT: anti-convergência (menos chance de convergir no próximo)
+  const remaining = Array.from(available).sort((a,b)=>a-b);
+
+  function outScore(n){
+    const p = pres[n];
+    // se apareceu muito nos 4, não é bom OUT
+    let s = 0;
+    if(p.freq===0) s += (1 - comebackScore[n]) * 6; // quanto menor comeback, mais OUT
+    if(p.freq===1) s += 2;
+    if(p.freq>=2) s -= 2*p.freq;
+
+    // penaliza se está no último concurso (tende a repetir)
+    if(p.inLast) s -= 1;
+
+    // evita OUT com microblocos fortes (co>=2 com outros restantes será tratado na divisão)
+    return s;
+  }
+
+  const remainingRanked = remaining
+    .slice()
+    .sort((a,b)=>{
+      const sa = outScore(a), sb = outScore(b);
+      if(sb!==sa) return sb-sa;
+      return a-b;
+    });
+
+  const out1 = remainingRanked.slice(0,5).sort((a,b)=>a-b);
+  const out2 = remainingRanked.slice(5,10).sort((a,b)=>a-b);
+
+  // Linhas finais no padrão do módulo (IN/OUT alternado para manter compatibilidade visual)
+  // Mantém IN nas posições 0,2,4 como no seu layout atual.
   const lines = [
-    inLines[0],
-    outLines[0],
-    inLines[1],
-    outLines[1],
-    inLines[2]
-  ].map(l=>l.slice().sort((a,b)=>a-b));
+    in1.nums.slice(),
+    out1.slice(),
+    in2.nums.slice(),
+    out2.slice(),
+    in3.nums.slice()
+  ];
 
+  // ---------- Mapa de letras (mantém padrão do sistema) ----------
   const lettersIN = "ABCDEFGHIJKLMNO".split("");
-  const lettersOUT = "PQRSTUVWXY".split(""); // 10 letras: P..Y
+  const lettersOUT = "PQRSTUVWXY".split(""); // 10 letras
   const map = [];
   let idx=0;
   for(const l of [lines[0],lines[2],lines[4]]){
@@ -5144,7 +5265,7 @@ function buildLines15PFixedPattern(payloadShort, qtdShort){
     }
   }
 
-  return { lines, map, F, window };
+  return { lines, map, mode:"15P_LATENTE_AGRESSIVO_FORTE" };
 }
 
 function gerarJogos15P(linhas){
