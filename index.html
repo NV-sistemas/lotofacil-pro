@@ -1657,112 +1657,73 @@ function renderCreate(){
   const header = `
     <div class="box">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
-        <b>${mode==="principal" ? "🎯 Criar PRINCIPAL (4 jogos)" : mode==="elite" ? "💎 Criar ELITE (6 jogos)" : "✅ Criar 15P (10 jogos)"}</b>
+        <b>${
+          mode==="principal" ? "🎯 Criar PRINCIPAL (4 jogos)" :
+          mode==="elite" ? "💎 Criar ELITE (6 jogos)" :
+          "✅ Criar 15P (10 jogos)"
+        }</b>
         <span class="badge premium">PREMIUM</span>
       </div>
       <div class="mini" style="margin-top:8px">
-        ${mode==="p15" ? "Monte 5 linhas de 5 dezenas. Depois clique em <b>Gerar 10 jogos</b>." : "Selecione <b>15 dezenas</b> no grid. Depois clique em <b>Gerar</b>."}
+        ${
+          mode==="p15"
+            ? "Monte 5 linhas de 5 dezenas. Depois clique em <b>Gerar 10 jogos</b>."
+            : "Selecione <b>15 dezenas</b> no grid. Depois clique em <b>Gerar</b>."
+        }
       </div>
     </div>
   `;
+
+  let body = "";
+
+  if(mode === "principal" || mode === "elite"){
+    // grid de seleção (15 dezenas)
+    if(typeof renderPickGridAny === "function"){
+      body += renderPickGridAny("createPick", createPick15);
+    }else{
+      body += "<div class='mini'>⚠️ Grid não disponível.</div>";
+    }
+
+    body += `
+      <div style="margin-top:12px">
+        <button class="btn btnPrimary btnWide" type="button"
+          onclick="${mode==="principal" ? "gerarCreatePrincipal()" : "gerarCreateElite()"}">
+          🚀 Gerar jogos
+        </button>
+      </div>
+    `;
+  }
 
   if(mode === "p15"){
-    // reusa o editor 15P dentro do create
-    area.innerHTML = header + `
-      <div class="box" style="margin-top:12px">
-        <div id="editor15Area"></div>
-        <div class="row" style="margin-top:10px">
-          <div class="col">
-            <button class="btn btnPrimary btnWide" type="button" onclick="gerarCreate15P()">🚀 Gerar 10 jogos (minhas linhas)</button>
-          </div>
-          <div class="col">
-            <button class="btn btnGhost btnWide" type="button" onclick="salvarCreate()">💾 Salvar</button>
-          </div>
-        </div>
-        <div id="create15Output" style="margin-top:12px"></div>
+    // editor 15P (5 linhas)
+    if(typeof renderLinhas15Editor === "function"){
+      body += renderLinhas15Editor();
+    }else{
+      body += "<div class='mini'>⚠️ Editor 15P não disponível.</div>";
+    }
+
+    body += `
+      <div style="margin-top:12px">
+        <button class="btn btnPrimary btnWide" type="button" onclick="gerarCreate15P()">
+          🚀 Gerar 10 jogos
+        </button>
       </div>
     `;
-    render15Editor(); // usa linesUser15 / activeLine15
-    if(createResult?.tipo==="p15"){
-      const jogosHtml = (createResult.jogos||[]).map((j, idx)=>`
-        <div class="box">
-          <b>Jogo ${idx+1}</b>
-          <div class="numbers" style="justify-content:flex-start;margin-top:10px">${renderBallsInline(j)}</div>
-        </div>
-      `).join("");
-      const out = document.getElementById("create15Output");
-      if(out) out.innerHTML = `<b>🎯 10 jogos (MANUAL)</b><div class="grid" style="margin-top:12px">${jogosHtml}</div>`;
-    }
-    return;
   }
 
-  // principal / elite: grid 1..25
-  const selected = _setFromPickToArray();
-  area.innerHTML = header + `
-    <div class="box" style="margin-top:12px">
-      <div class="mini">
-        Selecionadas: <b>${selected.length}</b>/15 • ${selected.length ? selected.map(format2).join(" - ") : "—"}
-      </div>
-
-      ${renderPickGridAny("pickGridCreate", createPick15, null)}
-
-      <div class="row" style="margin-top:12px">
-        <div class="col">
-          <button class="btn btnPrimary btnWide" type="button" onclick="${mode==="principal" ? "gerarCreatePrincipal()" : "gerarCreateElite()"}">🚀 Gerar ${mode==="principal" ? "4 jogos" : "ELITE (6 jogos)"} </button>
-        </div>
-        <div class="col">
-          <button class="btn btnGhost btnWide" type="button" onclick="salvarCreate()">💾 Salvar</button>
-        </div>
-      </div>
-    </div>
-    <div id="createOut" style="margin-top:12px"></div>
-  `;
-
-  // bind grid
-  bindPickGrid("pickGridCreate", (n)=>{
-    if(createPick15.has(n)) createPick15.delete(n);
-    else{
-      if(createPick15.size>=15) return alert("Você já selecionou 15 dezenas.");
-      createPick15.add(n);
-    }
-    renderCreate(); // re-render para atualizar seleção
-  });
-
-  // output
-  const out = document.getElementById("createOut");
-  if(!out) return;
-
-  if(createResult?.tipo==="principal4"){
-    const pack = createResult;
-    const box4 = (label, nums)=>`
-      <div class="box" style="margin-top:12px">
-        <b>${label}</b>
-        <div class="numbers" style="justify-content:flex-start;margin-top:10px">${renderBallsInline(nums)}</div>
+  // resultado + salvar (se seu fluxo usa createResult)
+  if(typeof createResult !== "undefined" && createResult){
+    body += `
+      <div style="margin-top:16px">
+        <button class="btn btnBlue btnWide" type="button" onclick="salvarCreate()">
+          💾 Salvar
+        </button>
       </div>
     `;
-    out.innerHTML =
-      box4("🎯 Principal", pack.principal) +
-      box4("🔄 Invertida", pack.invertida) +
-      box4("🏆 Técnica 1", pack.tecnica1) +
-      box4("🏆 Técnica 2", pack.tecnica2);
-    return;
   }
 
-  if(createResult?.tipo==="elite6"){
-    const games = createResult.games || [];
-    out.innerHTML = games.map((g, idx)=>`
-      <div class="box" style="margin-top:12px">
-        <b>💎 ${g.nome}</b>
-        <div class="numbers" style="justify-content:flex-start;margin-top:10px">${renderBallsInline(g.dezenas)}</div>
-      </div>
-    `).join("");
-    return;
-  }
-
-  out.innerHTML = `<div class="footerNote">Selecione e clique em “Gerar”.</div>`;
+  area.innerHTML = header + body;
 }
-
-/* ===================== /CRIAR SEUS JOGOS ===================== */
 
 
 function goView(id){
@@ -6759,71 +6720,57 @@ if(!concursos.length){
         });
       }
       else if(item.tipo === "15p" && item.payload){
-        // ✅ 15P em Jogos Salvos: conferir APENAS as 5 LINHAS (não mostrar os 10 jogos)
-        const lines = Array.isArray(item?.payload?.linesSystem15) ? item.payload.linesSystem15
+
+        // ✅ Somente LINHAS (não exibe os 10 jogos na conferência)
+        const lines = Array.isArray(item?.payload?.linesSystem15)
+                    ? item.payload.linesSystem15
                     : (Array.isArray(item?.payload?.linesUser15) ? item.payload.linesUser15 : null);
 
         if(!Array.isArray(lines) || lines.length !== 5){
-          alert("Esse 15P salvo não tem as 5 linhas para conferência.");
+          alert("Esse 15P salvo não possui as 5 linhas.");
           return;
         }
 
-        // estilos compactos (mobile-first)
         html += `
-          <style>
-            .p15lineRow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:6px 0}
-            .p15lineTag{min-width:52px;font-weight:900}
-            .p15lineHits{min-width:46px;font-weight:900;opacity:.95}
-            .p15nums{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size:13px; line-height:1.35}
-            .p15num{display:inline-block;padding:1px 4px;border-radius:7px}
-            .p15hit{background:rgba(0,255,0,.14);border:1px solid rgba(0,255,0,.55);color:#b9ffbf}
-            @media (max-width:520px){
-              .p15nums{font-size:12px}
-              .p15lineTag{min-width:46px}
-              .p15lineHits{min-width:40px}
-            }
-          </style>
+          <div class="box" style="margin-top:10px">
+            <b>📌 Linhas 1 a 5 (do Extra 15P)</b>
+            <div class="mini" style="margin-top:6px">Conferência por linha • Base: últimos <b>${qtd}</b> concursos</div>
+          </div>
         `;
 
-        // normaliza linhas (ordenadas)
-        const normLines = lines.map(l => (l||[]).slice().map(Number).sort((a,b)=>a-b));
-
+        // Conferência por concurso (linha a linha) — mobile compacto
         concursos.forEach(c=>{
-          const set = new Set((c.dezenas || []).map(toNum));
-
-          let rows = "";
-          normLines.forEach((l, idx)=>{
-            const hits = l.filter(n=>set.has(Number(n))).length;
-            const kind = (idx < 3) ? "PREDIZ SAIR (IN)" : "PREDIZ NÃO SAIR (OUT)";
-
-            const numsHtml = l.map((n, i)=>{
-              const s = format2(n);
-              const hit = set.has(Number(n));
-              const cls = hit ? "p15num p15hit" : "p15num";
-              const sep = (i === l.length-1) ? "" : " - ";
-              return `<span class="${cls}">${s}</span>${sep}`;
-            }).join("");
-
-            rows += `
-              <div class="p15lineRow">
-                <div class="p15lineTag">L${idx+1}</div>
-                <div class="p15lineHits">(${hits})</div>
-                <div class="mini" style="min-width:160px;opacity:.9">${kind}</div>
-                <div class="p15nums">${numsHtml}</div>
-              </div>
-            `;
-          });
+          const sorteadas = new Set((c.dezenas || []).map(toNum));
 
           html += `
             <div class="box" style="margin-top:10px">
               <b>Concurso ${c.concurso}</b>
-              <div style="margin-top:6px">${rows}</div>
-            </div>
           `;
+
+          lines.forEach((linha, idx)=>{
+            const nums = (linha || []).slice().map(toNum).sort((a,b)=>a-b);
+            let hits = 0;
+
+            const linhaRender = nums.map(n=>{
+              if(sorteadas.has(n)){
+                hits++;
+                return `<span style="color:#22c55e;font-weight:900">${format2(n)}</span>`;
+              }
+              return format2(n);
+            }).join(" - ");
+
+            html += `
+              <div style="font-size:12px;margin-top:6px">
+                <b>L${idx+1}</b> (${hits})
+                <div style="margin-top:2px">${linhaRender}</div>
+              </div>
+            `;
+          });
+
+          html += `</div>`;
         });
       }
-
-      else if(item.tipo === "elite6" && Array.isArray(item.jogos)){
+else if(item.tipo === "elite6" && Array.isArray(item.jogos)){
         const jogos = item.jogos;
 
         jogos.forEach((jogoNums, idx)=>{
