@@ -6759,103 +6759,66 @@ if(!concursos.length){
         });
       }
       else if(item.tipo === "15p" && item.payload){
-        const jogos = Array.isArray(item.payload.jogosSystem) ? item.payload.jogosSystem : null;
 
-        if(!jogos || !jogos.length){
-          alert("Esse 15P salvo não tem os 10 jogos do sistema.");
-          return;
+  const lines = Array.isArray(item?.payload?.linesSystem15)
+              ? item.payload.linesSystem15
+              : (Array.isArray(item?.payload?.linesUser15)
+                 ? item.payload.linesUser15
+                 : null);
+
+  if(!Array.isArray(lines) || lines.length !== 5){
+    alert("Esse 15P salvo não possui as 5 linhas.");
+    return;
+  }
+
+  html += `
+    <div class="box" style="margin-top:10px">
+      <b>📌 Linhas 1 a 5 (do Extra 15P)</b>
+      <div class="mini" style="margin-top:6px">
+        Conferência por linha • Base: últimos <b>${qtd}</b> concursos
+      </div>
+    </div>
+  `;
+
+  concursos.forEach(c=>{
+
+    html += `
+      <div class="box" style="margin-top:10px">
+        <b>Concurso ${c.concurso}</b>
+    `;
+
+    lines.forEach((linha, idx)=>{
+
+      const sorteadas = new Set((c.dezenas || []).map(Number));
+      const nums = linha.slice().map(Number).sort((a,b)=>a-b);
+
+      let hits = 0;
+
+      const linhaRender = nums.map(n=>{
+        if(sorteadas.has(n)){
+          hits++;
+          return `<span style="color:#22c55e;font-weight:900">${format2(n)}</span>`;
         }
+        return format2(n);
+      }).join(" - ");
 
+      html += `
+        <div style="font-size:12px;margin-top:6px">
+          <b>L${idx+1}</b> (${hits})
+          <div style="margin-top:2px">${linhaRender}</div>
+        </div>
+      `;
+    });
 
-        const lines = Array.isArray(item?.payload?.linesSystem15) ? item.payload.linesSystem15
-                    : (Array.isArray(item?.payload?.linesUser15) ? item.payload.linesUser15 : null);
+    html += `</div>`;
+  });
+}
 
-        if(Array.isArray(lines) && lines.length === 5){
-          const lineRows = lines.map((l,idx)=>{
-            const kind = (idx < 3) ? "PREDIZ SAIR (IN)" : "PREDIZ NÃO SAIR (OUT)";
-            const dezenas = (l||[]).slice().map(Number).sort((a,b)=>a-b).map(format2).join(" - ");
-            return `
-              <tr>
-                <td><b>${idx+1}</b></td>
-                <td>${kind}</td>
-                <td class="mono">${dezenas}</td>
-              </tr>
-            `;
-          }).join("");
-
-          html += `
-            <div class="box" style="margin-top:10px">
-              <b>📌 Linhas 1 a 5 (do Extra 15P)</b>
-              <div style="margin-top:10px;overflow:auto">
-                <table class="table">
-                  <thead>
-                    <tr>
-                      <th>Linha</th>
-                      <th>Tipo</th>
-                      <th>Dezenas</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    ${lineRows}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          `;
-        }
-jogos.forEach((jogoNums, idx)=>{
-          const jogo = jogoNums.slice().map(Number).sort((a,b)=>a-b);
-
-          let linhasResultados = "";
-          concursos.forEach(c=>{
-            const hits = hitsCount(jogo, c.dezenas);
-            const cls = (hits >= 11 && hits <= 15) ? `hit-${hits}` : "";
-            linhasResultados += `
-              <div class="mini ${cls}">
-                Concurso <b>${c.concurso}</b> → <b>${hits} acertos</b>
-              </div>
-            `;
-          });
-
-          html += `
-            <div class="box" style="margin-top:10px">
-              <b>✅ 15P • Jogo ${idx+1}</b>
-              <div class="numbers" style="justify-content:flex-start;margin-top:8px">
-                ${jogo.map(format2).join(" - ")}
-              </div>
-              <div style="margin-top:10px">${linhasResultados}</div>
-            </div>
-          `;
-        });
-      }
 
       else if(item.tipo === "elite6" && Array.isArray(item.jogos)){
         const jogos = item.jogos;
 
-        jogos.forEach((jogoNums, idx)=>{
-          const jogo = jogoNums.slice().map(Number).sort((a,b)=>a-b);
-
-          let linhasResultados = "";
-          concursos.forEach(c=>{
-            const hits = hitsCount(jogo, c.dezenas);
-            const cls = (hits >= 11 && hits <= 15) ? `hit-${hits}` : "";
-            linhasResultados += `
-              <div class="mini ${cls}">
-                Concurso <b>${c.concurso}</b> → <b>${hits} acertos</b>
-              </div>
-            `;
-          });
-
-          html += `
-            <div class="box" style="margin-top:10px">
-              <b>💎 ELITE • Jogo ${idx+1}</b>
-              <div class="numbers" style="justify-content:flex-start;margin-top:8px">
-                ${jogo.map(format2).join(" - ")}
-              </div>
-              <div style="margin-top:10px">${linhasResultados}</div>
-            </div>
-          `;
-        });
+        );
       }
 
       else{
