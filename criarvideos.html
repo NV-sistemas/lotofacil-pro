@@ -1,512 +1,1206 @@
 <!doctype html>
 <html lang="pt-br">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Kwai Video Studio — N&V Sistemas</title>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Kwai Builder — N&V Sistemas</title>
   <style>
     :root{
-      --bg:#07080b;
-      --card:#0e1117;
-      --card2:#0b0d12;
-      --text:#e8e8ea;
-      --muted:#a7a7ad;
-      --gold:#f5c84b;
-      --line:#1f2633;
-      --btn:#141a24;
-      --btn2:#0f1420;
-      --shadow: 0 10px 30px rgba(0,0,0,.45);
+      --bg:#07080b; --card:#0e1117; --card2:#0b0d12;
+      --text:#e8e8ea; --muted:#a7a7ad; --gold:#f5c84b; --line:#1f2633;
+      --btn:#141a24; --btn2:#0f1420; --shadow:0 10px 30px rgba(0,0,0,.45);
+      --ok:#9cffc7; --bad:#ff7f7f;
     }
     *{box-sizing:border-box}
     body{
-      margin:0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      margin:0; color:var(--text);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
       background: radial-gradient(1200px 600px at 20% 0%, rgba(245,200,75,.10), transparent 60%),
                   radial-gradient(900px 500px at 80% 10%, rgba(245,200,75,.07), transparent 55%),
                   var(--bg);
-      color:var(--text);
     }
-    header{
-      padding:20px 16px 10px;
-      max-width:1100px;
-      margin:0 auto;
-    }
-    .brand{
-      display:flex; gap:10px; align-items:center; flex-wrap:wrap;
-    }
-    .dot{
-      width:10px;height:10px;border-radius:50%;
-      background:var(--gold);
-      box-shadow:0 0 18px rgba(245,200,75,.55);
-    }
-    h1{margin:0;font-size:18px;letter-spacing:.4px}
-    .sub{margin:6px 0 0;color:var(--muted);font-size:13px;line-height:1.35}
+    header{max-width:1200px;margin:0 auto;padding:18px 14px 8px}
+    .brand{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .dot{width:10px;height:10px;border-radius:50%;background:var(--gold);box-shadow:0 0 18px rgba(245,200,75,.55)}
+    h1{margin:0;font-size:16px;letter-spacing:.4px}
+    .sub{margin:6px 0 0;color:var(--muted);font-size:12.5px;line-height:1.35}
     main{
-      max-width:1100px;
-      margin:0 auto;
-      padding:10px 16px 26px;
-      display:grid;
-      grid-template-columns: 1fr;
-      gap:14px;
+      max-width:1200px;margin:0 auto;padding:10px 14px 22px;
+      display:grid;gap:12px;grid-template-columns: 1fr;
     }
-    @media(min-width:980px){
-      main{grid-template-columns: 0.95fr 1.05fr}
+    @media(min-width:1050px){
+      main{grid-template-columns: 360px 1fr 360px}
     }
     .card{
-      background: linear-gradient(180deg, rgba(255,255,255,.03), transparent 45%),
-                  var(--card);
-      border:1px solid var(--line);
-      border-radius:16px;
-      box-shadow: var(--shadow);
-      padding:14px;
-    }
-    .card h2{
-      margin:0 0 10px;
-      font-size:14px;
-      color:var(--gold);
-      letter-spacing:.35px;
-    }
-    label{
-      display:block;
-      color:var(--muted);
-      font-size:12px;
-      margin:10px 0 6px;
-    }
-    textarea, input, select{
-      width:100%;
-      background: var(--card2);
-      border:1px solid var(--line);
-      color:var(--text);
-      border-radius:12px;
-      padding:10px 12px;
-      outline:none;
-      font-size:13px;
-      line-height:1.35;
-    }
-    textarea{min-height:140px; resize:vertical}
-    .row{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap:10px;
-    }
-    @media(min-width:520px){
-      .row{grid-template-columns: 1fr 1fr}
-    }
-    .btns{
-      display:flex; flex-wrap:wrap; gap:10px;
-      margin-top:12px;
-    }
-    button{
-      background: linear-gradient(180deg, rgba(245,200,75,.12), transparent 55%),
-                  var(--btn);
-      border:1px solid rgba(245,200,75,.28);
-      color:var(--text);
-      padding:10px 12px;
-      border-radius:12px;
-      cursor:pointer;
-      font-weight:600;
-      font-size:13px;
-    }
-    button.secondary{
-      background: var(--btn2);
-      border:1px solid var(--line);
-      color:var(--muted);
-      font-weight:600;
-    }
-    button:active{transform: translateY(1px)}
-    .pill{
-      display:inline-flex; align-items:center; gap:8px;
-      padding:7px 10px;
-      border-radius:999px;
-      border:1px solid var(--line);
-      background: rgba(255,255,255,.02);
-      color:var(--muted);
-      font-size:12px;
-    }
-    .outTabs{
-      display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px;
-    }
-    .tab{
-      padding:8px 10px;
-      border-radius:12px;
-      border:1px solid var(--line);
-      background: rgba(255,255,255,.02);
-      color:var(--muted);
-      cursor:pointer;
-      font-size:12px;
-      font-weight:700;
-    }
-    .tab.active{
-      border-color: rgba(245,200,75,.35);
-      color: var(--text);
-      background: rgba(245,200,75,.08);
-    }
-    pre{
-      margin:0;
-      white-space:pre-wrap;
-      word-wrap:break-word;
-      background: var(--card2);
-      border:1px solid var(--line);
-      border-radius:12px;
+      background: linear-gradient(180deg, rgba(255,255,255,.03), transparent 45%), var(--card);
+      border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow);
       padding:12px;
-      color: var(--text);
-      font-size:12.5px;
-      line-height:1.45;
-      min-height:220px;
     }
-    .mini{
-      color:var(--muted);
-      font-size:12px;
+    .card h2{margin:0 0 10px;font-size:13px;color:var(--gold);letter-spacing:.35px}
+    label{display:block;color:var(--muted);font-size:12px;margin:10px 0 6px}
+    input, select, textarea{
+      width:100%; border-radius:12px; padding:10px 12px; outline:none;
+      border:1px solid var(--line); background:var(--card2); color:var(--text);
+      font-size:13px; line-height:1.35;
+    }
+    textarea{min-height:90px;resize:vertical}
+    .row{display:grid;grid-template-columns:1fr;gap:10px}
+    @media(min-width:520px){ .row{grid-template-columns:1fr 1fr} }
+    .btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+    button{
+      background: linear-gradient(180deg, rgba(245,200,75,.12), transparent 55%), var(--btn);
+      border:1px solid rgba(245,200,75,.28);
+      color:var(--text); padding:9px 10px; border-radius:12px;
+      cursor:pointer; font-weight:700; font-size:12.5px;
+    }
+    button.secondary{background:var(--btn2); border:1px solid var(--line); color:var(--muted)}
+    button.danger{border-color:rgba(255,127,127,.35); background:linear-gradient(180deg, rgba(255,127,127,.10), transparent 55%), var(--btn)}
+    button:active{transform:translateY(1px)}
+    .pill{
+      display:inline-flex;align-items:center;gap:8px;padding:7px 10px;border-radius:999px;
+      border:1px solid var(--line); background:rgba(255,255,255,.02); color:var(--muted); font-size:12px;
+    }
+    .hint{color:var(--muted);font-size:12px;line-height:1.35;margin-top:10px}
+    .ok{color:var(--ok)}
+    .bad{color:var(--bad)}
+    .split{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .small{font-size:12px;color:var(--muted)}
+    .list{
+      margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px;
+      max-height:420px;overflow:auto;
+    }
+    .item{
+      border:1px solid var(--line); background:rgba(255,255,255,.02); border-radius:14px;
+      padding:10px; cursor:pointer;
+    }
+    .item.active{border-color:rgba(245,200,75,.35); background:rgba(245,200,75,.06)}
+    .itemTitle{display:flex;justify-content:space-between;gap:10px}
+    .itemTitle b{font-size:12.5px}
+    .itemTitle span{font-size:12px;color:var(--muted)}
+    .previewWrap{
+      position:relative; border-radius:16px; overflow:hidden;
+      border:1px solid var(--line); background:#000; box-shadow:var(--shadow);
+    }
+    canvas{display:block;width:100%;height:auto}
+    .overlayHelp{
+      position:absolute;left:10px;bottom:10px;
+      padding:7px 10px;border-radius:999px;border:1px solid rgba(245,200,75,.25);
+      background:rgba(0,0,0,.55); color:var(--text); font-size:12px;
+      backdrop-filter: blur(6px);
+    }
+    .kbd{padding:2px 6px;border:1px solid rgba(255,255,255,.25);border-bottom-width:2px;border-radius:8px;font-weight:800;font-size:11px}
+    .miniBar{
+      display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;
       margin-top:10px;
-      line-height:1.35;
     }
-    .ok{
-      color:#9cffc7;
+    .progress{
+      width:100%;height:10px;border-radius:999px;background:rgba(255,255,255,.06);
+      border:1px solid var(--line); overflow:hidden;
     }
+    .progress > div{height:100%;width:0%;background:rgba(245,200,75,.55)}
   </style>
 </head>
 <body>
 <header>
   <div class="brand">
     <div class="dot"></div>
-    <h1>Kwai Video Studio — N&V Sistemas</h1>
-    <span class="pill">Gerador de roteiros + cenas + SRT (grátis, GitHub Pages)</span>
+    <h1>Kwai Builder — N&V Sistemas</h1>
+    <span class="pill">Fundo fixo + “tela do PC” (slot) + cenas + narração + export vídeo</span>
   </div>
   <p class="sub">
-    Cole um prompt pronto e gere: roteiro (30s/15s), timeline por cenas, copy de tela, narração, CTA, hashtags e legenda SRT.
+    Você alinha o fundo e o recorte (tela do PC) uma vez. Depois só troca mídia/texto por cena e exporta o vídeo pronto.
   </p>
 </header>
 
 <main>
+  <!-- LEFT: TEMPLATE -->
   <section class="card">
-    <h2>1) Entrada (Prompt + Config)</h2>
+    <h2>1) Template (Fundo fixo + Slot da tela)</h2>
 
-    <label>Seu PROMPT (cole o prompt pronto aqui)</label>
-    <textarea id="prompt" placeholder="Cole aqui o prompt pronto que eu vou te mandar..."></textarea>
+    <label>Projeto</label>
+    <input id="projectName" placeholder="Ex: KWAI - 15 dias (Elite/15P/Principal)"/>
+
+    <label>Formato do vídeo</label>
+    <select id="format">
+      <option value="1080x1920">9:16 (1080x1920) — Recomendado</option>
+      <option value="1080x1080">1:1 (1080x1080)</option>
+      <option value="1920x1080">16:9 (1920x1080)</option>
+    </select>
+
+    <label>Fundo (imagem)</label>
+    <input id="bgFile" type="file" accept="image/*"/>
 
     <div class="row">
       <div>
-        <label>Produto/Oferta</label>
-        <input id="offer" placeholder="Ex: Lotofácil Prime Analytics — Premium / Combo / 15P" />
+        <label>Slot X</label>
+        <input id="slotX" type="number" step="1"/>
       </div>
       <div>
-        <label>CTA (ação final)</label>
-        <input id="cta" placeholder="Ex: Link na bio • Garanta acesso • Teste hoje" />
+        <label>Slot Y</label>
+        <input id="slotY" type="number" step="1"/>
       </div>
     </div>
-
     <div class="row">
       <div>
-        <label>Tom</label>
-        <select id="tone">
-          <option value="forte">Forte e direto</option>
-          <option value="didatico">Didático e objetivo</option>
-          <option value="misterio">Misterioso (curiosidade)</option>
-        </select>
+        <label>Slot Largura</label>
+        <input id="slotW" type="number" step="1"/>
       </div>
       <div>
-        <label>Âncora (o que NÃO pode faltar)</label>
-        <input id="anchor" placeholder="Ex: Sistema Preditivo + Jogo Elite + 15P (3 linhas)" />
+        <label>Slot Altura</label>
+        <input id="slotH" type="number" step="1"/>
       </div>
     </div>
 
     <div class="btns">
-      <button onclick="generate('30')">Gerar vídeo 30s</button>
-      <button onclick="generate('15')">Gerar vídeo 15s</button>
-      <button onclick="generate('both')">Gerar 30s + 15s</button>
-      <button class="secondary" onclick="fillExample()">Preencher exemplo</button>
-      <button class="secondary" onclick="clearAll()">Limpar</button>
+      <button onclick="centerSlot()">Centralizar slot</button>
+      <button class="secondary" onclick="toggleEditSlot()">Editar slot (arrastar)</button>
+      <button class="secondary" onclick="saveProject()">Salvar</button>
+      <button class="secondary" onclick="loadProject()">Carregar</button>
+      <button class="secondary" onclick="exportProject()">Export JSON</button>
+      <button class="secondary" onclick="importProject()">Import JSON</button>
     </div>
 
-    <p class="mini">
-      Dica prática: grave só 6–10 takes curtos (mãos/telefone/tela do sistema), e use o roteiro/timeline pra montar rápido no editor do Kwai.
+    <p class="hint">
+      <span class="ok">Dica:</span> clique em <b>Editar slot</b> e arraste o retângulo até encaixar na tela do PC do seu fundo.
+      Depois você não alinha nunca mais.
     </p>
   </section>
 
+  <!-- CENTER: PREVIEW -->
   <section class="card">
-    <h2>2) Saída (copiar / baixar)</h2>
-
-    <div class="outTabs">
-      <div class="tab active" data-tab="roteiro" onclick="setTab('roteiro')">Roteiro</div>
-      <div class="tab" data-tab="cenas" onclick="setTab('cenas')">Cenas (timeline)</div>
-      <div class="tab" data-tab="srt" onclick="setTab('srt')">Legenda SRT</div>
-      <div class="tab" data-tab="hashtags" onclick="setTab('hashtags')">Hashtags</div>
-      <div class="tab" data-tab="json" onclick="setTab('json')">JSON</div>
+    <h2>2) Preview</h2>
+    <div class="previewWrap">
+      <canvas id="cv"></canvas>
+      <div class="overlayHelp">
+        <span class="kbd">E</span> editar slot &nbsp;|&nbsp;
+        <span class="kbd">C</span> cortar mídia (zoom/pan) &nbsp;|&nbsp;
+        <span class="kbd">Espaço</span> play cena
+      </div>
     </div>
 
-    <pre id="output"></pre>
-
-    <div class="btns" style="margin-top:10px">
-      <button onclick="copyOutput()">Copiar</button>
-      <button class="secondary" onclick="downloadCurrent()">Baixar arquivo</button>
+    <div class="miniBar">
+      <div class="split">
+        <button onclick="playScene()">Play cena</button>
+        <button class="secondary" onclick="stopPlay()">Stop</button>
+        <button onclick="exportVideo()">Exportar vídeo (WEBM)</button>
+      </div>
+      <div class="small" id="renderInfo">Pronto.</div>
     </div>
 
-    <p class="mini ok" id="status" style="display:none;">Gerado!</p>
+    <div class="progress" style="margin-top:10px;display:none" id="progWrap">
+      <div id="progBar"></div>
+    </div>
+
+    <p class="hint">
+      Export grava exatamente o preview (fundo + mídia no slot + texto animado + narração gravada).
+    </p>
+  </section>
+
+  <!-- RIGHT: SCENES -->
+  <section class="card">
+    <h2>3) Cenas (texto + mídia + narração)</h2>
+
+    <div class="btns">
+      <button onclick="addScene()">+ Nova cena</button>
+      <button class="secondary" onclick="duplicateScene()">Duplicar</button>
+      <button class="danger" onclick="deleteScene()">Excluir</button>
+    </div>
+
+    <label>Lista</label>
+    <ul class="list" id="sceneList"></ul>
+
+    <hr style="border:none;border-top:1px solid var(--line);margin:12px 0"/>
+
+    <div id="sceneEditor" style="display:none">
+      <div class="row">
+        <div>
+          <label>Nome da cena</label>
+          <input id="scName"/>
+        </div>
+        <div>
+          <label>Duração (segundos)</label>
+          <input id="scDur" type="number" min="1" step="0.5"/>
+        </div>
+      </div>
+
+      <label>Texto principal (headline)</label>
+      <input id="scHeadline" placeholder='Ex: "6 padrões fixos treinados em 50 concursos."' />
+
+      <label>Texto menor (sub)</label>
+      <input id="scSub" placeholder='Ex: "Elite + 15P = estratégia agressiva pra 14/15"' />
+
+      <div class="row">
+        <div>
+          <label>Animação do texto</label>
+          <select id="scTextAnim">
+            <option value="type">Typewriter</option>
+            <option value="fade">Fade</option>
+            <option value="slide">Slide</option>
+          </select>
+        </div>
+        <div>
+          <label>Posição do texto</label>
+          <select id="scTextPos">
+            <option value="bottom">Embaixo</option>
+            <option value="top">Em cima</option>
+            <option value="center">Centro</option>
+          </select>
+        </div>
+      </div>
+
+      <label>Mídia da tela (imagem ou vídeo) — entra dentro do slot</label>
+      <input id="scMedia" type="file" accept="image/*,video/*"/>
+
+      <div class="row">
+        <div>
+          <label>Zoom (mídia dentro do slot)</label>
+          <input id="scZoom" type="number" step="0.05" min="0.2" max="5"/>
+        </div>
+        <div>
+          <label>Pan X / Pan Y (arraste com “C” ativo)</label>
+          <input id="scPan" disabled value="Use tecla C e arraste"/>
+        </div>
+      </div>
+
+      <div class="btns">
+        <button class="secondary" onclick="toggleCropMode()">Modo Corte (C)</button>
+        <button class="secondary" onclick="resetCrop()">Reset corte</button>
+      </div>
+
+      <hr style="border:none;border-top:1px solid var(--line);margin:12px 0"/>
+
+      <label>Narração (grave sua voz para esta cena)</label>
+      <div class="btns">
+        <button onclick="startRec()">Gravar</button>
+        <button class="secondary" onclick="stopRec()">Parar</button>
+        <button class="secondary" onclick="playRec()">Ouvir</button>
+        <button class="danger" onclick="clearRec()">Apagar áudio</button>
+      </div>
+      <p class="hint" id="recStatus">Sem áudio gravado.</p>
+    </div>
+
+    <p class="hint">
+      Fluxo: crie o template (fundo+slot) → crie cenas → para cada cena coloque mídia+texto+narração → exporte.
+    </p>
   </section>
 </main>
 
 <script>
-  let last = { roteiro:"", cenas:"", srt:"", hashtags:"", json:"{}" };
-  let currentTab = "roteiro";
+/** =========================
+ *  STATE / PROJECT MODEL
+ *  ========================= */
+const state = {
+  version: 1,
+  name: "",
+  size: { w:1080, h:1920 },
+  bg: { dataUrl:null, img:null },
+  slot: { x:190, y:420, w:700, h:390 },
+  scenes: [],
+  active: 0,
+  editSlot: false,
+  cropMode: false,
+  playing: false,
+  exporting: false,
+};
 
-  function setTab(tab){
-    currentTab = tab;
-    document.querySelectorAll(".tab").forEach(t=>{
-      t.classList.toggle("active", t.dataset.tab === tab);
+function defaultScene(i=1){
+  return {
+    id: crypto.randomUUID(),
+    name: `Cena ${i}`,
+    dur: 4,
+    headline: "",
+    sub: "",
+    textAnim: "type",
+    textPos: "bottom",
+    media: { type:null, dataUrl:null, el:null, w:0, h:0 },
+    crop: { zoom:1, panX:0, panY:0 },
+    audio: { blob:null, url:null }
+  };
+}
+
+/** =========================
+ *  CANVAS / RENDER
+ *  ========================= */
+const cv = document.getElementById("cv");
+const ctx = cv.getContext("2d");
+let raf = null;
+
+function setCanvasSize(){
+  const [w,h] = document.getElementById("format").value.split("x").map(n=>parseInt(n,10));
+  state.size.w = w; state.size.h = h;
+  cv.width = w; cv.height = h;
+
+  // valores default do slot pra 9:16
+  if(w===1080 && h===1920 && state.scenes.length===0){
+    state.slot = { x:190, y:420, w:700, h:390 };
+  }
+  syncSlotInputs();
+  draw();
+}
+
+function draw(frame){
+  // fundo
+  ctx.clearRect(0,0,cv.width,cv.height);
+  if(state.bg.img){
+    drawCover(state.bg.img, 0,0,cv.width,cv.height);
+  } else {
+    // fallback
+    ctx.fillStyle = "#000"; ctx.fillRect(0,0,cv.width,cv.height);
+    ctx.fillStyle = "rgba(245,200,75,.25)";
+    ctx.font = "700 42px system-ui";
+    ctx.fillText("Kwai Builder — carregue um fundo", 60, 120);
+  }
+
+  // cena ativa
+  const sc = state.scenes[state.active];
+  if(sc){
+    // mídia dentro do slot
+    if(sc.media.el){
+      drawMediaInSlot(sc);
+    }
+
+    // texto
+    if(frame && state.playing){
+      drawTextAnimated(sc, frame.t, frame.dur);
+    } else {
+      // texto estático no preview
+      drawTextStatic(sc);
+    }
+  }
+
+  // slot overlay (quando editando)
+  if(state.editSlot){
+    ctx.save();
+    ctx.strokeStyle = "rgba(245,200,75,.85)";
+    ctx.lineWidth = 6;
+    ctx.strokeRect(state.slot.x, state.slot.y, state.slot.w, state.slot.h);
+    ctx.fillStyle = "rgba(245,200,75,.10)";
+    ctx.fillRect(state.slot.x, state.slot.y, state.slot.w, state.slot.h);
+    ctx.fillStyle = "rgba(0,0,0,.65)";
+    ctx.fillRect(state.slot.x, state.slot.y-42, 300, 36);
+    ctx.fillStyle = "#fff";
+    ctx.font = "800 18px system-ui";
+    ctx.fillText("EDITANDO SLOT", state.slot.x+10, state.slot.y-18);
+    ctx.restore();
+  }
+
+  // crop overlay
+  if(state.cropMode){
+    ctx.save();
+    ctx.strokeStyle = "rgba(156,255,199,.85)";
+    ctx.lineWidth = 4;
+    ctx.strokeRect(state.slot.x, state.slot.y, state.slot.w, state.slot.h);
+    ctx.fillStyle = "rgba(0,0,0,.40)";
+    ctx.fillRect(0,0,cv.width,cv.height);
+    ctx.clearRect(state.slot.x, state.slot.y, state.slot.w, state.slot.h);
+    ctx.strokeRect(state.slot.x, state.slot.y, state.slot.w, state.slot.h);
+    ctx.fillStyle = "rgba(0,0,0,.65)";
+    ctx.fillRect(state.slot.x, state.slot.y+state.slot.h+8, 360, 34);
+    ctx.fillStyle = "#fff";
+    ctx.font = "800 16px system-ui";
+    ctx.fillText("CROP: arraste para pan | mousewheel = zoom", state.slot.x+10, state.slot.y+state.slot.h+30);
+    ctx.restore();
+  }
+}
+
+function drawCover(img, x,y,w,h){
+  const iw=img.width, ih=img.height;
+  const ir=iw/ih, r=w/h;
+  let dw=w, dh=h, dx=x, dy=y;
+  if(ir>r){ dh=h; dw=h*ir; dx=x-(dw-w)/2; dy=y; }
+  else { dw=w; dh=w/ir; dx=x; dy=y-(dh-h)/2; }
+  ctx.drawImage(img, dx,dy,dw,dh);
+}
+
+function drawContain(img, x,y,w,h){
+  const iw=img.width, ih=img.height;
+  const ir=iw/ih, r=w/h;
+  let dw=w, dh=h, dx=x, dy=y;
+  if(ir>r){ dw=w; dh=w/ir; dx=x; dy=y+(h-dh)/2; }
+  else { dh=h; dw=h*ir; dx=x+(w-dw)/2; dy=y; }
+  ctx.drawImage(img, dx,dy,dw,dh);
+}
+
+function drawMediaInSlot(sc){
+  const {x,y,w,h} = state.slot;
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(x,y,w,h);
+  ctx.clip();
+
+  const el = sc.media.el;
+
+  // base: contain dentro do slot, depois aplicar zoom/pan
+  // calculo de tamanho "contain"
+  const mw = sc.media.w || el.videoWidth || el.width;
+  const mh = sc.media.h || el.videoHeight || el.height;
+  const ir = mw/mh;
+  const r = w/h;
+
+  let dw=w, dh=h;
+  if(ir>r){ dw=w; dh=w/ir; }
+  else { dh=h; dw=h*ir; }
+
+  // aplica zoom em cima do contain
+  dw *= sc.crop.zoom;
+  dh *= sc.crop.zoom;
+
+  // centraliza + pan
+  const cx = x + (w - dw)/2 + sc.crop.panX;
+  const cy = y + (h - dh)/2 + sc.crop.panY;
+
+  if(el.tagName==="VIDEO"){
+    ctx.drawImage(el, cx, cy, dw, dh);
+  } else {
+    ctx.drawImage(el, cx, cy, dw, dh);
+  }
+
+  ctx.restore();
+
+  // borda “tela”
+  ctx.save();
+  ctx.strokeStyle = "rgba(0,0,0,.55)";
+  ctx.lineWidth = 10;
+  ctx.strokeRect(x,y,w,h);
+  ctx.strokeStyle = "rgba(245,200,75,.14)";
+  ctx.lineWidth = 4;
+  ctx.strokeRect(x,y,w,h);
+  ctx.restore();
+}
+
+function drawTextStatic(sc){
+  const baseY = textBaseY(sc.textPos);
+  const pad = 56;
+
+  ctx.save();
+  ctx.textAlign = "center";
+
+  // headline
+  if(sc.headline){
+    ctx.font = "900 64px system-ui";
+    ctx.lineWidth = 10;
+    ctx.strokeStyle = "rgba(0,0,0,.65)";
+    ctx.fillStyle = "#ffd34d";
+    drawWrapped(sc.headline, cv.width/2, baseY, cv.width - pad*2, 74, true);
+  }
+  // sub
+  if(sc.sub){
+    ctx.font = "800 34px system-ui";
+    ctx.lineWidth = 8;
+    ctx.strokeStyle = "rgba(0,0,0,.60)";
+    ctx.fillStyle = "#ffffff";
+    drawWrapped(sc.sub, cv.width/2, baseY+170, cv.width - pad*2, 44, true);
+  }
+
+  ctx.restore();
+}
+
+function drawTextAnimated(sc, t, dur){
+  // t em segundos da cena
+  const baseY = textBaseY(sc.textPos);
+  const pad = 56;
+  ctx.save();
+  ctx.textAlign = "center";
+
+  const inTime = Math.min(1, Math.max(0, t / 0.6));        // 0-0.6s
+  const outTime = Math.min(1, Math.max(0, (dur - t) / 0.5)); // últimos 0.5s
+
+  let alpha = Math.min(inTime, outTime);
+  if(sc.textAnim==="fade"){
+    ctx.globalAlpha = alpha;
+    drawTextBlock(sc, baseY, pad, 1, 0);
+  } else if(sc.textAnim==="slide"){
+    ctx.globalAlpha = alpha;
+    const slide = (1-inTime) * 60; // entra de baixo
+    drawTextBlock(sc, baseY+slide, pad, 1, 0);
+  } else {
+    // typewriter: revela headline e sub por tempo
+    ctx.globalAlpha = alpha;
+    const total = (sc.headline?.length||0) + (sc.sub?.length||0) + 1;
+    const chars = Math.floor((t / Math.max(1.2, dur*0.6)) * total);
+    const head = sc.headline || "";
+    const sub = sc.sub || "";
+    let hTxt = head, sTxt = sub;
+    if(total>0){
+      const hLen = Math.min(head.length, chars);
+      hTxt = head.slice(0, hLen);
+      const sLen = Math.max(0, chars - head.length - 1);
+      sTxt = sub.slice(0, Math.min(sub.length, sLen));
+    }
+    drawTextBlock({headline:hTxt, sub:sTxt}, baseY, pad, 1, 0);
+  }
+
+  ctx.restore();
+}
+
+function drawTextBlock(sc, baseY, pad){
+  // headline
+  if(sc.headline){
+    ctx.font = "900 64px system-ui";
+    ctx.lineWidth = 10;
+    ctx.strokeStyle = "rgba(0,0,0,.65)";
+    ctx.fillStyle = "#ffd34d";
+    drawWrapped(sc.headline, cv.width/2, baseY, cv.width - pad*2, 74, true);
+  }
+  if(sc.sub){
+    ctx.font = "800 34px system-ui";
+    ctx.lineWidth = 8;
+    ctx.strokeStyle = "rgba(0,0,0,.60)";
+    ctx.fillStyle = "#ffffff";
+    drawWrapped(sc.sub, cv.width/2, baseY+170, cv.width - pad*2, 44, true);
+  }
+}
+
+function textBaseY(pos){
+  if(pos==="top") return 160;
+  if(pos==="center") return cv.height/2 - 120;
+  return cv.height - 360;
+}
+
+function drawWrapped(text, x, y, maxW, lineH, strokeFirst){
+  const words = (text||"").split(" ");
+  let line = "";
+  let yy = y;
+  for(let i=0;i<words.length;i++){
+    const test = line + words[i] + " ";
+    const w = ctx.measureText(test).width;
+    if(w > maxW && i>0){
+      if(strokeFirst) ctx.strokeText(line.trim(), x, yy);
+      ctx.fillText(line.trim(), x, yy);
+      line = words[i] + " ";
+      yy += lineH;
+    } else {
+      line = test;
+    }
+  }
+  if(strokeFirst) ctx.strokeText(line.trim(), x, yy);
+  ctx.fillText(line.trim(), x, yy);
+}
+
+/** =========================
+ *  UI BINDINGS
+ *  ========================= */
+const el = id => document.getElementById(id);
+
+function syncSlotInputs(){
+  el("slotX").value = Math.round(state.slot.x);
+  el("slotY").value = Math.round(state.slot.y);
+  el("slotW").value = Math.round(state.slot.w);
+  el("slotH").value = Math.round(state.slot.h);
+}
+["slotX","slotY","slotW","slotH"].forEach(id=>{
+  el(id).addEventListener("input", ()=>{
+    state.slot.x = parseInt(el("slotX").value||0,10);
+    state.slot.y = parseInt(el("slotY").value||0,10);
+    state.slot.w = Math.max(10, parseInt(el("slotW").value||10,10));
+    state.slot.h = Math.max(10, parseInt(el("slotH").value||10,10));
+    draw();
+  });
+});
+
+el("projectName").addEventListener("input", ()=> state.name = el("projectName").value);
+
+el("format").addEventListener("change", setCanvasSize);
+
+el("bgFile").addEventListener("change", async (e)=>{
+  const f = e.target.files?.[0]; if(!f) return;
+  const dataUrl = await fileToDataURL(f);
+  state.bg.dataUrl = dataUrl;
+  const img = new Image();
+  img.onload = ()=>{ state.bg.img = img; draw(); };
+  img.src = dataUrl;
+});
+
+function toggleEditSlot(){
+  state.editSlot = !state.editSlot;
+  el("renderInfo").textContent = state.editSlot ? "Modo slot: arraste o retângulo." : "Pronto.";
+  draw();
+}
+function toggleCropMode(){
+  state.cropMode = !state.cropMode;
+  el("renderInfo").textContent = state.cropMode ? "Modo corte: arraste dentro do slot." : "Pronto.";
+  draw();
+}
+function centerSlot(){
+  state.slot.w = Math.round(state.size.w*0.66);
+  state.slot.h = Math.round(state.size.h*0.22);
+  state.slot.x = Math.round((state.size.w - state.slot.w)/2);
+  state.slot.y = Math.round(state.size.h*0.22);
+  syncSlotInputs();
+  draw();
+}
+
+/** =========================
+ *  SCENES UI
+ *  ========================= */
+function ensureScene(){
+  if(state.scenes.length===0){
+    state.scenes.push(defaultScene(1));
+    state.active = 0;
+  }
+}
+
+function renderSceneList(){
+  const ul = el("sceneList");
+  ul.innerHTML = "";
+  state.scenes.forEach((s, idx)=>{
+    const li = document.createElement("li");
+    li.className = "item" + (idx===state.active ? " active":"");
+    li.onclick = ()=>{ state.active = idx; renderSceneList(); renderSceneEditor(); draw(); };
+    li.innerHTML = `
+      <div class="itemTitle">
+        <b>${escapeHtml(s.name)}</b>
+        <span>${s.dur}s</span>
+      </div>
+      <div class="small">
+        ${s.media.dataUrl ? "📺 mídia" : "📺 sem mídia"} • ${s.audio.url ? "🎙️ áudio" : "🎙️ sem áudio"}
+      </div>
+    `;
+    ul.appendChild(li);
+  });
+}
+
+function renderSceneEditor(){
+  const sc = state.scenes[state.active];
+  const box = el("sceneEditor");
+  if(!sc){ box.style.display="none"; return; }
+  box.style.display="block";
+
+  el("scName").value = sc.name;
+  el("scDur").value = sc.dur;
+  el("scHeadline").value = sc.headline;
+  el("scSub").value = sc.sub;
+  el("scTextAnim").value = sc.textAnim;
+  el("scTextPos").value = sc.textPos;
+  el("scZoom").value = sc.crop.zoom.toFixed(2);
+  updateRecStatus();
+
+  el("scName").oninput = ()=>{ sc.name = el("scName").value; renderSceneList(); };
+  el("scDur").oninput = ()=>{ sc.dur = Math.max(1, parseFloat(el("scDur").value||1)); renderSceneList(); };
+  el("scHeadline").oninput = ()=>{ sc.headline = el("scHeadline").value; draw(); };
+  el("scSub").oninput = ()=>{ sc.sub = el("scSub").value; draw(); };
+  el("scTextAnim").onchange = ()=>{ sc.textAnim = el("scTextAnim").value; draw(); };
+  el("scTextPos").onchange = ()=>{ sc.textPos = el("scTextPos").value; draw(); };
+  el("scZoom").oninput = ()=>{ sc.crop.zoom = clamp(parseFloat(el("scZoom").value||1),0.2,5); draw(); };
+
+  el("scMedia").value = "";
+  el("scMedia").onchange = async (e)=>{
+    const f = e.target.files?.[0]; if(!f) return;
+    const dataUrl = await fileToDataURL(f);
+    sc.media.dataUrl = dataUrl;
+    sc.media.type = f.type.startsWith("video/") ? "video" : "image";
+    await loadSceneMedia(sc);
+    renderSceneList();
+    draw();
+  };
+}
+
+async function loadSceneMedia(sc){
+  if(sc.media.type==="video"){
+    const v = document.createElement("video");
+    v.src = sc.media.dataUrl;
+    v.muted = true; v.loop = true; v.playsInline = true;
+    await v.play().catch(()=>{});
+    // aguardar metadata
+    await new Promise(res=>{
+      if(v.readyState>=1) return res();
+      v.onloadedmetadata = ()=>res();
     });
-    document.getElementById("output").textContent = last[tab] || "";
+    sc.media.el = v;
+    sc.media.w = v.videoWidth;
+    sc.media.h = v.videoHeight;
+  } else {
+    const img = new Image();
+    await new Promise(res=>{
+      img.onload = ()=>res();
+      img.src = sc.media.dataUrl;
+    });
+    sc.media.el = img;
+    sc.media.w = img.width;
+    sc.media.h = img.height;
+  }
+}
+
+function addScene(){
+  const s = defaultScene(state.scenes.length+1);
+  state.scenes.push(s);
+  state.active = state.scenes.length-1;
+  renderSceneList();
+  renderSceneEditor();
+  draw();
+}
+function duplicateScene(){
+  const sc = state.scenes[state.active]; if(!sc) return;
+  const copy = JSON.parse(JSON.stringify(sc));
+  copy.id = crypto.randomUUID();
+  copy.name = sc.name + " (cópia)";
+  // media/audio precisam ser re-ligados
+  copy.media.el = null;
+  copy.audio.blob = null;
+  copy.audio.url = sc.audio.url || null;
+  // manter dataUrl
+  state.scenes.splice(state.active+1,0,copy);
+  state.active++;
+  // recarregar mídia se existir
+  Promise.resolve().then(async ()=>{
+    if(copy.media.dataUrl){
+      copy.media.type = (copy.media.dataUrl.startsWith("data:video")) ? "video" : "image";
+      await loadSceneMedia(copy);
+    }
+    renderSceneList(); renderSceneEditor(); draw();
+  });
+}
+function deleteScene(){
+  if(state.scenes.length<=1) { alert("Mantenha pelo menos 1 cena."); return; }
+  state.scenes.splice(state.active,1);
+  state.active = Math.max(0, state.active-1);
+  renderSceneList(); renderSceneEditor(); draw();
+}
+function resetCrop(){
+  const sc = state.scenes[state.active]; if(!sc) return;
+  sc.crop.zoom = 1; sc.crop.panX = 0; sc.crop.panY = 0;
+  el("scZoom").value = "1.00";
+  draw();
+}
+
+/** =========================
+ *  INPUT (MOUSE/KEY)
+ *  ========================= */
+let drag = { on:false, mode:null, sx:0, sy:0, ox:0, oy:0 };
+
+cv.addEventListener("mousedown", (e)=>{
+  const p = canvasPos(e);
+  if(state.editSlot){
+    if(pointInRect(p.x,p.y,state.slot)){
+      drag = { on:true, mode:"slot", sx:p.x, sy:p.y, ox:state.slot.x, oy:state.slot.y };
+    }
+  } else if(state.cropMode){
+    if(pointInRect(p.x,p.y,state.slot)){
+      const sc = state.scenes[state.active]; if(!sc) return;
+      drag = { on:true, mode:"crop", sx:p.x, sy:p.y, ox:sc.crop.panX, oy:sc.crop.panY };
+    }
+  }
+});
+
+window.addEventListener("mousemove", (e)=>{
+  if(!drag.on) return;
+  const p = canvasPos(e);
+  const dx = p.x - drag.sx;
+  const dy = p.y - drag.sy;
+  if(drag.mode==="slot"){
+    state.slot.x = Math.round(drag.ox + dx);
+    state.slot.y = Math.round(drag.oy + dy);
+    syncSlotInputs();
+    draw();
+  } else if(drag.mode==="crop"){
+    const sc = state.scenes[state.active]; if(!sc) return;
+    sc.crop.panX = Math.round(drag.ox + dx);
+    sc.crop.panY = Math.round(drag.oy + dy);
+    draw();
+  }
+});
+
+window.addEventListener("mouseup", ()=>{ drag.on=false; drag.mode=null; });
+
+cv.addEventListener("wheel", (e)=>{
+  if(!state.cropMode) return;
+  e.preventDefault();
+  const sc = state.scenes[state.active]; if(!sc) return;
+  const delta = e.deltaY>0 ? -0.05 : 0.05;
+  sc.crop.zoom = clamp(sc.crop.zoom + delta, 0.2, 5);
+  el("scZoom").value = sc.crop.zoom.toFixed(2);
+  draw();
+},{passive:false});
+
+window.addEventListener("keydown", (e)=>{
+  if(e.key==="e" || e.key==="E") toggleEditSlot();
+  if(e.key==="c" || e.key==="C") toggleCropMode();
+  if(e.code==="Space"){ e.preventDefault(); playScene(); }
+});
+
+/** =========================
+ *  PLAYBACK (PREVIEW)
+ *  ========================= */
+let playStart = 0;
+let playTimer = null;
+
+function playScene(){
+  if(state.playing || state.exporting) return;
+  const sc = state.scenes[state.active]; if(!sc) return;
+
+  state.playing = true;
+  playStart = performance.now();
+  const audio = sc.audio.url ? new Audio(sc.audio.url) : null;
+  if(audio){
+    audio.currentTime = 0;
+    audio.play().catch(()=>{});
   }
 
-  function clearAll(){
-    document.getElementById("prompt").value="";
-    document.getElementById("offer").value="";
-    document.getElementById("cta").value="";
-    document.getElementById("anchor").value="";
-    document.getElementById("output").textContent="";
-    last = { roteiro:"", cenas:"", srt:"", hashtags:"", json:"{}" };
-    setTab("roteiro");
-    toast("");
-  }
+  function tick(now){
+    if(!state.playing) return;
+    const t = (now - playStart) / 1000;
+    draw({ t, dur: sc.dur });
 
-  function fillExample(){
-    document.getElementById("prompt").value =
-`OBJETIVO: Vender o acesso do sistema (Premium/Combo/15P) usando curiosidade + prova + CTA.
-PÚBLICO: Lotofácil (quer 14/15 pontos).
-PROVAS: “padrões treinados”, “Jogo Elite (6 jogos)”, “15P fecha 3 linhas”.
-FORMATO: vídeo curto (cortes rápidos), texto grande, narração direta.
-REGRAS: 1 gancho forte nos 2 primeiros segundos, 1 prova visual, 1 CTA final.`;
-    document.getElementById("offer").value = "Lotofácil Prime Analytics — Premium / Combo / 15P";
-    document.getElementById("cta").value = "Link na bio • Garanta seu acesso hoje";
-    document.getElementById("anchor").value = "Sistema Preditivo + Jogo Elite + 15P (3 linhas)";
-    document.getElementById("tone").value = "forte";
-  }
-
-  function generate(mode){
-    const prompt = (document.getElementById("prompt").value || "").trim();
-    const offer = (document.getElementById("offer").value || "").trim();
-    const cta = (document.getElementById("cta").value || "").trim();
-    const tone = document.getElementById("tone").value;
-    const anchor = (document.getElementById("anchor").value || "").trim();
-
-    if(!prompt){
-      alert("Cole um prompt primeiro.");
+    if(t >= sc.dur){
+      state.playing = false;
+      draw();
       return;
     }
-
-    const config = { offer, cta, tone, anchor };
-    const out = buildOutputs(prompt, config, mode);
-
-    last = out;
-    setTab(currentTab);
-    toast("Gerado!");
+    raf = requestAnimationFrame(tick);
   }
+  raf = requestAnimationFrame(tick);
+}
 
-  function tonePack(tone){
-    if(tone==="misterio"){
-      return {
-        hookA: "Você já percebeu que as dezenas ‘se encontram’ do nada?",
-        hookB: "Quando o padrão vira… ele paga.",
-        hookC: "Tem concurso que ‘liga’ um ciclo… e quase ninguém vê."
-      };
-    }
-    if(tone==="didatico"){
-      return {
-        hookA: "Vou te mostrar o método que eu uso pra montar jogos.",
-        hookB: "É simples: padrão + estrutura + execução.",
-        hookC: "Olha como eu organizo em módulos."
-      };
-    }
-    return {
-      hookA: "Se você quer buscar 14/15, para de apostar no escuro.",
-      hookB: "Aqui é padrão treinado. Sem chute.",
-      hookC: "Quer jogo forte? Então olha isso."
+function stopPlay(){
+  state.playing = false;
+  if(raf) cancelAnimationFrame(raf);
+  draw();
+}
+
+/** =========================
+ *  AUDIO REC (PER SCENE)
+ *  ========================= */
+let rec = { mediaRecorder:null, chunks:[], stream:null };
+
+async function startRec(){
+  const sc = state.scenes[state.active]; if(!sc) return;
+  if(rec.mediaRecorder) return;
+
+  try{
+    rec.stream = await navigator.mediaDevices.getUserMedia({ audio:true });
+    rec.chunks = [];
+    rec.mediaRecorder = new MediaRecorder(rec.stream, { mimeType: "audio/webm" });
+    rec.mediaRecorder.ondataavailable = (ev)=>{ if(ev.data.size>0) rec.chunks.push(ev.data); };
+    rec.mediaRecorder.onstop = ()=>{
+      const blob = new Blob(rec.chunks, { type:"audio/webm" });
+      sc.audio.blob = blob;
+      if(sc.audio.url) URL.revokeObjectURL(sc.audio.url);
+      sc.audio.url = URL.createObjectURL(blob);
+      cleanupRec();
+      updateRecStatus();
+      renderSceneList();
     };
+    rec.mediaRecorder.start();
+    el("recStatus").innerHTML = `<span class="ok">Gravando...</span> fale a narração desta cena e depois clique “Parar”.`;
+  }catch(err){
+    alert("Não consegui acessar o microfone. Permita no navegador.");
   }
+}
 
-  function buildVideo(duration, prompt, cfg){
-    const t = tonePack(cfg.tone);
-    const offer = cfg.offer || "Seu sistema";
-    const cta = cfg.cta || "Link na bio";
-    const anchor = cfg.anchor || "Sistema Preditivo + Elite + 15P";
+function stopRec(){
+  if(!rec.mediaRecorder) return;
+  rec.mediaRecorder.stop();
+}
 
-    // Estrutura base (gancho > prova visual > mecanismo > CTA)
-    const is30 = duration === 30;
-
-    const scenes = is30 ? [
-      { start:0.0, end:2.2,  on:"GANCHO", text:`${t.hookA}`, vo:`${t.hookA}` },
-      { start:2.2, end:6.5,  on:"PROMESSA", text:"Padrões + estrutura pra buscar 14/15", vo:"Eu uso padrões e estrutura pra mirar alto: 14 e 15 pontos." },
-      { start:6.5, end:12.5, on:"PROVA VISUAL", text:"Mostre a tela: Jogos / Módulos", vo:"Olha a tela do sistema: Principal, Elite e o 15P. Tudo organizado." },
-      { start:12.5,end:19.5, on:"MECÂNICA", text:"Elite = 6 jogos (Combo) • 15P fecha 3 linhas", vo:"O Elite gera 6 jogos no Combo. E o 15P tem estratégia de fechar 3 linhas." },
-      { start:19.5,end:26.0, on:"DIFERENCIAL", text:`Âncora: ${anchor}`, vo:`O foco é replicar comportamento e encaixar dezenas na estrutura. ${anchor}.` },
-      { start:26.0,end:30.0, on:"CTA", text:`${cta}`, vo:`Quer ver isso rodando no próximo concurso? ${cta}.` },
-    ] : [
-      { start:0.0, end:2.0, on:"GANCHO", text:`${t.hookB}`, vo:`${t.hookB}` },
-      { start:2.0, end:6.5, on:"PROVA", text:"Mostre a tela do sistema (rápido)", vo:"Olha isso aqui no sistema em segundos." },
-      { start:6.5, end:12.0, on:"PONTO FORTE", text:"Elite + 15P (3 linhas) = estratégia agressiva", vo:"Elite e 15P são a parte mais agressiva pra buscar 14/15." },
-      { start:12.0,end:15.0, on:"CTA", text:`${cta}`, vo:`${cta}.` },
-    ];
-
-    const roteiro =
-`🎬 ROTEIRO — ${duration}s
-Produto/Oferta: ${offer}
-Tom: ${cfg.tone.toUpperCase()}
-Base do prompt:
-- ${prompt.replace(/\n/g,"\n- ")}
-
-✅ Estrutura:
-1) Gancho (0–2s)
-2) Prova visual (tela/print)
-3) Mecânica (o que muda o jogo)
-4) CTA (fechamento)
-
-🧠 Narração (voz):
-${scenes.map((s,i)=>`${i+1}. [${fmt(s.start)}–${fmt(s.end)}] ${s.vo}`).join("\n")}
-
-🟨 Texto na tela (grande):
-${scenes.map((s,i)=>`${i+1}. ${s.text}`).join("\n")}
-
-📌 Observação:
-- Use cortes rápidos e close na tela.
-- Texto grande, 1 ideia por cena.`;
-
-    const timeline =
-`⏱️ CENAS (TIMELINE) — ${duration}s
-${scenes.map((s,i)=>(
-`${i+1}) ${fmt(s.start)}–${fmt(s.end)} | ${s.on}
-   Tela: ${s.text}
-   VO:   ${s.vo}`
-)).join("\n\n")}
-
-📸 Sugestão de take por cena:
-- Mãos no celular / print da home / print do Elite / print do 15P / botão “Gerar” / resultado na tela.`;
-
-    const srt = toSRT(scenes);
-    const hashtags = buildHashtags(cfg.tone);
-
-    return { roteiro, timeline, srt, scenes };
+function cleanupRec(){
+  if(rec.stream){
+    rec.stream.getTracks().forEach(t=>t.stop());
   }
+  rec.mediaRecorder = null;
+  rec.stream = null;
+  rec.chunks = [];
+}
 
-  function buildHashtags(tone){
-    const base = [
-      "#lotofacil", "#lotofácil", "#loteria", "#loterias", "#dicaslotofacil",
-      "#estrategia", "#apostas", "#numeros", "#kwai", "#brasil"
-    ];
-    const extra = tone==="misterio"
-      ? ["#segredo", "#padrao", "#ciclos"]
-      : tone==="didatico"
-      ? ["#metodo", "#passoapasso", "#analise"]
-      : ["#forte", "#foco", "#resultado"];
-    return [...base, ...extra].join(" ");
-  }
+function playRec(){
+  const sc = state.scenes[state.active]; if(!sc?.audio.url) return alert("Sem áudio nesta cena.");
+  const a = new Audio(sc.audio.url);
+  a.play().catch(()=>{});
+}
+function clearRec(){
+  const sc = state.scenes[state.active]; if(!sc) return;
+  if(sc.audio.url) URL.revokeObjectURL(sc.audio.url);
+  sc.audio = { blob:null, url:null };
+  updateRecStatus();
+  renderSceneList();
+}
+function updateRecStatus(){
+  const sc = state.scenes[state.active];
+  if(!sc){ el("recStatus").textContent=""; return; }
+  el("recStatus").innerHTML = sc.audio.url
+    ? `<span class="ok">Áudio gravado.</span> Você pode ouvir e exportar com o vídeo.`
+    : `Sem áudio gravado (opcional).`;
+}
 
-  function buildOutputs(prompt, cfg, mode){
-    let pack30=null, pack15=null;
-    if(mode==="30") pack30 = buildVideo(30, prompt, cfg);
-    if(mode==="15") pack15 = buildVideo(15, prompt, cfg);
-    if(mode==="both"){
-      pack30 = buildVideo(30, prompt, cfg);
-      pack15 = buildVideo(15, prompt, cfg);
+/** =========================
+ *  EXPORT VIDEO (WEBM)
+ *  ========================= */
+async function exportVideo(){
+  if(state.exporting) return;
+  if(!state.bg.img) return alert("Carregue um fundo primeiro.");
+  if(state.scenes.length===0) return alert("Crie pelo menos 1 cena.");
+
+  state.exporting = true;
+  stopPlay();
+  el("renderInfo").textContent = "Exportando... (não feche a aba)";
+  el("progWrap").style.display = "block";
+  setProg(0);
+
+  // canvas stream
+  const fps = 30;
+  const stream = cv.captureStream(fps);
+
+  // áudio mix (por simplicidade: toca áudio de cada cena e captura via WebAudio -> destination -> addTrack)
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  const dest = audioCtx.createMediaStreamDestination();
+  // adiciona track de áudio ao stream final
+  dest.stream.getAudioTracks().forEach(track => stream.addTrack(track));
+
+  const mr = new MediaRecorder(stream, { mimeType:"video/webm;codecs=vp9,opus" });
+  const chunks = [];
+  mr.ondataavailable = (ev)=>{ if(ev.data.size>0) chunks.push(ev.data); };
+
+  mr.start(250);
+
+  let totalDur = state.scenes.reduce((a,s)=>a + (s.dur||0), 0);
+  let elapsed = 0;
+
+  for(let i=0;i<state.scenes.length;i++){
+    state.active = i;
+    renderSceneList();
+    renderSceneEditor();
+
+    const sc = state.scenes[i];
+
+    // preparar áudio da cena (se existir)
+    let srcNode = null;
+    let audioEl = null;
+    if(sc.audio.url){
+      audioEl = new Audio(sc.audio.url);
+      audioEl.currentTime = 0;
+      const src = audioCtx.createMediaElementSource(audioEl);
+      src.connect(dest);
+      src.connect(audioCtx.destination); // opcional: ouvir enquanto exporta
+      srcNode = src;
+      await audioEl.play().catch(()=>{});
     }
 
-    const roteiro =
-      (pack30 ? pack30.roteiro : "") +
-      (pack30 && pack15 ? "\n\n" + "—".repeat(40) + "\n\n" : "") +
-      (pack15 ? pack15.roteiro : "");
+    // se mídia é vídeo: garantir play
+    if(sc.media.el && sc.media.el.tagName==="VIDEO"){
+      sc.media.el.currentTime = 0;
+      await sc.media.el.play().catch(()=>{});
+    }
 
-    const cenas =
-      (pack30 ? pack30.timeline : "") +
-      (pack30 && pack15 ? "\n\n" + "—".repeat(40) + "\n\n" : "") +
-      (pack15 ? pack15.timeline : "");
+    // render loop da cena
+    await renderSceneToCanvas(sc, fps, (t)=>{
+      // progresso geral
+      const pct = Math.min(1, (elapsed + t) / totalDur);
+      setProg(pct);
+    });
 
-    const srt =
-      (pack30 ? `; SRT 30s\n${pack30.srt}` : "") +
-      (pack30 && pack15 ? "\n\n" : "") +
-      (pack15 ? `; SRT 15s\n${pack15.srt}` : "");
+    elapsed += sc.dur;
 
-    const hashtags = buildHashtags(cfg.tone);
-
-    const jsonObj = {
-      createdAt: new Date().toISOString(),
-      config: cfg,
-      prompt,
-      video30: pack30 ? pack30.scenes : null,
-      video15: pack15 ? pack15.scenes : null,
-      hashtags
-    };
-
-    return {
-      roteiro,
-      cenas,
-      srt,
-      hashtags,
-      json: JSON.stringify(jsonObj, null, 2)
-    };
+    // parar vídeo da cena
+    if(sc.media.el && sc.media.el.tagName==="VIDEO"){
+      sc.media.el.pause();
+    }
+    // parar áudio
+    if(audioEl){
+      audioEl.pause();
+      // desconectar node
+      try{ srcNode.disconnect(); }catch{}
+    }
   }
 
-  function fmt(sec){
-    return sec.toFixed(1).padStart(4,"0")+"s";
+  mr.stop();
+
+  const blob = await new Promise(res=>{
+    mr.onstop = ()=> res(new Blob(chunks, { type:"video/webm" }));
+  });
+
+  // download
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  const name = (state.name || "kwai_video").replace(/[^\w\-]+/g,"_");
+  a.download = `${name}.webm`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(a.href);
+
+  // cleanup
+  try{ await audioCtx.close(); }catch{}
+  state.exporting = false;
+  el("renderInfo").textContent = "Export concluído. Vídeo baixado.";
+  setTimeout(()=>{ el("progWrap").style.display="none"; }, 1200);
+  draw();
+}
+
+function setProg(pct){
+  el("progBar").style.width = Math.round(pct*100) + "%";
+}
+
+function renderSceneToCanvas(sc, fps, onTick){
+  return new Promise((resolve)=>{
+    const frameDur = 1/fps;
+    let t = 0;
+
+    const timer = setInterval(()=>{
+      t += frameDur;
+      draw({ t, dur: sc.dur });
+      onTick?.(Math.min(sc.dur, t));
+
+      if(t >= sc.dur){
+        clearInterval(timer);
+        draw();
+        resolve();
+      }
+    }, 1000/fps);
+  });
+}
+
+/** =========================
+ *  SAVE / LOAD / IMPORT / EXPORT JSON
+ *  ========================= */
+function projectKey(){
+  return "kwai_builder_project_v1";
+}
+
+function packProject(){
+  // não salva el/img, só dataUrl + valores
+  return {
+    version: state.version,
+    name: state.name,
+    size: state.size,
+    bg: { dataUrl: state.bg.dataUrl },
+    slot: state.slot,
+    scenes: state.scenes.map(s=>({
+      id:s.id, name:s.name, dur:s.dur,
+      headline:s.headline, sub:s.sub,
+      textAnim:s.textAnim, textPos:s.textPos,
+      media:{ type:s.media.type, dataUrl:s.media.dataUrl },
+      crop: s.crop,
+      // áudio: salva em base64? pesado. aqui: NÃO salva áudio no JSON/localStorage (fica leve).
+      // você pode regravar depois ou exportar sem fechar a aba.
+      audio:{ has: !!s.audio.url }
+    }))
+  };
+}
+
+async function hydrateProject(p){
+  state.name = p.name || "";
+  el("projectName").value = state.name;
+
+  // size
+  state.size = p.size || state.size;
+  el("format").value = `${state.size.w}x${state.size.h}`;
+  cv.width = state.size.w; cv.height = state.size.h;
+
+  // bg
+  state.bg.dataUrl = p.bg?.dataUrl || null;
+  state.bg.img = null;
+  if(state.bg.dataUrl){
+    const img = new Image();
+    await new Promise(res=>{ img.onload=()=>res(); img.src=state.bg.dataUrl; });
+    state.bg.img = img;
   }
 
-  function toSRT(scenes){
-    // Quebra em blocos curtos por cena
-    let idx = 1;
-    return scenes.map(s=>{
-      const start = srtTime(s.start);
-      const end = srtTime(s.end);
-      const line = compactSubtitle(s.vo);
-      return `${idx++}\n${start} --> ${end}\n${line}\n`;
-    }).join("\n");
-  }
+  // slot
+  state.slot = p.slot || state.slot;
+  syncSlotInputs();
 
-  function srtTime(seconds){
-    const msTotal = Math.round(seconds*1000);
-    const h = Math.floor(msTotal / 3600000);
-    const m = Math.floor((msTotal % 3600000) / 60000);
-    const s = Math.floor((msTotal % 60000) / 1000);
-    const ms = msTotal % 1000;
-    return `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")},${String(ms).padStart(3,"0")}`;
+  // scenes
+  state.scenes = [];
+  for(const s of (p.scenes || [])){
+    const sc = defaultScene(1);
+    sc.id = s.id || sc.id;
+    sc.name = s.name || sc.name;
+    sc.dur = s.dur || 4;
+    sc.headline = s.headline || "";
+    sc.sub = s.sub || "";
+    sc.textAnim = s.textAnim || "type";
+    sc.textPos = s.textPos || "bottom";
+    sc.media.type = s.media?.type || null;
+    sc.media.dataUrl = s.media?.dataUrl || null;
+    sc.crop = s.crop || sc.crop;
+    sc.audio = { blob:null, url:null }; // áudio não persiste
+    if(sc.media.dataUrl){
+      sc.media.type = sc.media.dataUrl.startsWith("data:video") ? "video" : "image";
+      await loadSceneMedia(sc);
+    }
+    state.scenes.push(sc);
   }
+  if(state.scenes.length===0) state.scenes.push(defaultScene(1));
+  state.active = 0;
 
-  function compactSubtitle(text){
-    // deixa curto pra caber na tela
-    return text
-      .replace(/\s+/g," ")
-      .trim()
-      .slice(0, 84);
-  }
+  renderSceneList();
+  renderSceneEditor();
+  draw();
+}
 
-  async function copyOutput(){
-    const text = document.getElementById("output").textContent || "";
-    if(!text){ alert("Nada para copiar."); return; }
-    await navigator.clipboard.writeText(text);
-    toast("Copiado!");
-  }
+function saveProject(){
+  const pack = packProject();
+  localStorage.setItem(projectKey(), JSON.stringify(pack));
+  el("renderInfo").textContent = "Projeto salvo no navegador.";
+}
 
-  function downloadCurrent(){
-    const content = last[currentTab] || "";
-    if(!content){ alert("Nada para baixar."); return; }
-    const ext = currentTab === "srt" ? "srt" : currentTab === "json" ? "json" : "txt";
-    const blob = new Blob([content], {type: "text/plain;charset=utf-8"});
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = `kwai_${currentTab}.${ext}`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(a.href);
-    toast("Baixado!");
-  }
+async function loadProject(){
+  const raw = localStorage.getItem(projectKey());
+  if(!raw) return alert("Nenhum projeto salvo ainda.");
+  const pack = JSON.parse(raw);
+  await hydrateProject(pack);
+  el("renderInfo").textContent = "Projeto carregado.";
+}
 
-  function toast(msg){
-    const el = document.getElementById("status");
-    if(!msg){ el.style.display="none"; return; }
-    el.textContent = msg;
-    el.style.display="block";
-    setTimeout(()=>{ el.style.display="none"; }, 1400);
-  }
+function exportProject(){
+  const pack = packProject();
+  const blob = new Blob([JSON.stringify(pack,null,2)], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  const name = (state.name || "kwai_project").replace(/[^\w\-]+/g,"_");
+  a.download = `${name}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(a.href);
+}
 
-  // init output
-  setTab("roteiro");
+function importProject(){
+  const inp = document.createElement("input");
+  inp.type = "file";
+  inp.accept = "application/json";
+  inp.onchange = async (e)=>{
+    const f = e.target.files?.[0]; if(!f) return;
+    const txt = await f.text();
+    const pack = JSON.parse(txt);
+    await hydrateProject(pack);
+    el("renderInfo").textContent = "Projeto importado.";
+  };
+  inp.click();
+}
+
+/** =========================
+ *  HELPERS
+ *  ========================= */
+function clamp(v,min,max){ return Math.max(min, Math.min(max,v)); }
+function pointInRect(x,y,r){ return x>=r.x && x<=r.x+r.w && y>=r.y && y<=r.y+r.h; }
+function canvasPos(e){
+  const rect = cv.getBoundingClientRect();
+  const sx = cv.width / rect.width;
+  const sy = cv.height / rect.height;
+  return { x:(e.clientX-rect.left)*sx, y:(e.clientY-rect.top)*sy };
+}
+function escapeHtml(s){ return (s||"").replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m])); }
+function fileToDataURL(file){
+  return new Promise((res,rej)=>{
+    const r = new FileReader();
+    r.onload = ()=>res(r.result);
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+
+/** =========================
+ *  INIT
+ *  ========================= */
+function boot(){
+  setCanvasSize();
+  ensureScene();
+  renderSceneList();
+  renderSceneEditor();
+  syncSlotInputs();
+  draw();
+}
+boot();
 </script>
 </body>
 </html>
