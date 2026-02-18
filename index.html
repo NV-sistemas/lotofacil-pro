@@ -6122,7 +6122,121 @@ function buildLines15P_TrainedFixed(prev4Draws){
 }
 
 
-async 
+async function gerar15P(){
+  const can15p = ((access.premium && access.addon15) || access.isAdmin);
+  if(!can15p) return alert("🔒 O recurso '15 pontos garantido' é um EXTRA comprado separadamente (libera via claims).");
+
+  // ✅ FIXO: SEMPRE últimos 4 concursos (igual ao ELITE)
+  const qtd = 4;
+
+  try{
+    await prepararContextoBase(qtd);
+    const payload = lastPayload;
+
+    // ✅ contexto para explicações (mesmo layout de antes)
+    window._p15ExplainCtx = buildP15ExplainCtx(payload);
+
+    setStatus(true,"15P: montando 5 linhas (treino fixo / base: últimos 4)…");
+    setProgress(82);
+
+    const prev4 = __getPrev4DrawsFromPayload(payload);
+    const adv = buildLines15P_TrainedFixed(prev4);
+    const lines = adv.lines;
+
+    const jogos = gerarJogos15P(lines);
+
+    setStatus(false,"");
+    setProgress(0);
+
+    initUserLines15FromSystem(lines);
+
+    const lineMeta = lines.map((l,idx)=>{
+      const kind = (idx<=2) ? "PREDIZ SAIR (IN)" : "PREDIZ NÃO SAIR (OUT)";
+      const odds = l.filter(n=>n%2===1).length;
+      const primes = l.filter(isPrime).length;
+      const blocks = {A:0,B:0,C:0,D:0,E:0};
+      l.forEach(n=>{ blocks[blockOf(n)] = (blocks[blockOf(n)]||0)+1; });
+      return { idx: idx+1, kind, line:l, odds, primes, blocks };
+    });
+
+    const jogosHtml = jogos.map((j, idx)=>{
+      return `
+        <div class="box">
+          <b>Jogo ${idx+1}</b>
+          <div class="numbers" style="justify-content:flex-start;margin-top:10px">${renderBallsInline(j)}</div>
+        </div>
+      `;
+    }).join("");
+
+    document.getElementById("p15Area").innerHTML = `
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
+        <div>
+          <div style="font-weight:1000;font-size:16px">✅ 15 Pontos (Estratégia) • 10 jogos</div>
+          <div class="mini">Base fixa: <b>últimos 4 concursos</b> • Padrões: <b>treino fixo (3578–3614)</b></div>
+          <div class="mini" style="margin-top:8px">
+            📌 Regra do método: cobrimos todas as combinações de <b>3 linhas entre 5</b> (10 jogos).
+            <b style="text-transform:uppercase">Se você acertar as 3 linhas completas, você fecha 1 dos 10 jogos.</b>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btnGhost" type="button" onclick="verConcursos()">📅 Ver concursos</button>
+          <button class="btn btnBlue" type="button" onclick="salvar15P()">💾 Salvar 15P</button>
+          <button class="btn btnGhost" type="button" onclick="carregar15P()">📂 Carregar 15P salvo</button>
+        </div>
+      </div>
+
+      <div class="box" style="margin-top:12px">
+        <b>📌 Linhas 1 a 5 (geradas pelo sistema)</b>
+        <div class="mini" style="margin-top:6px">
+          Motor: <b>NOVO 15P • LATENTE AGRESSIVO FORTE (v2)</b> • Base: <b>últimos 4</b> • Sem janela variável • Sem diversificação por usuário.
+        </div>
+        <div style="margin-top:12px;overflow:auto">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Linha</th>
+                <th>Tipo</th>
+                <th>Dezenas</th>
+                <th>Ímpares</th>
+                <th>Primos</th>
+                <th>Blocos (A–E)</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${lineMeta.map(m=>`
+                <tr>
+                  <td><b>${m.idx}</b></td>
+                  <td>${String(m.kind).includes("IN") ? "PREDIZ SAIR (IN)" : "PREDIZ NÃO SAIR (OUT)"}</td>
+                  <td class="mono">${m.line.map(format2).join(" - ")}</td>
+                  <td><b>${m.odds}</b></td>
+                  <td>${m.primes}</td>
+                  <td class="mono">A${m.blocks.A}-B${m.blocks.B}-C${m.blocks.C}-D${m.blocks.D}-E${m.blocks.E}</td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      
+      <div class="box" id="p15ExplainBox" style="margin-top:12px">
+        ${renderExplainBoxInner(lines)}
+      </div>
+
+<div class="box" style="margin-top:12px">
+        <b>🎯 10 jogos (combinações das 5 linhas)</b>
+        <div class="mini" style="margin-top:6px">Gerado automaticamente a partir das linhas (3 linhas por jogo).</div>
+        <div style="margin-top:10px" class="grid2">${jogosHtml}</div>
+      </div>
+    `;
+
+  }catch(e){
+    console.error(e);
+    setStatus(false,"");
+    setProgress(0);
+    alert("⚠️ Erro ao gerar 15P. Veja o console.");
+  }
+}
 
 /* ===================== JOGO ELITE (6 jogos) ===================== */
 
@@ -6967,60 +7081,3 @@ window.buildPack4JogosPreditivo = buildPack4JogosPreditivo;
 
 </body>
 </html>
-
-/* ======================================================
-   15P ISOLADO – IMPLEMENTAÇÃO LIMPA (SEM INTERFERÊNCIA)
-   ====================================================== */
-
-function gerar15P(){
-
-  if(!access?.addon15){
-    alert("🔒 Este recurso exige o EXTRA 15P ativado.");
-    return;
-  }
-
-  const area = document.getElementById("p15Area");
-  if(!area) return;
-
-  area.innerHTML = "";
-
-  const ultimos = pegarUltimosConcursos(4);
-  if(!ultimos || ultimos.length < 4){
-    area.innerHTML = "<div class='footerNote'>Não foi possível carregar os últimos 4 concursos.</div>";
-    return;
-  }
-
-  const resultado = motorNovo15P(ultimos);
-
-  if(!resultado || !resultado.linhas || !resultado.jogos){
-    area.innerHTML = "<div class='footerNote'>Erro ao gerar 15P.</div>";
-    return;
-  }
-
-  render15PNovo(resultado.linhas, resultado.jogos);
-}
-
-
-function render15PNovo(linhas, jogos){
-
-  const area = document.getElementById("p15Area");
-  area.innerHTML = "";
-
-  let html = "<div class='p15CardsGrid'>";
-
-  jogos.forEach((jogo, index)=>{
-    html += `
-      <div class="p15-card">
-        <div class="p15-title">15P • Jogo ${index+1}</div>
-        <div class="p15-numbers">
-          ${jogo.map(n=>`<div class="p15-ball">${format2(n)}</div>`).join("")}
-        </div>
-      </div>
-    `;
-  });
-
-  html += "</div>";
-
-  area.innerHTML = html;
-}
-
