@@ -898,6 +898,35 @@
     border-radius:999px;
   }
 
+
+/* =========================
+   15P • Jogos Salvos (LINHAS)
+   ========================= */
+.p15savedCard{padding:12px 14px}
+.p15savedHead{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.p15savedTitle{font-weight:1000;font-size:14px;letter-spacing:.2px}
+.p15savedSub{opacity:.9}
+.p15savedLines{margin-top:10px;border-top:1px solid rgba(255,255,255,.06);padding-top:6px}
+.p15lineRow{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.p15lineRow:last-child{border-bottom:0}
+.p15lineLabel{width:44px;font-weight:1000;opacity:.95}
+.p15hits{min-width:44px;text-align:center;font-weight:1000;font-size:12px;border-radius:999px;
+  padding:3px 8px;background:rgba(255, 215, 0, .10);border:1px solid rgba(255, 215, 0, .25)}
+.p15nums{display:flex;flex-wrap:wrap;gap:6px}
+.p15ball{display:inline-flex;align-items:center;justify-content:center;
+  min-width:34px;height:26px;padding:0 8px;border-radius:10px;
+  font-weight:900;font-size:12px;letter-spacing:.2px;
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10)}
+.p15ball.hit{background:rgba(34,197,94,.18);border-color:rgba(34,197,94,.55);color:#2efc7b}
+
+@media (max-width:520px){
+  .p15savedCard{padding:10px 10px}
+  .p15lineLabel{width:38px}
+  .p15hits{min-width:40px;padding:2px 7px}
+  .p15ball{min-width:30px;height:24px;border-radius:9px;font-size:11px;padding:0 7px}
+  .p15nums{gap:5px}
+}
+
 </style>
 </head>
 
@@ -6738,36 +6767,42 @@ if(!concursos.length){
           </div>
         `;
 
-        // Conferência por concurso (linha a linha) — mobile compacto
+        // Conferência por concurso (linha a linha) — visual premium / mobile
         concursos.forEach(c=>{
           const sorteadas = new Set((c.dezenas || []).map(toNum));
 
           html += `
-            <div class="box" style="margin-top:10px">
-              <b>Concurso ${c.concurso}</b>
+            <div class="box p15savedCard" style="margin-top:10px">
+              <div class="p15savedHead">
+                <div class="p15savedTitle">Concurso ${c.concurso}</div>
+                <div class="mini p15savedSub">Conferindo 5 linhas • Destaque em verde = sorteada</div>
+              </div>
+              <div class="p15savedLines">
           `;
 
           lines.forEach((linha, idx)=>{
             const nums = (linha || []).slice().map(toNum).sort((a,b)=>a-b);
             let hits = 0;
 
-            const linhaRender = nums.map(n=>{
-              if(sorteadas.has(n)){
-                hits++;
-                return `<span style="color:#22c55e;font-weight:900">${format2(n)}</span>`;
-              }
-              return format2(n);
-            }).join(" - ");
+            const balls = nums.map(n=>{
+              const hit = sorteadas.has(n);
+              if(hit) hits++;
+              return `<span class="p15ball ${hit ? "hit" : ""}">${format2(n)}</span>`;
+            }).join("");
 
             html += `
-              <div style="font-size:12px;margin-top:6px">
-                <b>L${idx+1}</b> (${hits})
-                <div style="margin-top:2px">${linhaRender}</div>
+              <div class="p15lineRow">
+                <div class="p15lineLabel">L${idx+1}</div>
+                <div class="p15hits">${hits}</div>
+                <div class="p15nums">${balls}</div>
               </div>
             `;
           });
 
-          html += `</div>`;
+          html += `
+              </div>
+            </div>
+          `;
         });
       }
 else if(item.tipo === "elite6" && Array.isArray(item.jogos)){
