@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Kwai Builder 8.0 PRO — N&V Sistemas</title>
+  <title>Kwai Builder 8.2 PRO — N&V Sistemas</title>
   <style>
     :root{
       --bg:#07080b; --card:#0e1117; --card2:#0b0d12;
@@ -117,7 +117,7 @@
 <header>
   <div class="brand">
     <div class="dot"></div>
-    <h1>Kwai Builder <span class="badge">8.0 PRO</span> — N&V Sistemas</h1>
+    <h1>Kwai Builder <span class="badge">8.2 PRO</span> — N&V Sistemas</h1>
     <span class="pill">Produção rápida: 2 vídeos/dia (30s + 15s) • Template fixo • Export 1 clique</span>
   </div>
   <p class="sub">
@@ -173,7 +173,7 @@
 
     <hr/>
 
-    <h2>2) Produção Kwai (8.0 PRO)</h2>
+    <h2>2) Produção Kwai (8.2 PRO)</h2>
 
     <label>Modelo de roteiro</label>
     <select id="templatePick">
@@ -390,6 +390,18 @@
 
       <label>Mídia da tela (imagem ou vídeo)</label>
       <input id="scMedia" type="file" accept="image/*,video/*"/>
+      <div class="row">
+        <div>
+          <label>Início do vídeo na cena (segundos)</label>
+          <input id="scVidStart" type="number" min="0" step="0.1" value="0"/>
+        </div>
+        <div>
+          <label>Slider (início)</label>
+          <input id="scVidStartSlider" type="range" min="0" max="15" step="0.1" value="0"/>
+        </div>
+      </div>
+      <p class="hint" id="vidHint">Se a mídia for vídeo, escolha onde a cena começa dentro dele. O fim é automático pela duração da cena.</p>
+
 
       <div class="row">
         <div>
@@ -461,7 +473,7 @@
  *  STATE / PROJECT MODEL
  *  ========================= */
 const state = {
-  version: "8.0_PRO",
+  version: "8.2_PRO",
   name: "",
   size: { w:1080, h:1920 },
   bg: { dataUrl:null, img:null },
@@ -490,7 +502,8 @@ function defaultScene(i=1){
     media: { type:null, dataUrl:null, el:null, w:0, h:0 },
     crop: { zoom:1, panX:0, panY:0 },
     audio: { blob:null, url:null },
-    float: { enabled:true, level:"low" }
+    float: { enabled:true, level:"low" },
+    vid: { start: 0 }
   };
 }
 
@@ -521,7 +534,7 @@ function draw(frame){
     ctx.fillStyle = "#000"; ctx.fillRect(0,0,cv.width,cv.height);
     ctx.fillStyle = "rgba(245,200,75,.25)";
     ctx.font = "900 42px system-ui";
-    ctx.fillText("Kwai Builder 8.0 PRO", 60, 120);
+    ctx.fillText("Kwai Builder 8.2 PRO", 60, 120);
     ctx.font = "700 22px system-ui";
     ctx.fillStyle = "rgba(255,255,255,.7)";
     ctx.fillText("Carregue um fundo e gere um Dia Completo.", 60, 160);
@@ -882,6 +895,58 @@ function renderSceneEditor(){
   el("scFloat").value = (fl.enabled === false) ? "off" : "on";
   el("scFloatLevel").value = (fl.level || "low");
 
+
+  // video start (trecho por cena)
+  if(!sc.vid) sc.vid = { start: 0 };
+  const isVideo = (sc.media.type === "video") || (sc.media.dataUrl && sc.media.dataUrl.startsWith("data:video"));
+  const durMax = (isVideo && sc.media.el && sc.media.el.duration) ? sc.media.el.duration : (sc.media.duration || 15);
+  const maxStart = Math.max(0, durMax - 0.05);
+
+  const vidStartInp = el("scVidStart");
+  const vidStartSlider = el("scVidStartSlider");
+  const vidHint = el("vidHint");
+
+  if(vidStartInp && vidStartSlider){
+    vidStartInp.disabled = !isVideo;
+    vidStartSlider.disabled = !isVideo;
+    vidStartSlider.max = String(maxStart.toFixed(1));
+    const curStart = clamp(parseFloat(sc.vid.start || 0), 0, maxStart);
+    sc.vid.start = curStart;
+    vidStartInp.value = curStart.toFixed(1);
+    vidStartSlider.value = curStart.toFixed(1);
+    if(vidHint){
+      vidHint.style.opacity = isVideo ? "1" : "0.6";
+      vidHint.innerHTML = isVideo
+        ? `Escolha o início do trecho. Duração do vídeo: <b>${durMax.toFixed(1)}s</b>. A cena termina em <b>${(curStart + sc.dur).toFixed(1)}s</b>.`
+        : "Esse controle só funciona quando a mídia da cena é um vídeo.";
+    }
+
+    vidStartInp.oninput = ()=>{
+      if(!isVideo) return;
+      const v = clamp(parseFloat(vidStartInp.value||"0"), 0, maxStart);
+      sc.vid.start = v;
+      vidStartSlider.value = v.toFixed(1);
+      if(sc.media.el && sc.media.el.tagName==="VIDEO"){
+        try{ sc.media.el.currentTime = v; }catch{}
+      }
+      if(vidHint) vidHint.innerHTML = `Escolha o início do trecho. Duração do vídeo: <b>${durMax.toFixed(1)}s</b>. A cena termina em <b>${(v + sc.dur).toFixed(1)}s</b>.`;
+      draw();
+    };
+
+    vidStartSlider.oninput = ()=>{
+      if(!isVideo) return;
+      const v = clamp(parseFloat(vidStartSlider.value||"0"), 0, maxStart);
+      sc.vid.start = v;
+      vidStartInp.value = v.toFixed(1);
+      if(sc.media.el && sc.media.el.tagName==="VIDEO"){
+        try{ sc.media.el.currentTime = v; }catch{}
+      }
+      if(vidHint) vidHint.innerHTML = `Escolha o início do trecho. Duração do vídeo: <b>${durMax.toFixed(1)}s</b>. A cena termina em <b>${(v + sc.dur).toFixed(1)}s</b>.`;
+      draw();
+    };
+  }
+
+
   // audio import
   el("scAudioFile").value = "";
   el("scAudioFile").onchange = async (ev)=>{
@@ -895,7 +960,22 @@ function renderSceneEditor(){
   updateRecStatus();
 
   el("scName").oninput = ()=>{ sc.name = el("scName").value; renderSceneList(); };
-  el("scDur").oninput = ()=>{ sc.dur = Math.max(1, parseFloat(el("scDur").value||1)); renderSceneList(); };
+  el("scDur").oninput = ()=>{
+    sc.dur = Math.max(1, parseFloat(el("scDur").value||1));
+    // atualiza hint do vídeo (fim automático)
+    try{
+      const isVideo = (sc.media.type === "video") || (sc.media.dataUrl && sc.media.dataUrl.startsWith("data:video"));
+      const durMax = (isVideo && sc.media.el && sc.media.el.duration) ? sc.media.el.duration : (sc.media.duration || 15);
+      const maxStart = Math.max(0, durMax - 0.05);
+      if(!sc.vid) sc.vid = { start: 0 };
+      sc.vid.start = clamp(parseFloat(sc.vid.start||0), 0, maxStart);
+      const vidHint = el("vidHint");
+      if(vidHint && isVideo){
+        vidHint.innerHTML = `Escolha o início do trecho. Duração do vídeo: <b>${durMax.toFixed(1)}s</b>. A cena termina em <b>${(sc.vid.start + sc.dur).toFixed(1)}s</b>.`;
+      }
+    }catch{}
+    renderSceneList();
+  };
   el("scHeadline").oninput = ()=>{ sc.headline = el("scHeadline").value; draw(); };
   el("scSub").oninput = ()=>{ sc.sub = el("scSub").value; draw(); };
   el("scTextAnim").onchange = ()=>{ sc.textAnim = el("scTextAnim").value; draw(); };
@@ -929,6 +1009,11 @@ async function loadSceneMedia(sc){
     sc.media.el = v;
     sc.media.w = v.videoWidth;
     sc.media.h = v.videoHeight;
+    sc.media.duration = v.duration || 0;
+    // aplica start atual (se houver)
+    if(sc.vid && typeof sc.vid.start === "number"){
+      try{ v.currentTime = clamp(sc.vid.start, 0, Math.max(0, (v.duration||0) - 0.05)); }catch{}
+    }
   } else {
     const img = new Image();
     await new Promise(res=>{ img.onload=()=>res(); img.src=sc.media.dataUrl; });
@@ -1075,6 +1160,15 @@ function playScene(){
 
   state.playing = true;
   playStart = performance.now();
+  // vídeo: começar no trecho escolhido
+  if(sc.media.el && sc.media.el.tagName==="VIDEO"){
+    if(!sc.vid) sc.vid = { start: 0 };
+    try{
+      sc.media.el.currentTime = clamp(parseFloat(sc.vid.start||0), 0, Math.max(0, (sc.media.el.duration||0) - 0.05));
+      sc.media.el.play().catch(()=>{});
+    }catch{}
+  }
+
 
   const audio = sc.audio.url ? new Audio(sc.audio.url) : null;
   // TTS grátis (preview): se não houver áudio, fala o texto automaticamente
@@ -1088,6 +1182,15 @@ function playScene(){
     if(!state.playing) return;
     const t = (now - playStart) / 1000;
     draw({ t, dur: sc.dur });
+    // trava o trecho do vídeo no preview (start + duração da cena)
+    if(sc.media.el && sc.media.el.tagName==="VIDEO"){
+      if(!sc.vid) sc.vid = { start: 0 };
+      const endT = (parseFloat(sc.vid.start||0) + sc.dur);
+      try{
+        if(sc.media.el.currentTime >= endT) sc.media.el.pause();
+      }catch{}
+    }
+
 
     if(t >= sc.dur){
       state.playing = false;
@@ -1221,7 +1324,7 @@ async function exportVideoRange(startIdx, endIdx, suffix){
     }
 
     if(sc.media.el && sc.media.el.tagName==="VIDEO"){
-      sc.media.el.currentTime = 0;
+      sc.media.el.currentTime = clamp(parseFloat((sc.vid&&sc.vid.start)||0), 0, Math.max(0,(sc.media.el.duration||0)-0.05));
       await sc.media.el.play().catch(()=>{});
     }
 
@@ -1283,6 +1386,15 @@ function renderSceneToCanvas(sc, fps, onTick){
     const timer = setInterval(()=>{
       t += frameDur;
       draw({ t, dur: sc.dur });
+    // trava o trecho do vídeo no preview (start + duração da cena)
+    if(sc.media.el && sc.media.el.tagName==="VIDEO"){
+      if(!sc.vid) sc.vid = { start: 0 };
+      const endT = (parseFloat(sc.vid.start||0) + sc.dur);
+      try{
+        if(sc.media.el.currentTime >= endT) sc.media.el.pause();
+      }catch{}
+    }
+
       onTick?.(Math.min(sc.dur, t));
       if(t >= sc.dur){
         clearInterval(timer);
@@ -1314,6 +1426,7 @@ function packProject(){
       media:{ type:s.media.type, dataUrl:s.media.dataUrl },
       crop: s.crop,
       float: s.float,
+      vid: s.vid,
       audio:{ has: !!s.audio.url }
     }))
   };
@@ -1379,7 +1492,7 @@ async function loadProject(){
 }
 
 /** =========================
- *  8.0 PRO — TEMPLATES (30s + 15s)
+ *  8.2 PRO — TEMPLATES (30s + 15s)
  *  ========================= */
 const CTAS = [
   "Acesse agora pelo link na bio.",
