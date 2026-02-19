@@ -185,6 +185,47 @@
       <option value="urgencia">Foco: Urgência / CTA</option>
     </select>
 
+    <label>Voz (narrador automático — grátis)</label>
+    <div class="row">
+      <div>
+        <label>Perfil</label>
+        <select id="voiceProfile">
+          <option value="female">Feminina</option>
+          <option value="male">Masculina</option>
+          <option value="any" selected>Qualquer (melhor disponível)</option>
+        </select>
+      </div>
+      <div>
+        <label>Voz</label>
+        <select id="voicePick"></select>
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label>Velocidade</label>
+        <select id="voiceRate">
+          <option value="0.9">0.9 (mais calma)</option>
+          <option value="1.0" selected>1.0 (padrão)</option>
+          <option value="1.1">1.1 (mais rápida)</option>
+          <option value="1.2">1.2 (rápida)</option>
+        </select>
+      </div>
+      <div>
+        <label>Narração automática</label>
+        <select id="voiceAuto">
+          <option value="on" selected>Ligada (se a cena não tiver áudio)</option>
+          <option value="off">Desligada</option>
+        </select>
+      </div>
+    </div>
+    <div class="btns">
+      <button class="secondary" onclick="refreshVoiceList()">Atualizar lista de vozes</button>
+      <button class="secondary" onclick="previewVoice()">▶️ Testar voz</button>
+    </div>
+
+
+</select>
+
     <div class="btns">
       <button class="green" onclick="gerarDiaCompleto()">🔥 Gerar Dia Completo (30s + 15s)</button>
       <button class="secondary" onclick="gerarSomente30()">Gerar só 30s</button>
@@ -211,6 +252,12 @@
     <p class="hint">
       <span class="ok">Dica:</span> se você usa a mesma mídia (print) em várias cenas, use “Copiar mídia/corte da anterior” no editor.
     </p>
+
+    <p class="hint">
+      <span class="bad">Importante:</span> a narração automática (voz grátis do navegador) funciona no <b>preview</b>.
+      Para sair com voz no vídeo exportado, use <b>Gravar</b> ou <b>Importar áudio</b> (por limitação do navegador).
+    </p>
+
   </section>
 
   <!-- CENTER: PREVIEW -->
@@ -1030,6 +1077,11 @@ function playScene(){
   playStart = performance.now();
 
   const audio = sc.audio.url ? new Audio(sc.audio.url) : null;
+  // TTS grátis (preview): se não houver áudio, fala o texto automaticamente
+  if(!audio && tts && tts.auto){
+    const toSpeak = [sc.headline, sc.sub].filter(Boolean).join(". ");
+    if(toSpeak.trim()) speakText(toSpeak.trim());
+  }
   if(audio){ audio.currentTime = 0; audio.play().catch(()=>{}); }
 
   function tick(now){
@@ -1603,11 +1655,137 @@ function fileToDataURL(file){
   });
 }
 
+
+/** =========================
+ *  FREE VOICES (TTS) — Web Speech API
+ *  - Grátis (vozes do próprio Windows/Chrome)
+ *  - Usado para PREVIEW/PLAY quando a cena não tem áudio importado/gravado
+ *  - Observação: por limitações do navegador, o TTS NÃO é embutido no export WEBM.
+ * ========================= */
+let tts = {
+  voices: [],
+  selectedURI: null,
+  profile: "any",
+  rate: 1.0,
+  auto: true
+};
+
+function isPtVoice(v){
+  const lang = (v.lang || "").toLowerCase();
+  return lang.startsWith("pt");
+}
+
+// Heurística: tenta rotular “masc/fem” por nome (não é garantido)
+function guessGender(v){
+  const n = (v.name || v.voiceURI || "").toLowerCase();
+  const femKeys = ["female","feminina","mulher","woman","maria","ana","brasil","luciana","leticia","camila","isabela"];
+  const maleKeys = ["male","masculina","homem","man","joao","josé","jose","carlos","paulo","ricardo","lucas"];
+  if(femKeys.some(k=>n.includes(k))) return "female";
+  if(maleKeys.some(k=>n.includes(k))) return "male";
+  return "any";
+}
+
+function refreshVoiceList(){
+  if(!window.speechSynthesis) return;
+  const all = speechSynthesis.getVoices() || [];
+  const pt = all.filter(isPtVoice);
+  tts.voices = (pt.length ? pt : all);
+
+  const profile = el("voiceProfile")?.value || "any";
+  tts.profile = profile;
+
+  const pickSel = el("voicePick");
+  if(!pickSel) return;
+  pickSel.innerHTML = "";
+
+  const filtered = tts.voices.filter(v=>{
+    if(profile==="any") return true;
+    const g = guessGender(v);
+    return g===profile || g==="any";
+  });
+
+  const list = filtered.length ? filtered : tts.voices;
+
+  list.forEach((v, idx)=>{
+    const opt = document.createElement("option");
+    const lang = v.lang || "";
+    const g = guessGender(v);
+    const gLabel = (g==="female") ? "♀" : (g==="male") ? "♂" : "•";
+    opt.value = v.voiceURI || v.name || String(idx);
+    opt.textContent = `${gLabel} ${v.name || v.voiceURI} (${lang})`;
+    pickSel.appendChild(opt);
+  });
+
+  const preferred = tts.selectedURI;
+  if(preferred){
+    const found = [...pickSel.options].some(o=>o.value===preferred);
+    if(found) pickSel.value = preferred;
+    else tts.selectedURI = pickSel.value || null;
+  } else {
+    tts.selectedURI = pickSel.value || null;
+  }
+
+  el("renderInfo").textContent = list.length
+    ? `Vozes carregadas: ${list.length} (perfil: ${profile}).`
+    : "Nenhuma voz encontrada no navegador.";
+}
+
+function applyVoiceSettingsFromUI(){
+  tts.profile = el("voiceProfile")?.value || "any";
+  tts.selectedURI = el("voicePick")?.value || null;
+  tts.rate = parseFloat(el("voiceRate")?.value || "1.0");
+  tts.auto = (el("voiceAuto")?.value || "on") === "on";
+}
+
+function getSelectedVoice(){
+  applyVoiceSettingsFromUI();
+  const uri = tts.selectedURI;
+  if(!uri) return null;
+  const all = (tts.voices && tts.voices.length) ? tts.voices : (speechSynthesis.getVoices()||[]);
+  return all.find(v => (v.voiceURI===uri) || (v.name===uri)) || null;
+}
+
+function speakText(text){
+  if(!window.speechSynthesis) return;
+  applyVoiceSettingsFromUI();
+  const msg = new SpeechSynthesisUtterance(text);
+  const v = getSelectedVoice();
+  if(v) msg.voice = v;
+  msg.rate = clamp(tts.rate, 0.7, 1.4);
+  msg.pitch = 1.0;
+  msg.volume = 1.0;
+  try{ speechSynthesis.cancel(); }catch{}
+  speechSynthesis.speak(msg);
+}
+
+function previewVoice(){
+  speakText("Teste de voz. Kwai Builder oito ponto zero pro. N e V Sistemas.");
+}
+
+function bindVoiceUI(){
+  const ids = ["voiceProfile","voicePick","voiceRate","voiceAuto"];
+  ids.forEach(id=>{
+    const node = el(id);
+    if(!node) return;
+    node.addEventListener("change", ()=>{
+      applyVoiceSettingsFromUI();
+      if(id==="voiceProfile") refreshVoiceList();
+    });
+  });
+
+  if(window.speechSynthesis){
+    speechSynthesis.onvoiceschanged = ()=> refreshVoiceList();
+  }
+  refreshVoiceList();
+}
+
+
 /** =========================
  *  INIT
  *  ========================= */
 function boot(){
   setCanvasSize();
+  bindVoiceUI();
   ensureScene();
   renderSceneList();
   renderSceneEditor();
