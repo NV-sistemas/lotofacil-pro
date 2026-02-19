@@ -1173,6 +1173,7 @@ const functions = firebase.app().functions("us-central1");
         <button class="btn btnGhost" type="button" onclick="goView('viewHome')">⬅ Voltar</button>
       </div>
       <div class="right">
+        <button class="btn btnGhost" type="button" onclick="salvarSorteGrande()" id="btnSalvarSorteGrande" disabled style="opacity:.6;cursor:not-allowed">💾 Salvar</button>
         <button class="btn btnPrimary" type="button" onclick="gerarSorteGrande()">🍀 Gerar 2 jogos</button>
       </div>
     </div>
@@ -6773,6 +6774,42 @@ if(!concursos.length){
           `;
         });
       }
+      else if(item.tipo === "sorte_grande" && Array.isArray(item.jogos)){
+        const jogos = item.jogos
+          .filter(j => Array.isArray(j) && j.length)
+          .map((nums, i)=>({ nome: i===0 ? "🍀 Sorte Grande — Jogo 1" : "🍀 Sorte Grande — Jogo 2", nums }));
+
+        if(!jogos.length){
+          alert("Esse Sorte Grande salvo não possui jogos válidos.");
+          return;
+        }
+
+        jogos.forEach(obj=>{
+          const jogo = obj.nums.slice().map(Number).sort((a,b)=>a-b);
+
+          let linhasResultados = "";
+          concursos.forEach(c=>{
+            const hits = hitsCount(jogo, c.dezenas);
+            const cls = (hits >= 11 && hits <= 15) ? `hit-${hits}` : "";
+            linhasResultados += `
+              <div class="mini ${cls}">
+                Concurso <b>${c.concurso}</b> → <b>${hits} acertos</b>
+              </div>
+            `;
+          });
+
+          html += `
+            <div class="box" style="margin-top:10px">
+              <b>${obj.nome}</b>
+              <div class="numbers" style="justify-content:flex-start;margin-top:8px">
+                ${jogo.map(format2).join(" - ")}
+              </div>
+              <div style="margin-top:10px">${linhasResultados}</div>
+            </div>
+          `;
+        });
+      }
+
       else if(item.tipo === "15p" && item.payload){
 
         // ✅ Somente LINHAS (não exibe os 10 jogos na conferência)
@@ -7262,10 +7299,12 @@ window.buildPack4JogosPreditivo = buildPack4JogosPreditivo;
         }
       }
 
-      // Se não conseguir obter 10 concursos do app (offline / sem base),
-      // usa a janela fixa do treino (3614..3605) como fallback para NÃO travar o sistema.
-      const usingFallback = !got.ok;
-      const draws10 = usingFallback ? SG_TREINO_ANT10.slice(0,10) : got.draws;
+      if(!got.ok){
+        alert("⚠️ Não consegui obter 10 concursos da base agora. Verifique a conexão e tente novamente.");
+        return;
+      }
+
+      const draws10 = got.draws;
       const feat = _sgBuildFeatures(draws10);
 
       const poolAll = [];
@@ -7319,11 +7358,27 @@ window.buildPack4JogosPreditivo = buildPack4JogosPreditivo;
           jogo2 = jogo2.sort((a,b)=>a-b);
         }
       }
+      // 🔒 guarda último resultado para salvar em Jogos Salvos
+      window.__SG_LAST = {
+        jogo1: jogo1.slice(),
+        jogo2: jogo2.slice(),
+        at: Date.now(),
+        info: got?.nums ? got.nums.slice() : null
+      };
+
+      // habilita botão Salvar
+      const bs = document.getElementById("btnSalvarSorteGrande");
+      if(bs){
+        bs.disabled = false;
+        bs.style.opacity = "1";
+        bs.style.cursor = "pointer";
+      }
+
 
       const area = document.getElementById("sorteGrandeArea");
       if(!area) return;
 
-      const janelaInfo = (usingFallback) ? `Modo offline: usando janela fixa do treino (<b>3614–3605</b>).` : ((got.nums && got.nums.length) ? `Últimos 10 concursos carregados: <b>${got.nums.join(", ")}</b>` : `Últimos 10 concursos carregados.`);
+      const janelaInfo = (got.nums && got.nums.length) ? `Últimos 10 concursos carregados: <b>${got.nums.join(", ")}</b>` : `Últimos 10 concursos carregados.`;
 
       area.innerHTML = `
         <div class="box">
@@ -7364,6 +7419,39 @@ window.buildPack4JogosPreditivo = buildPack4JogosPreditivo;
       alert("Erro no SORTE GRANDE: " + (err?.message||err));
     }
   };
+
+  // Público (chamado pelo botão Salvar)
+  window.salvarSorteGrande = function salvarSorteGrande(){
+    try{
+      if(!(typeof access!=='undefined' && access && access.isAdmin)){
+        alert("🔒 Apenas ADM.");
+        return;
+      }
+      const last = window.__SG_LAST;
+      if(!last || !Array.isArray(last.jogo1) || !Array.isArray(last.jogo2)){
+        alert("Gere os 2 jogos primeiro.");
+        return;
+      }
+      if(typeof salvarJogoNoStorage !== "function"){
+        alert("Função de salvar não encontrada no sistema.");
+        return;
+      }
+
+      salvarJogoNoStorage({
+        slot: "SorteGrande",
+        tipo: "sorte_grande",
+        nome: "🍀 Sorte Grande (2 jogos)",
+        jogos: [ last.jogo1.slice(), last.jogo2.slice() ],
+        at: Date.now()
+      });
+
+      alert("✅ Salvo em JOGOS SALVOS: Sorte Grande (2 jogos).");
+    }catch(err){
+      console.error(err);
+      alert("Erro ao salvar SORTE GRANDE: " + (err?.message||err));
+    }
+  };
+
 
 })();
 
