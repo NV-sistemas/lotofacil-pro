@@ -1,0 +1,1630 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Kwai Builder 8.0 PRO — N&V Sistemas</title>
+  <style>
+    :root{
+      --bg:#07080b; --card:#0e1117; --card2:#0b0d12;
+      --text:#e8e8ea; --muted:#a7a7ad; --gold:#f5c84b; --line:#1f2633;
+      --btn:#141a24; --btn2:#0f1420; --shadow:0 10px 30px rgba(0,0,0,.45);
+      --ok:#9cffc7; --bad:#ff7f7f;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; color:var(--text);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      background:
+        radial-gradient(1200px 600px at 20% 0%, rgba(245,200,75,.10), transparent 60%),
+        radial-gradient(900px 500px at 80% 10%, rgba(245,200,75,.07), transparent 55%),
+        var(--bg);
+    }
+    header{max-width:1260px;margin:0 auto;padding:18px 14px 8px}
+    .brand{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .dot{width:10px;height:10px;border-radius:50%;background:var(--gold);box-shadow:0 0 18px rgba(245,200,75,.55)}
+    h1{margin:0;font-size:16px;letter-spacing:.4px}
+    .sub{margin:6px 0 0;color:var(--muted);font-size:12.5px;line-height:1.35}
+    main{
+      max-width:1260px;margin:0 auto;padding:10px 14px 22px;
+      display:grid;gap:12px;grid-template-columns: 1fr;
+    }
+    @media(min-width:1080px){
+      main{grid-template-columns: 380px 1fr 380px}
+    }
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.03), transparent 45%), var(--card);
+      border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow);
+      padding:12px;
+    }
+    .card h2{margin:0 0 10px;font-size:13px;color:var(--gold);letter-spacing:.35px}
+    label{display:block;color:var(--muted);font-size:12px;margin:10px 0 6px}
+    input, select, textarea{
+      width:100%; border-radius:12px; padding:10px 12px; outline:none;
+      border:1px solid var(--line); background:var(--card2); color:var(--text);
+      font-size:13px; line-height:1.35;
+    }
+    textarea{min-height:90px;resize:vertical}
+    .row{display:grid;grid-template-columns:1fr;gap:10px}
+    @media(min-width:560px){ .row{grid-template-columns:1fr 1fr} }
+    .btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+    button{
+      background: linear-gradient(180deg, rgba(245,200,75,.12), transparent 55%), var(--btn);
+      border:1px solid rgba(245,200,75,.28);
+      color:var(--text); padding:9px 10px; border-radius:12px;
+      cursor:pointer; font-weight:800; font-size:12.5px;
+    }
+    button.secondary{background:var(--btn2); border:1px solid var(--line); color:var(--muted)}
+    button.danger{border-color:rgba(255,127,127,.35); background:linear-gradient(180deg, rgba(255,127,127,.10), transparent 55%), var(--btn)}
+    button.green{border-color:rgba(156,255,199,.35); background:linear-gradient(180deg, rgba(156,255,199,.10), transparent 55%), var(--btn)}
+    button:active{transform:translateY(1px)}
+    .pill{
+      display:inline-flex;align-items:center;gap:8px;padding:7px 10px;border-radius:999px;
+      border:1px solid var(--line); background:rgba(255,255,255,.02); color:var(--muted); font-size:12px;
+    }
+    .hint{color:var(--muted);font-size:12px;line-height:1.35;margin-top:10px}
+    .ok{color:var(--ok)}
+    .bad{color:var(--bad)}
+    .split{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .small{font-size:12px;color:var(--muted)}
+    .list{
+      margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px;
+      max-height:420px;overflow:auto;
+    }
+    .item{
+      border:1px solid var(--line); background:rgba(255,255,255,.02); border-radius:14px;
+      padding:10px; cursor:pointer;
+    }
+    .item.active{border-color:rgba(245,200,75,.35); background:rgba(245,200,75,.06)}
+    .itemTitle{display:flex;justify-content:space-between;gap:10px}
+    .itemTitle b{font-size:12.5px}
+    .itemTitle span{font-size:12px;color:var(--muted)}
+    .previewWrap{
+      position:relative; border-radius:16px; overflow:hidden;
+      border:1px solid var(--line); background:#000; box-shadow:var(--shadow);
+    }
+    canvas{display:block;width:100%;height:auto}
+    .overlayHelp{
+      padding:8px 10px;border-radius:12px;border:1px solid rgba(245,200,75,.25);
+      background:rgba(0,0,0,.40); color:var(--text); font-size:12px;
+      backdrop-filter: blur(6px);
+      margin-top:10px;
+      display:flex;gap:8px;flex-wrap:wrap;align-items:center;
+    }
+    .kbd{padding:2px 6px;border:1px solid rgba(255,255,255,.25);border-bottom-width:2px;border-radius:8px;font-weight:900;font-size:11px}
+    .miniBar{
+      display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;
+      margin-top:10px;
+    }
+    .progress{
+      width:100%;height:10px;border-radius:999px;background:rgba(255,255,255,.06);
+      border:1px solid var(--line); overflow:hidden;
+    }
+    .progress > div{height:100%;width:0%;background:rgba(245,200,75,.55)}
+    hr{border:none;border-top:1px solid var(--line);margin:12px 0}
+    .badge{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:6px 10px;border-radius:999px;
+      border:1px solid rgba(245,200,75,.22);
+      background:rgba(245,200,75,.07);
+      color:var(--text);font-size:12px;font-weight:900;
+    }
+    .grid3{display:grid;grid-template-columns:1fr;gap:10px}
+    @media(min-width:560px){ .grid3{grid-template-columns:1fr 1fr 1fr} }
+  </style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <div class="dot"></div>
+    <h1>Kwai Builder <span class="badge">8.0 PRO</span> — N&V Sistemas</h1>
+    <span class="pill">Produção rápida: 2 vídeos/dia (30s + 15s) • Template fixo • Export 1 clique</span>
+  </div>
+  <p class="sub">
+    Alinhe o fundo e o slot uma vez. Depois gere um “Dia Completo” (30s + 15s), troque prints e exporte.
+  </p>
+</header>
+
+<main>
+  <!-- LEFT: TEMPLATE / PRODUÇÃO -->
+  <section class="card">
+    <h2>1) Template (Fundo fixo + Slot da tela)</h2>
+
+    <label>Projeto</label>
+    <input id="projectName" placeholder="Ex: KWAI - Lotofácil Prime (30s+15s)"/>
+
+    <label>Formato do vídeo</label>
+    <select id="format">
+      <option value="1080x1920">9:16 (1080x1920) — Recomendado</option>
+      <option value="1080x1080">1:1 (1080x1080)</option>
+      <option value="1920x1080">16:9 (1920x1080)</option>
+    </select>
+
+    <label>Fundo (imagem)</label>
+    <input id="bgFile" type="file" accept="image/*"/>
+
+    <div class="row">
+      <div>
+        <label>Slot X</label>
+        <input id="slotX" type="number" step="1"/>
+      </div>
+      <div>
+        <label>Slot Y</label>
+        <input id="slotY" type="number" step="1"/>
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label>Slot Largura</label>
+        <input id="slotW" type="number" step="1"/>
+      </div>
+      <div>
+        <label>Slot Altura</label>
+        <input id="slotH" type="number" step="1"/>
+      </div>
+    </div>
+
+    <div class="btns">
+      <button onclick="centerSlot()">Centralizar slot</button>
+      <button class="secondary" onclick="toggleEditSlot()">Editar slot (E)</button>
+      <button class="secondary" onclick="saveProject()">Salvar</button>
+      <button class="secondary" onclick="loadProject()">Carregar</button>
+    </div>
+
+    <hr/>
+
+    <h2>2) Produção Kwai (8.0 PRO)</h2>
+
+    <label>Modelo de roteiro</label>
+    <select id="templatePick">
+      <option value="mix">Mix (Agressivo + Inteligente) — Padrão</option>
+      <option value="elite">Foco: JOGO ELITE</option>
+      <option value="p15">Foco: 15P (3 linhas)</option>
+      <option value="preditivo">Foco: Sistema Preditivo</option>
+      <option value="prova">Foco: Prova social / resultado</option>
+      <option value="urgencia">Foco: Urgência / CTA</option>
+    </select>
+
+    <div class="btns">
+      <button class="green" onclick="gerarDiaCompleto()">🔥 Gerar Dia Completo (30s + 15s)</button>
+      <button class="secondary" onclick="gerarSomente30()">Gerar só 30s</button>
+      <button class="secondary" onclick="gerarSomente15()">Gerar só 15s</button>
+      <button class="secondary" onclick="gerar15Dias()">🚀 Gerar 15 Dias (9.0)</button>
+    </div>
+
+    <p class="hint">
+      <span class="ok">Fluxo rápido:</span>
+      1) clique <b>Gerar Dia Completo</b> → 2) troque os prints nas cenas → 3) exporte 30s e 15s.
+      <br/>
+      <span class="ok">Teclas:</span> <span class="kbd">E</span> slot • <span class="kbd">C</span> corte • <span class="kbd">T</span> texto • <span class="kbd">Espaço</span> play
+    </p>
+
+    <hr/>
+
+    <h2>3) Export 1 clique</h2>
+    <div class="btns">
+      <button onclick="export30()">⬇️ Exportar 30s (cenas 1–5)</button>
+      <button onclick="export15()">⬇️ Exportar 15s (cenas 6–8)</button>
+      <button class="secondary" onclick="exportAll()">⬇️ Exportar tudo (sequência)</button>
+    </div>
+
+    <p class="hint">
+      <span class="ok">Dica:</span> se você usa a mesma mídia (print) em várias cenas, use “Copiar mídia/corte da anterior” no editor.
+    </p>
+  </section>
+
+  <!-- CENTER: PREVIEW -->
+  <section class="card">
+    <h2>Preview</h2>
+    <div class="previewWrap">
+      <canvas id="cv"></canvas>
+    </div>
+
+    <div class="overlayHelp">
+      <span class="kbd">E</span> editar slot &nbsp;|&nbsp;
+      <span class="kbd">C</span> cortar mídia (zoom/pan) &nbsp;|&nbsp;
+      <span class="kbd">T</span> mover texto &nbsp;|&nbsp;
+      <span class="kbd">Espaço</span> play cena
+    </div>
+
+    <div class="miniBar">
+      <div class="split">
+        <button onclick="playScene()">Play cena</button>
+        <button class="secondary" onclick="stopPlay()">Stop</button>
+        <button class="secondary" onclick="setMode('none')">Sair do modo</button>
+      </div>
+      <div class="small" id="renderInfo">Pronto.</div>
+    </div>
+
+    <div class="progress" style="margin-top:10px;display:none" id="progWrap">
+      <div id="progBar"></div>
+    </div>
+
+    <p class="hint">
+      Export grava exatamente o preview (fundo + mídia no slot + texto animado + narração gravada).
+    </p>
+  </section>
+
+  <!-- RIGHT: SCENES -->
+  <section class="card">
+    <h2>Cenas (texto + mídia + narração)</h2>
+
+    <div class="grid3">
+      <div>
+        <label>Dia (9.0)</label>
+        <select id="dayPick" disabled></select>
+      </div>
+      <div>
+        <label>&nbsp;</label>
+        <button class="secondary" style="width:100%" onclick="loadSelectedDay()" id="btnLoadDay" disabled>Carregar Dia</button>
+      </div>
+      <div>
+        <label>&nbsp;</label>
+        <button class="danger" style="width:100%" onclick="clearDayPlan()" id="btnClearPlan" disabled>Apagar plano</button>
+      </div>
+    </div>
+
+    <hr/>
+
+    <div class="btns">
+      <button onclick="addScene()">+ Nova cena</button>
+      <button class="secondary" onclick="duplicateScene()">Duplicar</button>
+      <button class="danger" onclick="deleteScene()">Excluir</button>
+    </div>
+
+    <label>Lista</label>
+    <ul class="list" id="sceneList"></ul>
+
+    <hr/>
+
+    <div id="sceneEditor" style="display:none">
+      <div class="row">
+        <div>
+          <label>Nome da cena</label>
+          <input id="scName"/>
+        </div>
+        <div>
+          <label>Duração (segundos)</label>
+          <input id="scDur" type="number" min="1" step="0.5"/>
+        </div>
+      </div>
+
+      <label>Headline</label>
+      <input id="scHeadline" placeholder='Ex: "Pare de apostar no achismo."' />
+
+      <label>Sub</label>
+      <input id="scSub" placeholder='Ex: "Padrões treinados com foco em 14/15."' />
+
+      <div class="row">
+        <div>
+          <label>Animação do texto</label>
+          <select id="scTextAnim">
+            <option value="type">Typewriter</option>
+            <option value="fade">Fade</option>
+            <option value="slide">Slide</option>
+          </select>
+        </div>
+        <div>
+          <label>Posição do texto</label>
+          <select id="scTextPos">
+            <option value="bottom">Embaixo</option>
+            <option value="top">Em cima</option>
+            <option value="center">Centro</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>Tamanho Headline</label>
+          <input id="scHeadSize" type="number" min="24" max="120" step="1"/>
+        </div>
+        <div>
+          <label>Tamanho Sub</label>
+          <input id="scSubSize" type="number" min="16" max="80" step="1"/>
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>Largura do bloco (0.40–1.00)</label>
+          <input id="scBoxW" type="number" min="0.4" max="1" step="0.02"/>
+        </div>
+        <div>
+          <label>Offset X / Y</label>
+          <input id="scOff" disabled value="Use tecla T e arraste"/>
+        </div>
+      </div>
+
+      <div class="btns">
+        <button class="secondary" onclick="toggleEditText()">Mover texto (T)</button>
+        <button class="secondary" onclick="resetTextPos()">Reset texto</button>
+      </div>
+
+      <label>Mídia da tela (imagem ou vídeo)</label>
+      <input id="scMedia" type="file" accept="image/*,video/*"/>
+
+      <div class="row">
+        <div>
+          <label>Zoom</label>
+          <input id="scZoom" type="number" step="0.05" min="0.2" max="5"/>
+        </div>
+        <div>
+          <label>Pan X / Y</label>
+          <input id="scPan" disabled value="Use tecla C e arraste"/>
+        </div>
+      </div>
+
+      <div class="btns">
+        <button class="secondary" onclick="toggleCropMode()">Modo Corte (C)</button>
+        <button class="secondary" onclick="resetCrop()">Reset corte</button>
+      </div>
+      <div class="btns" style="margin-top:8px">
+        <button class="secondary" onclick="copyPrevMediaCrop()">Copiar mídia/corte da anterior</button>
+        <button class="secondary" onclick="copyPrevCropOnly()">Copiar só o corte</button>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>Flutuar</label>
+          <select id="scFloat">
+            <option value="on">Ligado</option>
+            <option value="off">Desligado</option>
+          </select>
+        </div>
+        <div>
+          <label>Intensidade</label>
+          <select id="scFloatLevel">
+            <option value="low">Leve</option>
+            <option value="mid">Médio</option>
+          </select>
+        </div>
+      </div>
+
+      <hr/>
+
+      <label>Narração por cena</label>
+      <div class="row">
+        <div>
+          <label>Importar áudio</label>
+          <input id="scAudioFile" type="file" accept="audio/*"/>
+        </div>
+        <div>
+          <label>&nbsp;</label>
+          <button class="secondary" style="width:100%" onclick="clearRec()">Apagar áudio</button>
+        </div>
+      </div>
+
+      <div class="btns">
+        <button onclick="startRec()">Gravar</button>
+        <button class="secondary" onclick="stopRec()">Parar</button>
+        <button class="secondary" onclick="playRec()">Ouvir</button>
+      </div>
+      <p class="hint" id="recStatus">Sem áudio gravado.</p>
+    </div>
+
+    <p class="hint">
+      <span class="ok">Meta do dia:</span> 2 vídeos prontos em 5 minutos. Estrutura fixa, só muda o print e as frases.
+    </p>
+  </section>
+</main>
+
+<script>
+/** =========================
+ *  STATE / PROJECT MODEL
+ *  ========================= */
+const state = {
+  version: "8.0_PRO",
+  name: "",
+  size: { w:1080, h:1920 },
+  bg: { dataUrl:null, img:null },
+  slot: { x:190, y:420, w:700, h:390 },
+  scenes: [],
+  active: 0,
+  editSlot: false,
+  cropMode: false,
+  editText: false,
+  playing: false,
+  exporting: false,
+  // 9.0 plan (15 dias)
+  dayPlan: null, // {days:[{name, scenes:[...]}, ...]}
+};
+
+function defaultScene(i=1){
+  return {
+    id: crypto.randomUUID(),
+    name: `Cena ${i}`,
+    dur: 4,
+    headline: "",
+    sub: "",
+    textAnim: "type",
+    textPos: "bottom",
+    text: { offX: 0, offY: 0, boxW: 0.88, headSize: 64, subSize: 34 },
+    media: { type:null, dataUrl:null, el:null, w:0, h:0 },
+    crop: { zoom:1, panX:0, panY:0 },
+    audio: { blob:null, url:null },
+    float: { enabled:true, level:"low" }
+  };
+}
+
+/** =========================
+ *  CANVAS / RENDER
+ *  ========================= */
+const cv = document.getElementById("cv");
+const ctx = cv.getContext("2d");
+let raf = null;
+
+function setCanvasSize(){
+  const [w,h] = document.getElementById("format").value.split("x").map(n=>parseInt(n,10));
+  state.size.w = w; state.size.h = h;
+  cv.width = w; cv.height = h;
+  // default slot for 9:16
+  if(w===1080 && h===1920 && state.scenes.length===0){
+    state.slot = { x:190, y:420, w:700, h:390 };
+  }
+  syncSlotInputs();
+  draw();
+}
+
+function draw(frame){
+  ctx.clearRect(0,0,cv.width,cv.height);
+  if(state.bg.img){
+    drawCover(state.bg.img, 0,0,cv.width,cv.height);
+  } else {
+    ctx.fillStyle = "#000"; ctx.fillRect(0,0,cv.width,cv.height);
+    ctx.fillStyle = "rgba(245,200,75,.25)";
+    ctx.font = "900 42px system-ui";
+    ctx.fillText("Kwai Builder 8.0 PRO", 60, 120);
+    ctx.font = "700 22px system-ui";
+    ctx.fillStyle = "rgba(255,255,255,.7)";
+    ctx.fillText("Carregue um fundo e gere um Dia Completo.", 60, 160);
+  }
+
+  const sc = state.scenes[state.active];
+  if(sc){
+    if(sc.media.el) drawMediaInSlot(sc, frame);
+    if(frame && state.playing) drawTextAnimated(sc, frame.t, frame.dur);
+    else drawTextStatic(sc);
+  }
+
+  // edit overlays
+  if(state.editText){
+    const sc = state.scenes[state.active];
+    const tp = sc?.text || {offX:0,offY:0,boxW:0.88,headSize:64,subSize:34};
+    const baseY = textBaseY(sc?.textPos || "bottom");
+    const x = (cv.width/2) + (tp.offX||0);
+    const y0 = baseY + (tp.offY||0);
+    ctx.save();
+    ctx.strokeStyle = "rgba(245,200,75,.75)";
+    ctx.lineWidth = 3;
+    const bw = cv.width * clamp(tp.boxW ?? 0.88, 0.4, 1);
+    const bx = x - bw/2;
+    const by = y0 - Math.round(tp.headSize*0.95);
+    const bh = Math.round(tp.headSize*1.25) + Math.round(tp.subSize*1.25) + Math.round(tp.headSize*2.0);
+    ctx.strokeRect(bx, by, bw, bh);
+    ctx.fillStyle = "rgba(0,0,0,.60)";
+    ctx.fillRect(bx, by-34, 220, 28);
+    ctx.fillStyle = "#fff";
+    ctx.font = "900 14px system-ui";
+    ctx.fillText("EDITANDO TEXTO", bx+10, by-14);
+    ctx.restore();
+  }
+
+  if(state.editSlot){
+    ctx.save();
+    ctx.strokeStyle = "rgba(245,200,75,.85)";
+    ctx.lineWidth = 6;
+    ctx.strokeRect(state.slot.x, state.slot.y, state.slot.w, state.slot.h);
+    ctx.fillStyle = "rgba(245,200,75,.10)";
+    ctx.fillRect(state.slot.x, state.slot.y, state.slot.w, state.slot.h);
+    ctx.fillStyle = "rgba(0,0,0,.65)";
+    ctx.fillRect(state.slot.x, state.slot.y-42, 300, 36);
+    ctx.fillStyle = "#fff";
+    ctx.font = "900 18px system-ui";
+    ctx.fillText("EDITANDO SLOT", state.slot.x+10, state.slot.y-18);
+    ctx.restore();
+  }
+
+  if(state.cropMode){
+    ctx.save();
+    ctx.fillStyle = "rgba(0,0,0,.42)";
+    ctx.beginPath();
+    ctx.rect(0,0,cv.width,cv.height);
+    ctx.rect(state.slot.x, state.slot.y, state.slot.w, state.slot.h);
+    ctx.fill("evenodd");
+
+    ctx.strokeStyle = "rgba(156,255,199,.90)";
+    ctx.lineWidth = 4;
+    ctx.strokeRect(state.slot.x, state.slot.y, state.slot.w, state.slot.h);
+
+    const sc = state.scenes[state.active];
+    const z = sc ? sc.crop.zoom : 1;
+    ctx.fillStyle = "rgba(0,0,0,.70)";
+    ctx.fillRect(state.slot.x, state.slot.y + state.slot.h + 10, 520, 34);
+    ctx.fillStyle = "#fff";
+    ctx.font = "900 16px system-ui";
+    ctx.fillText(`CROP: arraste = mover | scroll = zoom (${z.toFixed(2)}x)`, state.slot.x + 10, state.slot.y + state.slot.h + 33);
+    ctx.restore();
+  }
+}
+
+function drawCover(img, x,y,w,h){
+  const iw=img.width, ih=img.height;
+  const ir=iw/ih, r=w/h;
+  let dw=w, dh=h, dx=x, dy=y;
+  if(ir>r){ dh=h; dw=h*ir; dx=x-(dw-w)/2; dy=y; }
+  else { dw=w; dh=w/ir; dx=x; dy=y-(dh-h)/2; }
+  ctx.drawImage(img, dx,dy,dw,dh);
+}
+
+function drawMediaInSlot(sc, frame){
+  const {x,y,w,h} = state.slot;
+  ctx.save();
+  ctx.beginPath(); ctx.rect(x,y,w,h); ctx.clip();
+
+  const el = sc.media.el;
+  const mw = sc.media.w || el.videoWidth || el.width;
+  const mh = sc.media.h || el.videoHeight || el.height;
+  const ir = mw/mh;
+  const r = w/h;
+
+  let dw=w, dh=h;
+  if(ir>r){ dw=w; dh=w/ir; } else { dh=h; dw=h*ir; }
+
+  // float
+  let floatZoom = 1, floatX = 0, floatY = 0;
+  const fl = sc.float || { enabled:true, level:"low" };
+  const level = (fl.level || "low");
+  const amp = level==="mid" ? 10 : 6;
+  const zamp = level==="mid" ? 0.030 : 0.018;
+  if(fl.enabled !== false && frame && typeof frame.t === "number"){
+    const tt = frame.t;
+    floatX = Math.sin(tt*0.9) * amp;
+    floatY = Math.cos(tt*0.75) * amp;
+    floatZoom = 1 + (Math.sin(tt*0.6) * zamp);
+  }
+
+  dw *= (sc.crop.zoom * floatZoom);
+  dh *= (sc.crop.zoom * floatZoom);
+
+  const cx = x + (w - dw)/2 + sc.crop.panX + floatX;
+  const cy = y + (h - dh)/2 + sc.crop.panY + floatY;
+
+  ctx.drawImage(el, cx, cy, dw, dh);
+  ctx.restore();
+
+  // border
+  ctx.save();
+  ctx.strokeStyle = "rgba(0,0,0,.55)";
+  ctx.lineWidth = 10;
+  ctx.strokeRect(x,y,w,h);
+  ctx.strokeStyle = "rgba(245,200,75,.14)";
+  ctx.lineWidth = 4;
+  ctx.strokeRect(x,y,w,h);
+  ctx.restore();
+}
+
+function drawTextStatic(sc){
+  const baseY = textBaseY(sc.textPos);
+  const tprops = sc.text || { offX:0, offY:0, boxW:0.88, headSize:64, subSize:34 };
+  const maxW = cv.width * clamp(tprops.boxW ?? 0.88, 0.4, 1);
+  const x = (cv.width/2) + (tprops.offX || 0);
+  const y0 = baseY + (tprops.offY || 0);
+  ctx.save();
+  ctx.textAlign = "center";
+
+  if(sc.headline){
+    ctx.font = `900 ${tprops.headSize}px system-ui`;
+    ctx.lineWidth = Math.max(6, Math.round(tprops.headSize/6));
+    ctx.strokeStyle = "rgba(0,0,0,.65)";
+    ctx.fillStyle = "#ffd34d";
+    drawWrapped(sc.headline, x, y0, maxW, Math.round(tprops.headSize*1.15), true);
+  }
+  if(sc.sub){
+    ctx.font = `800 ${tprops.subSize}px system-ui`;
+    ctx.lineWidth = Math.max(4, Math.round(tprops.subSize/6));
+    ctx.strokeStyle = "rgba(0,0,0,.60)";
+    ctx.fillStyle = "#ffffff";
+    drawWrapped(sc.sub, x, y0 + Math.round(tprops.headSize*2.6), maxW, Math.round(tprops.subSize*1.25), true);
+  }
+  ctx.restore();
+}
+
+function drawTextAnimated(sc, t, dur){
+  const baseY = textBaseY(sc.textPos);
+  const tprops = sc.text || { offX:0, offY:0, boxW:0.88, headSize:64, subSize:34 };
+  const maxW = cv.width * clamp(tprops.boxW ?? 0.88, 0.4, 1);
+  const x = (cv.width/2) + (tprops.offX || 0);
+  const y0 = baseY + (tprops.offY || 0);
+  ctx.save(); ctx.textAlign = "center";
+
+  const inTime = Math.min(1, Math.max(0, t / 0.6));
+  const outTime = Math.min(1, Math.max(0, (dur - t) / 0.5));
+  const alpha = Math.min(inTime, outTime);
+
+  if(sc.textAnim==="fade"){
+    ctx.globalAlpha = alpha;
+    drawTextBlock(sc, x, y0, maxW, tprops);
+  } else if(sc.textAnim==="slide"){
+    ctx.globalAlpha = alpha;
+    const slide = (1-inTime) * 60;
+    drawTextBlock(sc, x, y0+slide, maxW, tprops);
+  } else {
+    ctx.globalAlpha = alpha;
+    const head = sc.headline || "";
+    const sub = sc.sub || "";
+    const total = head.length + sub.length + 1;
+    const chars = Math.floor((t / Math.max(1.2, dur*0.6)) * total);
+    const hLen = Math.min(head.length, chars);
+    const sLen = Math.max(0, chars - head.length - 1);
+    drawTextBlock({headline: head.slice(0,hLen), sub: sub.slice(0, Math.min(sub.length, sLen))}, x, y0, maxW, tprops);
+  }
+
+  ctx.restore();
+}
+
+function drawTextBlock(sc, x, y0, maxW, tp){
+  if(sc.headline){
+    ctx.font = `900 ${tp.headSize}px system-ui`;
+    ctx.lineWidth = Math.max(6, Math.round(tp.headSize/6));
+    ctx.strokeStyle = "rgba(0,0,0,.65)";
+    ctx.fillStyle = "#ffd34d";
+    drawWrapped(sc.headline, x, y0, maxW, Math.round(tp.headSize*1.15), true);
+  }
+  if(sc.sub){
+    ctx.font = `800 ${tp.subSize}px system-ui`;
+    ctx.lineWidth = Math.max(4, Math.round(tp.subSize/6));
+    ctx.strokeStyle = "rgba(0,0,0,.60)";
+    ctx.fillStyle = "#ffffff";
+    drawWrapped(sc.sub, x, y0 + Math.round(tp.headSize*2.6), maxW, Math.round(tp.subSize*1.25), true);
+  }
+}
+
+function textBaseY(pos){
+  if(pos==="top") return 160;
+  if(pos==="center") return cv.height/2 - 120;
+  return cv.height - 360;
+}
+
+function drawWrapped(text, x, y, maxW, lineH, strokeFirst){
+  const words = (text||"").split(" ");
+  let line = "";
+  let yy = y;
+  for(let i=0;i<words.length;i++){
+    const test = line + words[i] + " ";
+    const w = ctx.measureText(test).width;
+    if(w > maxW && i>0){
+      if(strokeFirst) ctx.strokeText(line.trim(), x, yy);
+      ctx.fillText(line.trim(), x, yy);
+      line = words[i] + " ";
+      yy += lineH;
+    } else {
+      line = test;
+    }
+  }
+  if(strokeFirst) ctx.strokeText(line.trim(), x, yy);
+  ctx.fillText(line.trim(), x, yy);
+}
+
+/** =========================
+ *  UI BINDINGS
+ *  ========================= */
+const el = id => document.getElementById(id);
+
+function syncSlotInputs(){
+  el("slotX").value = Math.round(state.slot.x);
+  el("slotY").value = Math.round(state.slot.y);
+  el("slotW").value = Math.round(state.slot.w);
+  el("slotH").value = Math.round(state.slot.h);
+}
+
+["slotX","slotY","slotW","slotH"].forEach(id=>{
+  el(id).addEventListener("input", ()=>{
+    state.slot.x = parseInt(el("slotX").value||0,10);
+    state.slot.y = parseInt(el("slotY").value||0,10);
+    state.slot.w = Math.max(10, parseInt(el("slotW").value||10,10));
+    state.slot.h = Math.max(10, parseInt(el("slotH").value||10,10));
+    draw();
+  });
+});
+
+el("projectName").addEventListener("input", ()=> state.name = el("projectName").value);
+el("format").addEventListener("change", setCanvasSize);
+
+el("bgFile").addEventListener("change", async (e)=>{
+  const f = e.target.files?.[0]; if(!f) return;
+  const dataUrl = await fileToDataURL(f);
+  state.bg.dataUrl = dataUrl;
+  const img = new Image();
+  img.onload = ()=>{ state.bg.img = img; draw(); };
+  img.src = dataUrl;
+});
+
+function setMode(next){
+  const wantSlot = (next === "slot") ? !state.editSlot : false;
+  const wantCrop = (next === "crop") ? !state.cropMode : false;
+  const wantText = (next === "text") ? !state.editText : false;
+
+  state.editSlot = false;
+  state.cropMode = false;
+  state.editText = false;
+
+  if(wantSlot) state.editSlot = true;
+  if(wantCrop) state.cropMode = true;
+  if(wantText) state.editText = true;
+
+  const msg = state.editSlot ? "Modo slot: arraste o retângulo."
+            : state.cropMode ? "Modo corte: arraste dentro do slot."
+            : state.editText ? "Modo texto: arraste o texto no preview."
+            : "Pronto.";
+  el("renderInfo").textContent = msg;
+  draw();
+}
+
+function toggleEditSlot(){ setMode("slot"); }
+function toggleCropMode(){ setMode("crop"); }
+function toggleEditText(){ setMode("text"); }
+
+function resetTextPos(){
+  const sc = state.scenes[state.active]; if(!sc) return;
+  if(!sc.text) sc.text = { offX:0, offY:0, boxW:0.88, headSize:64, subSize:34 };
+  sc.text.offX = 0; sc.text.offY = 0; sc.text.boxW = 0.88;
+  el("scBoxW").value = sc.text.boxW.toFixed(2);
+  draw();
+}
+
+function centerSlot(){
+  state.slot.w = Math.round(state.size.w*0.66);
+  state.slot.h = Math.round(state.size.h*0.22);
+  state.slot.x = Math.round((state.size.w - state.slot.w)/2);
+  state.slot.y = Math.round(state.size.h*0.22);
+  syncSlotInputs();
+  draw();
+}
+
+/** =========================
+ *  SCENES UI
+ *  ========================= */
+function ensureScene(){
+  if(state.scenes.length===0){
+    state.scenes.push(defaultScene(1));
+    state.active = 0;
+  }
+}
+
+function renderSceneList(){
+  const ul = el("sceneList");
+  ul.innerHTML = "";
+  state.scenes.forEach((s, idx)=>{
+    const li = document.createElement("li");
+    li.className = "item" + (idx===state.active ? " active":"");
+    li.onclick = ()=>{ state.active = idx; renderSceneList(); renderSceneEditor(); draw(); };
+    li.innerHTML = `
+      <div class="itemTitle">
+        <b>${escapeHtml(s.name)}</b>
+        <span>${(s.dur||0)}s</span>
+      </div>
+      <div class="small">
+        ${s.media.dataUrl ? "📺 mídia" : "📺 sem mídia"} • ${s.audio.url ? "🎙️ áudio" : "🎙️ sem áudio"}
+      </div>
+    `;
+    ul.appendChild(li);
+  });
+}
+
+function renderSceneEditor(){
+  const sc = state.scenes[state.active];
+  const box = el("sceneEditor");
+  if(!sc){ box.style.display="none"; return; }
+  box.style.display="block";
+
+  el("scName").value = sc.name;
+  el("scDur").value = sc.dur;
+  el("scHeadline").value = sc.headline;
+  el("scSub").value = sc.sub;
+  el("scTextAnim").value = sc.textAnim;
+  el("scTextPos").value = sc.textPos;
+
+  if(!sc.text) sc.text = { offX:0, offY:0, boxW:0.88, headSize:64, subSize:34 };
+  el("scHeadSize").value = sc.text.headSize;
+  el("scSubSize").value = sc.text.subSize;
+  el("scBoxW").value = sc.text.boxW.toFixed(2);
+  el("scZoom").value = sc.crop.zoom.toFixed(2);
+
+  const fl = sc.float || (sc.float = { enabled:true, level:"low" });
+  el("scFloat").value = (fl.enabled === false) ? "off" : "on";
+  el("scFloatLevel").value = (fl.level || "low");
+
+  // audio import
+  el("scAudioFile").value = "";
+  el("scAudioFile").onchange = async (ev)=>{
+    const f = ev.target.files?.[0]; if(!f) return;
+    const url = URL.createObjectURL(f);
+    if(sc.audio.url) URL.revokeObjectURL(sc.audio.url);
+    sc.audio = { blob:null, url };
+    updateRecStatus();
+    renderSceneList();
+  };
+  updateRecStatus();
+
+  el("scName").oninput = ()=>{ sc.name = el("scName").value; renderSceneList(); };
+  el("scDur").oninput = ()=>{ sc.dur = Math.max(1, parseFloat(el("scDur").value||1)); renderSceneList(); };
+  el("scHeadline").oninput = ()=>{ sc.headline = el("scHeadline").value; draw(); };
+  el("scSub").oninput = ()=>{ sc.sub = el("scSub").value; draw(); };
+  el("scTextAnim").onchange = ()=>{ sc.textAnim = el("scTextAnim").value; draw(); };
+  el("scTextPos").onchange = ()=>{ sc.textPos = el("scTextPos").value; draw(); };
+  el("scHeadSize").oninput = ()=>{ sc.text.headSize = clamp(parseFloat(el("scHeadSize").value||64),24,120); draw(); };
+  el("scSubSize").oninput = ()=>{ sc.text.subSize = clamp(parseFloat(el("scSubSize").value||34),16,80); draw(); };
+  el("scBoxW").oninput = ()=>{ sc.text.boxW = clamp(parseFloat(el("scBoxW").value||0.88),0.4,1); draw(); };
+  el("scZoom").oninput = ()=>{ sc.crop.zoom = clamp(parseFloat(el("scZoom").value||1),0.2,5); draw(); };
+  el("scFloat").onchange = ()=>{ sc.float = sc.float || { enabled:true, level:"low" }; sc.float.enabled = (el("scFloat").value === "on"); draw(); };
+  el("scFloatLevel").onchange = ()=>{ sc.float = sc.float || { enabled:true, level:"low" }; sc.float.level = el("scFloatLevel").value; draw(); };
+
+  el("scMedia").value = "";
+  el("scMedia").onchange = async (e)=>{
+    const f = e.target.files?.[0]; if(!f) return;
+    const dataUrl = await fileToDataURL(f);
+    sc.media.dataUrl = dataUrl;
+    sc.media.type = f.type.startsWith("video/") ? "video" : "image";
+    await loadSceneMedia(sc);
+    renderSceneList();
+    draw();
+  };
+}
+
+async function loadSceneMedia(sc){
+  if(sc.media.type==="video"){
+    const v = document.createElement("video");
+    v.src = sc.media.dataUrl;
+    v.muted = true; v.loop = true; v.playsInline = true;
+    await v.play().catch(()=>{});
+    await new Promise(res=>{ if(v.readyState>=1) return res(); v.onloadedmetadata=()=>res(); });
+    sc.media.el = v;
+    sc.media.w = v.videoWidth;
+    sc.media.h = v.videoHeight;
+  } else {
+    const img = new Image();
+    await new Promise(res=>{ img.onload=()=>res(); img.src=sc.media.dataUrl; });
+    sc.media.el = img;
+    sc.media.w = img.width;
+    sc.media.h = img.height;
+  }
+}
+
+function addScene(){
+  const s = defaultScene(state.scenes.length+1);
+  state.scenes.push(s);
+  state.active = state.scenes.length-1;
+  renderSceneList(); renderSceneEditor(); draw();
+}
+
+function duplicateScene(){
+  const sc = state.scenes[state.active]; if(!sc) return;
+  const copy = JSON.parse(JSON.stringify(sc));
+  copy.id = crypto.randomUUID();
+  copy.name = sc.name + " (cópia)";
+  copy.media.el = null;
+  copy.audio.blob = null;
+  copy.audio.url = sc.audio.url || null;
+  state.scenes.splice(state.active+1,0,copy);
+  state.active++;
+  Promise.resolve().then(async ()=>{
+    if(copy.media.dataUrl){
+      copy.media.type = (copy.media.dataUrl.startsWith("data:video")) ? "video" : "image";
+      await loadSceneMedia(copy);
+    }
+    renderSceneList(); renderSceneEditor(); draw();
+  });
+}
+
+function deleteScene(){
+  if(state.scenes.length<=1) { alert("Mantenha pelo menos 1 cena."); return; }
+  state.scenes.splice(state.active,1);
+  state.active = Math.max(0, state.active-1);
+  renderSceneList(); renderSceneEditor(); draw();
+}
+
+function resetCrop(){
+  const sc = state.scenes[state.active]; if(!sc) return;
+  sc.crop.zoom = 1; sc.crop.panX = 0; sc.crop.panY = 0;
+  el("scZoom").value = "1.00";
+  draw();
+}
+
+/** =========================
+ *  INPUT (MOUSE/KEY)
+ *  ========================= */
+let drag = { on:false, mode:null, sx:0, sy:0, ox:0, oy:0 };
+let canvasHot = false;
+
+window.addEventListener("focusin", (e)=>{
+  const tag = (e.target && e.target.tagName) ? e.target.tagName.toUpperCase() : "";
+  if(["INPUT","TEXTAREA","SELECT"].includes(tag)) canvasHot = false;
+});
+
+cv.addEventListener("mousedown", (e)=>{
+  canvasHot = true;
+  const p = canvasPos(e);
+
+  if(state.editSlot){
+    if(pointInRect(p.x,p.y,state.slot)){
+      drag = { on:true, mode:"slot", sx:p.x, sy:p.y, ox:state.slot.x, oy:state.slot.y };
+    }
+  } else if(state.cropMode){
+    if(pointInRect(p.x,p.y,state.slot)){
+      const sc = state.scenes[state.active]; if(!sc) return;
+      drag = { on:true, mode:"crop", sx:p.x, sy:p.y, ox:sc.crop.panX, oy:sc.crop.panY };
+    }
+  } else if(state.editText){
+    const sc = state.scenes[state.active]; if(!sc) return;
+    if(!sc.text) sc.text = { offX:0, offY:0, boxW:0.88, headSize:64, subSize:34 };
+    drag = { on:true, mode:"text", sx:p.x, sy:p.y, ox:sc.text.offX||0, oy:sc.text.offY||0 };
+  }
+});
+
+window.addEventListener("mousemove", (e)=>{
+  if(!drag.on) return;
+  canvasHot = true;
+  const p = canvasPos(e);
+  const dx = p.x - drag.sx;
+  const dy = p.y - drag.sy;
+
+  if(drag.mode==="slot"){
+    state.slot.x = Math.round(drag.ox + dx);
+    state.slot.y = Math.round(drag.oy + dy);
+    syncSlotInputs();
+    draw();
+  } else if(drag.mode==="crop"){
+    const sc = state.scenes[state.active]; if(!sc) return;
+    sc.crop.panX = Math.round(drag.ox + dx);
+    sc.crop.panY = Math.round(drag.oy + dy);
+    draw();
+  } else if(drag.mode==="text"){
+    const sc = state.scenes[state.active]; if(!sc) return;
+    if(!sc.text) sc.text = { offX:0, offY:0, boxW:0.88, headSize:64, subSize:34 };
+    sc.text.offX = Math.round(drag.ox + dx);
+    sc.text.offY = Math.round(drag.oy + dy);
+    draw();
+  }
+});
+
+window.addEventListener("mouseup", ()=>{ drag.on=false; drag.mode=null; });
+
+cv.addEventListener("wheel", (e)=>{
+  if(!state.cropMode) return;
+  e.preventDefault();
+  const sc = state.scenes[state.active]; if(!sc) return;
+  const delta = e.deltaY>0 ? -0.05 : 0.05;
+  sc.crop.zoom = clamp(sc.crop.zoom + delta, 0.2, 5);
+  el("scZoom").value = sc.crop.zoom.toFixed(2);
+  draw();
+},{passive:false});
+
+window.addEventListener("keydown", (e)=>{
+  const tag = (e.target && e.target.tagName) ? e.target.tagName.toUpperCase() : "";
+  const typing = ["INPUT","TEXTAREA","SELECT"].includes(tag);
+
+  if(e.key==="e" || e.key==="E") toggleEditSlot();
+  if(e.key==="c" || e.key==="C") toggleCropMode();
+  if(e.key==="t" || e.key==="T") toggleEditText();
+
+  const isSpace = (e.code==="Space" || e.key===" " || e.key==="Spacebar");
+  if(isSpace){
+    if(canvasHot && !typing){
+      e.preventDefault();
+      playScene();
+    }
+  }
+});
+
+/** =========================
+ *  PLAYBACK (PREVIEW)
+ *  ========================= */
+let playStart = 0;
+
+function playScene(){
+  if(state.playing || state.exporting) return;
+  const sc = state.scenes[state.active]; if(!sc) return;
+
+  state.playing = true;
+  playStart = performance.now();
+
+  const audio = sc.audio.url ? new Audio(sc.audio.url) : null;
+  if(audio){ audio.currentTime = 0; audio.play().catch(()=>{}); }
+
+  function tick(now){
+    if(!state.playing) return;
+    const t = (now - playStart) / 1000;
+    draw({ t, dur: sc.dur });
+
+    if(t >= sc.dur){
+      state.playing = false;
+      draw();
+      return;
+    }
+    raf = requestAnimationFrame(tick);
+  }
+  raf = requestAnimationFrame(tick);
+}
+
+function stopPlay(){
+  state.playing = false;
+  if(raf) cancelAnimationFrame(raf);
+  draw();
+}
+
+/** =========================
+ *  AUDIO REC (PER SCENE)
+ *  ========================= */
+let rec = { mediaRecorder:null, chunks:[], stream:null };
+
+async function startRec(){
+  const sc = state.scenes[state.active]; if(!sc) return;
+  if(rec.mediaRecorder) return;
+
+  try{
+    rec.stream = await navigator.mediaDevices.getUserMedia({ audio:true });
+    rec.chunks = [];
+    rec.mediaRecorder = new MediaRecorder(rec.stream, { mimeType: "audio/webm" });
+    rec.mediaRecorder.ondataavailable = (ev)=>{ if(ev.data.size>0) rec.chunks.push(ev.data); };
+    rec.mediaRecorder.onstop = ()=>{
+      const blob = new Blob(rec.chunks, { type:"audio/webm" });
+      sc.audio.blob = blob;
+      if(sc.audio.url) URL.revokeObjectURL(sc.audio.url);
+      sc.audio.url = URL.createObjectURL(blob);
+      cleanupRec();
+      updateRecStatus();
+      renderSceneList();
+    };
+    rec.mediaRecorder.start();
+    el("recStatus").innerHTML = `<span class="ok">Gravando...</span> fale a narração desta cena e clique “Parar”.`;
+  }catch(err){
+    alert("Não consegui acessar o microfone. Permita no navegador.");
+  }
+}
+
+function stopRec(){
+  if(!rec.mediaRecorder) return;
+  rec.mediaRecorder.stop();
+}
+
+function cleanupRec(){
+  if(rec.stream) rec.stream.getTracks().forEach(t=>t.stop());
+  rec.mediaRecorder = null;
+  rec.stream = null;
+  rec.chunks = [];
+}
+
+function playRec(){
+  const sc = state.scenes[state.active]; if(!sc?.audio.url) return alert("Sem áudio nesta cena.");
+  const a = new Audio(sc.audio.url);
+  a.play().catch(()=>{});
+}
+
+function clearRec(){
+  const sc = state.scenes[state.active]; if(!sc) return;
+  if(sc.audio.url) URL.revokeObjectURL(sc.audio.url);
+  sc.audio = { blob:null, url:null };
+  updateRecStatus();
+  renderSceneList();
+}
+
+function updateRecStatus(){
+  const sc = state.scenes[state.active];
+  if(!sc){ el("recStatus").textContent=""; return; }
+  el("recStatus").innerHTML = sc.audio.url
+    ? `<span class="ok">Áudio pronto.</span> Export vai embutir no vídeo.`
+    : `Sem áudio (opcional).`;
+}
+
+/** =========================
+ *  EXPORT VIDEO (WEBM) — RANGE
+ *  ========================= */
+async function exportVideoRange(startIdx, endIdx, suffix){
+  if(state.exporting) return;
+  if(!state.bg.img) return alert("Carregue um fundo primeiro.");
+  if(state.scenes.length===0) return alert("Crie pelo menos 1 cena.");
+  if(startIdx<0 || endIdx<=startIdx || endIdx>state.scenes.length) return alert("Range inválido.");
+
+  state.exporting = true;
+  stopPlay();
+  el("renderInfo").textContent = "Exportando... (não feche a aba)";
+  el("progWrap").style.display = "block";
+  setProg(0);
+
+  const fps = 30;
+  const stream = cv.captureStream(fps);
+
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  const dest = audioCtx.createMediaStreamDestination();
+  dest.stream.getAudioTracks().forEach(track => stream.addTrack(track));
+
+  const mr = new MediaRecorder(stream, { mimeType:"video/webm;codecs=vp9,opus" });
+  const chunks = [];
+  mr.ondataavailable = (ev)=>{ if(ev.data.size>0) chunks.push(ev.data); };
+  mr.start(250);
+
+  const slice = state.scenes.slice(startIdx, endIdx);
+  const totalDur = slice.reduce((a,s)=>a + (s.dur||0), 0);
+  let elapsed = 0;
+
+  for(let i=0;i<slice.length;i++){
+    const globalIdx = startIdx + i;
+    state.active = globalIdx;
+    renderSceneList();
+    renderSceneEditor();
+
+    const sc = state.scenes[globalIdx];
+
+    let srcNode = null;
+    let audioEl = null;
+    if(sc.audio.url){
+      audioEl = new Audio(sc.audio.url);
+      audioEl.currentTime = 0;
+      const src = audioCtx.createMediaElementSource(audioEl);
+      src.connect(dest);
+      src.connect(audioCtx.destination);
+      srcNode = src;
+      await audioEl.play().catch(()=>{});
+    }
+
+    if(sc.media.el && sc.media.el.tagName==="VIDEO"){
+      sc.media.el.currentTime = 0;
+      await sc.media.el.play().catch(()=>{});
+    }
+
+    await renderSceneToCanvas(sc, fps, (t)=>{
+      const pct = Math.min(1, (elapsed + t) / totalDur);
+      setProg(pct);
+    });
+
+    elapsed += sc.dur;
+
+    if(sc.media.el && sc.media.el.tagName==="VIDEO") sc.media.el.pause();
+    if(audioEl){
+      audioEl.pause();
+      try{ srcNode.disconnect(); }catch{}
+    }
+  }
+
+  mr.stop();
+
+  const blob = await new Promise(res=>{
+    mr.onstop = ()=> res(new Blob(chunks, { type:"video/webm" }));
+  });
+
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  const base = (state.name || "kwai_video").replace(/[^\w\-]+/g,"_");
+  const tail = (suffix || "").replace(/[^\w\-]+/g,"_");
+  a.download = `${base}${tail ? "_"+tail : ""}.webm`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(a.href);
+
+  try{ await audioCtx.close(); }catch{}
+  state.exporting = false;
+  el("renderInfo").textContent = "Export concluído. Vídeo baixado.";
+  setTimeout(()=>{ el("progWrap").style.display="none"; }, 1200);
+  draw();
+}
+
+function export30(){
+  if(state.scenes.length < 5) return alert("Você precisa de pelo menos 5 cenas para exportar 30s.");
+  exportVideoRange(0, Math.min(5, state.scenes.length), "30s");
+}
+function export15(){
+  if(state.scenes.length < 8) return alert("Você precisa de 8 cenas (30s+15s). Gere Dia Completo.");
+  exportVideoRange(5, 8, "15s");
+}
+function exportAll(){
+  exportVideoRange(0, state.scenes.length, "FULL");
+}
+
+function setProg(pct){ el("progBar").style.width = Math.round(pct*100) + "%"; }
+
+function renderSceneToCanvas(sc, fps, onTick){
+  return new Promise((resolve)=>{
+    const frameDur = 1/fps;
+    let t = 0;
+    const timer = setInterval(()=>{
+      t += frameDur;
+      draw({ t, dur: sc.dur });
+      onTick?.(Math.min(sc.dur, t));
+      if(t >= sc.dur){
+        clearInterval(timer);
+        draw();
+        resolve();
+      }
+    }, 1000/fps);
+  });
+}
+
+/** =========================
+ *  SAVE / LOAD (LOCAL)
+ *  ========================= */
+function projectKey(){ return "kwai_builder_8_pro_project"; }
+function planKey(){ return "kwai_builder_9_plan"; }
+
+function packProject(){
+  return {
+    version: state.version,
+    name: state.name,
+    size: state.size,
+    bg: { dataUrl: state.bg.dataUrl },
+    slot: state.slot,
+    scenes: state.scenes.map(s=>({
+      id:s.id, name:s.name, dur:s.dur,
+      headline:s.headline, sub:s.sub,
+      textAnim:s.textAnim, textPos:s.textPos,
+      text:s.text,
+      media:{ type:s.media.type, dataUrl:s.media.dataUrl },
+      crop: s.crop,
+      float: s.float,
+      audio:{ has: !!s.audio.url }
+    }))
+  };
+}
+
+async function hydrateProject(p){
+  state.name = p.name || "";
+  el("projectName").value = state.name;
+
+  state.size = p.size || state.size;
+  el("format").value = `${state.size.w}x${state.size.h}`;
+  cv.width = state.size.w; cv.height = state.size.h;
+
+  state.bg.dataUrl = p.bg?.dataUrl || null;
+  state.bg.img = null;
+  if(state.bg.dataUrl){
+    const img = new Image();
+    await new Promise(res=>{ img.onload=()=>res(); img.src=state.bg.dataUrl; });
+    state.bg.img = img;
+  }
+
+  state.slot = p.slot || state.slot;
+  syncSlotInputs();
+
+  state.scenes = [];
+  for(const s of (p.scenes || [])){
+    const sc = defaultScene(1);
+    sc.id = s.id || sc.id;
+    sc.name = s.name || sc.name;
+    sc.dur = s.dur || 4;
+    sc.headline = s.headline || "";
+    sc.sub = s.sub || "";
+    sc.textAnim = s.textAnim || "type";
+    sc.textPos = s.textPos || "bottom";
+    sc.text = s.text || sc.text;
+    sc.media.type = s.media?.type || null;
+    sc.media.dataUrl = s.media?.dataUrl || null;
+    sc.crop = s.crop || sc.crop;
+    sc.float = s.float || sc.float;
+    sc.audio = { blob:null, url:null };
+
+    if(sc.media.dataUrl){
+      sc.media.type = sc.media.dataUrl.startsWith("data:video") ? "video" : "image";
+      await loadSceneMedia(sc);
+    }
+    state.scenes.push(sc);
+  }
+
+  if(state.scenes.length===0) state.scenes.push(defaultScene(1));
+  state.active = 0;
+  renderSceneList(); renderSceneEditor(); draw();
+}
+
+function saveProject(){
+  localStorage.setItem(projectKey(), JSON.stringify(packProject()));
+  el("renderInfo").textContent = "Projeto salvo no navegador.";
+}
+async function loadProject(){
+  const raw = localStorage.getItem(projectKey());
+  if(!raw) return alert("Nenhum projeto salvo ainda.");
+  await hydrateProject(JSON.parse(raw));
+  el("renderInfo").textContent = "Projeto carregado.";
+}
+
+/** =========================
+ *  8.0 PRO — TEMPLATES (30s + 15s)
+ *  ========================= */
+const CTAS = [
+  "Acesse agora pelo link na bio.",
+  "Se quer jogar sério, teste o sistema.",
+  "Pare de apostar no escuro.",
+  "Sistema completo disponível na bio.",
+  "Treine como profissional no próximo concurso."
+];
+
+const HOOKS_AGRESSIVOS = [
+  {h:"Você ainda escolhe número no achismo?", s:"Enquanto isso, tem gente usando padrão treinado."},
+  {h:"Se você ainda aposta no chute...", s:"Você está jogando contra método."},
+  {h:"A maioria perde por um motivo:", s:"não segue padrão, segue emoção."},
+  {h:"Quer aumentar 14/15?", s:"Então pare de repetir erro."},
+  {h:"Lotofácil não é só sorte.", s:"É padrão. E padrão dá pra treinar."},
+];
+
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function pickCTA(){ return pick(CTAS); }
+
+function buildDayScenes(template){
+  const cta = pickCTA();
+  const hook = pick(HOOKS_AGRESSIVOS);
+
+  const t = (template || "mix");
+
+  // Blocos “inteligentes” (sem prometer milagre; passa método)
+  const intelligence = {
+    mix:  {h:"Treino em janela curta e objetiva.", s:"Analisando os 4 concursos antes do encaixe."},
+    elite:{h:"Elite: 6 jogos estruturados.", s:"Padrões fixos, sem achismo."},
+    p15:  {h:"15P: fecha 3 linhas estratégicas.", s:"Objetivo: buscar o encaixe perfeito."},
+    preditivo:{h:"Sistema Preditivo (padrões treinados).", s:"Estrutura + comportamento, não chute."},
+    prova:{h:"Resultados reais vêm de consistência.", s:"Testar, ajustar, repetir."},
+    urgencia:{h:"Você vai jogar no próximo concurso?", s:"Então jogue com método."}
+  }[t] || {h:"Treino objetivo.", s:"Padrões treinados."};
+
+  const diff = {
+    mix: {h:"Elite + 15P: ataque agressivo.", s:"Agressivo no gancho, inteligente no método."},
+    elite:{h:"Elite foca em 6 jogos por padrão.", s:"Ritmo de execução rápido."},
+    p15: {h:"15P: 10 jogos a partir de 5 linhas.", s:"Estratégia de cobertura por linhas."},
+    preditivo:{h:"Padrões fixos treinados.", s:"Você só executa. Sem achismo."},
+    prova:{h:"Quem insiste no método, cresce.", s:"O resto vive de esperança."},
+    urgencia:{h:"Não deixe pra depois.", s:"Link na bio. Acesso imediato."}
+  }[t] || {h:"Diferencial do sistema.", s:"Sem achismo."};
+
+  // 30s = 5 cenas (aprox 30s)
+  const v30 = [
+    {name:"30s - Gancho", dur:4, anim:"type", pos:"bottom", head:hook.h, sub:hook.s},
+    {name:"30s - Quebra", dur:6, anim:"slide", pos:"bottom",
+      head:"Antes das dezenas saírem juntas...",
+      sub:"Elas mostram comportamento antes do encontro."
+    },
+    {name:"30s - Inteligência", dur:8, anim:"fade", pos:"bottom", head:intelligence.h, sub:intelligence.s},
+    {name:"30s - Diferencial", dur:7, anim:"slide", pos:"bottom", head:diff.h, sub:diff.s},
+    {name:"30s - CTA", dur:5, anim:"type", pos:"bottom",
+      head:"Quer parar de apostar no escuro?",
+      sub:cta
+    },
+  ];
+
+  // 15s = 3 cenas (aprox 15s)
+  const v15 = [
+    {name:"15s - Impacto", dur:4, anim:"type", pos:"bottom", head:"Lotofácil não é só sorte.", sub:"É padrão."},
+    {name:"15s - Método", dur:6, anim:"slide", pos:"bottom",
+      head:"Treino olhando os 4 últimos concursos.",
+      sub:"Antes do encaixe acontecer."
+    },
+    {name:"15s - CTA", dur:5, anim:"fade", pos:"bottom",
+      head:"Se quer jogar sério...",
+      sub:cta
+    },
+  ];
+
+  return [...v30, ...v15];
+}
+
+function applyScenesFromTemplate(template, {only=null} = {}){
+  stopPlay();
+  state.scenes = [];
+  state.active = 0;
+
+  const all = buildDayScenes(template);
+
+  let use = all;
+  if(only === "30") use = all.slice(0,5);
+  if(only === "15") use = all.slice(5,8);
+
+  use.forEach((c, i)=>{
+    const sc = defaultScene(i+1);
+    sc.name = c.name;
+    sc.dur = c.dur;
+    sc.headline = c.head;
+    sc.sub = c.sub;
+    sc.textAnim = c.anim;
+    sc.textPos = c.pos || "bottom";
+    sc.float = { enabled:true, level:"low" };
+    state.scenes.push(sc);
+  });
+
+  state.active = 0;
+  renderSceneList();
+  renderSceneEditor();
+  draw();
+  el("renderInfo").textContent = (only==="30") ? "30s gerado."
+    : (only==="15") ? "15s gerado."
+    : "Dia completo (30s + 15s) gerado.";
+}
+
+function gerarDiaCompleto(){
+  const t = el("templatePick").value || "mix";
+  applyScenesFromTemplate(t, {only:null});
+}
+function gerarSomente30(){
+  const t = el("templatePick").value || "mix";
+  applyScenesFromTemplate(t, {only:"30"});
+}
+function gerarSomente15(){
+  const t = el("templatePick").value || "mix";
+  applyScenesFromTemplate(t, {only:"15"});
+}
+
+/** =========================
+ *  9.0 — PLANO 15 DIAS (2 vídeos/dia)
+ *  ========================= */
+const VAR_HOOKS = [
+  "Você ainda escolhe número no achismo?",
+  "Se você ainda aposta no chute...",
+  "A maioria perde por um motivo:",
+  "Quer aumentar 14/15?",
+  "Lotofácil não é só sorte."
+];
+const VAR_SUB = [
+  "Tem gente usando padrão treinado.",
+  "Você está jogando contra método.",
+  "Não segue padrão, segue emoção.",
+  "Então pare de repetir erro.",
+  "Padrão dá pra treinar."
+];
+
+function gerar15Dias(){
+  const template = el("templatePick").value || "mix";
+  const days = [];
+  for(let d=1; d<=15; d++){
+    const base = buildDayScenes(template);
+
+    // variação leve por dia (gancho e CTA) — sem bagunça
+    const hook = VAR_HOOKS[(d-1) % VAR_HOOKS.length];
+    const sub  = VAR_SUB[(d-1) % VAR_SUB.length];
+    const cta  = CTAS[(d-1) % CTAS.length];
+
+    // altera cena 1 e CTA final
+    base[0].head = hook;
+    base[0].sub  = sub;
+    base[4].sub  = cta;
+    base[7].sub  = cta;
+
+    days.push({ name: `Dia ${String(d).padStart(2,'0')}`, template, scenes: base });
+  }
+  state.dayPlan = { version:"9.0", createdAt: Date.now(), days };
+  localStorage.setItem(planKey(), JSON.stringify(state.dayPlan));
+  enablePlanUI();
+  fillDayPick();
+  el("renderInfo").textContent = "Plano 15 dias criado. Escolha um dia e carregue.";
+}
+
+function enablePlanUI(){
+  el("dayPick").disabled = !state.dayPlan;
+  el("btnLoadDay").disabled = !state.dayPlan;
+  el("btnClearPlan").disabled = !state.dayPlan;
+}
+function fillDayPick(){
+  const dp = el("dayPick");
+  dp.innerHTML = "";
+  if(!state.dayPlan) return;
+  state.dayPlan.days.forEach((d, idx)=>{
+    const opt = document.createElement("option");
+    opt.value = String(idx);
+    opt.textContent = d.name;
+    dp.appendChild(opt);
+  });
+}
+function loadSelectedDay(){
+  if(!state.dayPlan) return;
+  const idx = parseInt(el("dayPick").value || "0", 10);
+  const day = state.dayPlan.days[idx];
+  if(!day) return;
+  applyPackedScenes(day.scenes, `${day.name}_${day.template}`);
+  el("renderInfo").textContent = `${day.name} carregado (30s + 15s).`;
+}
+function clearDayPlan(){
+  if(!confirm("Apagar o plano de 15 dias salvo no navegador?")) return;
+  state.dayPlan = null;
+  localStorage.removeItem(planKey());
+  enablePlanUI();
+  el("dayPick").innerHTML = "";
+  el("renderInfo").textContent = "Plano removido.";
+}
+
+function applyPackedScenes(packedScenes, nameSuffix){
+  stopPlay();
+  state.scenes = [];
+  state.active = 0;
+  state.name = (el("projectName").value || "KWAI") + "_" + (nameSuffix || "DIA");
+  el("projectName").value = state.name;
+
+  packedScenes.forEach((c,i)=>{
+    const sc = defaultScene(i+1);
+    sc.name = c.name;
+    sc.dur = c.dur;
+    sc.headline = c.head || c.headline || "";
+    sc.sub = c.sub || "";
+    sc.textAnim = c.anim || c.textAnim || "type";
+    sc.textPos = c.pos || c.textPos || "bottom";
+    sc.float = { enabled:true, level:"low" };
+    state.scenes.push(sc);
+  });
+
+  renderSceneList(); renderSceneEditor(); draw();
+}
+
+/** =========================
+ *  COPY PREV
+ *  ========================= */
+async function copyPrevMediaCrop(){
+  const idx = state.active;
+  if(idx <= 0) return alert("Não existe cena anterior.");
+  const prev = state.scenes[idx-1];
+  const cur = state.scenes[idx];
+  cur.media.type = prev.media.type;
+  cur.media.dataUrl = prev.media.dataUrl;
+  cur.crop = { ...prev.crop };
+  cur.float = prev.float ? { ...prev.float } : { enabled:true, level:"low" };
+
+  if(cur.media.dataUrl){
+    cur.media.type = cur.media.dataUrl.startsWith("data:video") ? "video" : "image";
+    await loadSceneMedia(cur);
+  } else cur.media.el = null;
+
+  renderSceneList(); renderSceneEditor(); draw();
+  el("renderInfo").textContent = "Mídia/corte copiados da anterior.";
+}
+
+function copyPrevCropOnly(){
+  const idx = state.active;
+  if(idx <= 0) return alert("Não existe cena anterior.");
+  const prev = state.scenes[idx-1];
+  const cur = state.scenes[idx];
+  cur.crop = { ...prev.crop };
+  cur.float = prev.float ? { ...prev.float } : { enabled:true, level:"low" };
+  renderSceneEditor();
+  draw();
+  el("renderInfo").textContent = "Só o corte foi copiado da anterior.";
+}
+
+/** =========================
+ *  HELPERS
+ *  ========================= */
+function clamp(v,min,max){ return Math.max(min, Math.min(max,v)); }
+function pointInRect(x,y,r){ return x>=r.x && x<=r.x+r.w && y>=r.y && y<=r.y+r.h; }
+function canvasPos(e){
+  const rect = cv.getBoundingClientRect();
+  const sx = cv.width / rect.width;
+  const sy = cv.height / rect.height;
+  return { x:(e.clientX-rect.left)*sx, y:(e.clientY-rect.top)*sy };
+}
+function escapeHtml(s){ return (s||"").replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m])); }
+function fileToDataURL(file){
+  return new Promise((res,rej)=>{
+    const r = new FileReader();
+    r.onload = ()=>res(r.result);
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+
+/** =========================
+ *  INIT
+ *  ========================= */
+function boot(){
+  setCanvasSize();
+  ensureScene();
+  renderSceneList();
+  renderSceneEditor();
+  syncSlotInputs();
+  draw();
+
+  // restore plan
+  const raw = localStorage.getItem(planKey());
+  if(raw){
+    try{
+      state.dayPlan = JSON.parse(raw);
+    }catch{ state.dayPlan = null; }
+  }
+  enablePlanUI();
+  fillDayPick();
+}
+boot();
+</script>
+</body>
+</html>
