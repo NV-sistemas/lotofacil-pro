@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Kwai Builder 8.4.2 PRO — N&V Sistemas</title>
+  <title>Kwai Builder 8.4.3 PRO — N&V Sistemas</title>
   <style>
     :root{
       --bg:#07080b; --card:#0e1117; --card2:#0b0d12;
@@ -117,7 +117,7 @@
 <header>
   <div class="brand">
     <div class="dot"></div>
-    <h1>Kwai Builder <span class="badge">8.4.2 PRO</span> — N&V Sistemas</h1>
+    <h1>Kwai Builder <span class="badge">8.4.3 PRO</span> — N&V Sistemas</h1>
     <span class="pill">Produção rápida: 2 vídeos/dia (30s + 15s) • Template fixo • Export 1 clique</span>
   </div>
   <p class="sub">
@@ -176,7 +176,7 @@
 
     <hr/>
 
-    <h2>2) Produção Kwai (8.4.2 PRO)</h2>
+    <h2>2) Produção Kwai (8.4.3 PRO)</h2>
 
     <label>Modelo de roteiro</label>
     <select id="templatePick">
@@ -328,7 +328,7 @@
     </div>
 
     <p class="hint">
-      Export grava exatamente o preview (fundo + mídia no slot + texto animado + narração gravada).
+      Export grava exatamente o preview (fundo + mídia no slot + texto animado + narração gravada).  Dica: .WEBM pode não tocar no Reprodutor do Windows — teste abrindo no Chrome ou VLC.
     </p>
   </section>
 
@@ -513,7 +513,7 @@
  *  STATE / PROJECT MODEL
  *  ========================= */
 const state = {
-  version: "8.4_2_PRO",
+  version: "8.4_3_PRO",
   name: "",
   size: { w:1080, h:1920 },
   bg: { dataUrl:null, img:null },
@@ -575,7 +575,7 @@ function draw(frame){
     ctx.fillStyle = "#000"; ctx.fillRect(0,0,cv.width,cv.height);
     ctx.fillStyle = "rgba(245,200,75,.25)";
     ctx.font = "900 42px system-ui";
-    ctx.fillText("Kwai Builder 8.4.2 PRO", 60, 120);
+    ctx.fillText("Kwai Builder 8.4.3 PRO", 60, 120);
     ctx.font = "700 22px system-ui";
     ctx.fillStyle = "rgba(255,255,255,.7)";
     ctx.fillText("Carregue um fundo e gere um Dia Completo.", 60, 160);
@@ -1326,6 +1326,9 @@ async function exportVideoRange(startIdx, endIdx, suffix){
   stopPlay();
   el("renderInfo").textContent = "Exportando... (não feche a aba)";
   el("progWrap").style.display = "block";
+  // garante que fundo e mídias estão carregados
+  await preflightExport(startIdx, endIdx);
+
   setProg(0);
 
   const fps = 30;
@@ -1711,7 +1714,7 @@ async function loadProject(){
 }
 
 /** =========================
- *  8.4.2 PRO — TEMPLATES (30s + 15s)
+ *  8.4.3 PRO — TEMPLATES (30s + 15s)
  *  ========================= */
 const CTAS = [
   "Acesse agora pelo link na bio.",
@@ -2377,6 +2380,50 @@ function attachGlobalAudioInput(){
   };
   bind("globalAudio30", "30");
   bind("globalAudio15", "15");
+}
+
+
+
+/** =========================
+ *  PRE-FLIGHT (garante mídia carregada antes do export)
+ * ========================= */
+async function ensureImageReady(img){
+  try{
+    if(!img) return;
+    if(img.complete && img.naturalWidth>0) return;
+    await new Promise((res, rej)=>{
+      img.onload = ()=>res(true);
+      img.onerror = ()=>res(false);
+    });
+  }catch{}
+}
+async function ensureVideoReady(v){
+  try{
+    if(!v) return;
+    if(v.readyState >= 3) return; // HAVE_FUTURE_DATA
+    await new Promise((res, rej)=>{
+      const ok = ()=>{ cleanup(); res(true); };
+      const cleanup = ()=>{
+        v.removeEventListener("canplay", ok);
+        v.removeEventListener("loadeddata", ok);
+        v.removeEventListener("error", ok);
+      };
+      v.addEventListener("canplay", ok, {once:true});
+      v.addEventListener("loadeddata", ok, {once:true});
+      v.addEventListener("error", ok, {once:true});
+    });
+  }catch{}
+}
+async function preflightExport(startIdx, endIdx){
+  // fundo
+  if(state.bg && state.bg.el) await ensureImageReady(state.bg.el);
+  // cenas
+  const scenes = state.scenes.slice(startIdx, endIdx);
+  for(const s of scenes){
+    if(!s.media || !s.media.el) continue;
+    if(s.media.type==="image") await ensureImageReady(s.media.el);
+    if(s.media.type==="video") await ensureVideoReady(s.media.el);
+  }
 }
 
 
