@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Kwai Builder 8.4 PRO — N&V Sistemas</title>
+  <title>Kwai Builder 8.4.1 PRO — N&V Sistemas</title>
   <style>
     :root{
       --bg:#07080b; --card:#0e1117; --card2:#0b0d12;
@@ -117,7 +117,7 @@
 <header>
   <div class="brand">
     <div class="dot"></div>
-    <h1>Kwai Builder <span class="badge">8.4 PRO</span> — N&V Sistemas</h1>
+    <h1>Kwai Builder <span class="badge">8.4.1 PRO</span> — N&V Sistemas</h1>
     <span class="pill">Produção rápida: 2 vídeos/dia (30s + 15s) • Template fixo • Export 1 clique</span>
   </div>
   <p class="sub">
@@ -169,11 +169,14 @@
       <button class="secondary" onclick="toggleEditSlot()">Editar slot (E)</button>
       <button class="secondary" onclick="saveProject()">Salvar</button>
       <button class="secondary" onclick="loadProject()">Carregar</button>
+      <button class="secondary" onclick="exportLayout()">💾 Salvar MODELO</button>
+      <button class="secondary" onclick="triggerImportLayout()">📂 Carregar MODELO</button>
+      <input id="layoutFile" type="file" accept="application/json" style="display:none" />
     </div>
 
     <hr/>
 
-    <h2>2) Produção Kwai (8.4 PRO)</h2>
+    <h2>2) Produção Kwai (8.4.1 PRO)</h2>
 
     <label>Modelo de roteiro</label>
     <select id="templatePick">
@@ -510,7 +513,7 @@
  *  STATE / PROJECT MODEL
  *  ========================= */
 const state = {
-  version: "8.4_PRO",
+  version: "8.4_1_PRO",
   name: "",
   size: { w:1080, h:1920 },
   bg: { dataUrl:null, img:null },
@@ -527,20 +530,21 @@ const state = {
 };
 
 function defaultScene(i=1){
+  const d = state.sceneDefaults || null;
   return {
     id: crypto.randomUUID(),
     name: `Cena ${i}`,
     dur: 4,
     headline: "",
     sub: "",
-    textAnim: "type",
-    textPos: "bottom",
-    text: { offX: 0, offY: 0, boxW: 0.88, headSize: 64, subSize: 34 },
+    textAnim: d?.textAnim || "type",
+    textPos: d?.textPos || "bottom",
+    text: d?.text ? { ...d.text } : { offX: 0, offY: 0, boxW: 0.88, headSize: 64, subSize: 34 },
     media: { type:null, dataUrl:null, el:null, w:0, h:0 },
-    crop: { zoom:1, panX:0, panY:0 },
+    crop: d?.crop ? { ...d.crop } : { zoom:1, panX:0, panY:0 },
     audio: { blob:null, url:null },
-    float: { enabled:true, level:"low" },
-    vid: { start: 0 }
+    float: d?.float ? { ...d.float } : { enabled:true, level:"low" },
+    vid: d?.vid ? { ...d.vid } : { start: 0 }
   };
 }
 
@@ -571,7 +575,7 @@ function draw(frame){
     ctx.fillStyle = "#000"; ctx.fillRect(0,0,cv.width,cv.height);
     ctx.fillStyle = "rgba(245,200,75,.25)";
     ctx.font = "900 42px system-ui";
-    ctx.fillText("Kwai Builder 8.4 PRO", 60, 120);
+    ctx.fillText("Kwai Builder 8.4.1 PRO", 60, 120);
     ctx.font = "700 22px system-ui";
     ctx.fillStyle = "rgba(255,255,255,.7)";
     ctx.fillText("Carregue um fundo e gere um Dia Completo.", 60, 160);
@@ -1326,6 +1330,12 @@ async function exportVideoRange(startIdx, endIdx, suffix){
 
   const fps = 30;
   const stream = cv.captureStream(fps);
+  if(!stream || stream.getVideoTracks().length===0){
+    state.exporting = false;
+    el("progWrap").style.display = "none";
+    alert("Não consegui capturar o vídeo do canvas. Atualize a página e tente novamente.");
+    return;
+  }
 
   const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   const dest = audioCtx.createMediaStreamDestination();
@@ -1350,10 +1360,32 @@ async function exportVideoRange(startIdx, endIdx, suffix){
     }
   }
 
-  const mr = new MediaRecorder(stream, { mimeType:"video/webm;codecs=vp9,opus" });
+  // escolhe um mimeType compatível (evita arquivo 0 bytes)
+  const mimeCandidates = [
+    "video/webm;codecs=vp9,opus",
+    "video/webm;codecs=vp8,opus",
+    "video/webm"
+  ];
+  let chosenMime = "";
+  for(const m of mimeCandidates){
+    if(window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(m)){
+      chosenMime = m; break;
+    }
+  }
+  let mr;
+  try{
+    mr = chosenMime ? new MediaRecorder(stream, { mimeType: chosenMime }) : new MediaRecorder(stream);
+  }catch(e){
+    state.exporting = false;
+    el("progWrap").style.display = "none";
+    alert("Seu navegador não conseguiu iniciar o export (MediaRecorder). Tente no Chrome/Edge atualizado.");
+    return;
+  }
+
   const chunks = [];
-  mr.ondataavailable = (ev)=>{ if(ev.data.size>0) chunks.push(ev.data); };
-  mr.start(250);
+  mr.ondataavailable = (ev)=>{ if(ev.data && ev.data.size>0) chunks.push(ev.data); };
+  const stopped = new Promise(res=>{ mr.onstop = res; });
+  mr.start();
   if(globalAudioEl){
     try{
       await audioCtx.resume();
@@ -1405,7 +1437,9 @@ async function exportVideoRange(startIdx, endIdx, suffix){
     }
   }
 
+  try{ mr.requestData(); }catch{}
   mr.stop();
+  await stopped;
   if(globalAudioEl){ try{ globalAudioEl.pause(); }catch{} }
   try{ await audioCtx.close(); }catch{}
 
@@ -1545,6 +1579,122 @@ async function hydrateProject(p){
   renderSceneList(); renderSceneEditor(); draw();
 }
 
+
+/** =========================
+ *  MODELO BASE (Layout): fundo + slot + padrões de texto/crop
+ *  - Para usar amanhã sem realinhar
+ * ========================= */
+function getSceneDefaults(){
+  // pega o "molde" atual do defaultScene (texto/crop/animação)
+  const d = defaultScene(1);
+  return {
+    textAnim: d.textAnim,
+    textPos: d.textPos,
+    text: d.text,
+    crop: d.crop,
+    float: d.float,
+    vid: d.vid
+  };
+}
+
+function applySceneDefaults(def){
+  if(!def) return;
+  // aplica somente nos próximos defaultScene via state.sceneDefaults
+  state.sceneDefaults = def;
+  saveProjectLocal();
+}
+
+function exportLayout(){
+  if(!state.bg.dataUrl) return alert("Carregue um fundo antes de salvar o MODELO.");
+  const tpl = {
+    version: "layout_v1",
+    createdAt: Date.now(),
+    size: state.size,
+    bg: { dataUrl: state.bg.dataUrl },
+    slot: state.slot,
+    sceneDefaults: state.sceneDefaults || getSceneDefaults()
+  };
+  const blob = new Blob([JSON.stringify(tpl, null, 2)], {type:"application/json"});
+  const a = document.createElement("a");
+  const stamp = new Date().toISOString().slice(0,10);
+  a.href = URL.createObjectURL(blob);
+  a.download = `kwai_modelo_layout_${stamp}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  alert("MODELO salvo. Amanhã é só carregar e trocar mídias/cenas.");
+}
+
+function triggerImportLayout(){
+  const f = el("layoutFile");
+  if(!f) return;
+  f.value = "";
+  f.click();
+}
+
+async function importLayoutFromFile(file){
+  const txt = await file.text();
+  const obj = JSON.parse(txt);
+  if(!obj || typeof obj !== "object" || !obj.bg || !obj.bg.dataUrl) throw new Error("invalid");
+  // aplica layout
+  if(obj.size){ state.size = obj.size; cv.width = obj.size.w; cv.height = obj.size.h; }
+  state.bg.dataUrl = obj.bg.dataUrl;
+  await loadBG(state.bg.dataUrl);
+  if(obj.slot) state.slot = obj.slot;
+  if(obj.sceneDefaults) applySceneDefaults(obj.sceneDefaults);
+  syncUIFromState();
+  draw();
+  alert("MODELO carregado. Agora gere as cenas e só troque as mídias.");
+}
+
+// salva layout básico localmente (mesmo PC) pra você abrir amanhã e já estar pronto
+function saveProjectLocal(){
+  try{
+    const mini = {
+      size: state.size,
+      bg: { dataUrl: state.bg.dataUrl },
+      slot: state.slot,
+      sceneDefaults: state.sceneDefaults || null
+    };
+    localStorage.setItem("kwai_layout_autosave_v1", JSON.stringify(mini));
+  }catch{}
+}
+function loadProjectLocal(){
+  try{
+    const raw = localStorage.getItem("kwai_layout_autosave_v1");
+    if(!raw) return;
+    const obj = JSON.parse(raw);
+    if(obj && obj.bg && obj.bg.dataUrl){
+      state.size = obj.size || state.size;
+      state.slot = obj.slot || state.slot;
+      state.sceneDefaults = obj.sceneDefaults || state.sceneDefaults || null;
+      // bg carrega no boot para evitar travar
+      state.bg.dataUrl = obj.bg.dataUrl;
+    }
+  }catch{}
+}
+
+// aplica UI inputs a partir do state (slot e formato)
+function syncUIFromState(){
+  try{
+    // formato
+    const fmt = `${state.size.w}x${state.size.h}`;
+    const sel = document.getElementById("format");
+    if(sel){ sel.value = fmt; }
+    cv.width = state.size.w; cv.height = state.size.h;
+
+    // slot inputs
+    ["slotX","slotY","slotW","slotH"].forEach(id=>{
+      const elx = document.getElementById(id);
+      if(!elx) return;
+      if(id==="slotX") elx.value = state.slot.x;
+      if(id==="slotY") elx.value = state.slot.y;
+      if(id==="slotW") elx.value = state.slot.w;
+      if(id==="slotH") elx.value = state.slot.h;
+    });
+  }catch{}
+}
+
 function saveProject(){
   localStorage.setItem(projectKey(), JSON.stringify(packProject()));
   el("renderInfo").textContent = "Projeto salvo no navegador.";
@@ -1557,7 +1707,7 @@ async function loadProject(){
 }
 
 /** =========================
- *  8.4 PRO — TEMPLATES (30s + 15s)
+ *  8.4.1 PRO — TEMPLATES (30s + 15s)
  *  ========================= */
 const CTAS = [
   "Acesse agora pelo link na bio.",
@@ -2232,6 +2382,7 @@ function attachGlobalAudioInput(){
 function boot(){
   setCanvasSize();
   bindVoiceUI();
+  loadProjectLocal();
   attachGlobalAudioInput();
   loadHistory();
   renderInfoLine();
@@ -2242,6 +2393,16 @@ function boot(){
       if(!f) return;
       try{ await importHistoryFromFile(f); alert("Histórico importado com sucesso. Anti-repetição sincronizado."); }
       catch{ alert("Arquivo inválido. Não consegui importar."); }
+    };
+  }
+
+  const lf = el("layoutFile");
+  if(lf){
+    lf.onchange = async (e)=>{
+      const f = e.target.files?.[0];
+      if(!f) return;
+      try{ await importLayoutFromFile(f); }
+      catch{ alert("Arquivo de MODELO inválido."); }
     };
   }
   ensureScene();
