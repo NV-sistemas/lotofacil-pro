@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Kwai Builder 8.3 PRO — N&V Sistemas</title>
+  <title>Kwai Builder 8.4 PRO — N&V Sistemas</title>
   <style>
     :root{
       --bg:#07080b; --card:#0e1117; --card2:#0b0d12;
@@ -117,7 +117,7 @@
 <header>
   <div class="brand">
     <div class="dot"></div>
-    <h1>Kwai Builder <span class="badge">8.3 PRO</span> — N&V Sistemas</h1>
+    <h1>Kwai Builder <span class="badge">8.4 PRO</span> — N&V Sistemas</h1>
     <span class="pill">Produção rápida: 2 vídeos/dia (30s + 15s) • Template fixo • Export 1 clique</span>
   </div>
   <p class="sub">
@@ -173,7 +173,7 @@
 
     <hr/>
 
-    <h2>2) Produção Kwai (8.3 PRO)</h2>
+    <h2>2) Produção Kwai (8.4 PRO)</h2>
 
     <label>Modelo de roteiro</label>
     <select id="templatePick">
@@ -270,6 +270,30 @@
       <span class="bad">Importante:</span> a narração automática (voz grátis do navegador) funciona no <b>preview</b>.
       Para sair com voz no vídeo exportado, use <b>Gravar</b> ou <b>Importar áudio</b> (por limitação do navegador).
     </p>
+
+    <div class="hr"></div>
+    <label>Narração GLOBAL (um áudio para o vídeo todo)</label>
+    <p class="hint">
+      Escolha a voz antes de gerar as cenas, copie o texto e gere um áudio TTS (grátis) no Windows. Depois, importe aqui e o export sai com voz.
+    </p>
+    <div class="row">
+      <div>
+        <label>Importar narração (30s)</label>
+        <input id="globalAudio30" type="file" accept="audio/*"/>
+      </div>
+      <div>
+        <label>Importar narração (15s)</label>
+        <input id="globalAudio15" type="file" accept="audio/*"/>
+      </div>
+    </div>
+    <div class="btns">
+      <button class="secondary" onclick="copyNarrationText('30')">📋 Copiar texto (30s)</button>
+      <button class="secondary" onclick="copyNarrationText('15')">📋 Copiar texto (15s)</button>
+      <button class="secondary" onclick="downloadNarrationText('30')">⬇️ Baixar texto (30s)</button>
+      <button class="secondary" onclick="downloadNarrationText('15')">⬇️ Baixar texto (15s)</button>
+    </div>
+
+
 
   </section>
 
@@ -486,7 +510,7 @@
  *  STATE / PROJECT MODEL
  *  ========================= */
 const state = {
-  version: "8.3_PRO",
+  version: "8.4_PRO",
   name: "",
   size: { w:1080, h:1920 },
   bg: { dataUrl:null, img:null },
@@ -547,7 +571,7 @@ function draw(frame){
     ctx.fillStyle = "#000"; ctx.fillRect(0,0,cv.width,cv.height);
     ctx.fillStyle = "rgba(245,200,75,.25)";
     ctx.font = "900 42px system-ui";
-    ctx.fillText("Kwai Builder 8.3 PRO", 60, 120);
+    ctx.fillText("Kwai Builder 8.4 PRO", 60, 120);
     ctx.font = "700 22px system-ui";
     ctx.fillStyle = "rgba(255,255,255,.7)";
     ctx.fillText("Carregue um fundo e gere um Dia Completo.", 60, 160);
@@ -1307,10 +1331,36 @@ async function exportVideoRange(startIdx, endIdx, suffix){
   const dest = audioCtx.createMediaStreamDestination();
   dest.stream.getAudioTracks().forEach(track => stream.addTrack(track));
 
+  // Narração GLOBAL (um áudio para o vídeo todo)
+  let globalAudioEl = null;
+  let globalAudioSrcNode = null;
+  const which = (String(suffix||"").includes("15") || startIdx>=5) ? "15" : "30";
+  const gAud = state.globalAudio && state.globalAudio[which];
+  if(gAud && gAud.url){
+    try{
+      globalAudioEl = new Audio(gAud.url);
+      globalAudioEl.crossOrigin = "anonymous";
+      globalAudioEl.currentTime = 0;
+      globalAudioSrcNode = audioCtx.createMediaElementSource(globalAudioEl);
+      globalAudioSrcNode.connect(dest);
+    }catch(e){
+      // se falhar, segue sem global
+      globalAudioEl = null;
+      globalAudioSrcNode = null;
+    }
+  }
+
   const mr = new MediaRecorder(stream, { mimeType:"video/webm;codecs=vp9,opus" });
   const chunks = [];
   mr.ondataavailable = (ev)=>{ if(ev.data.size>0) chunks.push(ev.data); };
   mr.start(250);
+  if(globalAudioEl){
+    try{
+      await audioCtx.resume();
+      globalAudioEl.currentTime = 0;
+      await globalAudioEl.play();
+    }catch{}
+  }
 
   const slice = state.scenes.slice(startIdx, endIdx);
   const totalDur = slice.reduce((a,s)=>a + (s.dur||0), 0);
@@ -1356,6 +1406,8 @@ async function exportVideoRange(startIdx, endIdx, suffix){
   }
 
   mr.stop();
+  if(globalAudioEl){ try{ globalAudioEl.pause(); }catch{} }
+  try{ await audioCtx.close(); }catch{}
 
   const blob = await new Promise(res=>{
     mr.onstop = ()=> res(new Blob(chunks, { type:"video/webm" }));
@@ -1505,7 +1557,7 @@ async function loadProject(){
 }
 
 /** =========================
- *  8.3 PRO — TEMPLATES (30s + 15s)
+ *  8.4 PRO — TEMPLATES (30s + 15s)
  *  ========================= */
 const CTAS = [
   "Acesse agora pelo link na bio.",
@@ -2108,12 +2160,79 @@ function renderInfoLine(){
 }
 
 
+
+/** =========================
+ *  NARRAÇÃO GLOBAL (30s / 15s)
+ *  - 1 áudio para o vídeo todo
+ *  - Export mistura áudio no stream via AudioContext (opus)
+ * ========================= */
+state.globalAudio = {
+  "30": { file:null, url:null },
+  "15": { file:null, url:null }
+};
+
+function buildNarrationText(which){
+  const scenes = (which==="30") ? state.scenes.slice(0,5) : state.scenes.slice(5,8);
+  const joined = scenes
+    .map(s=>[s.headline, s.sub].filter(Boolean).join(". ").trim())
+    .filter(Boolean)
+    .join(". ");
+  const lines = scenes.map((s,i)=>{
+    const t = [s.headline, s.sub].filter(Boolean).join(". ").trim();
+    return `Cena ${i+1} (${s.dur||0}s): ${t}`;
+  }).join("\n");
+  return { joined, lines };
+}
+
+async function copyNarrationText(which){
+  const data = buildNarrationText(which);
+  const txt = data.joined;
+  try{
+    await navigator.clipboard.writeText(txt);
+    alert("Texto copiado. Cole no seu TTS e gere um áudio (mp3/wav). Depois importe aqui.");
+  }catch{
+    prompt("Copie o texto abaixo:", txt);
+  }
+}
+
+function downloadNarrationText(which){
+  const data = buildNarrationText(which);
+  const blob = new Blob([data.joined + "\n\n---\n\n" + data.lines], {type:"text/plain;charset=utf-8"});
+  const a = document.createElement("a");
+  const stamp = new Date().toISOString().slice(0,10);
+  a.href = URL.createObjectURL(blob);
+  a.download = `narracao_${which}s_${stamp}.txt`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+function attachGlobalAudioInput(){
+  const bind = (id, which)=>{
+    const inp = el(id);
+    if(!inp) return;
+    inp.onchange = (e)=>{
+      const f = e.target.files?.[0];
+      if(!f) return;
+      const g = state.globalAudio[which];
+      if(g.url){ try{ URL.revokeObjectURL(g.url); }catch{} }
+      g.file = f;
+      g.url = URL.createObjectURL(f);
+      alert(`Narração ${which}s carregada. No export, ela entra no vídeo.`);
+    };
+  };
+  bind("globalAudio30", "30");
+  bind("globalAudio15", "15");
+}
+
+
 /** =========================
  *  INIT
  *  ========================= */
 function boot(){
   setCanvasSize();
   bindVoiceUI();
+  attachGlobalAudioInput();
   loadHistory();
   renderInfoLine();
   const hf = el("historyFile");
