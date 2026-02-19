@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Kwai Builder 8.2 PRO — N&V Sistemas</title>
+  <title>Kwai Builder 8.3 PRO — N&V Sistemas</title>
   <style>
     :root{
       --bg:#07080b; --card:#0e1117; --card2:#0b0d12;
@@ -117,7 +117,7 @@
 <header>
   <div class="brand">
     <div class="dot"></div>
-    <h1>Kwai Builder <span class="badge">8.2 PRO</span> — N&V Sistemas</h1>
+    <h1>Kwai Builder <span class="badge">8.3 PRO</span> — N&V Sistemas</h1>
     <span class="pill">Produção rápida: 2 vídeos/dia (30s + 15s) • Template fixo • Export 1 clique</span>
   </div>
   <p class="sub">
@@ -173,7 +173,7 @@
 
     <hr/>
 
-    <h2>2) Produção Kwai (8.2 PRO)</h2>
+    <h2>2) Produção Kwai (8.3 PRO)</h2>
 
     <label>Modelo de roteiro</label>
     <select id="templatePick">
@@ -228,6 +228,19 @@
 
     <div class="btns">
       <button class="green" onclick="gerarDiaCompleto()">🔥 Gerar Dia Completo (30s + 15s)</button>
+
+      <div class="hr"></div>
+      <label>Anti-repetição (NUNCA repetir)</label>
+      <p class="hint">
+        No mesmo computador/navegador, o sistema não repete. Para trocar de PC sem repetir, use <b>Exportar</b> e depois <b>Importar</b> o histórico.
+      </p>
+      <div class="btns">
+        <button class="secondary" onclick="exportHistory()">⬇️ Exportar histórico</button>
+        <button class="secondary" onclick="triggerImportHistory()">⬆️ Importar histórico</button>
+        <button class="danger" onclick="clearHistoryConfirm()">🧹 Limpar histórico</button>
+        <input id="historyFile" type="file" accept="application/json" style="display:none" />
+      </div>
+
       <button class="secondary" onclick="gerarSomente30()">Gerar só 30s</button>
       <button class="secondary" onclick="gerarSomente15()">Gerar só 15s</button>
       <button class="secondary" onclick="gerar15Dias()">🚀 Gerar 15 Dias (9.0)</button>
@@ -473,7 +486,7 @@
  *  STATE / PROJECT MODEL
  *  ========================= */
 const state = {
-  version: "8.2_PRO",
+  version: "8.3_PRO",
   name: "",
   size: { w:1080, h:1920 },
   bg: { dataUrl:null, img:null },
@@ -534,7 +547,7 @@ function draw(frame){
     ctx.fillStyle = "#000"; ctx.fillRect(0,0,cv.width,cv.height);
     ctx.fillStyle = "rgba(245,200,75,.25)";
     ctx.font = "900 42px system-ui";
-    ctx.fillText("Kwai Builder 8.2 PRO", 60, 120);
+    ctx.fillText("Kwai Builder 8.3 PRO", 60, 120);
     ctx.font = "700 22px system-ui";
     ctx.fillStyle = "rgba(255,255,255,.7)";
     ctx.fillText("Carregue um fundo e gere um Dia Completo.", 60, 160);
@@ -1492,14 +1505,29 @@ async function loadProject(){
 }
 
 /** =========================
- *  8.2 PRO — TEMPLATES (30s + 15s)
+ *  8.3 PRO — TEMPLATES (30s + 15s)
  *  ========================= */
 const CTAS = [
   "Acesse agora pelo link na bio.",
   "Se quer jogar sério, teste o sistema.",
   "Pare de apostar no escuro.",
   "Sistema completo disponível na bio.",
-  "Treine como profissional no próximo concurso."
+  "Treine como profissional no próximo concurso.",
+  "Quer os botões Premium? Link na bio.",
+  "Acesse o sistema e gere seus jogos hoje. Bio.",
+  "Se você quer 14/15, precisa de método. Bio.",
+  "Teste o ELITE 6 jogos. Link na bio.",
+  "Quer o 15P (3 linhas)? Link na bio.",
+  "Entre no PRIME e pare de repetir erro. Bio.",
+  "Hoje tem sorteio? Gere e salve. Link na bio.",
+  "Pare de apostar igual todo mundo. Bio.",
+  "Quer estratégia pronta? Link na bio.",
+  "Acesse agora e veja os módulos. Bio.",
+  "Sistema Preditivo + ELITE + 15P. Bio.",
+  "Comece pelo FREE e evolua pro Premium. Bio.",
+  "Sem enrolação: método treinado. Link na bio.",
+  "Quer aumentar as chances? Link na bio.",
+  "Clique no link e veja como funciona. Bio."
 ];
 
 const HOOKS_AGRESSIVOS = [
@@ -1508,14 +1536,50 @@ const HOOKS_AGRESSIVOS = [
   {h:"A maioria perde por um motivo:", s:"não segue padrão, segue emoção."},
   {h:"Quer aumentar 14/15?", s:"Então pare de repetir erro."},
   {h:"Lotofácil não é só sorte.", s:"É padrão. E padrão dá pra treinar."},
+  {h:"Você tá repetindo os mesmos números?", s:"Isso é o que te mantém no 11/12."},
+  {h:"Quer parar de errar por padrão?", s:"Então use um padrão treinado."},
+  {h:"Todo mundo aposta igual. Você também?", s:"Hora de sair do comum."},
+  {h:"Seu jogo parece o de todo mundo?", s:"Então o resultado vai ser igual."},
+  {h:"Você quer 14/15 ou só participar?", s:"Participar não paga boleto."},
+  {h:"Tem um jeito de organizar suas dezenas.", s:"E não é por intuição."},
+  {h:"Você aposta e torce?", s:"Aqui você aposta com método."},
+  {h:"O problema não é você perder.", s:"É perder repetindo o mesmo erro."},
+  {h:"Se o seu jogo é aleatório, o resultado também.", s:"Vamos estruturar isso."},
+  {h:"Quer um sistema que gera e salva?", s:"Sem ficar digitando número."},
+  {h:"Jogo pronto em segundos.", s:"Agora é só executar no concurso."},
+  {h:"Você tá deixando dinheiro na mesa.", s:"Por não usar estratégia."},
+  {h:"Chega de planilha e chute.", s:"Use módulos prontos."},
+  {h:"Você quer ver 14 pontos aparecer?", s:"Então precisa de repetição inteligente."},
+  {h:"Seu foco é 13 ou 14/15?", s:"Aqui a pegada é agressiva."},
+  {h:"Você precisa de variação controlada.", s:"Não de números aleatórios."},
+  {h:"Não é sobre sorte.", s:"É sobre aumentar probabilidade."},
+  {h:"Você faz jogo manual ainda?", s:"O sistema faz e entrega variações."},
+  {h:"Se você quer consistência, organize o processo.", s:"É isso que o PRIME faz."},
+  {h:"Quer parar de repetir jogo fraco?", s:"Troque o método, não a sorte."},
 ];
 
 function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
-function pickCTA(){ return pick(CTAS); }
+
+// pick único (anti-repetição). Se acabar, avisa.
+function pickUnique(arr, keyFn, setName){
+  const unused = arr.filter(x => !histHas(setName, keyFn(x)));
+  if(unused.length===0){
+    throw new Error("SEM_VARIACAO_"+setName);
+  }
+  const chosen = pick(unused);
+  const k = keyFn(chosen);
+  histAdd(setName, k);
+  saveHistory();
+  return chosen;
+}
+function pickCTA(){ return pickUnique(CTAS, x=>String(x), "ctas"); }
 
 function buildDayScenes(template){
   const cta = pickCTA();
-  const hook = pick(HOOKS_AGRESSIVOS);
+  let hook;
+  try{ hook = pickUnique(HOOKS_AGRESSIVOS, x=>`${x.h}||${x.s}`, "hooks"); }
+  catch(e){ hook = pick(HOOKS_AGRESSIVOS); }
+
 
   const t = (template || "mix");
 
@@ -1603,15 +1667,51 @@ function applyScenesFromTemplate(template, {only=null} = {}){
 
 function gerarDiaCompleto(){
   const t = el("templatePick").value || "mix";
-  applyScenesFromTemplate(t, {only:null});
+  let tries = 0;
+  while(tries < 12){
+    applyScenesFromTemplate(t, {only:null});
+    const sig = state.scenes.map(s=>`${(s.headline||"")}|${(s.sub||"")}`).join("##");
+    if(!histHas("signatures", sig)){
+      histAdd("signatures", sig);
+      saveHistory();
+      renderInfoLine();
+      return;
+    }
+    tries++;
+  }
+  alert("Atenção: banco de variações limitado para este modelo. Expanda ganchos/CTAs ou limpe o histórico.");
 }
 function gerarSomente30(){
   const t = el("templatePick").value || "mix";
-  applyScenesFromTemplate(t, {only:"30"});
+  let tries = 0;
+  while(tries < 12){
+    applyScenesFromTemplate(t, {only:"30"});
+    const sig = state.scenes.map(s=>`${(s.headline||"")}|${(s.sub||"")}`).join("##");
+    if(!histHas("signatures", sig)){
+      histAdd("signatures", sig);
+      saveHistory();
+      renderInfoLine();
+      return;
+    }
+    tries++;
+  }
+  alert("Atenção: banco de variações limitado para este modelo. Expanda ganchos/CTAs ou limpe o histórico.");
 }
 function gerarSomente15(){
   const t = el("templatePick").value || "mix";
-  applyScenesFromTemplate(t, {only:"15"});
+  let tries = 0;
+  while(tries < 12){
+    applyScenesFromTemplate(t, {only:"15"});
+    const sig = state.scenes.map(s=>`${(s.headline||"")}|${(s.sub||"")}`).join("##");
+    if(!histHas("signatures", sig)){
+      histAdd("signatures", sig);
+      saveHistory();
+      renderInfoLine();
+      return;
+    }
+    tries++;
+  }
+  alert("Atenção: banco de variações limitado para este modelo. Expanda ganchos/CTAs ou limpe o histórico.");
 }
 
 /** =========================
@@ -1641,7 +1741,7 @@ function gerar15Dias(){
     // variação leve por dia (gancho e CTA) — sem bagunça
     const hook = VAR_HOOKS[(d-1) % VAR_HOOKS.length];
     const sub  = VAR_SUB[(d-1) % VAR_SUB.length];
-    const cta  = CTAS[(d-1) % CTAS.length];
+    let cta; try{ cta = pickCTA(); } catch(e){ cta = CTAS[(d-1) % CTAS.length]; }
 
     // altera cena 1 e CTA final
     base[0].head = hook;
@@ -1893,12 +1993,138 @@ function bindVoiceUI(){
 }
 
 
+
+/** =========================
+ *  ANTI-REPETIÇÃO GLOBAL (persistente)
+ *  - Nunca repetir no mesmo PC/navegador
+ *  - Troca de computador: exporte/importa o histórico
+ * ========================= */
+const HISTORY_KEY = "kwai_builder_history_v1";
+let HISTORY = {
+  version: 1,
+  createdAt: Date.now(),
+  updatedAt: Date.now(),
+  hooks: [],
+  ctas: [],
+  signatures: []
+};
+
+function loadHistory(){
+  try{
+    const raw = localStorage.getItem(HISTORY_KEY);
+    if(!raw) return;
+    const obj = JSON.parse(raw);
+    if(obj && typeof obj === "object"){
+      HISTORY = {
+        version: 1,
+        createdAt: obj.createdAt || Date.now(),
+        updatedAt: obj.updatedAt || Date.now(),
+        hooks: Array.isArray(obj.hooks) ? obj.hooks : [],
+        ctas: Array.isArray(obj.ctas) ? obj.ctas : [],
+        signatures: Array.isArray(obj.signatures) ? obj.signatures : []
+      };
+    }
+  }catch{}
+}
+
+function saveHistory(){
+  try{
+    HISTORY.updatedAt = Date.now();
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(HISTORY));
+  }catch{}
+}
+
+function histHas(setName, key){
+  const arr = HISTORY[setName] || [];
+  return arr.includes(key);
+}
+function histAdd(setName, key){
+  const arr = HISTORY[setName] || (HISTORY[setName]=[]);
+  if(!arr.includes(key)) arr.push(key);
+}
+
+function exportHistory(){
+  try{
+    const blob = new Blob([JSON.stringify(HISTORY, null, 2)], {type:"application/json"});
+    const a = document.createElement("a");
+    const stamp = new Date().toISOString().slice(0,10);
+    a.href = URL.createObjectURL(blob);
+    a.download = `kwai_builder_historico_${stamp}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }catch(e){
+    alert("Não consegui exportar o histórico.");
+  }
+}
+
+function triggerImportHistory(){
+  const f = el("historyFile");
+  if(!f) return;
+  f.value = "";
+  f.click();
+}
+
+function importHistoryFromFile(file){
+  return new Promise((resolve, reject)=>{
+    const r = new FileReader();
+    r.onload = ()=>{
+      try{
+        const obj = JSON.parse(String(r.result||"{}"));
+        if(!obj || typeof obj !== "object") throw new Error("invalid");
+        const merged = {
+          version: 1,
+          createdAt: Math.min(HISTORY.createdAt||Date.now(), obj.createdAt||Date.now()),
+          updatedAt: Date.now(),
+          hooks: Array.from(new Set([...(HISTORY.hooks||[]), ...(obj.hooks||[])])),
+          ctas: Array.from(new Set([...(HISTORY.ctas||[]), ...(obj.ctas||[])])),
+          signatures: Array.from(new Set([...(HISTORY.signatures||[]), ...(obj.signatures||[])]))
+        };
+        HISTORY = merged;
+        saveHistory();
+        renderInfoLine();
+        resolve(true);
+      }catch(e){
+        reject(e);
+      }
+    };
+    r.onerror = reject;
+    r.readAsText(file);
+  });
+}
+
+function clearHistoryConfirm(){
+  const ok = confirm("Tem certeza? Isso libera repetição novamente (vai zerar o anti-repetição).");
+  if(!ok) return;
+  HISTORY = { version:1, createdAt:Date.now(), updatedAt:Date.now(), hooks:[], ctas:[], signatures:[] };
+  saveHistory();
+  renderInfoLine();
+}
+
+function renderInfoLine(){
+  const info = el("renderInfo");
+  if(!info) return;
+  info.textContent = `Histórico: ${HISTORY.hooks.length} ganchos, ${HISTORY.ctas.length} CTAs, ${HISTORY.signatures.length} packs.`;
+}
+
+
 /** =========================
  *  INIT
  *  ========================= */
 function boot(){
   setCanvasSize();
   bindVoiceUI();
+  loadHistory();
+  renderInfoLine();
+  const hf = el("historyFile");
+  if(hf){
+    hf.onchange = async (e)=>{
+      const f = e.target.files?.[0];
+      if(!f) return;
+      try{ await importHistoryFromFile(f); alert("Histórico importado com sucesso. Anti-repetição sincronizado."); }
+      catch{ alert("Arquivo inválido. Não consegui importar."); }
+    };
+  }
   ensureScene();
   renderSceneList();
   renderSceneEditor();
