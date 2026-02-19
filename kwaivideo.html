@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Kwai Builder 8.4.1 PRO — N&V Sistemas</title>
+  <title>Kwai Builder 8.4.2 PRO — N&V Sistemas</title>
   <style>
     :root{
       --bg:#07080b; --card:#0e1117; --card2:#0b0d12;
@@ -117,7 +117,7 @@
 <header>
   <div class="brand">
     <div class="dot"></div>
-    <h1>Kwai Builder <span class="badge">8.4.1 PRO</span> — N&V Sistemas</h1>
+    <h1>Kwai Builder <span class="badge">8.4.2 PRO</span> — N&V Sistemas</h1>
     <span class="pill">Produção rápida: 2 vídeos/dia (30s + 15s) • Template fixo • Export 1 clique</span>
   </div>
   <p class="sub">
@@ -176,7 +176,7 @@
 
     <hr/>
 
-    <h2>2) Produção Kwai (8.4.1 PRO)</h2>
+    <h2>2) Produção Kwai (8.4.2 PRO)</h2>
 
     <label>Modelo de roteiro</label>
     <select id="templatePick">
@@ -513,7 +513,7 @@
  *  STATE / PROJECT MODEL
  *  ========================= */
 const state = {
-  version: "8.4_1_PRO",
+  version: "8.4_2_PRO",
   name: "",
   size: { w:1080, h:1920 },
   bg: { dataUrl:null, img:null },
@@ -575,7 +575,7 @@ function draw(frame){
     ctx.fillStyle = "#000"; ctx.fillRect(0,0,cv.width,cv.height);
     ctx.fillStyle = "rgba(245,200,75,.25)";
     ctx.font = "900 42px system-ui";
-    ctx.fillText("Kwai Builder 8.4.1 PRO", 60, 120);
+    ctx.fillText("Kwai Builder 8.4.2 PRO", 60, 120);
     ctx.font = "700 22px system-ui";
     ctx.fillStyle = "rgba(255,255,255,.7)";
     ctx.fillText("Carregue um fundo e gere um Dia Completo.", 60, 160);
@@ -1441,11 +1441,16 @@ async function exportVideoRange(startIdx, endIdx, suffix){
   mr.stop();
   await stopped;
   if(globalAudioEl){ try{ globalAudioEl.pause(); }catch{} }
+  // finaliza audioCtx depois de parar (para não cortar o áudio)
   try{ await audioCtx.close(); }catch{}
 
-  const blob = await new Promise(res=>{
-    mr.onstop = ()=> res(new Blob(chunks, { type:"video/webm" }));
-  });
+  const blob = new Blob(chunks, { type: (chosenMime || "video/webm") });
+  if(!blob || blob.size===0){
+    state.exporting = false;
+    el("progWrap").style.display = "none";
+    alert("Export gerou arquivo vazio (0 bytes). Tente Edge/Chrome atualizado e feche outras abas pesadas.");
+    return;
+  }
 
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
@@ -1457,7 +1462,6 @@ async function exportVideoRange(startIdx, endIdx, suffix){
   a.remove();
   URL.revokeObjectURL(a.href);
 
-  try{ await audioCtx.close(); }catch{}
   state.exporting = false;
   el("renderInfo").textContent = "Export concluído. Vídeo baixado.";
   setTimeout(()=>{ el("progWrap").style.display="none"; }, 1200);
@@ -1707,7 +1711,7 @@ async function loadProject(){
 }
 
 /** =========================
- *  8.4.1 PRO — TEMPLATES (30s + 15s)
+ *  8.4.2 PRO — TEMPLATES (30s + 15s)
  *  ========================= */
 const CTAS = [
   "Acesse agora pelo link na bio.",
