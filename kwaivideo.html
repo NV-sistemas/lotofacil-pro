@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Kwai Builder 8.5 PRO — N&V Sistemas</title>
+  <title>Kwai Builder 8.5.1 PRO — N&V Sistemas</title>
   <style>
     :root{
       --bg:#07080b; --card:#0e1117; --card2:#0b0d12;
@@ -120,7 +120,7 @@
 <header>
   <div class="brand">
     <div class="dot"></div>
-    <h1>Kwai Builder <span class="badge">8.5 PRO</span> — N&V Sistemas</h1>
+    <h1>Kwai Builder <span class="badge">8.5.1 PRO</span> — N&V Sistemas</h1>
     <span class="pill">Produção rápida: 2 vídeos/dia (30s + 15s) • Template fixo • Export 1 clique</span>
   </div>
   <p class="sub">
@@ -179,7 +179,7 @@
 
     <hr/>
 
-    <h2>2) Produção Kwai (8.5 PRO)</h2>
+    <h2>2) Produção Kwai (8.5.1 PRO)</h2>
 
     <label>Modelo de roteiro</label>
     <select id="templatePick">
@@ -524,7 +524,7 @@
  *  STATE / PROJECT MODEL
  *  ========================= */
 const state = {
-  version: "8.5_PRO",
+  version: "8.5_1_PRO",
   name: "",
   size: { w:1080, h:1920 },
   bg: { dataUrl:null, img:null },
@@ -586,7 +586,7 @@ function draw(frame){
     ctx.fillStyle = "#000"; ctx.fillRect(0,0,cv.width,cv.height);
     ctx.fillStyle = "rgba(245,200,75,.25)";
     ctx.font = "900 42px system-ui";
-    ctx.fillText("Kwai Builder 8.5 PRO", 60, 120);
+    ctx.fillText("Kwai Builder 8.5.1 PRO", 60, 120);
     ctx.font = "700 22px system-ui";
     ctx.fillStyle = "rgba(255,255,255,.7)";
     ctx.fillText("Carregue um fundo e gere um Dia Completo.", 60, 160);
@@ -1415,36 +1415,7 @@ async function exportVideoRange(startIdx, endIdx, suffix){
     }catch{}
   }
 
-  let t = 0;for(const m of mimeCandidates){
-    if(window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(m)){
-      chosenMime = m; break;
-    }
-  }
-  let mr;
-  try{
-    mr = chosenMime ? new MediaRecorder(stream, { mimeType: chosenMime }) : new MediaRecorder(stream);
-  }catch(e){
-    state.exporting = false;
-    el("progWrap").style.display = "none";
-    alert("Seu navegador não conseguiu iniciar o export (MediaRecorder). Tente no Chrome/Edge atualizado.");
-    return;
-  }
-
-  const chunks = [];
-  mr.ondataavailable = (ev)=>{ if(ev.data && ev.data.size>0) chunks.push(ev.data); };
-  const stopped = new Promise(res=>{ mr.onstop = res; });
-  mr.start();
-  if(globalAudioEl){
-    try{
-      await audioCtx.resume();
-      globalAudioEl.currentTime = 0;
-      await globalAudioEl.play();
-    }catch{}
-  }
-
-  const slice = state.scenes.slice(startIdx, endIdx);
-  const totalDur = slice.reduce((a,s)=>a + (s.dur||0), 0);
-  let elapsed = 0;
+  let t = 0;
 
   for(let i=0;i<slice.length;i++){
     const globalIdx = startIdx + i;
@@ -1767,7 +1738,7 @@ async function loadProject(){
 }
 
 /** =========================
- *  8.5 PRO — TEMPLATES (30s + 15s)
+ *  8.5.1 PRO — TEMPLATES (30s + 15s)
  *  ========================= */
 const CTAS = [
   "Acesse agora pelo link na bio.",
