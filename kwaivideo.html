@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Kwai Builder 8.4.3 PRO — N&V Sistemas</title>
+  <title>Kwai Builder 8.5 PRO — N&V Sistemas</title>
   <style>
     :root{
       --bg:#07080b; --card:#0e1117; --card2:#0b0d12;
@@ -111,13 +111,16 @@
     }
     .grid3{display:grid;grid-template-columns:1fr;gap:10px}
     @media(min-width:560px){ .grid3{grid-template-columns:1fr 1fr 1fr} }
-  </style>
+  
+.gold{background:linear-gradient(180deg,#ffc400,#ff9f00);color:#111;font-weight:800;border:2px solid #000;}
+.gold:hover{filter:brightness(1.05);}
+</style>
 </head>
 <body>
 <header>
   <div class="brand">
     <div class="dot"></div>
-    <h1>Kwai Builder <span class="badge">8.4.3 PRO</span> — N&V Sistemas</h1>
+    <h1>Kwai Builder <span class="badge">8.5 PRO</span> — N&V Sistemas</h1>
     <span class="pill">Produção rápida: 2 vídeos/dia (30s + 15s) • Template fixo • Export 1 clique</span>
   </div>
   <p class="sub">
@@ -176,7 +179,7 @@
 
     <hr/>
 
-    <h2>2) Produção Kwai (8.4.3 PRO)</h2>
+    <h2>2) Produção Kwai (8.5 PRO)</h2>
 
     <label>Modelo de roteiro</label>
     <select id="templatePick">
@@ -263,6 +266,14 @@
       <button onclick="export30()">⬇️ Exportar 30s (cenas 1–5)</button>
       <button onclick="export15()">⬇️ Exportar 15s (cenas 6–8)</button>
       <button class="secondary" onclick="exportAll()">⬇️ Exportar tudo (sequência)</button>
+
+      <button class="gold" onclick="exportarMP4Pacote()">🎬 Exportar MP4 (Pacote automático)</button>
+      <p class="hint">
+        Este botão baixa <b>3 arquivos</b>: vídeo .WEBM + <b>converter_MP4.bat</b> + <b>gerar_narracao.ps1</b>.
+        Depois é só dar 2 cliques no .BAT para gerar o <b>MP4 com voz</b> (precisa do ffmpeg.exe na mesma pasta).
+      </p>
+
+
     </div>
 
     <p class="hint">
@@ -513,7 +524,7 @@
  *  STATE / PROJECT MODEL
  *  ========================= */
 const state = {
-  version: "8.4_3_PRO",
+  version: "8.5_PRO",
   name: "",
   size: { w:1080, h:1920 },
   bg: { dataUrl:null, img:null },
@@ -575,7 +586,7 @@ function draw(frame){
     ctx.fillStyle = "#000"; ctx.fillRect(0,0,cv.width,cv.height);
     ctx.fillStyle = "rgba(245,200,75,.25)";
     ctx.font = "900 42px system-ui";
-    ctx.fillText("Kwai Builder 8.4.3 PRO", 60, 120);
+    ctx.fillText("Kwai Builder 8.5 PRO", 60, 120);
     ctx.font = "700 22px system-ui";
     ctx.fillStyle = "rgba(255,255,255,.7)";
     ctx.fillText("Carregue um fundo e gere um Dia Completo.", 60, 160);
@@ -1371,6 +1382,40 @@ async function exportVideoRange(startIdx, endIdx, suffix){
   ];
   let chosenMime = "";
   for(const m of mimeCandidates){
+    try{
+      if(window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(m)){
+        chosenMime = m; break;
+      }
+    }catch{}
+  }
+
+  let mr;
+  try{
+    mr = chosenMime ? new MediaRecorder(stream, { mimeType: chosenMime }) : new MediaRecorder(stream);
+  }catch(e){
+    state.exporting = false;
+    el("progWrap").style.display = "none";
+    alert("Seu navegador não conseguiu iniciar o export (MediaRecorder). Tente Chrome/Edge atualizado.");
+    return;
+  }
+
+  const chunks = [];
+  let stopResolve;
+  const stopped = new Promise(res=>{ stopResolve = res; });
+  mr.ondataavailable = (ev)=>{ if(ev.data && ev.data.size>0) chunks.push(ev.data); };
+  mr.onstop = ()=>{ try{ stopResolve(true); }catch{} };
+  mr.start(250);
+
+  // inicia narração global junto do export (se existir)
+  if(typeof globalAudioEl !== "undefined" && globalAudioEl){
+    try{
+      await audioCtx.resume();
+      globalAudioEl.currentTime = 0;
+      await globalAudioEl.play();
+    }catch{}
+  }
+
+  let t = 0;for(const m of mimeCandidates){
     if(window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(m)){
       chosenMime = m; break;
     }
@@ -1441,7 +1486,9 @@ async function exportVideoRange(startIdx, endIdx, suffix){
   }
 
   try{ mr.requestData(); }catch{}
+  try{ mr.requestData(); }catch{}
   mr.stop();
+  await stopped;
   await stopped;
   if(globalAudioEl){ try{ globalAudioEl.pause(); }catch{} }
   // finaliza audioCtx depois de parar (para não cortar o áudio)
@@ -1449,6 +1496,12 @@ async function exportVideoRange(startIdx, endIdx, suffix){
 
   const blob = new Blob(chunks, { type: (chosenMime || "video/webm") });
   if(!blob || blob.size===0){
+    state.exporting = false;
+    el("progWrap").style.display = "none";
+    alert("Export gerou arquivo vazio (0 bytes). Tente Edge/Chrome atualizado.");
+    return;
+  }
+if(!blob || blob.size===0){
     state.exporting = false;
     el("progWrap").style.display = "none";
     alert("Export gerou arquivo vazio (0 bytes). Tente Edge/Chrome atualizado e feche outras abas pesadas.");
@@ -1714,7 +1767,7 @@ async function loadProject(){
 }
 
 /** =========================
- *  8.4.3 PRO — TEMPLATES (30s + 15s)
+ *  8.5 PRO — TEMPLATES (30s + 15s)
  *  ========================= */
 const CTAS = [
   "Acesse agora pelo link na bio.",
@@ -2424,6 +2477,193 @@ async function preflightExport(startIdx, endIdx){
     if(s.media.type==="image") await ensureImageReady(s.media.el);
     if(s.media.type==="video") await ensureVideoReady(s.media.el);
   }
+}
+
+
+
+/** =========================
+ *  MP4 PACOTE AUTOMÁTICO (LOCAL)
+ *  - Baixa WEBM + BAT + PS1 + TXT (narração)
+ *  - Você só dá 2 cliques no BAT
+ *  Requisitos: ffmpeg.exe na mesma pasta do .BAT
+ * ========================= */
+function safeFileName(s){
+  return String(s||"video").replace(/[^\w\-]+/g,"_").replace(/_+/g,"_").slice(0,80);
+}
+
+function buildNarrationPlain(which){
+  const d = buildNarrationText(which);
+  return d.joined || "";
+}
+
+function getVoicePreference(){
+  // tenta achar seletor existente de voz do preview (speechSynthesis)
+  const v = el("voicePick");
+  const g = el("genderPick");
+  // preferimos Gender (Male/Female). Se não existir, inferimos pelo nome.
+  let gender = (g && g.value) ? g.value : "Female";
+  if(v && v.value){
+    const name = String(v.value).toLowerCase();
+    if(name.includes("male") || name.includes("masc") || name.includes("homem")) gender = "Male";
+    if(name.includes("female") || name.includes("fem") || name.includes("mulher")) gender = "Female";
+  }
+  return gender;
+}
+
+function downloadTextFile(filename, content){
+  const blob = new Blob([content], {type:"text/plain;charset=utf-8"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+function downloadBinFile(filename, blob){
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+function buildPowerShellScript(){
+  // Gera WAV usando System.Speech, escolhendo por gênero
+  return `
+param(
+  [Parameter(Mandatory=$true)][string]$TextFile,
+  [Parameter(Mandatory=$true)][string]$OutWav,
+  [Parameter(Mandatory=$false)][ValidateSet("Male","Female")][string]$Gender="Female",
+  [Parameter(Mandatory=$false)][int]$Rate=0,
+  [Parameter(Mandatory=$false)][int]$Volume=100
+)
+
+Add-Type -AssemblyName System.Speech
+$tts = New-Object System.Speech.Synthesis.SpeechSynthesizer
+
+# tenta escolher voz por gênero
+$voices = $tts.GetInstalledVoices() | ForEach-Object { $_.VoiceInfo }
+$pick = $null
+foreach($v in $voices){
+  if($v.Gender.ToString() -eq $Gender){
+    $pick = $v.Name
+    break
+  }
+}
+if(-not $pick -and $voices.Count -gt 0){ $pick = $voices[0].Name }
+
+if($pick){ $tts.SelectVoice($pick) }
+
+$tts.Rate = $Rate
+$tts.Volume = $Volume
+
+$text = Get-Content -Raw -Encoding UTF8 $TextFile
+$tts.SetOutputToWaveFile($OutWav)
+$tts.Speak($text)
+$tts.SetOutputToDefaultAudioDevice()
+Write-Host "OK: WAV gerado -> $OutWav"
+`;
+}
+
+function buildBatScript(baseName, which, gender){
+  // BAT: gera WAV e converte para MP4 usando ffmpeg.exe (na mesma pasta)
+  // CRF 19 + faststart
+  const webm = `${baseName}_${which}s.webm`;
+  const txt = `${baseName}_${which}s_narracao.txt`;
+  const wav = `${baseName}_${which}s_narracao.wav`;
+  const mp4 = `${baseName}_${which}s.mp4`;
+  return `@echo off
+setlocal
+chcp 65001 >nul
+echo ================================
+echo KWAI BUILDER 8.5 - MP4 COM VOZ
+echo ================================
+echo.
+echo Arquivos esperados nesta pasta:
+echo  - ${webm}
+echo  - ${txt}
+echo  - ffmpeg.exe
+echo.
+if not exist "ffmpeg.exe" (
+  echo ERRO: ffmpeg.exe nao encontrado nesta pasta.
+  echo Baixe o FFmpeg e coloque ffmpeg.exe aqui.
+  pause
+  exit /b 1
+)
+if not exist "${webm}" (
+  echo ERRO: ${webm} nao encontrado.
+  echo Dica: mova o WEBM e este BAT para a mesma pasta.
+  pause
+  exit /b 1
+)
+if not exist "${txt}" (
+  echo ERRO: ${txt} nao encontrado.
+  pause
+  exit /b 1
+)
+
+echo Gerando WAV com voz (${gender})...
+powershell -NoProfile -ExecutionPolicy Bypass -File "gerar_narracao.ps1" -TextFile "${txt}" -OutWav "${wav}" -Gender ${gender} -Rate 0 -Volume 100
+if not exist "${wav}" (
+  echo ERRO: nao consegui gerar WAV.
+  pause
+  exit /b 1
+)
+
+echo Convertendo para MP4...
+ffmpeg.exe -y -i "${webm}" -i "${wav}" -c:v libx264 -preset medium -crf 19 -pix_fmt yuv420p -c:a aac -b:a 128k -movflags +faststart "${mp4}"
+if not exist "${mp4}" (
+  echo ERRO: conversao falhou.
+  pause
+  exit /b 1
+)
+
+echo OK: gerado -> ${mp4}
+echo (Opcional) apagando temporarios...
+del "${wav}" >nul 2>&1
+rem del "${webm}" >nul 2>&1
+
+pause
+endlocal
+`;
+}
+
+async function exportarMP4Pacote(){
+  // Exporta 30s e 15s em pacotes separados (para seu fluxo 2 vídeos/dia)
+  if(!state.scenes || state.scenes.length<8){
+    alert("Gere o Dia Completo antes (30s + 15s).");
+    return;
+  }
+
+  const stamp = new Date().toISOString().slice(0,10);
+  const baseName = safeFileName(`kwai_${stamp}`);
+  const gender = getVoicePreference();
+
+  // 30s
+  await exportPacoteUmVideo(baseName, "30", 0, 5, gender);
+  // 15s
+  await exportPacoteUmVideo(baseName, "15", 5, 8, gender);
+
+  alert("Pacotes baixados. Coloque ffmpeg.exe na mesma pasta e execute o converter_30s_MP4.bat e o converter_15s_MP4.bat.");
+}
+
+async function exportPacoteUmVideo(baseName, which, startIdx, endIdx, gender){
+  // gera texto narração
+  const narration = buildNarrationPlain(which);
+  const txtName = `${baseName}_${which}s_narracao.txt`;
+  downloadTextFile(txtName, narration);
+
+  // gera scripts
+  downloadTextFile("gerar_narracao.ps1", buildPowerShellScript());
+  downloadTextFile(`converter_${which}s_MP4.bat`, buildBatScript(baseName, which, gender));
+
+  // exporta WEBM (usa exportVideoRange atual)
+  // nome do arquivo:
+  // exporta WEBM com nome fixo para o .BAT achar depois
+  state.name = baseName;
+  await exportVideoRange(startIdx, endIdx, `${which}s`);
 }
 
 
