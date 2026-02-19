@@ -7460,3 +7460,63 @@ window.buildPack4JogosPreditivo = buildPack4JogosPreditivo;
 
 </body>
 </html>
+
+<!-- ==================== PATCH: BOTÃO SALVAR SORTE GRANDE (NÃO ALTERA MOTOR) ==================== -->
+<script>
+(function(){
+
+  if(typeof window.sorteGrandeJogos === "undefined"){
+      window.sorteGrandeJogos = null;
+  }
+
+  if(typeof window.renderSorteGrande === "function"){
+
+      const originalRender = window.renderSorteGrande;
+
+      window.renderSorteGrande = function(j1, j2){
+          originalRender(j1, j2);
+
+          window.sorteGrandeJogos = [j1, j2];
+
+          if(document.getElementById("btnSalvarSorteGrande")) return;
+
+          const container = document.querySelector("#viewSorteGrande") || document.body;
+
+          const btn = document.createElement("button");
+          btn.id = "btnSalvarSorteGrande";
+          btn.innerText = "💾 Salvar Jogos";
+          btn.style.marginTop = "15px";
+          btn.style.padding = "10px 18px";
+          btn.style.border = "2px solid #FFD700";
+          btn.style.background = "#111";
+          btn.style.color = "#FFD700";
+          btn.style.borderRadius = "8px";
+          btn.style.cursor = "pointer";
+          btn.style.fontWeight = "bold";
+
+          btn.onclick = function(){
+              if(!window.sorteGrandeJogos){
+                  alert("Gere os jogos primeiro.");
+                  return;
+              }
+
+              if(typeof window.salvarPack === "function"){
+                  window.salvarPack({
+                      tipo: "sorte_grande",
+                      nome: "🍀 Sorte Grande",
+                      jogos: window.sorteGrandeJogos
+                  });
+                  alert("Sorte Grande salvo com sucesso!");
+              } else {
+                  alert("Função salvarPack não encontrada.");
+              }
+          };
+
+          container.appendChild(btn);
+      };
+  }
+
+})();
+</script>
+<!-- ==================== FIM PATCH ==================== -->
+
