@@ -1415,8 +1415,9 @@ async function exportVideoRange(startIdx, endIdx, suffix){
     }catch{}
   }
   const sliceScenes = state.scenes.slice(startIdx, endIdx);
+  const totalDur = Math.max(0.001, sliceScenes.reduce((a,s)=>a + (s.dur||0), 0));
+  let elapsed = 0;
 
-  let t = 0;
 
   for(let i=0;i<sliceScenes.length;i++){
     const globalIdx = startIdx + i;
