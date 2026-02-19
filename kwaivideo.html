@@ -1414,16 +1414,17 @@ async function exportVideoRange(startIdx, endIdx, suffix){
       await globalAudioEl.play();
     }catch{}
   }
+  const sliceScenes = state.scenes.slice(startIdx, endIdx);
 
   let t = 0;
 
-  for(let i=0;i<slice.length;i++){
+  for(let i=0;i<sliceScenes.length;i++){
     const globalIdx = startIdx + i;
     state.active = globalIdx;
     renderSceneList();
     renderSceneEditor();
 
-    const sc = state.scenes[globalIdx];
+    const sc = sliceScenes[i];
 
     let srcNode = null;
     let audioEl = null;
