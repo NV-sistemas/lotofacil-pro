@@ -7243,16 +7243,27 @@ window.buildPack4JogosPreditivo = buildPack4JogosPreditivo;
   }
 
   // Público (chamado pelo botão)
-  window.gerarSorteGrande = function gerarSorteGrande(){
+  window.gerarSorteGrande = async function gerarSorteGrande(){
     try{
       if(!(typeof access!=='undefined' && access && access.isAdmin)){
         alert("🔒 Apenas ADM.");
         return;
       }
 
-      const got = _sgGetLast10FromApp();
+      // ✅ FIXO: NÃO depende do seletor de janela.
+      // Garante pelo menos 10 concursos carregados (carrega 20 automaticamente se necessário).
+      let got = _sgGetLast10FromApp();
       if(!got.ok){
-        alert("⚠️ Preciso ter pelo menos 10 concursos carregados. Na tela inicial, carregue a base (selecione a janela) e tente novamente.");
+        if(typeof prepararContextoBase === "function"){
+          try{
+            await prepararContextoBase(20);
+          }catch(e){}
+          got = _sgGetLast10FromApp();
+        }
+      }
+
+      if(!got.ok){
+        alert("⚠️ Não consegui obter 10 concursos da base agora. Verifique a conexão e tente novamente.");
         return;
       }
 
