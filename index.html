@@ -1113,6 +1113,12 @@ const functions = firebase.app().functions("us-central1");
           </p>
         </div>
 
+
+<div class="actionCard" id="btnHomeSorteGrande" role="button" tabindex="0" style="display:none">
+          <span class="badge premium">ADM</span>
+          <p class="actionTitle">🍀 SORTE GRANDE</p>
+          <p class="actionDesc">Gera 2 jogos (15 dezenas) replicando o padrão treinado do concurso 3615.</p>
+        </div>
 <div class="actionCard eliteCard" id="btnHomeElite" role="button" tabindex="0">
           <span class="eliteBadge">COMBO</span>
           <p class="actionTitle">💎 JOGO ELITE</p>
@@ -1159,7 +1165,32 @@ const functions = firebase.app().functions("us-central1");
   </div>
 
   
-  <!-- TELA: CRIAR SEUS JOGOS (PREMIUM) -->
+  
+  <!-- TELA: SORTE GRANDE (ADM) -->
+  <div class="view" id="viewSorteGrande">
+    <div class="topNav">
+      <div class="left">
+        <button class="btn btnGhost" type="button" onclick="goView('viewHome')">⬅ Voltar</button>
+      </div>
+      <div class="right">
+        <button class="btn btnPrimary" type="button" onclick="gerarSorteGrande()">🍀 Gerar 2 jogos</button>
+      </div>
+    </div>
+
+    <div class="card" id="sorteGrandeArea">
+      <div class="box">
+        <b>🍀 SORTE GRANDE (ADM)</b>
+        <div class="mini" style="margin-top:8px">
+          Motor fixo treinado no <b>concurso 3615</b> usando os <b>10 concursos anteriores</b>.
+          Ele gera <b>2 jogos diferentes</b> (15 dezenas cada), por encaixe de comportamento.
+        </div>
+      </div>
+      <div class="hr"></div>
+      <div class="footerNote">Clique em “Gerar 2 jogos”.</div>
+    </div>
+  </div>
+
+<!-- TELA: CRIAR SEUS JOGOS (PREMIUM) -->
   <div class="view" id="viewCreateGames">
     <div class="topNav">
       <div class="left">
@@ -1874,9 +1905,18 @@ function aplicarAcessos(){
   const btnElite    = document.getElementById("btnHomeElite");
   const btnCreate  = document.getElementById("btnHomeCreate");
 
+const btnSorteGrande = document.getElementById("btnHomeSorteGrande");
+
 setCardEnabled(btnAnalise, access.premium, acaoAnalise, "🔒 Gerar análise exige Premium.");
 
   setCardEnabled(btnCreate, access.premium, ()=>openCreateMode("principal"), "🔒 Criar seus jogos exige Premium.");
+
+  // 🍀 SORTE GRANDE (ADM)
+  if(btnSorteGrande) btnSorteGrande.style.display = access.isAdmin ? "block" : "none";
+  setCardEnabled(btnSorteGrande, access.isAdmin, ()=>{
+    goView("viewSorteGrande");
+    gerarSorteGrande();
+  }, "🔒 Apenas ADM.");
 
   setCardEnabled(btnInvertida, access.premium, ()=>{
     goView("viewInvertida"); gerarInvertida();
@@ -7036,6 +7076,287 @@ function renderJogosSalvosAoAbrir(){
 
 // >>> Instala o motor NOVO (Padrões Fixos) como gerador oficial
 window.buildPack4JogosPreditivo = buildPack4JogosPreditivo;
+
+
+/* =========================
+   🍀 SORTE GRANDE (ADM)
+   - Treino fixo: concurso 3615 com janela anterior de 10 concursos (3605–3614)
+   - Gera 2 jogos (15 dezenas) por encaixe de comportamento (freq/gap/streak/bloco)
+   ========================= */
+
+(function(){
+
+  // Treino (alvo) - fixo
+  const SG_TREINO_ALVO = [2,3,6,7,8,9,10,11,14,15,17,18,21,23,25]; // 3615
+  const SG_TREINO_ANT10 = [
+    // 3614 .. 3605
+    [2,4,5,6,9,10,11,12,14,15,16,17,20,23,25],
+    [1,3,4,7,9,10,11,12,15,16,18,20,21,22,23],
+    [4,6,8,9,11,14,15,16,17,18,19,20,21,22,25],
+    [1,2,3,4,5,6,10,11,12,14,15,17,18,19,25],
+    [1,3,5,7,8,10,13,14,17,20,21,22,23,24,25],
+    [2,5,6,8,9,10,11,12,13,17,19,20,22,24,25],
+    [2,5,6,8,9,11,14,16,17,18,19,20,22,23,25],
+    [1,2,4,5,6,8,9,13,14,15,16,18,19,20,23],
+    [2,3,6,7,9,11,12,14,15,17,19,20,21,23,24],
+    [1,3,4,7,10,12,13,14,19,20,21,22,23,24,25]
+  ];
+
+  const SG_IN_LETTERS  = "ABCDEFGHIJKLMNO".split(""); // 15
+  const SG_OUT_LETTERS = "ABCDEFGHIJ".split("");      // 10
+
+  function _sgNormDraw(arr){
+    return (arr||[]).map(Number).filter(n=>n>=1&&n<=25).sort((a,b)=>a-b);
+  }
+
+  // Features no contexto de N concursos (mais recente no índice 0)
+  function _sgBuildFeatures(lastNDraws){
+    const draws = (lastNDraws||[]).map(_sgNormDraw).filter(d=>d.length===15);
+    const N = draws.length;
+    const presentAt = Array.from({length:26}, ()=>[]);
+    for(let i=0;i<N;i++){
+      const d = draws[i];
+      for(const n of d) presentAt[n].push(i);
+    }
+
+    function gap(n){
+      const occ = presentAt[n];
+      if(!occ.length) return 999;
+      return occ[0]; // 0 = saiu no último concurso da janela
+    }
+
+    function freq(n){ return presentAt[n].length; }
+
+    function streak(n){
+      // consecutivos desde o último concurso (índice 0) dentro da janela
+      let s=0;
+      for(let i=0;i<N;i++){
+        if(draws[i].includes(n)) s++;
+        else break;
+      }
+      return s;
+    }
+
+    function bloco(n){
+      if(n<=5) return 1;
+      if(n<=10) return 2;
+      if(n<=15) return 3;
+      if(n<=20) return 4;
+      return 5;
+    }
+
+    const out = {};
+    for(let n=1;n<=25;n++){
+      out[n] = { n, freq: freq(n), gap: gap(n), streak: streak(n), bloco: bloco(n) };
+    }
+    return out;
+  }
+
+  // distância simples (determinística)
+  function _sgDist(a, b){
+    // gap pesa mais (comportamento de sumir/reaparecer), depois freq, depois streak, depois bloco
+    return (Math.abs((a.gap||0)-(b.gap||0))*3) +
+           (Math.abs((a.freq||0)-(b.freq||0))*2) +
+           (Math.abs((a.streak||0)-(b.streak||0))*1.5) +
+           (Math.abs((a.bloco||0)-(b.bloco||0))*0.6);
+  }
+
+  function _sgGreedyAssign(slotProfiles, features, pool){
+    const used = new Set();
+    const result = [];
+
+    for(const sp of slotProfiles){
+      let best = null;
+      let bestScore = Infinity;
+
+      for(const n of pool){
+        if(used.has(n)) continue;
+        const f = features[n];
+        if(!f) continue;
+        const sc = _sgDist(f, sp);
+        if(sc < bestScore || (sc === bestScore && n < best)){
+          best = n;
+          bestScore = sc;
+        }
+      }
+
+      if(best == null){
+        // fallback determinístico: menor disponível
+        for(const n of pool){
+          if(!used.has(n)){ best = n; break; }
+        }
+      }
+
+      used.add(best);
+      result.push(best);
+    }
+
+    result.sort((a,b)=>a-b);
+    return result;
+  }
+
+  function _sgUniqueKey(nums){ return (nums||[]).slice().sort((a,b)=>a-b).join("-"); }
+
+  // monta os "perfis de slot" a partir do treino fixo
+  function _sgBuildTrainingProfiles(){
+    // janela pré-3615 tem 10 concursos (mais recente primeiro)
+    const treinoFeat = _sgBuildFeatures(SG_TREINO_ANT10);
+
+    const inSlots = SG_TREINO_ALVO.slice().sort((a,b)=>a-b).map(n=>treinoFeat[n]);
+    const outNums = [];
+    for(let n=1;n<=25;n++) if(!SG_TREINO_ALVO.includes(n)) outNums.push(n);
+    const outSlots = outNums.slice().sort((a,b)=>a-b).map(n=>treinoFeat[n]);
+
+    // para garantir "padrões fixos" com letras:
+    // A–O = IN (15), A–J = OUT (10), ordem crescente fixa
+    const mapIn = {};
+    SG_IN_LETTERS.forEach((L,i)=>{ mapIn[L] = { letter:L, prof: inSlots[i] }; });
+
+    const mapOut = {};
+    SG_OUT_LETTERS.forEach((L,i)=>{ mapOut[L] = { letter:L, prof: outSlots[i] }; });
+
+    return { mapIn, mapOut, inSlots, outSlots };
+  }
+
+  const SG_TREINO = _sgBuildTrainingProfiles();
+
+  function _sgGetLast10FromApp(){
+    try{
+      if(window.lastPayload && Array.isArray(window.lastPayload.concursos) && window.lastPayload.concursos.length){
+        // normaliza e ordena desc por concurso (o app já costuma vir desc)
+        const arr = window.lastPayload.concursos.slice().map(c=>{
+          const num = Number(c?.concurso ?? c?.numero ?? c?.numeroDoConcurso);
+          const dz  = (typeof getDezenas === "function") ? getDezenas(c) : (c?.dezenas||c?.numeros||[]);
+          return { num, dezenas:_sgNormDraw(dz) };
+        }).filter(x=>Number.isFinite(x.num) && x.dezenas.length===15);
+
+        arr.sort((a,b)=>b.num-a.num);
+        const last10 = arr.slice(0,10).map(x=>x.dezenas);
+        return { ok: last10.length===10, draws:last10, nums: arr.slice(0,10).map(x=>x.num) };
+      }
+    }catch(e){}
+    return { ok:false, draws:[], nums:[] };
+  }
+
+  function _renderBalls(nums){
+    return `<div class="numbers">${(nums||[]).map(n=>`<div class="ball">${format2(n)}</div>`).join("")}</div>`;
+  }
+
+  // Público (chamado pelo botão)
+  window.gerarSorteGrande = function gerarSorteGrande(){
+    try{
+      if(!(typeof access!=='undefined' && access && access.isAdmin)){
+        alert("🔒 Apenas ADM.");
+        return;
+      }
+
+      const got = _sgGetLast10FromApp();
+      if(!got.ok){
+        alert("⚠️ Preciso ter pelo menos 10 concursos carregados. Na tela inicial, carregue a base (selecione a janela) e tente novamente.");
+        return;
+      }
+
+      const draws10 = got.draws;
+      const feat = _sgBuildFeatures(draws10);
+
+      const poolAll = [];
+      for(let n=1;n<=25;n++) poolAll.push(n);
+
+      // JOGO 1: encaixe pelos slots IN (15)
+      const slotsIn = SG_IN_LETTERS.map(L=> SG_TREINO.mapIn[L].prof);
+      const jogo1 = _sgGreedyAssign(slotsIn, feat, poolAll);
+
+      // JOGO 2: encaixe pelos slots OUT (10) + completar 5 (foco OUT)
+      const poolRemain = poolAll.slice();
+      // slots OUT (10)
+      const slotsOut10 = SG_OUT_LETTERS.map(L=> SG_TREINO.mapOut[L].prof);
+      const out10 = _sgGreedyAssign(slotsOut10, feat, poolRemain);
+
+      // completa 5: pega números restantes que mais "parecem OUT" (distância menor para média OUT)
+      const used2 = new Set(out10);
+      const avgOut = (function(){
+        const s = { gap:0,freq:0,streak:0,bloco:0 };
+        const Ls = slotsOut10.filter(Boolean);
+        const k = Math.max(1, Ls.length);
+        for(const p of Ls){
+          s.gap += (p.gap||0); s.freq += (p.freq||0); s.streak += (p.streak||0); s.bloco += (p.bloco||0);
+        }
+        return { gap:s.gap/k, freq:s.freq/k, streak:s.streak/k, bloco:s.bloco/k };
+      })();
+
+      const cand = [];
+      for(let n=1;n<=25;n++){
+        if(used2.has(n)) continue;
+        cand.push({ n, sc: _sgDist(feat[n], avgOut) });
+      }
+      cand.sort((a,b)=> (a.sc-b.sc) || (a.n-b.n));
+      const extra5 = cand.slice(0,5).map(x=>x.n);
+
+      let jogo2 = out10.concat(extra5).slice(0,15).sort((a,b)=>a-b);
+
+      // anti-igualdade (determinístico)
+      if(_sgUniqueKey(jogo1) === _sgUniqueKey(jogo2)){
+        // troca 1 número pelo menor fora do jogo2 e fora do jogo1
+        const s1 = new Set(jogo1);
+        const s2 = new Set(jogo2);
+        let add = null;
+        for(let n=1;n<=25;n++){
+          if(!s2.has(n) && !s1.has(n)){ add=n; break; }
+        }
+        if(add!=null){
+          // remove o maior para manter determinístico
+          jogo2.pop();
+          jogo2.push(add);
+          jogo2 = jogo2.sort((a,b)=>a-b);
+        }
+      }
+
+      const area = document.getElementById("sorteGrandeArea");
+      if(!area) return;
+
+      const janelaInfo = (got.nums && got.nums.length) ? `Últimos 10 concursos carregados: <b>${got.nums.join(", ")}</b>` : `Últimos 10 concursos carregados.`;
+
+      area.innerHTML = `
+        <div class="box">
+          <b>🍀 SORTE GRANDE (ADM)</b>
+          <div class="mini" style="margin-top:8px">
+            Treino fixo: <b>3615</b> com janela anterior de <b>10 concursos</b>.
+            ${janelaInfo}
+          </div>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="row" style="margin-top:10px">
+          <div class="col">
+            <div class="box">
+              <b>JOGO 1 (Padrão IN • 15 dezenas)</b>
+              <div class="mini" style="margin-top:6px">Encaixe das letras A–O (IN) no comportamento atual.</div>
+              ${_renderBalls(jogo1)}
+            </div>
+          </div>
+
+          <div class="col">
+            <div class="box">
+              <b>JOGO 2 (Padrão OUT • 15 dezenas)</b>
+              <div class="mini" style="margin-top:6px">Encaixe das letras A–J (OUT) + 5 complementares (foco OUT).</div>
+              ${_renderBalls(jogo2)}
+            </div>
+          </div>
+        </div>
+
+        <div class="mini" style="margin-top:10px">
+          Obs: é um modelo de <b>encaixe comportamental</b> (freq/gap/streak/blocos) — não garante premiação.
+        </div>
+      `;
+
+    }catch(err){
+      console.error(err);
+      alert("Erro no SORTE GRANDE: " + (err?.message||err));
+    }
+  };
+
+})();
 
 })();
 </script>
