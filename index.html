@@ -7262,12 +7262,10 @@ window.buildPack4JogosPreditivo = buildPack4JogosPreditivo;
         }
       }
 
-      if(!got.ok){
-        alert("⚠️ Não consegui obter 10 concursos da base agora. Verifique a conexão e tente novamente.");
-        return;
-      }
-
-      const draws10 = got.draws;
+      // Se não conseguir obter 10 concursos do app (offline / sem base),
+      // usa a janela fixa do treino (3614..3605) como fallback para NÃO travar o sistema.
+      const usingFallback = !got.ok;
+      const draws10 = usingFallback ? SG_TREINO_ANT10.slice(0,10) : got.draws;
       const feat = _sgBuildFeatures(draws10);
 
       const poolAll = [];
@@ -7325,7 +7323,7 @@ window.buildPack4JogosPreditivo = buildPack4JogosPreditivo;
       const area = document.getElementById("sorteGrandeArea");
       if(!area) return;
 
-      const janelaInfo = (got.nums && got.nums.length) ? `Últimos 10 concursos carregados: <b>${got.nums.join(", ")}</b>` : `Últimos 10 concursos carregados.`;
+      const janelaInfo = (usingFallback) ? `Modo offline: usando janela fixa do treino (<b>3614–3605</b>).` : ((got.nums && got.nums.length) ? `Últimos 10 concursos carregados: <b>${got.nums.join(", ")}</b>` : `Últimos 10 concursos carregados.`);
 
       area.innerHTML = `
         <div class="box">
