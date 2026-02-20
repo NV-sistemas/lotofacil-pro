@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AgendeSeuHorario — Agendamento Online para Campos Society</title>
+  <meta name="description" content="Agendamento online para campos society com sinal de 50%, protocolo e painel do dono. N&V Gestão Digital." />
+  <style>
+    :root{
+      --text:#eef5ff;
+      --muted:rgba(238,245,255,.72);
+      --muted2:rgba(238,245,255,.62);
+      --line:rgba(255,255,255,.12);
+      --bg0:#020503;
+      --bg1:#040806;
+      --bg2:#050b08;
+      --card:rgba(255,255,255,.03);
+      --card2:rgba(0,0,0,.26);
+      --green:#22c55e;
+      --green2:#34d399;
+      --radius:18px;
+      --max:1120px;
+      --shadow: 0 28px 120px rgba(0,0,0,.62);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Helvetica Neue", Helvetica;
+      color:var(--text);
+      background:
+        radial-gradient(900px 420px at 26% 0%, rgba(34,197,94,.16), transparent 60%),
+        radial-gradient(820px 420px at 80% 10%, rgba(34,197,94,.10), transparent 55%),
+        linear-gradient(180deg, var(--bg1) 0%, var(--bg2) 100%);
+    }
+    a{color:inherit;text-decoration:none}
+    .wrap{max-width:var(--max); margin:0 auto; padding:18px 16px 70px}
+    .sr{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+
+    /* Header */
+    .top{
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      padding:14px 14px;
+      border:1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(6,12,10,.65);
+      backdrop-filter: blur(10px);
+      position: sticky; top:12px; z-index:20;
+    }
+    .brand{display:flex; align-items:center; gap:10px; font-weight:950; letter-spacing:.2px}
+    .dot{width:10px;height:10px;border-radius:999px;background:var(--green);display:inline-block}
+    .pill{
+      font-size:12px; font-weight:900; color:rgba(238,245,255,.78);
+      border:1px solid var(--line);
+      padding:6px 10px; border-radius:999px;
+      background: rgba(255,255,255,.03);
+    }
+    .nav{display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:flex-end}
+    .nav a{
+      color:rgba(238,245,255,.80);
+      font-weight:850; font-size:14px;
+      padding:8px 10px; border-radius:14px;
+      opacity:.86;
+    }
+    .nav a:hover{opacity:1; background: rgba(255,255,255,.04)}
+
+    .btn{
+      display:inline-flex; align-items:center; justify-content:center; gap:10px;
+      padding:12px 14px; border-radius: 14px; border:1px solid var(--line);
+      background: rgba(255,255,255,.04); font-weight:950;
+      cursor:pointer;
+    }
+    .btn:hover{filter:brightness(1.08)}
+    .btn.primary{border:0; color:#05120b; background: linear-gradient(135deg, var(--green2), var(--green))}
+    .btn.ghost{background:transparent}
+    .btn.small{padding:10px 12px; font-size:13px; border-radius:14px}
+
+    /* Hero */
+    .hero{
+      margin-top:14px;
+      border:1px solid var(--line);
+      border-radius: 28px;
+      overflow:hidden;
+      position:relative;
+      box-shadow: var(--shadow);
+      background:
+        radial-gradient(900px 480px at 20% 10%, rgba(34,197,94,.18), transparent 55%),
+        radial-gradient(820px 520px at 85% 0%, rgba(34,197,94,.10), transparent 55%),
+        linear-gradient(180deg, rgba(0,0,0,.20), rgba(0,0,0,.68));
+    }
+    /* Campo (linhas) */
+    .hero::after{
+      content:"";
+      position:absolute; inset:0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='700' viewBox='0 0 1200 700'%3E%3Cg fill='none' stroke='%23FFFFFF' stroke-opacity='.16' stroke-width='4'%3E%3Crect x='60' y='60' width='1080' height='580' rx='18'/%3E%3Cline x1='600' y1='60' x2='600' y2='640'/%3E%3Ccircle cx='600' cy='350' r='120'/%3E%3Ccircle cx='600' cy='350' r='8' fill='%23FFFFFF' fill-opacity='.16' stroke='none'/%3E%3Crect x='60' y='210' width='140' height='280' rx='10'/%3E%3Crect x='1000' y='210' width='140' height='280' rx='10'/%3E%3Crect x='60' y='265' width='60' height='170' rx='10'/%3E%3Crect x='1080' y='265' width='60' height='170' rx='10'/%3E%3C/g%3E%3C/svg%3E");
+      background-size: cover;
+      background-position: center;
+      opacity:.75;
+      mix-blend-mode: screen;
+      pointer-events:none;
+    }
+    .hero::before{
+      content:"";
+      position:absolute; inset:0;
+      background: linear-gradient(90deg, rgba(0,0,0,.78) 0%, rgba(0,0,0,.46) 55%, rgba(0,0,0,.74) 100%);
+      pointer-events:none;
+    }
+    .heroIn{
+      position:relative;
+      padding:48px 22px;
+      display:grid;
+      grid-template-columns: 1.25fr .75fr;
+      gap:18px;
+      align-items:center;
+    }
+    @media (max-width: 920px){ .heroIn{grid-template-columns:1fr; padding:34px 18px} }
+
+    h1{margin:8px 0 10px;font-size: clamp(30px, 4.2vw, 56px); line-height:1.02; letter-spacing:-.6px}
+    .sub{margin:0 0 18px;color: rgba(238,245,255,.84);font-size:16px;line-height:1.75;max-width: 62ch}
+    .ctaRow{display:flex; gap:12px; flex-wrap:wrap; margin:18px 0 0}
+    .note{margin-top:10px; color: rgba(238,245,255,.64); font-size:12px}
+
+    .card{
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--card);
+      padding:18px;
+    }
+    .heroCard{background: rgba(0,0,0,.30)}
+    .heroCard h3{margin:0 0 12px; font-size:16px}
+    ul{margin:0; padding-left:18px; color:rgba(238,245,255,.72); line-height:1.85}
+    .logoBox{
+      display:flex; align-items:center; justify-content:flex-end;
+      margin-bottom:10px;
+    }
+    .logoFake{
+      width:240px; max-width:100%;
+      border-radius: 18px;
+      border:1px solid rgba(255,255,255,.10);
+      background: radial-gradient(520px 220px at 50% 0%, rgba(34,197,94,.28), transparent 60%), rgba(0,0,0,.40);
+      padding:18px 16px;
+      box-shadow: 0 18px 70px rgba(0,0,0,.55);
+      text-align:center;
+    }
+    .logoFake b{display:block; font-weight:1000; letter-spacing:.6px; font-size:22px}
+    .logoFake small{display:block; margin-top:6px; color:rgba(238,245,255,.70); font-weight:850}
+    .logoMark{
+      display:inline-block;
+      width:56px; height:56px; border-radius:16px;
+      border:2px solid rgba(34,197,94,.85);
+      position:relative;
+      margin:0 auto 10px;
+      transform: rotate(0deg);
+    }
+    .logoMark::before{
+      content:"";
+      position:absolute; inset:12px;
+      border:2px solid rgba(34,197,94,.85);
+      border-top:0; border-right:0;
+      transform: rotate(35deg);
+    }
+
+    /* Sections */
+    .section{ padding:28px 0 0; }
+    .section .card{background: rgba(255,255,255,.025)}
+    h2{margin:0 0 10px; font-size:22px}
+    .muted{color:var(--muted); line-height:1.7}
+    .grid2{display:grid; grid-template-columns:1fr 1fr; gap:14px}
+    @media (max-width: 920px){ .grid2{grid-template-columns:1fr} }
+
+    /* Contact bar */
+    .contactBar{
+      display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap;
+      padding:18px;
+      border:1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(0,0,0,.24);
+    }
+    .contactEmail{
+      font-weight:950;
+      letter-spacing:.2px;
+      color: rgba(238,245,255,.88);
+    }
+    footer{
+      margin-top:18px; padding-top:16px; border-top:1px solid var(--line);
+      color:rgba(238,245,255,.62); font-size:13px;
+      display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap
+    }
+  
+    /* Admin */
+    .admHidden{display:none !important}
+    .admShell{
+      margin-top:18px;
+      border:1px solid var(--line);
+      border-radius: 24px;
+      overflow:hidden;
+      background: rgba(0,0,0,.28);
+      box-shadow: var(--shadow);
+    }
+    .admTop{
+      display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
+      padding:14px 16px;
+      border-bottom:1px solid var(--line);
+      background: rgba(6,12,10,.55);
+      backdrop-filter: blur(10px);
+    }
+    .admTop b{font-weight:1000}
+    .admTabs{display:flex; gap:8px; flex-wrap:wrap}
+    .chip{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:10px 12px;
+      border-radius: 999px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.03);
+      font-weight:950;
+      font-size:13px;
+      cursor:pointer;
+      opacity:.88;
+      user-select:none;
+    }
+    .chip:hover{opacity:1; filter:brightness(1.08)}
+    .chip.active{
+      border:0;
+      color:#05120b;
+      background: linear-gradient(135deg, var(--green2), var(--green));
+      opacity:1;
+    }
+    .admBody{padding:16px}
+    .row{display:grid; grid-template-columns: 1fr 1fr; gap:14px}
+    @media (max-width: 920px){ .row{grid-template-columns:1fr} }
+    .field{display:flex; flex-direction:column; gap:6px; margin-bottom:12px}
+    label{font-size:12px; color:rgba(238,245,255,.72); font-weight:900; letter-spacing:.2px}
+    input, select, textarea{
+      width:100%;
+      padding:12px 12px;
+      border-radius: 14px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.30);
+      color:var(--text);
+      outline:none;
+      font-weight:850;
+    }
+    textarea{min-height:92px; resize:vertical; line-height:1.5}
+    input:focus, select:focus, textarea:focus{border-color: rgba(34,197,94,.55); box-shadow: 0 0 0 3px rgba(34,197,94,.12)}
+    .kpiGrid{display:grid; grid-template-columns: repeat(4, 1fr); gap:12px}
+    @media (max-width: 920px){ .kpiGrid{grid-template-columns:1fr 1fr} }
+    .kpi{
+      border:1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255,255,255,.02);
+      padding:14px;
+    }
+    .kpi small{display:block;color:rgba(238,245,255,.62);font-weight:900}
+    .kpi b{display:block;font-size:22px;margin-top:6px}
+    .table{
+      width:100%;
+      border-collapse: collapse;
+      overflow:hidden;
+      border-radius: 16px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.20);
+    }
+    .table th,.table td{
+      padding:10px 10px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      text-align:left;
+      font-size:13px;
+      vertical-align:top;
+    }
+    .table th{color:rgba(238,245,255,.78);font-weight:1000}
+    .table td{color:rgba(238,245,255,.72);font-weight:850}
+    .badge{
+      display:inline-flex; align-items:center; gap:6px;
+      padding:6px 10px;
+      border-radius: 999px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.03);
+      font-weight:1000;
+      font-size:12px;
+      white-space:nowrap;
+    }
+    .badge.ok{border-color: rgba(34,197,94,.35); background: rgba(34,197,94,.10)}
+    .badge.warn{border-color: rgba(245,158,11,.35); background: rgba(245,158,11,.10)}
+    .badge.block{border-color: rgba(239,68,68,.35); background: rgba(239,68,68,.10)}
+    .actions{display:flex; gap:8px; flex-wrap:wrap}
+    .hint{font-size:12px; color:rgba(238,245,255,.62); line-height:1.55}
+    .hr{height:1px; background: rgba(255,255,255,.10); margin:14px 0}
+    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
+    .qrcodeBox{
+      border:1px solid rgba(255,255,255,.10);
+      border-radius: 18px;
+      padding:14px;
+      background: rgba(0,0,0,.22);
+      display:flex; gap:14px; flex-wrap:wrap; align-items:flex-start;
+    }
+    .qrcodeCanvas{
+      width:164px; min-height:164px;
+      border-radius: 16px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.03);
+      display:flex; align-items:center; justify-content:center;
+    }
+    .toast{
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 18px;
+      background: rgba(0,0,0,.78);
+      border:1px solid rgba(255,255,255,.14);
+      color: rgba(238,245,255,.90);
+      padding: 12px 14px;
+      border-radius: 14px;
+      font-weight: 950;
+      font-size: 13px;
+      z-index: 9999;
+      display:none;
+      backdrop-filter: blur(10px);
+    }
+
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header class="top">
+      <div class="brand" aria-label="Marca">
+        <span class="dot" aria-hidden="true"></span>
+        <span>AgendeSeuHorario</span>
+        <span class="pill">para Campos Society</span>
+      </div>
+
+      <nav class="nav" aria-label="Navegação">
+        <a href="#quem-somos">Quem somos</a>
+        <a href="#vantagens">Vantagens</a>
+        <a href="adm.html" id="navAdm" class="btn ghost small" style="padding:10px 12px;border-radius:14px">ADM</a>
+        <a class="btn primary small" href="#contato">Contato</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero" aria-label="Capa">
+        <div class="heroIn">
+          <div>
+            <h1>Agendamento online<br>que organiza a rotina do<br>seu campo.</h1>
+
+            <p class="sub">
+              O cliente reserva sozinho, paga o <b>sinal</b> para confirmar e recebe <b>protocolo</b>.
+              O dono acompanha agenda, mensalistas e receitas em um painel simples — reduzindo tempo no WhatsApp e evitando furos.
+            </p>
+
+            <div class="ctaRow">
+              <a class="btn primary" href="#vantagens">Ver o que entrega</a>
+              <a class="btn ghost" href="#contato">Falar com a N&V</a>
+            </div>
+
+            <div class="note">
+              *Sem preços no site: apresentação e parceria são feitas pessoalmente.
+            </div>
+          </div>
+
+          <div class="card heroCard">
+            <div class="logoBox">
+              <div class="logoFake" aria-label="Logo N&V (placeholder)">
+                <span class="logoMark" aria-hidden="true"></span>
+                <b>N&V</b>
+                <small>GESTÃO DIGITAL<br><span style="opacity:.9">— AgendeSeuHorario —</span></small>
+              </div>
+            </div>
+
+            <h3>Como funciona (resumo)</h3>
+            <ul>
+              <li>Cliente escolhe <b>data</b> / <b>horário</b> / <b>período</b> (60, 90, 120+)</li>
+              <li>Cadastro rápido e aceite do termo</li>
+              <li>Pagamento de <b>50% de sinal</b> para confirmar</li>
+              <li>Protocolo automático + lembrete 1h antes</li>
+              <li>Painel do dono com agenda e controles</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="quem-somos" class="section" aria-label="Quem somos">
+        <div class="card">
+          <h2>Quem somos</h2>
+          <p class="muted" style="margin:0">
+            A <b>N&V Gestão Digital</b> é uma empresa conceituada em <b>automação de agendamentos online para campos society</b>,
+            desenvolvendo sistemas que transformam atendimento em <b>processo</b>.<br><br>
+            Com o <b>AgendeSeuHorario</b>, o dono do campo ganha <b>controle</b>, o cliente ganha <b>praticidade</b>,
+            e a operação funciona com mais <b>organização</b>, <b>rapidez</b> e <b>segurança</b>.
+          </p>
+        </div>
+      </section>
+
+      <section id="vantagens" class="section" aria-label="Vantagens">
+        <div class="card">
+          <h2>O que o sistema entrega</h2>
+          <p class="muted" style="margin:0 0 14px">
+            Uma solução completa para modernizar o atendimento, automatizar reservas e dar previsibilidade ao seu campo society.
+          </p>
+
+          <div class="grid2">
+            <div class="card" style="background:rgba(0,0,0,.20)">
+              <h3 style="margin:0 0 10px">Para o dono</h3>
+              <ul>
+                <li>Agenda digital organizada</li>
+                <li>Controle de horários ocupados e vagos</li>
+                <li>Cadastro de mensalistas</li>
+                <li>Controle de receitas</li>
+                <li>Confirmação automática</li>
+                <li>Redução de desistências</li>
+              </ul>
+            </div>
+
+            <div class="card" style="background:rgba(0,0,0,.20)">
+              <h3 style="margin:0 0 10px">Para o cliente</h3>
+              <ul>
+                <li>Reserva online</li>
+                <li>Escolha de período (60 / 90 / 120 minutos)</li>
+                <li>Pagamento de 50% de sinal</li>
+                <li>Protocolo de confirmação</li>
+                <li>Lembrete automático 1h antes</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="contato" class="section" aria-label="Contato">
+        <div class="contactBar">
+          <div>
+            <div style="font-weight:1000; font-size:18px; margin-bottom:4px">Contato</div>
+            <div class="muted">Demonstração e parceria: apresentação presencial.</div>
+          </div>
+
+          <div class="contactEmail">contato@agendecampo.com.br</div>
+
+          <a class="btn primary" href="mailto:contato@agendecampo.com.br?subject=Parceria%20AgendeSeuHorario">Enviar e-mail</a>
+        </div>
+
+        <footer>
+          <div>© 2026 N&V Gestão Digital</div>
+          <div class="muted">AgendeCampo.com.br</div>
+        </footer>
+      
+      
+    </main>
+  </div>
+</body>
+</html>
