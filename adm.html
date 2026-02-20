@@ -1271,6 +1271,7 @@
 
 <div class="toast" id="toast"></div>
 <script>
+window.__AGC_SOC_NAME = ${JSON.stringify(nome)};
 (function(){
   const LS_AUTH = "agc_owner_auth_v1";
   const LS_DATA = "agc_owner_data_v1";
@@ -1404,22 +1405,12 @@
     saveAgendaFromInputs();
     // A página index.html do cliente vai carregar este JSON e exibir horários com base nele (fase 1).
     const agendaJson = JSON.stringify(loadData());
-    const injected = `
-<script>
-window.__AGC_OWNER_DATA = ${agendaJson};
-<\/script>`;
+    const injected = "\n<script>\nwindow.__AGC_OWNER_DATA = " + agendaJson + ";\n<\\/script>";
 
     // O dono substitui o index.html no servidor. (Para manter simples: injetamos o JSON no topo do index atual)
     // Aqui a gente apenas avisa: você vai colar/colocar essa parte se quiser — na próxima etapa ligamos 100% ao agendamento real.
-    const content = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${nome} — Atualização</title></head>
-<body style="font-family:system-ui;padding:18px">
-<h2>Arquivo de atualização gerado</h2>
-<p>Este é um passo provisório: na próxima etapa, o painel vai gerar o <b>index.html completo</b> já com sua agenda integrada.</p>
-<p><b>JSON da agenda (já pronto):</b></p>
-<pre style="white-space:pre-wrap;background:#111;color:#eee;padding:12px;border-radius:12px">${agendaJson.replace(/</g,"&lt;")}</pre>
-<p><b>Trecho para colocar no index.html (logo antes de </b><code>&lt;/head&gt;</code><b>):</b></p>
-<pre style="white-space:pre-wrap;background:#111;color:#eee;padding:12px;border-radius:12px">${injected.replace(/</g,"&lt;")}</pre>
-</body></html>`;
+    const esc = (s)=>String(s).replace(/</g,"&lt;");
+    const content = "<!doctype html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">" + "<title>" + (window.__AGC_SOC_NAME||"Atualização") + " — Atualização</title></head>\n" + "<body style=\"font-family:system-ui;padding:18px\">\n" + "<h2>Arquivo de atualização gerado</h2>\n" + "<p>Este é um passo provisório: na próxima etapa, o painel vai gerar o <b>index.html completo</b> já com sua agenda integrada.</p>\n" + "<p><b>JSON da agenda (já pronto):</b></p>\n" + "<pre style=\"white-space:pre-wrap;background:#111;color:#eee;padding:12px;border-radius:12px\">" + esc(agendaJson) + "</pre>\n" + "<p><b>Trecho para colocar no index.html (logo antes de </b><code>&lt;/head&gt;</code><b>):</b></p>\n" + "<pre style=\"white-space:pre-wrap;background:#111;color:#eee;padding:12px;border-radius:12px\">" + esc(injected) + "</pre>\n" + "</body></html>";
     dl("ATUALIZACAO_AGENDA.html", content);
     toast("Arquivo gerado. Suba no servidor.");
   }
