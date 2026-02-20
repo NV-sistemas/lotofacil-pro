@@ -3,63 +3,352 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>TESTE NOVO — Agendamento Online</title>
-<meta name="description" content="Agendamento online do TESTE NOVO. Reserve, pague sinal e receba protocolo."/>
+<title>teste — Agendamento Online</title>
+<meta name="description" content="Agendamento online do teste. Reserve, pague o sinal e receba protocolo."/>
 <style>
-  :root{--bg:#050806;--card:rgba(255,255,255,.05);--line:rgba(255,255,255,.12);--text:#eef5ff;--green:#22c55e;--radius:18px;--max:1120px}
+  :root{
+    --text:#eef5ff;
+    --muted:rgba(238,245,255,.72);
+    --line:rgba(255,255,255,.12);
+    --bg1:#030604;
+    --bg2:#050b08;
+    --card:rgba(255,255,255,.04);
+    --card2:rgba(0,0,0,.32);
+    --green:#22c55e;
+    --green2:#34d399;
+    --radius:18px;
+    --max:1160px;
+    --shadow: 0 26px 120px rgba(0,0,0,.66);
+  }
   *{box-sizing:border-box}
-  body{margin:0;background:radial-gradient(900px 420px at 20% 0%, rgba(34,197,94,.14), transparent 60%), linear-gradient(180deg, #040806, #050b08); color:var(--text); font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial}
+  html,body{height:100%}
+  body{
+    margin:0;
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Helvetica Neue", Helvetica;
+    color:var(--text);
+    background:
+      radial-gradient(900px 520px at 22% 6%, rgba(34,197,94,.18), transparent 60%),
+      radial-gradient(900px 520px at 80% 20%, rgba(34,197,94,.10), transparent 55%),
+      linear-gradient(180deg, var(--bg1), var(--bg2));
+  }
   a{color:inherit;text-decoration:none}
-  .wrap{max-width:var(--max);margin:0 auto;padding:18px 16px 60px}
-  .top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 14px;border:1px solid var(--line);border-radius:999px;background:rgba(6,12,10,.65);backdrop-filter:blur(10px);position:sticky;top:12px;z-index:20}
-  .brand{display:flex;align-items:center;gap:10px;font-weight:1000}
-  .dot{width:10px;height:10px;border-radius:999px;background:var(--green);display:inline-block}
-  .btn{display:inline-flex;align-items:center;justify-content:center;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.04);font-weight:950}
-  .btn.primary{border:0;color:#05120b;background:linear-gradient(135deg,#34d399,#22c55e)}
-  .hero{margin-top:14px;border:1px solid var(--line);border-radius:24px;overflow:hidden;position:relative;min-height:320px;}
-  .hero::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg, rgba(0,0,0,.72), rgba(0,0,0,.32));}
-  .heroIn{position:relative;padding:26px}
-  h1{margin:0 0 8px;font-size:40px;line-height:1.05}
-  .sub{margin:0;color:rgba(238,245,255,.84);line-height:1.65;max-width:65ch}
-  .info{margin-top:14px;display:flex;gap:10px;flex-wrap:wrap}
-  .tag{padding:8px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.04);font-weight:950;font-size:12px;color:rgba(238,245,255,.86)}
-  .gallery{margin-top:14px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-  @media (max-width:900px){.gallery{grid-template-columns:1fr 1fr}}
-  @media (max-width:560px){.gallery{grid-template-columns:1fr}}
-  .galCard{border:1px solid rgba(255,255,255,.12);border-radius:18px;background:rgba(255,255,255,.03);overflow:hidden;display:flex;flex-direction:column;min-height:210px}
-  .galImg{flex:1;background-size:cover;background-position:center}
+  .wrap{max-width:var(--max); margin:0 auto; padding:18px 16px 70px}
+  .sr{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+
+  /* Header */
+  .top{
+    display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
+    padding:14px 14px;
+    border:1px solid var(--line);
+    border-radius: 999px;
+    background: rgba(6,12,10,.65);
+    backdrop-filter: blur(10px);
+    position: sticky; top:12px; z-index:20;
+  }
+  .brand{display:flex; align-items:center; gap:12px}
+  .logo{
+    width:38px;height:38px;border-radius:14px;
+    background: radial-gradient(320px 140px at 50% 0%, rgba(34,197,94,.42), transparent 60%), rgba(255,255,255,.04);
+    border:1px solid rgba(255,255,255,.10);
+    box-shadow: 0 14px 60px rgba(0,0,0,.45);
+  }
+  .brandTxt{display:flex; flex-direction:column; gap:1px}
+  .brandTxt b{font-weight:1000; letter-spacing:.2px; font-size:14px}
+  .brandTxt small{color:rgba(238,245,255,.70); font-weight:850; font-size:12px}
+  .nav{display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:flex-end}
+  .pill{
+    display:inline-flex; align-items:center; justify-content:center;
+    padding:10px 14px;
+    border-radius:999px;
+    border:1px solid var(--line);
+    background: rgba(255,255,255,.04);
+    font-weight:950;
+    font-size:13px;
+    color:rgba(238,245,255,.86);
+  }
+  .pill:hover{filter:brightness(1.08)}
+  .pill.primary{border:0; color:#06140d; background: linear-gradient(135deg, var(--green2), var(--green))}
+
+  /* Hero */
+  .hero{
+    margin-top:14px;
+    border:1px solid var(--line);
+    border-radius: 28px;
+    overflow:hidden;
+    position:relative;
+    box-shadow: var(--shadow);
+    min-height: 66vh;
+    background-image:
+                    radial-gradient(900px 520px at 22% 6%, rgba(34,197,94,.22), transparent 60%),
+                    radial-gradient(900px 520px at 80% 20%, rgba(34,197,94,.12), transparent 55%),
+                    linear-gradient(180deg, rgba(0,0,0,.40), rgba(0,0,0,.90));
+  }
+  .hero::before{
+    content:"";
+    position:absolute; inset:0;
+    background: linear-gradient(90deg, rgba(0,0,0,.78) 0%, rgba(0,0,0,.46) 55%, rgba(0,0,0,.80) 100%);
+    pointer-events:none;
+  }
+  .hero::after{
+    /* leve textura */
+    content:"";
+    position:absolute; inset:0;
+    background-image: radial-gradient(rgba(255,255,255,.08) 1px, transparent 1px);
+    background-size: 6px 6px;
+    opacity:.06;
+    pointer-events:none;
+  }
+  .heroIn{
+    position:relative;
+    padding:44px 18px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height: 66vh;
+  }
+  .heroCard{
+    width:min(980px, 100%);
+    border:1px solid rgba(255,255,255,.14);
+    border-radius: 24px;
+    background: rgba(0,0,0,.34);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 22px 100px rgba(0,0,0,.55);
+    padding: 22px;
+  }
+  .kicker{
+    display:inline-flex; align-items:center; gap:10px;
+    padding:8px 12px;
+    border-radius: 999px;
+    border:1px solid rgba(255,255,255,.14);
+    background: rgba(255,255,255,.04);
+    font-weight:1000;
+    font-size:12px;
+    letter-spacing:.3px;
+    color:rgba(238,245,255,.86);
+  }
+  .kDot{width:8px;height:8px;border-radius:999px;background:var(--green);box-shadow:0 0 0 4px rgba(34,197,94,.16)}
+  h1{margin:14px 0 8px; font-size: clamp(34px, 4.8vw, 64px); line-height:1.02; letter-spacing:-.8px}
+  .sub{margin:0 0 14px; color: rgba(238,245,255,.84); font-size:15px; line-height:1.65; max-width: 70ch}
+  .chips{display:flex; gap:10px; flex-wrap:wrap; margin-top:12px}
+  .chip{
+    display:inline-flex; align-items:center; gap:8px;
+    padding:8px 12px;
+    border-radius:999px;
+    border:1px solid rgba(255,255,255,.14);
+    background: rgba(255,255,255,.04);
+    font-weight:950;
+    font-size:12px;
+    color:rgba(238,245,255,.86);
+  }
+  .chip .cIco{opacity:.9}
+  .featRow{
+    margin-top:16px;
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap:12px;
+  }
+  @media (max-width: 860px){ .featRow{grid-template-columns:1fr} }
+  .feat{
+    border:1px solid rgba(255,255,255,.12);
+    border-radius: 16px;
+    padding:14px;
+    background: rgba(255,255,255,.03);
+  }
+  .feat b{display:block; font-weight:1000; margin-bottom:4px}
+  .feat small{color:rgba(238,245,255,.70); font-weight:850}
+  .ctaRow{display:flex; gap:12px; flex-wrap:wrap; margin-top:16px}
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center;
+    padding:12px 14px;
+    border-radius: 14px;
+    border:1px solid rgba(255,255,255,.14);
+    background: rgba(255,255,255,.04);
+    font-weight:1000;
+    font-size:13px;
+  }
+  .btn.primary{border:0; color:#06140d; background: linear-gradient(135deg, var(--green2), var(--green))}
+  .btn:hover{filter:brightness(1.08)}
+  .btn.block{width: 100%}
+  .btn2{opacity:.92}
+
+  /* Info bar */
+  .infoBar{
+    margin-top:14px;
+    border:1px solid rgba(255,255,255,.12);
+    border-radius: 18px;
+    background: rgba(0,0,0,.26);
+    padding:14px;
+    display:grid;
+    grid-template-columns: 1.3fr .8fr .9fr;
+    gap:12px;
+    align-items:center;
+  }
+  @media (max-width: 860px){ .infoBar{grid-template-columns:1fr; } }
+  .infoBlock b{display:block; font-weight:1000; margin-bottom:6px}
+  .infoBlock div{color:rgba(238,245,255,.74); font-weight:850; font-size:13px}
+
+  /* Gallery */
+  .section{padding-top:16px}
+  .h2{margin:18px 0 10px; font-size:18px; font-weight:1000}
+  .gallery{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap:12px;
+  }
+  @media (max-width: 900px){ .gallery{grid-template-columns:1fr 1fr} }
+  @media (max-width: 560px){ .gallery{grid-template-columns:1fr} }
+  .galCard{
+    border:1px solid rgba(255,255,255,.12);
+    border-radius: 18px;
+    background: rgba(255,255,255,.03);
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+    min-height: 210px;
+  }
+  .galImg{flex:1; background-size:cover; background-position:center; filter:saturate(1.05)}
   .galTxt{padding:12px}
-  .galTxt b{display:block;font-weight:1000}
-  .galTxt small{display:block;margin-top:6px;color:rgba(238,245,255,.70);font-weight:850}
-  footer{margin-top:18px;padding-top:16px;border-top:1px solid rgba(255,255,255,.10);color:rgba(238,245,255,.62);font-size:13px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .galTxt b{display:block; font-weight:1000}
+  .galTxt small{display:block; margin-top:6px; color:rgba(238,245,255,.70); font-weight:850}
+
+  /* Floating button */
+  .floatBtn{
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    z-index: 50;
+    border:0;
+    border-radius: 999px;
+    padding: 14px 16px;
+    font-weight:1000;
+    color:#06140d;
+    background: linear-gradient(135deg, var(--green2), var(--green));
+    box-shadow: 0 18px 70px rgba(0,0,0,.55);
+    display:flex; align-items:center; gap:10px;
+  }
+  .floatBtn .bDot{width:10px;height:10px;border-radius:999px;background:rgba(0,0,0,.55)}
+  footer{
+    margin-top:18px;
+    padding-top:16px;
+    border-top:1px solid rgba(255,255,255,.10);
+    color:rgba(238,245,255,.62);
+    font-size:13px;
+    display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap
+  }
+
+#btnPainelFix{position:fixed;top:16px;right:16px;z-index:9999;padding:10px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.55);backdrop-filter:blur(10px);color:rgba(238,245,255,.92);font-weight:800;letter-spacing:.08em;font-size:12px;text-transform:uppercase;box-shadow:0 18px 60px rgba(0,0,0,.45)}
+#btnPainelFix:hover{border-color:rgba(34,197,94,.45);transform:translateY(-1px)}
+@media (max-width:520px){#btnPainelFix{top:12px;right:12px;padding:9px 12px}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header class="top">
-    <div class="brand"><span class="dot"></span><span>TESTE NOVO</span></div>
-    <nav style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end">
-      <a class="btn" href="#fotos">Fotos</a>
-      <a class="btn primary" href="javascript:void(0)">Agendar online</a>
-      <a class="btn" href="./painel.html">Painel</a>
+    <div class="brand">
+      <div class="logo" aria-hidden="true"></div>
+      <div class="brandTxt">
+        <b>N&V Gestão Digital — AgendeSeuHorario</b>
+        <small>Cliente: teste</small>
+      </div>
+    </div>
+    <nav class="nav" aria-label="Navegação">
+      <a class="pill" href="#estrutura">Estrutura</a>
+      <a class="pill primary" href="#agendar">Agendar online</a>
+      <a class="pill" href="#contato">Contato</a>
+      <a class="pill" href="./painel.html">PAINEL</a>
     </nav>
   </header>
 
   <main>
-    <section class="hero">
+    <section class="hero" aria-label="Hero">
       <div class="heroIn">
-        <h1>Agendamento online do TESTE NOVO</h1>
-        <p class="sub">Reserve seu horário, pague o sinal e receba o protocolo. Atendimento organizado e sem furos.</p>
-        <div class="info">
-          <span class="tag">Endereço: —</span>
-          <span class="tag">Telefone: TESTE NOVO</span>
-          <span class="tag">Layout: modelo-5-parallax</span>
+        <div class="heroCard">
+          <div class="kicker"><span class="kDot"></span> SOCIETY • AGENDAMENTO ONLINE</div>
+          <h1>teste</h1>
+          <p class="sub">Reserve seu horário, pague o sinal e receba o protocolo. Atendimento organizado e sem furos.</p>
+
+          <div class="chips">
+            <span class="chip"><span class="cIco">📍</span> 2231321</span>
+            <span class="chip"><span class="cIco">🗓️</span> Seg–Dom</span>
+            <span class="chip"><span class="cIco">⭐</span> 4,9 (DEMO)</span>
+          </div>
+
+          <div class="featRow" id="estrutura">
+            <div class="feat"><b>Gramado</b><small>Qualidade + manutenção</small></div>
+            <div class="feat"><b>Iluminação</b><small>Jogo noturno tranquilo</small></div>
+            <div class="feat"><b>Estrutura</b><small>Bar, vestiário, etc.</small></div>
+          </div>
+
+          <div class="ctaRow" id="agendar">
+            <a class="btn primary" href="#agendar-online" id="btnAgendarHero">AGENDE SEU HORÁRIO ONLINE</a>
+            <a class="btn btn2" href="#fotos">Ver fotos e detalhes</a>
+          </div>
         </div>
       </div>
     </section>
 
-    <section id="fotos" style="margin-top:14px">
-      <div style="font-weight:1000;margin:8px 0 10px">Fotos do society</div>
+    <div class="infoBar">
+      <div class="infoBlock">
+        <b>Endereço</b>
+        <div>2231321</div>
+      </div>
+      <div class="infoBlock">
+        <b>Telefone</b>
+        <div>12312313213212</div>
+      </div>
+      <div class="infoBlock">
+        <b>Layout</b>
+        <div>modelo-1-hero-impacto</div>
+      </div>
+    </div>
+
+
+    <section class="section" id="agendar-online" aria-label="Agendar online">
+      <div class="h2">Agendar online</div>
+      <div class="card" style="padding:14px">
+        <div style="color:rgba(238,245,255,.80);font-weight:950;line-height:1.5">
+          Selecione a data para ver horários disponíveis. (DEMO — fase 1)
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr;gap:10px;margin-top:12px">
+          <label style="display:grid;gap:6px">
+            <span style="font-size:12px;color:rgba(238,245,255,.72);font-weight:900">Data</span>
+            <input id="agcDate" type="date" style="padding:12px 12px;border-radius:14px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.22);color:#eef5ff;outline:none" />
+          </label>
+
+          <div>
+            <div style="font-size:12px;color:rgba(238,245,255,.72);font-weight:900;margin-bottom:6px">Horários</div>
+            <div id="agcTimes" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+            <div id="agcNoTimes" style="display:none;margin-top:8px;color:rgba(238,245,255,.72);font-weight:850">
+              Sem horários para este dia.
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <label style="display:grid;gap:6px">
+              <span style="font-size:12px;color:rgba(238,245,255,.72);font-weight:900">Nome</span>
+              <input id="agcNome" type="text" placeholder="Seu nome" style="padding:12px 12px;border-radius:14px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.22);color:#eef5ff;outline:none" />
+            </label>
+            <label style="display:grid;gap:6px">
+              <span style="font-size:12px;color:rgba(238,245,255,.72);font-weight:900">WhatsApp</span>
+              <input id="agcWhats" type="tel" placeholder="(00) 00000-0000" style="padding:12px 12px;border-radius:14px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.22);color:#eef5ff;outline:none" />
+            </label>
+          </div>
+
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+            <button class="btn primary" id="agcConfirm" type="button" style="cursor:pointer">Confirmar pré-reserva</button>
+            <div id="agcProto" style="display:none;font-weight:950;color:rgba(238,245,255,.85)"></div>
+          </div>
+
+          <div style="margin-top:6px;color:rgba(238,245,255,.68);font-weight:800;line-height:1.5">
+            * Nesta fase, a reserva é uma <b>pré-reserva</b>. O dono confirma pelo WhatsApp após o sinal.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="fotos">
+      <div class="h2">Fotos do society</div>
       <div class="gallery">
         
               <a class="galCard" href="#" target="_blank" rel="noopener">
@@ -113,11 +402,149 @@
       </div>
     </section>
 
+    <section class="section" id="contato">
+      <div class="h2">Contato</div>
+      <div style="border:1px solid rgba(255,255,255,.12);border-radius:18px;background:rgba(0,0,0,.24);padding:14px">
+        <div style="color:rgba(238,245,255,.80);font-weight:950;line-height:1.7">
+          Quer reservar agora? Chame no WhatsApp ou finalize pelo agendamento online.
+        </div>
+        <div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap">
+          <a class="btn primary" href="javascript:void(0)" id="btnWhatsApp">Chamar WhatsApp</a>
+          <a class="btn" href="#agendar">Agendar online</a>
+        </div>
+      </div>
+    </section>
+
     <footer>
       <div>© 2026 N&V Gestão Digital</div>
       <div>AgendeCampo.com.br</div>
     </footer>
   </main>
 </div>
+
+<a class="floatBtn" href="#agendar" aria-label="Agendar online">
+  <span class="bDot" aria-hidden="true"></span>
+  Agendar online
+</a>
+
+<script>
+(function(){
+  const cfg = (window.__AGC_OWNER_DATA && typeof window.__AGC_OWNER_DATA === "object") ? window.__AGC_OWNER_DATA : {dias:["5","6","0"], ini:"18:00", fim:"23:00", slot:60, valor:"120.00", fixos:[]};
+
+  const $ = (id)=>document.getElementById(id);
+  const pad2 = (n)=>String(n).padStart(2,"0");
+  const timeToMin = (hhmm)=>{ const [h,m]=String(hhmm||"0:0").split(":").map(Number); return (h*60)+(m||0); };
+  const minToTime = (min)=>{ const h=Math.floor(min/60), m=min%60; return pad2(h)+":"+pad2(m); };
+  const onlyDigits = (s)=>String(s||"").replace(/D+/g,"");
+
+  let selectedTime = "";
+
+  function setWhatsAppLink(){
+    const telEl = document.querySelector('[data-tel]') || null;
+    const telText = telEl ? (telEl.getAttribute("data-tel") || telEl.textContent || "") : "";
+    const raw = onlyDigits(telText);
+    if(!raw) return;
+    const br = raw.length>=11 ? "55"+raw : "55"+raw;
+    const url = "https://wa.me/" + br;
+    const btn = $("btnWhatsApp");
+    if(btn){ btn.addEventListener("click", ()=> window.open(url, "_blank")); }
+  }
+
+  function isReserved(dateStr, timeStr){
+    // fixos: [{d:"YYYY-MM-DD", t:"HH:MM"}]
+    const arr = Array.isArray(cfg.fixos) ? cfg.fixos : [];
+    return arr.some(x => x && x.d === dateStr && x.t === timeStr);
+  }
+
+  function renderTimes(){
+    const date = ($("agcDate") && $("agcDate").value) ? $("agcDate").value : "";
+    const wrap = $("agcTimes");
+    const no = $("agcNoTimes");
+    if(!wrap || !no) return;
+
+    wrap.innerHTML = "";
+    selectedTime = "";
+    if(!date){ no.style.display="none"; return; }
+
+    const wd = new Date(date+"T00:00:00").getDay(); // 0=Dom
+    const dias = Array.isArray(cfg.dias) ? cfg.dias.map(String) : [];
+    if(!dias.includes(String(wd))){ no.style.display="block"; return; }
+
+    const ini = timeToMin(cfg.ini);
+    const fim = timeToMin(cfg.fim);
+    const slot = Math.max(15, Number(cfg.slot||60));
+    const times = [];
+    for(let t=ini; t<=fim; t+=slot){
+      times.push(minToTime(t));
+    }
+
+    let any=false;
+    times.forEach(t=>{
+      const disabled = isReserved(date, t);
+      const b=document.createElement("button");
+      b.type="button";
+      b.textContent=t;
+      b.style.padding="10px 12px";
+      b.style.borderRadius="999px";
+      b.style.border="1px solid rgba(255,255,255,.14)";
+      b.style.background= disabled ? "rgba(255,255,255,.06)" : "rgba(0,0,0,.22)";
+      b.style.color="rgba(238,245,255,.92)";
+      b.style.fontWeight="900";
+      b.style.cursor= disabled ? "not-allowed" : "pointer";
+      b.style.opacity= disabled ? ".45" : "1";
+      if(!disabled){
+        any=true;
+        b.addEventListener("click", ()=>{
+          Array.from(wrap.querySelectorAll("button")).forEach(x=>x.style.outline="none");
+          b.style.outline="2px solid rgba(34,197,94,.65)";
+          selectedTime=t;
+        });
+      }
+      wrap.appendChild(b);
+    });
+    no.style.display = any ? "none" : "block";
+  }
+
+  function confirm(){
+    const date = $("agcDate") ? $("agcDate").value : "";
+    const nome = $("agcNome") ? ($("agcNome").value||"").trim() : "";
+    const whats = $("agcWhats") ? ($("agcWhats").value||"").trim() : "";
+    const out = $("agcProto");
+    if(!date || !selectedTime){ alert("Selecione data e horário."); return; }
+    if(!nome || !whats){ alert("Informe nome e WhatsApp."); return; }
+
+    const proto = "AGC-" + date.replaceAll("-","") + "-" + selectedTime.replace(":","") + "-" + Math.random().toString(16).slice(2,6).toUpperCase();
+    if(out){
+      out.style.display="block";
+      out.textContent = "Protocolo: " + proto + " • Envie no WhatsApp para confirmar.";
+    }
+
+    const msg = encodeURIComponent(
+      "Olá! Quero reservar no " + (document.title||"Society") + "\n" +
+      "Data: " + date + "\n" +
+      "Horário: " + selectedTime + "\n" +
+      "Nome: " + nome + "\n" +
+      "WhatsApp: " + whats + "\n" +
+      "Protocolo: " + proto
+    );
+
+    // tenta usar o telefone exibido na página (se existir)
+    const telEl = document.querySelector('[data-tel]') || null;
+    const telText = telEl ? (telEl.getAttribute("data-tel") || telEl.textContent || "") : "";
+    const raw = onlyDigits(telText);
+    if(raw){
+      const br = "55"+raw;
+      window.open("https://wa.me/" + br + "?text=" + msg, "_blank");
+    }
+  }
+
+  // wire
+  if($("agcDate")) $("agcDate").addEventListener("change", renderTimes);
+  if($("agcConfirm")) $("agcConfirm").addEventListener("click", confirm);
+
+  setWhatsAppLink();
+})();
+</script>
+
 </body>
 </html>
