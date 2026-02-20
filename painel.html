@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>novo teste — Painel do Dono</title>
+<title>TESTE NOVO — Painel do Dono</title>
 <meta name="description" content="Painel do dono do society: agenda, horários fixos e exportação de página."/>
 <style>
   :root{
@@ -54,7 +54,7 @@
 <body>
 <div class="wrap">
   <header class="top">
-    <div class="brand"><span class="dot"></span><span>novo teste</span><span class="pill">Painel do Dono</span></div>
+    <div class="brand"><span class="dot"></span><span>TESTE NOVO</span><span class="pill">Painel do Dono</span></div>
     <div class="actions">
       <a class="btn" href="index.html">Ver página</a>
       <button class="btn" id="btnLogout" type="button" style="display:none">Sair</button>
@@ -68,7 +68,7 @@
 
   <div id="loginView" class="card">
     <h2>Acesso</h2>
-    <div class="muted">Login inicial: <span class="mono">teste@teste1.com.br</span> / <span class="mono">teste123</span></div>
+    <div class="muted">Login inicial: <span class="mono">teste@teste.com.br</span> / <span class="mono">123</span></div>
     <div class="hr"></div>
     <div class="grid2">
       <div>
@@ -200,7 +200,7 @@
 
 <div class="toast" id="toast"></div>
 <script>
-window.__AGC_SOC_NAME = "novo teste";
+window.__AGC_SOC_NAME = "TESTE NOVO";
 (function(){
   const LS_AUTH = "agc_owner_auth_v1";
   const LS_DATA = "agc_owner_data_v1";
@@ -223,7 +223,7 @@ window.__AGC_SOC_NAME = "novo teste";
     setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 0);
   };
 
-  const defaultAuth = { email: String("teste@teste1.com.br").trim().toLowerCase(), pass: String("teste123") };
+  const defaultAuth = { email: String("teste@teste.com.br").trim().toLowerCase(), pass: String("123") };
   const defaultData = { dias:["6"], ini:"18:00", fim:"23:00", slot:60, valor:"120.00", fixos:[] };
 
   function loadAuth(){
