@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Teste novo — Painel do Dono</title>
+<title>TESTE NOVO — Painel do Dono</title>
 <meta name="description" content="Painel do dono do society: agenda, horários fixos e exportação de página."/>
 <style>
   :root{
@@ -54,7 +54,7 @@
 <body>
 <div class="wrap">
   <header class="top">
-    <div class="brand"><span class="dot"></span><span>Teste novo</span><span class="pill">Painel do Dono</span></div>
+    <div class="brand"><span class="dot"></span><span>TESTE NOVO</span><span class="pill">Painel do Dono</span></div>
     <div class="actions">
       <a class="btn" href="index.html">Ver página</a>
       <button class="btn" id="btnLogout" type="button" style="display:none">Sair</button>
@@ -113,21 +113,9 @@
       <div class="actions" style="justify-content:space-between">
         <div class="badge">Agenda</div>
         <button class="btn primary" id="btnExport" type="button">Gerar index.html atualizado</button>
-        <button class="btn" id="btnExportCfg" type="button">Exportar configurações</button>
-        <label class="btn" for="cfgFile" style="cursor:pointer">Importar configurações</label>
-        <input id="cfgFile" type="file" accept="application/json" style="display:none">
       </div>
       <div class="muted" style="margin-top:10px">
         Configure seus dias/horários. Quando terminar, gere o arquivo e suba no site.
-      </div>
-            <div class="card" style="margin-top:14px; background:rgba(0,0,0,.18)">
-        <div class="badge">PIX (fixo)</div>
-        <div class="muted" style="margin-top:8px">Esta chave PIX vem do seu contrato (ADM) e não pode ser alterada aqui.</div>
-        <div class="grid2" style="margin-top:10px">
-          <div class="field"><label>Chave</label><input id="pixKeyRO" type="text" readonly></div>
-          <div class="field"><label>Recebedor</label><input id="pixNomeRO" type="text" readonly></div>
-        </div>
-        <div class="field"><label>Cidade</label><input id="pixCidadeRO" type="text" readonly></div>
       </div>
       <div class="hr"></div>
 
@@ -167,20 +155,8 @@
               </select>
             </div>
             <div class="field">
-              <label for="corte">Início da tarifa noturna</label>
-              <input id="corte" type="time" value="18:00">
-              <div class="muted" style="font-size:12px;margin-top:6px">Antes desse horário usa tarifa <b>diurna</b>. A partir dele usa tarifa <b>noturna</b>.</div>
-            </div>
-          </div>
-
-          <div class="grid2">
-            <div class="field">
-              <label for="precoDia">Preço diurno (R$)</label>
-              <input id="precoDia" type="number" step="0.01" value="100.00">
-            </div>
-            <div class="field">
-              <label for="precoNoite">Preço noturno (R$)</label>
-              <input id="precoNoite" type="number" step="0.01" value="120.00">
+              <label for="valor">Valor padrão (R$)</label>
+              <input id="valor" type="number" step="0.01" value="120.00">
             </div>
           </div>
         </div>
@@ -224,7 +200,7 @@
 
 <div class="toast" id="toast"></div>
 <script>
-window.__AGC_SOC_NAME = "Teste novo";
+window.__AGC_SOC_NAME = "TESTE NOVO";
 (function(){
   const LS_AUTH = "agc_owner_auth_v1";
   const LS_DATA = "agc_owner_data_v1";
@@ -248,8 +224,7 @@ window.__AGC_SOC_NAME = "Teste novo";
   };
 
   const defaultAuth = { email: String("teste@teste.com.br").trim().toLowerCase(), pass: String("123") };
-  const defaultPix = (cfgPix && typeof cfgPix==="object") ? cfgPix : {key:"", nome:"", cidade:""};
-  const defaultData = { dias:["6"], ini:"18:00", fim:"23:00", slot:60, precos:{corte:"18:00", dia:"100.00", noite:"120.00"}, fixos:[], pix: defaultPix };
+  const defaultData = { dias:["6"], ini:"18:00", fim:"23:00", slot:60, valor:"120.00", fixos:[] };
 
   function loadAuth(){
     const raw = localStorage.getItem(LS_AUTH);
@@ -282,13 +257,7 @@ window.__AGC_SOC_NAME = "Teste novo";
     $("ini").value = DATA.ini || "18:00";
     $("fim").value = DATA.fim || "23:00";
     $("slot").value = String(DATA.slot || 60);
-    $("corte").value = (DATA.precos && DATA.precos.corte) ? DATA.precos.corte : "18:00";
-    $("precoDia").value = (DATA.precos && DATA.precos.dia) ? DATA.precos.dia : "100.00";
-    $("precoNoite").value = (DATA.precos && DATA.precos.noite) ? DATA.precos.noite : "120.00";
-
-    if($("pixKeyRO")) $("pixKeyRO").value = (DATA.pix && DATA.pix.key) ? DATA.pix.key : "";
-    if($("pixNomeRO")) $("pixNomeRO").value = (DATA.pix && DATA.pix.nome) ? DATA.pix.nome : "";
-    if($("pixCidadeRO")) $("pixCidadeRO").value = (DATA.pix && DATA.pix.cidade) ? DATA.pix.cidade : "";
+    $("valor").value = DATA.valor || "120.00";
     $("fixosView").value = JSON.stringify(DATA.fixos || [], null, 2);
   }
 
@@ -334,7 +303,7 @@ window.__AGC_SOC_NAME = "Teste novo";
     DATA.ini = $("ini").value;
     DATA.fim = $("fim").value;
     DATA.slot = Number($("slot").value||60);
-    DATA.precos = { corte: $("corte").value || "18:00", dia: String($("precoDia").value || "100.00"), noite: String($("precoNoite").value || "120.00") };
+    DATA.valor = $("valor").value;
     saveData(DATA);
   }
 
@@ -395,8 +364,6 @@ window.__AGC_OWNER_DATA = " + agendaJson + ";
   $("btnAddFixo").addEventListener("click", addFixo);
   $("btnClearFixos").addEventListener("click", clearFixos);
   $("btnExport").addEventListener("click", exportIndex);
-  if($("btnExportCfg")) $("btnExportCfg").addEventListener("click", ()=>{ saveAgendaFromInputs(); const j = JSON.stringify(loadData(), null, 2); dl("config_agendecampo.json", j); toast("Config exportada."); });
-  if($("cfgFile")) $("cfgFile").addEventListener("change", async (ev)=>{ const f = ev.target.files && ev.target.files[0]; if(!f) return; try{ const txt = await f.text(); const obj = JSON.parse(txt); if(!obj || typeof obj!=="object") throw new Error("JSON inválido"); saveData(obj); refresh(); toast("Config importada."); }catch(e){ alert("Falha ao importar: "+e.message); } finally { ev.target.value=""; } });
 
   // Boot
   if(sessionStorage.getItem("agc_owner_logged")==="1"){ setLogged(true); refresh(); }
