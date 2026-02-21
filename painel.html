@@ -1,375 +1,432 @@
-<!doctype html>
-<html lang="pt-br">
-<head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>TESTE NOVO — Painel do Dono</title>
-<meta name="description" content="Painel do dono do society: agenda, horários fixos e exportação de página."/>
+
+
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>teste novo — Painel do Dono</title>
 <style>
-  :root{
-    --text:#eef5ff; --muted:rgba(238,245,255,.72); --line:rgba(255,255,255,.12);
-    --bg1:#040806; --bg2:#050b08; --green:#22c55e; --green2:#34d399; --radius:18px; --max:1120px;
-    --shadow: 0 28px 120px rgba(0,0,0,.62);
-  }
-  *{box-sizing:border-box} html,body{height:100%}
-  body{margin:0;color:var(--text);font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
-    background:
-      radial-gradient(900px 420px at 26% 0%, rgba(34,197,94,.16), transparent 60%),
-      radial-gradient(820px 420px at 80% 10%, rgba(34,197,94,.10), transparent 55%),
-      linear-gradient(180deg, var(--bg1) 0%, var(--bg2) 100%);
-  }
-  a{color:inherit;text-decoration:none}
-  .wrap{max-width:var(--max); margin:0 auto; padding:18px 16px 80px}
-  .top{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 14px; border:1px solid var(--line);
-    border-radius:999px; background: rgba(6,12,10,.65); backdrop-filter: blur(10px); position: sticky; top:12px; z-index:20}
-  .brand{display:flex; align-items:center; gap:10px; font-weight:1000}
-  .dot{width:10px;height:10px;border-radius:999px;background:var(--green);display:inline-block}
-  .pill{font-size:12px; font-weight:900; color:rgba(238,245,255,.78); border:1px solid var(--line);
-    padding:6px 10px; border-radius:999px; background: rgba(255,255,255,.03)}
-  .btn{display:inline-flex; align-items:center; justify-content:center; gap:10px; padding:12px 14px; border-radius:14px; border:1px solid var(--line);
-    background: rgba(255,255,255,.04); font-weight:950; cursor:pointer}
-  .btn:hover{filter:brightness(1.08)}
-  .btn.primary{border:0; color:#05120b; background: linear-gradient(135deg, var(--green2), var(--green))}
-  .card{border:1px solid var(--line); border-radius:var(--radius); background: rgba(255,255,255,.03); padding:16px; box-shadow: var(--shadow)}
-  h1{margin:14px 0 6px; font-size: clamp(24px, 3.4vw, 40px)}
-  h2{margin:0 0 10px; font-size:18px}
-  .muted{color:var(--muted); line-height:1.65}
-  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:12px}
-  @media(max-width:920px){.grid2{grid-template-columns:1fr}}
-  .field{display:flex; flex-direction:column; gap:6px; margin-bottom:12px}
-  label{font-size:12px; color:rgba(238,245,255,.72); font-weight:900; letter-spacing:.2px}
-  input,select,textarea{width:100%; padding:12px 12px; border-radius:14px; border:1px solid var(--line);
-    background: rgba(0,0,0,.30); color:var(--text); outline:none; font-weight:850}
-  textarea{min-height:120px; resize:vertical}
-  .hr{height:1px; background: rgba(255,255,255,.10); margin:14px 0}
-  .badge{display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius:999px; border:1px solid rgba(34,197,94,.35);
-    background: rgba(34,197,94,.10); font-weight:1000; font-size:12px}
-  .actions{display:flex; gap:10px; flex-wrap:wrap}
-  .toast{position: fixed; left: 50%; transform: translateX(-50%); bottom: 18px; background: rgba(0,0,0,.78);
-    border:1px solid rgba(255,255,255,.14); color: rgba(238,245,255,.90); padding: 12px 14px; border-radius: 14px;
-    font-weight: 950; font-size: 13px; z-index: 9999; display:none; backdrop-filter: blur(10px);}
-  .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
+:root{--bg:#07140f;--bg2:#0b1f17;--card:rgba(255,255,255,.06);--line:rgba(255,255,255,.10);--txt:rgba(255,255,255,.92);--mut:rgba(255,255,255,.72);--acc:#19c37d;--bad:#ff5b6f;--ok:#19c37d;--r:18px;}
+*{box-sizing:border-box} body{margin:0;font-family:system-ui,Segoe UI,Inter,Arial;background:linear-gradient(180deg,var(--bg),var(--bg2));color:var(--txt)}
+a{color:inherit} .wrap{max-width:1150px;margin:0 auto;padding:18px}
+.top{position:sticky;top:0;z-index:9;background:rgba(7,20,15,.72);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.topin{max-width:1150px;margin:0 auto;padding:14px 18px;display:flex;gap:12px;align-items:center;justify-content:space-between}
+.brand b{font-size:18px} .tag{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid var(--line);font-weight:800;font-size:12px;color:var(--mut)}
+.pills{display:flex;gap:10px;flex-wrap:wrap}
+.pill{cursor:pointer;padding:10px 12px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.04);font-weight:900;color:var(--mut)}
+.pill.active{background:rgba(25,195,125,.16);border-color:rgba(25,195,125,.35);color:var(--txt)}
+.grid{display:grid;gap:14px;grid-template-columns:1.1fr .9fr}
+@media(max-width:980px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px}
+.card h3{margin:0 0 8px;font-size:14px;letter-spacing:.2px}
+small{color:var(--mut)} .row{display:flex;gap:10px;flex-wrap:wrap}
+.input,select,textarea{width:100%;padding:12px 12px;border-radius:14px;border:1px solid var(--line);background:rgba(0,0,0,.20);color:var(--txt);outline:none}
+.btn{cursor:pointer;padding:10px 12px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--txt);font-weight:900}
+.btn.acc{background:rgba(25,195,125,.18);border-color:rgba(25,195,125,.45)}
+.btn.danger{background:rgba(255,91,111,.12);border-color:rgba(255,91,111,.35)}
+table{width:100%;border-collapse:collapse}
+th,td{padding:10px;border-bottom:1px solid var(--line);vertical-align:top;text-align:left;font-size:13px}
+th{color:var(--mut);font-weight:900}
+.footer{margin:14px 0 0;color:rgba(230,255,245,.55);font-size:12px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.hide{display:none}
 </style>
-</head>
-<body>
-<div class="wrap">
-  <header class="top">
-    <div class="brand"><span class="dot"></span><span>TESTE NOVO</span><span class="pill">Painel do Dono</span></div>
-    <div class="actions">
-      <a class="btn" href="index.html">Ver página</a>
-      <button class="btn" id="btnLogout" type="button" style="display:none">Sair</button>
-    </div>
-  </header>
 
-  <h1>Controle do seu society</h1>
-  <div class="muted">Aqui você configura sua agenda e depois clica em <b>“Gerar index.html atualizado”</b> para baixar e subir no seu site. Assim, qualquer mudança é <b>responsabilidade do dono</b>.</div>
 
-  <div class="hr"></div>
-
-  <div id="loginView" class="card">
-    <h2>Acesso</h2>
-    <div class="muted">Login inicial: <span class="mono">teste@teste.com.br</span> / <span class="mono">123</span></div>
-    <div class="hr"></div>
-    <div class="grid2">
-      <div>
-        <div class="field">
-          <label for="email">E-mail</label>
-          <input id="email" type="email" placeholder="seu e-mail">
-        </div>
-      </div>
-      <div>
-        <div class="field">
-          <label for="pass">Senha</label>
-          <input id="pass" type="password" placeholder="sua senha">
-        </div>
-      </div>
+<div class="top">
+  <div class="topin">
+    <div class="brand">
+      <b id="socName">teste novo</b><br><small>Painel do Dono • Controle na palma da mão</small>
     </div>
-    <div class="actions">
-      <button class="btn primary" id="btnLogin" type="button">Entrar</button>
-      <button class="btn" id="btnOpenPwd" type="button">Alterar senha</button>
-    </div>
-
-    <div id="pwdBox" style="display:none;margin-top:14px">
-      <div class="hr"></div>
-      <h2>Alterar senha</h2>
-      <div class="grid2">
-        <div class="field">
-          <label for="oldp">Senha atual</label>
-          <input id="oldp" type="password">
-        </div>
-        <div class="field">
-          <label for="newp">Nova senha</label>
-          <input id="newp" type="password" placeholder="mín. 6 caracteres">
-        </div>
-      </div>
-      <div class="actions">
-        <button class="btn primary" id="btnSavePwd" type="button">Salvar nova senha</button>
-      </div>
-    </div>
+    <span class="tag">PIX fixo: <b id="pixKey">47739994000126</b></span>
   </div>
-
-  <div id="appView" style="display:none">
-    <div class="card">
-      <div class="actions" style="justify-content:space-between">
-        <div class="badge">Agenda</div>
-        <button class="btn primary" id="btnExport" type="button">Gerar index.html atualizado</button>
-      </div>
-      <div class="muted" style="margin-top:10px">
-        Configure seus dias/horários. Quando terminar, gere o arquivo e suba no site.
-      </div>
-      <div class="hr"></div>
-
-      <div class="grid2">
-        <div>
-          <h2>Horário de trabalho</h2>
-          <div class="field">
-            <label for="dias">Dias de trabalho</label>
-            <select id="dias" multiple size="7">
-              <option value="1">Segunda</option>
-              <option value="2">Terça</option>
-              <option value="3">Quarta</option>
-              <option value="4">Quinta</option>
-              <option value="5">Sexta</option>
-              <option value="6">Sábado</option>
-              <option value="0">Domingo</option>
-            </select>
-            <div class="muted" style="font-size:12px">Segure Ctrl (ou toque) para selecionar múltiplos.</div>
-          </div>
-          <div class="grid2">
-            <div class="field">
-              <label for="ini">Início</label>
-              <input id="ini" type="time" value="18:00">
-            </div>
-            <div class="field">
-              <label for="fim">Fim</label>
-              <input id="fim" type="time" value="23:00">
-            </div>
-          </div>
-          <div class="grid2">
-            <div class="field">
-              <label for="slot">Intervalo padrão</label>
-              <select id="slot">
-                <option value="60">60 min</option>
-                <option value="90">90 min</option>
-                <option value="120">120 min</option>
-              </select>
-            </div>
-            <div class="field">
-              <label for="valor">Valor padrão (R$)</label>
-              <input id="valor" type="number" step="0.01" value="120.00">
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <h2>Agenda fixa</h2>
-          <div class="muted" style="margin-bottom:10px">Cadastre aqui horários <b>fixos</b> (mensalistas). Eles ficam bloqueados no site até você remover.</div>
-          <div class="field">
-            <label for="fixoNome">Nome do cliente</label>
-            <input id="fixoNome" type="text" placeholder="Ex: João (mensalista)">
-          </div>
-          <div class="grid2">
-            <div class="field">
-              <label for="fixoDia">Dia (0=Dom, 1=Seg...)</label>
-              <input id="fixoDia" type="number" min="0" max="6" value="6">
-            </div>
-            <div class="field">
-              <label for="fixoHora">Horário (HH:MM)</label>
-              <input id="fixoHora" type="time" value="19:00">
-            </div>
-          </div>
-          <div class="actions">
-            <button class="btn" id="btnAddFixo" type="button">Adicionar fixo</button>
-            <button class="btn" id="btnClearFixos" type="button">Limpar fixos</button>
-          </div>
-          <div class="hr"></div>
-          <textarea id="fixosView" class="mono" readonly></textarea>
-        </div>
-      </div>
-    </div>
-
-    <div class="card" style="margin-top:14px">
-      <h2>Observação importante</h2>
-      <div class="muted">
-        Para refletir mudanças no seu site, você precisa <b>gerar o index.html atualizado</b> e substituir o arquivo no servidor.
-        Isso reduz responsabilidade da plataforma: <b>mudou aqui → você publica</b>.
-      </div>
+  <div class="topin" style="padding-top:0">
+    <div class="pills">
+      <div class="pill active" data-tab="dashboard">Dashboard</div>
+      <div class="pill" data-tab="agenda">Agenda</div>
+      <div class="pill" data-tab="fixos">Agenda fixa</div>
+      <div class="pill" data-tab="clientes">Clientes</div>
+      <div class="pill" data-tab="whats">Transmissão Whats</div>
+      <div class="pill" data-tab="conta">Conta</div>
     </div>
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="wrap">
+  <div id="tab-dashboard" class="grid">
+    <div class="card">
+      <h3>Resumo de hoje</h3>
+      <div class="row">
+        <span class="tag">Data: <b id="todayLbl">-</b></span>
+        <span class="tag">Reservas: <b id="kpiRes">0</b></span>
+        <span class="tag">Receitas: <b id="kpiMoney">R$ 0,00</b></span>
+        <span class="tag">Vagas: <b id="kpiFree">0</b></span>
+      </div>
+      <div style="margin-top:10px;overflow:auto">
+        <table id="tblHoje">
+          <thead><tr><th>Hora</th><th>Cliente</th><th>Tipo</th><th>Status</th><th>Ações</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn" id="btnReload">Atualizar</button>
+        <button class="btn acc" id="btnAddAvulso">Adicionar avulso (manual)</button>
+      </div>
+      <small>Obs: neste modo local, “pago” é manual. No backend real o webhook PIX marca automaticamente.</small>
+    </div>
+
+    <div class="card">
+      <h3>Configurar funcionamento (replica semanas)</h3>
+      <div class="row">
+        <div style="flex:1;min-width:160px">
+          <small>Dia</small>
+          <select id="workDay" class="input">
+            <option value="0">Dom</option><option value="1">Seg</option><option value="2">Ter</option>
+            <option value="3">Qua</option><option value="4">Qui</option><option value="5">Sex</option><option value="6">Sáb</option>
+          </select>
+        </div>
+        <div style="flex:1;min-width:160px"><small>Início</small><input id="workStart" class="input" type="time" value="18:00"></div>
+        <div style="flex:1;min-width:160px"><small>Fim</small><input id="workEnd" class="input" type="time" value="23:00"></div>
+        <div style="flex:1;min-width:160px"><small>Duração</small>
+          <select id="slotDur" class="input"><option value="60">1h</option><option value="90">1h30</option></select>
+        </div>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn acc" id="btnApplyWork">Salvar dia</button>
+        <button class="btn danger" id="btnClearWork">Remover dia</button>
+      </div>
+
+      <hr style="border:0;border-top:1px solid var(--line);margin:14px 0">
+      <h3>Valores</h3>
+      <div class="row">
+        <div style="flex:1;min-width:200px"><small>Valor padrão (R$)</small><input id="priceDefault" class="input" type="number" value="100"></div>
+        <div style="flex:1;min-width:200px"><small>Hora específica</small><input id="priceTime" class="input" type="time" value="20:00"></div>
+        <div style="flex:1;min-width:200px"><small>Valor da hora</small><input id="priceValue" class="input" type="number" value="120"></div>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn acc" id="btnSavePrices">Salvar</button>
+        <button class="btn danger" id="btnResetPrices">Resetar</button>
+      </div>
+      <small>Você pode ter valor diferente por horário (dia/noite).</small>
+    </div>
+  </div>
+
+  <div id="tab-agenda" class="card hide">
+    <h3>Agenda (visualização)</h3>
+    <small>O site do cliente mostra disponíveis (verde) e reservados (vermelho) com base no seu funcionamento + agenda fixa + reservas.</small>
+  </div>
+
+  <div id="tab-fixos" class="card hide">
+    <h3>Agenda fixa (mensalistas / fixos)</h3>
+    <div class="row">
+      <input id="fxNome" class="input" placeholder="Nome do cliente">
+      <input id="fxFone" class="input" placeholder="Telefone (WhatsApp)">
+      <select id="fxDia" class="input" style="max-width:180px">
+        <option value="0">Dom</option><option value="1">Seg</option><option value="2">Ter</option>
+        <option value="3">Qua</option><option value="4">Qui</option><option value="5">Sex</option><option value="6">Sáb</option>
+      </select>
+      <input id="fxHora" class="input" type="time" value="20:00" style="max-width:180px">
+      <select id="fxTipo" class="input" style="max-width:180px"><option value="fixo">Fixo</option><option value="avulso">Avulso</option></select>
+      <button class="btn acc" id="btnAddFixo">Adicionar</button>
+    </div>
+    <div style="margin-top:10px;overflow:auto">
+      <table id="tblFixos"><thead><tr><th>Dia</th><th>Hora</th><th>Cliente</th><th>Tipo</th><th></th></tr></thead><tbody></tbody></table>
+    </div>
+  </div>
+
+  <div id="tab-clientes" class="card hide">
+    <h3>Clientes (contatos salvos)</h3>
+    <div class="row">
+      <input id="cNome" class="input" placeholder="Nome">
+      <input id="cFone" class="input" placeholder="Telefone">
+      <input id="cRg" class="input" placeholder="RG">
+      <input id="cNasc" class="input" type="date">
+      <input id="cEnd" class="input" placeholder="Endereço">
+      <input id="cObs" class="input" placeholder="Obs.">
+      <button class="btn acc" id="btnAddCliente">Salvar contato</button>
+    </div>
+    <div style="margin-top:10px;overflow:auto">
+      <table id="tblClientes"><thead><tr><th>Nome</th><th>Telefone</th><th>Último contato</th><th>Ações</th></tr></thead><tbody></tbody></table>
+    </div>
+  </div>
+
+  <div id="tab-whats" class="card hide">
+    <h3>Lista de transmissão (WhatsApp)</h3>
+    <small>Abre 1 conversa por vez (modo local). No backend real dá para disparo automatizado.</small>
+    <div class="row" style="margin-top:10px">
+      <input id="wHorario" class="input" placeholder="Horário vago (ex: 20:00)">
+      <textarea id="wMsg" class="input" rows="3">⚽ Horário vago hoje: [HORÁRIO]. Quer reservar?</textarea>
+      <button class="btn acc" id="btnWhatsAll">Enviar para selecionados</button>
+    </div>
+    <div style="margin-top:10px;overflow:auto">
+      <table id="tblWhats"><thead><tr><th></th><th>Nome</th><th>Telefone</th></tr></thead><tbody></tbody></table>
+    </div>
+  </div>
+
+  <div id="tab-conta" class="card hide">
+    <h3>Conta</h3>
+    <small>E-mail do dono (login) e troca de senha (modo local).</small>
+    <div class="row" style="margin-top:10px">
+      <input id="ownEmail" class="input" disabled="">
+      <input id="ownPassNow" class="input" type="password" placeholder="Senha atual">
+      <input id="ownPassNew" class="input" type="password" placeholder="Nova senha">
+      <input id="ownPassNew2" class="input" type="password" placeholder="Confirmar nova senha">
+      <button class="btn acc" id="btnChangePass">Trocar senha</button>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div>© <span id="footYear"></span> teste novo</div>
+    <div><small>Modo local (localStorage). Backend PHP+MySQL entra depois.</small></div>
+  </div>
+</div>
+
 <script>
-window.__AGC_SOC_NAME = "TESTE NOVO";
-(function(){
-  const LS_AUTH = "agc_owner_auth_v1";
-  const LS_DATA = "agc_owner_data_v1";
+window.__SOC_CONFIG__ = {
+  name: "teste novo",
+  slug: "teste-novo",
+  phone: "131231321231",
+  address: "Rua X, 123 - Centro",
+  pixKey: "47739994000126",
+  pixName: "NV transporte",
+  ownerEmail: "teste@teste.com.br"
+};
 
-  const $ = (id)=>document.getElementById(id);
-  const toast = (msg)=>{
-    const el = $("toast");
-    el.textContent = msg;
-    el.style.display = "block";
-    clearTimeout(window.__t);
-    window.__t = setTimeout(()=> el.style.display="none", 2200);
-  };
-  const dl = (filename, content)=>{
-    const blob = new Blob([content], {type:"text/html;charset=utf-8"});
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 0);
-  };
+const DB_KEY = "agendecampo_owner_teste-novo_v1";
 
-  const defaultAuth = { email: String("teste@teste.com.br").trim().toLowerCase(), pass: String("123") };
-  const defaultData = { dias:["6"], ini:"18:00", fim:"23:00", slot:60, valor:"120.00", fixos:[] };
+function load(){ try{ return JSON.parse(localStorage.getItem(DB_KEY)||"{}"); }catch(e){ return {}; } }
+function save(db){ localStorage.setItem(DB_KEY, JSON.stringify(db)); }
+function ensure(){
+  const db = load();
+  db.owner = db.owner || { email: window.__SOC_CONFIG__.ownerEmail || "", pass: "1234" };
+  db.work = db.work || {}; 
+  db.prices = db.prices || { default: 100, byTime: {} };
+  db.fixos = db.fixos || [];
+  db.reservas = db.reservas || [];
+  db.clientes = db.clientes || [];
+  save(db); return db;
+}
+function todayISO(){ const d=new Date(); const z=(n)=>String(n).padStart(2,"0"); return d.getFullYear()+"-"+z(d.getMonth()+1)+"-"+z(d.getDate()); }
+function dowLabel(d){ return ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"][d]||"-"; }
+function timeToMin(t){ const a=String(t||"0:0").split(":"); return (Number(a[0]||0)*60)+Number(a[1]||0); }
+function fmtBRL(v){ return (Number(v||0)).toLocaleString("pt-BR",{style:"currency",currency:"BRL"}); }
+function genProto(){ return "AC-"+Math.random().toString(16).slice(2,6).toUpperCase()+"-"+Date.now().toString().slice(-5); }
 
-  function loadAuth(){
-    const raw = localStorage.getItem(LS_AUTH);
-    if(!raw){ localStorage.setItem(LS_AUTH, JSON.stringify(defaultAuth)); return {...defaultAuth}; }
-    try { return JSON.parse(raw) || {...defaultAuth}; } catch(e){ return {...defaultAuth}; }
+function slotsForDate(db, iso){
+  const d = new Date(iso+"T00:00:00");
+  const dow = d.getDay();
+  const rule = db.work[String(dow)];
+  if(!rule) return [];
+  const start = timeToMin(rule.start), end=timeToMin(rule.end), dur=Number(rule.dur||60);
+  const out=[];
+  for(let t=start; t+dur<=end; t+=dur){
+    const hh=String(Math.floor(t/60)).padStart(2,"0"), mm=String(t%60).padStart(2,"0");
+    out.push(hh+":"+mm);
   }
-  function saveAuth(a){ localStorage.setItem(LS_AUTH, JSON.stringify(a)); }
+  return out;
+}
+function slotValue(db,time){
+  db.prices=db.prices||{default:100,byTime:{}};
+  const v = (db.prices.byTime||{})[time];
+  return Number(v!=null?v:db.prices.default||0);
+}
+function escapeHtml(s){ return String(s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",""":"&quot;","'":"&#39;"}[m])); }
+function openWhats(phone,msg){
+  const n=String(phone||"").replace(/\D/g,"");
+  window.open("https://wa.me/55"+n+"?text="+encodeURIComponent(msg),"_blank");
+}
 
-  function loadData(){
-    const raw = localStorage.getItem(LS_DATA);
-    if(!raw){ localStorage.setItem(LS_DATA, JSON.stringify(defaultData)); return structuredClone(defaultData); }
-    try { return JSON.parse(raw) || structuredClone(defaultData); } catch(e){ return structuredClone(defaultData); }
-  }
-  function saveData(d){ localStorage.setItem(LS_DATA, JSON.stringify(d)); }
+function renderHoje(){
+  const db=ensure();
+  const iso=todayISO();
+  document.getElementById("todayLbl").textContent = iso.split("-").reverse().join("/");
+  const tb=document.querySelector("#tblHoje tbody");
+  tb.innerHTML="";
+  const allSlots = slotsForDate(db, iso);
+  const res = (db.reservas||[]).filter(r=>r.date===iso);
 
-  let AUTH = loadAuth();
-  let DATA = loadData();
-
-  function setLogged(on){
-    $("loginView").style.display = on ? "none" : "block";
-    $("appView").style.display = on ? "block" : "none";
-    $("btnLogout").style.display = on ? "inline-flex" : "none";
-  }
-
-  function refresh(){
-    DATA = loadData();
-    // dias
-    const sel = $("dias");
-    Array.from(sel.options).forEach(o=> o.selected = (DATA.dias||[]).includes(o.value));
-    $("ini").value = DATA.ini || "18:00";
-    $("fim").value = DATA.fim || "23:00";
-    $("slot").value = String(DATA.slot || 60);
-    $("valor").value = DATA.valor || "120.00";
-    $("fixosView").value = JSON.stringify(DATA.fixos || [], null, 2);
-  }
-
-  function doLogin(){
-    const email = ($("email").value||"").trim().toLowerCase();
-    const pass  = $("pass").value||"";
-    AUTH = loadAuth();
-    if(email === (AUTH.email||"").toLowerCase() && pass === AUTH.pass){
-      sessionStorage.setItem("agc_owner_logged","1");
-      setLogged(true);
-      refresh();
-      toast("Bem-vindo!");
-    }else{
-      toast("Login inválido.");
+  for(const fx of (db.fixos||[])){
+    if(String(fx.dow)===String(new Date(iso+"T00:00:00").getDay())){
+      if(!res.some(r=>r.type==="fixo" && r.time===fx.time && r.name===fx.name)){
+        res.push({id:"fx_"+fx.id,date:iso,time:fx.time,dur:60,name:fx.name,phone:fx.phone,type:"fixo",status:"reservado",paid:true,value:slotValue(db,fx.time),protocolo:"FIXO"});
+      }
     }
   }
+  const used = new Set(res.map(r=>r.time));
+  const free = allSlots.filter(t=>!used.has(t));
+  document.getElementById("kpiRes").textContent = String(res.length);
+  document.getElementById("kpiFree").textContent = String(free.length);
+  const money = res.reduce((a,r)=>a+Number(r.value||0),0);
+  document.getElementById("kpiMoney").textContent = fmtBRL(money);
 
-  function doLogout(){
-    sessionStorage.removeItem("agc_owner_logged");
-    setLogged(false);
-    toast("Você saiu.");
+  res.sort((a,b)=>timeToMin(a.time)-timeToMin(b.time));
+  for(const r of res){
+    const tr=document.createElement("tr");
+    const tag = r.type==="fixo" ? "Fixo" : "Avulso";
+    const st = r.paid ? '<span class="tag ok">Pago</span>' : '<span class="tag bad">Pendente</span>';
+    tr.innerHTML = '<td>'+r.time+'</td>'
+      +'<td><b>'+escapeHtml(r.name||"-")+'</b><br/><small style="color:rgba(230,255,245,.68);font-weight:700">'+escapeHtml(r.phone||"")+'</small></td>'
+      +'<td><span class="tag">'+tag+'</span></td>'
+      +'<td>'+st+'</td>'
+      +'<td><button class="btn" data-act="wa" data-id="'+r.id+'">Whats</button> <button class="btn danger" data-act="del" data-id="'+r.id+'">Remover</button></td>';
+    tb.appendChild(tr);
   }
+  tb.querySelectorAll("button").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      const act=b.dataset.act, id=b.dataset.id;
+      const db=ensure();
+      if(act==="del"){
+        db.reservas=(db.reservas||[]).filter(x=>x.id!==id && !String(x.id||"").startsWith("fx_"));
+        save(db); renderHoje();
+      }else{
+        const r=(db.reservas||[]).find(x=>x.id===id) || null;
+        if(r && r.phone){
+          const msg = "⚽ Reserva confirmada\nSociety: "+window.__SOC_CONFIG__.name+"\nProtocolo: "+r.protocolo+"\nCliente: "+r.name+"\nTelefone: "+r.phone+"\nHorário: "+r.time+" ("+r.date.split("-").reverse().join("/")+")";
+          openWhats(r.phone,msg);
+        }else alert("Sem telefone do cliente.");
+      }
+    });
+  });
+}
 
-  function togglePwd(){
-    const box = $("pwdBox");
-    box.style.display = (box.style.display==="none" || !box.style.display) ? "block" : "none";
+function renderFixos(){
+  const db=ensure();
+  const tb=document.querySelector("#tblFixos tbody"); tb.innerHTML="";
+  for(const f of (db.fixos||[])){
+    const tr=document.createElement("tr");
+    tr.innerHTML = '<td>'+dowLabel(Number(f.dow))+'</td><td>'+f.time+'</td><td><b>'+escapeHtml(f.name)+'</b><br/><small style="color:rgba(230,255,245,.68);font-weight:700">'+escapeHtml(f.phone||"")+'</small></td><td><span class="tag">'+escapeHtml(f.type||"fixo")+'</span></td><td><button class="btn danger" data-id="'+f.id+'">Excluir</button></td>';
+    tb.appendChild(tr);
   }
+  tb.querySelectorAll("button").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      const db=ensure();
+      db.fixos=(db.fixos||[]).filter(x=>x.id!==b.dataset.id);
+      save(db); renderFixos(); renderHoje();
+    });
+  });
+}
 
-  function savePwd(){
-    const oldp = $("oldp").value||"";
-    const newp = $("newp").value||"";
-    AUTH = loadAuth();
-    if(oldp !== AUTH.pass){ toast("Senha atual incorreta."); return; }
-    if(newp.length < 6){ toast("Nova senha deve ter 6+ caracteres."); return; }
-    saveAuth({email: AUTH.email, pass:newp});
-    $("oldp").value=""; $("newp").value="";
-    toast("Senha alterada.");
+function renderClientes(){
+  const db=ensure();
+  const tb=document.querySelector("#tblClientes tbody"); tb.innerHTML="";
+  for(const c of (db.clientes||[])){
+    const tr=document.createElement("tr");
+    tr.innerHTML = '<td><b>'+escapeHtml(c.name)+'</b></td><td>'+escapeHtml(c.phone)+'</td><td>'+(c.last?c.last.split("-").reverse().join("/"):"-")+'</td><td><button class="btn" data-act="wa" data-id="'+c.id+'">Whats</button> <button class="btn danger" data-act="del" data-id="'+c.id+'">Excluir</button></td>';
+    tb.appendChild(tr);
   }
+  tb.querySelectorAll("button").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      const db=ensure();
+      const id=b.dataset.id;
+      if(b.dataset.act==="del"){
+        db.clientes=(db.clientes||[]).filter(x=>x.id!==id); save(db); renderClientes(); renderWhatsList();
+      }else{
+        const c=(db.clientes||[]).find(x=>x.id===id);
+        if(c) openWhats(c.phone, "Olá "+c.name+"! ⚽");
+        c.last=todayISO(); save(db); renderClientes(); renderWhatsList();
+      }
+    });
+  });
+}
 
-  function saveAgendaFromInputs(){
-    const diasSel = Array.from($("dias").selectedOptions).map(o=>o.value);
-    DATA.dias = diasSel;
-    DATA.ini = $("ini").value;
-    DATA.fim = $("fim").value;
-    DATA.slot = Number($("slot").value||60);
-    DATA.valor = $("valor").value;
-    saveData(DATA);
+function renderWhatsList(){
+  const db=ensure();
+  const tb=document.querySelector("#tblWhats tbody"); tb.innerHTML="";
+  for(const c of (db.clientes||[])){
+    const tr=document.createElement("tr");
+    tr.innerHTML = '<td><input type="checkbox" data-id="'+c.id+'" checked/></td><td><b>'+escapeHtml(c.name)+'</b></td><td>'+escapeHtml(c.phone)+'</td>';
+    tb.appendChild(tr);
   }
+}
 
-  function addFixo(){
-    saveAgendaFromInputs();
-    const nome = ($("fixoNome").value||"").trim();
-    const dia = Number($("fixoDia").value||0);
-    const hora = $("fixoHora").value || "00:00";
-    if(!nome){ toast("Informe o nome."); return; }
-    DATA.fixos = DATA.fixos || [];
-    DATA.fixos.push({nome, dia, hora, tipo:"fixo"});
-    saveData(DATA);
-    $("fixoNome").value="";
-    refresh();
-    toast("Fixo adicionado.");
-  }
+function bindTabs(){
+  document.querySelectorAll(".pill").forEach(p=>{
+    p.addEventListener("click", ()=>{
+      document.querySelectorAll(".pill").forEach(x=>x.classList.remove("active"));
+      p.classList.add("active");
+      const tab=p.dataset.tab;
+      ["dashboard","agenda","fixos","clientes","whats","conta"].forEach(t=>{
+        document.getElementById("tab-"+t).classList.toggle("hide", t!==tab);
+      });
+    });
+  });
+}
 
-  function clearFixos(){
-    if(!confirm("Limpar todos os fixos?")) return;
-    DATA.fixos = [];
-    saveData(DATA);
-    refresh();
-    toast("Fixos limpos.");
-  }
+function init(){
+  const db=ensure();
+  document.getElementById("footYear").textContent = new Date().getFullYear();
+  document.getElementById("ownEmail").value = db.owner.email || window.__SOC_CONFIG__.ownerEmail || "";
+  bindTabs(); renderHoje(); renderFixos(); renderClientes(); renderWhatsList();
 
-  // Export: aqui é a parte "sem responsabilidade": o dono gera e publica
-  function exportIndex(){
-    saveAgendaFromInputs();
-    // A página index.html do cliente vai carregar este JSON e exibir horários com base nele (fase 1).
-    const agendaJson = JSON.stringify(loadData());
-    const injected = "
-<script>
-window.__AGC_OWNER_DATA = " + agendaJson + ";
-</" + "script>";
+  document.getElementById("btnReload").onclick = renderHoje;
+  document.getElementById("btnAddAvulso").onclick = ()=>{
+    const db=ensure(); const date=todayISO();
+    const time=prompt("Horário (HH:MM):","20:00"); if(!time) return;
+    const name=prompt("Nome:","Cliente"); const phone=prompt("Telefone:",""); 
+    db.reservas.push({id:"r"+Math.random().toString(16).slice(2),date:date,time:time,dur:60,name:name,phone:phone,type:"avulso",status:"reservado",paid:true,value:slotValue(db,time),protocolo:genProto()});
+    save(db); renderHoje();
+  };
 
-    // O dono substitui o index.html no servidor. (Para manter simples: injetamos o JSON no topo do index atual)
-    // Aqui a gente apenas avisa: você vai colar/colocar essa parte se quiser — na próxima etapa ligamos 100% ao agendamento real.
-    const esc = (s)=>String(s).replace(/</g,"&lt;");
-    const content = "<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">" + "<title>" + (window.__AGC_SOC_NAME||"Atualização") + " — Atualização</title></head>
-" + "<body style="font-family:system-ui;padding:18px">
-" + "<h2>Arquivo de atualização gerado</h2>
-" + "<p>Este é um passo provisório: na próxima etapa, o painel vai gerar o <b>index.html completo</b> já com sua agenda integrada.</p>
-" + "<p><b>JSON da agenda (já pronto):</b></p>
-" + "<pre style="white-space:pre-wrap;background:#111;color:#eee;padding:12px;border-radius:12px">" + esc(agendaJson) + "</pre>
-" + "<p><b>Trecho para colocar no index.html (logo antes de </b><code>&lt;/head&gt;</code><b>):</b></p>
-" + "<pre style="white-space:pre-wrap;background:#111;color:#eee;padding:12px;border-radius:12px">" + esc(injected) + "</pre>
-" + "</body></html>";
-    dl("ATUALIZACAO_AGENDA.html", content);
-    toast("Arquivo gerado. Suba no servidor.");
-  }
+  document.getElementById("btnApplyWork").onclick = ()=>{
+    const db=ensure(); const day=document.getElementById("workDay").value;
+    db.work[String(day)]={start:document.getElementById("workStart").value,end:document.getElementById("workEnd").value,dur:Number(document.getElementById("slotDur").value||60)};
+    save(db); alert("Dia salvo."); renderHoje();
+  };
+  document.getElementById("btnClearWork").onclick = ()=>{
+    const db=ensure(); const day=document.getElementById("workDay").value;
+    delete db.work[String(day)]; save(db); alert("Dia removido."); renderHoje();
+  };
 
-  // Events
-  $("btnLogin").addEventListener("click", doLogin);
-  $("btnLogout").addEventListener("click", doLogout);
-  $("btnOpenPwd").addEventListener("click", togglePwd);
-  $("btnSavePwd").addEventListener("click", savePwd);
+  document.getElementById("btnSavePrices").onclick = ()=>{
+    const db=ensure();
+    db.prices=db.prices||{default:100,byTime:{}};
+    db.prices.default=Number(document.getElementById("priceDefault").value||0);
+    const t=document.getElementById("priceTime").value;
+    const v=Number(document.getElementById("priceValue").value||0);
+    db.prices.byTime=db.prices.byTime||{}; db.prices.byTime[t]=v;
+    save(db); alert("Preços salvos."); renderHoje();
+  };
+  document.getElementById("btnResetPrices").onclick = ()=>{
+    const db=ensure(); db.prices={default:100,byTime:{}}; save(db); alert("Resetado."); renderHoje();
+  };
 
-  $("btnAddFixo").addEventListener("click", addFixo);
-  $("btnClearFixos").addEventListener("click", clearFixos);
-  $("btnExport").addEventListener("click", exportIndex);
+  document.getElementById("btnAddFixo").onclick = ()=>{
+    const db=ensure();
+    db.fixos=db.fixos||[];
+    db.fixos.push({id:"f"+Math.random().toString(16).slice(2),name:document.getElementById("fxNome").value.trim(),phone:document.getElementById("fxFone").value.trim(),dow:document.getElementById("fxDia").value,time:document.getElementById("fxHora").value,type:document.getElementById("fxTipo").value});
+    save(db); ["fxNome","fxFone"].forEach(id=>document.getElementById(id).value=""); renderFixos(); renderHoje();
+  };
 
-  // Boot
-  if(sessionStorage.getItem("agc_owner_logged")==="1"){ setLogged(true); refresh(); }
-  else { setLogged(false); }
+  document.getElementById("btnAddCliente").onclick = ()=>{
+    const db=ensure();
+    const c={id:"c"+Math.random().toString(16).slice(2),name:document.getElementById("cNome").value.trim(),phone:document.getElementById("cFone").value.trim(),rg:document.getElementById("cRg").value.trim(),nasc:document.getElementById("cNasc").value,end:document.getElementById("cEnd").value.trim(),obs:document.getElementById("cObs").value.trim(),last:null};
+    db.clientes.push(c); save(db);
+    ["cNome","cFone","cRg","cNasc","cEnd","cObs"].forEach(id=>document.getElementById(id).value=""); renderClientes(); renderWhatsList();
+  };
 
-})();
+  document.getElementById("btnWhatsAll").onclick = ()=>{
+    const db=ensure();
+    const checks=[...document.querySelectorAll('#tblWhats input[type="checkbox"]')].filter(x=>x.checked);
+    const ids=checks.map(x=>x.dataset.id);
+    const clients=(db.clientes||[]).filter(c=>ids.includes(c.id));
+    if(!clients.length){alert("Nenhum cliente selecionado.");return;}
+    const horario=(document.getElementById("wHorario").value||"[HORÁRIO]").trim();
+    const msg=document.getElementById("wMsg").value.replace("[HORÁRIO]",horario);
+    let i=0; const next=()=>{ const c=clients[i++]; if(!c) return; openWhats(c.phone,msg); if(i<clients.length) setTimeout(next,700); };
+    next();
+  };
+
+  document.getElementById("btnChangePass").onclick = ()=>{
+    const db=ensure();
+    const now=document.getElementById("ownPassNow").value;
+    const n1=document.getElementById("ownPassNew").value;
+    const n2=document.getElementById("ownPassNew2").value;
+    if(now!==db.owner.pass){alert("Senha atual incorreta.");return;}
+    if(!n1 || n1.length<4){alert("Nova senha muito curta.");return;}
+    if(n1!==n2){alert("Confirmação não confere.");return;}
+    db.owner.pass=n1; save(db);
+    ["ownPassNow","ownPassNew","ownPassNew2"].forEach(id=>document.getElementById(id).value="");
+    alert("Senha alterada (modo local).");
+  };
+}
+document.addEventListener("DOMContentLoaded", init);
 </script>
-</body>
-</html>
+
