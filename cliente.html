@@ -1,248 +1,1364 @@
-<!doctype html>
-<html lang="pt-br">
-<head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>TESTE NOVO — Agendamento Online</title>
-<meta name="description" content="Agendamento online do TESTE NOVO. Reserve, pague sinal e receba protocolo."/>
-<style>
-  :root{--bg:#050806;--card:rgba(255,255,255,.05);--line:rgba(255,255,255,.12);--text:#eef5ff;--green:#22c55e;--radius:18px;--max:1120px}
-  *{box-sizing:border-box}
-  body{margin:0;background:radial-gradient(900px 420px at 20% 0%, rgba(34,197,94,.14), transparent 60%), linear-gradient(180deg, #040806, #050b08); color:var(--text); font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial}
-  a{color:inherit;text-decoration:none}
-  .wrap{max-width:var(--max);margin:0 auto;padding:18px 16px 60px}
-  .top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 14px;border:1px solid var(--line);border-radius:999px;background:rgba(6,12,10,.65);backdrop-filter:blur(10px);position:sticky;top:12px;z-index:20}
-  .brand{display:flex;align-items:center;gap:10px;font-weight:1000}
-  .dot{width:10px;height:10px;border-radius:999px;background:var(--green);display:inline-block}
-  .btn{display:inline-flex;align-items:center;justify-content:center;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.04);font-weight:950}
-  .btn.primary{border:0;color:#05120b;background:linear-gradient(135deg,#34d399,#22c55e)}
-  .hero{margin-top:14px;border:1px solid var(--line);border-radius:24px;overflow:hidden;position:relative;min-height:320px;}
-  .hero::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg, rgba(0,0,0,.72), rgba(0,0,0,.32));}
-  .heroIn{position:relative;padding:26px}
-  h1{margin:0 0 8px;font-size:40px;line-height:1.05}
-  .sub{margin:0;color:rgba(238,245,255,.84);line-height:1.65;max-width:65ch}
-  .info{margin-top:14px;display:flex;gap:10px;flex-wrap:wrap}
-  .tag{padding:8px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.04);font-weight:950;font-size:12px;color:rgba(238,245,255,.86)}
-  .gallery{margin-top:14px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-  @media (max-width:900px){.gallery{grid-template-columns:1fr 1fr}}
-  @media (max-width:560px){.gallery{grid-template-columns:1fr}}
-  .galCard{border:1px solid rgba(255,255,255,.12);border-radius:18px;background:rgba(255,255,255,.03);overflow:hidden;display:flex;flex-direction:column;min-height:210px}
-  .galImg{flex:1;background-size:cover;background-position:center}
-  .galTxt{padding:12px}
-  .galTxt b{display:block;font-weight:1000}
-  .galTxt small{display:block;margin-top:6px;color:rgba(238,245,255,.70);font-weight:850}
-  footer{margin-top:18px;padding-top:16px;border-top:1px solid rgba(255,255,255,.10);color:rgba(238,245,255,.62);font-size:13px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
-</style>
-</head>
-<body>
-<div class="wrap">
-  <header class="top">
-    <div class="brand"><span class="dot"></span><span>TESTE NOVO</span></div>
-    <nav style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end">
-      <a class="btn" href="#fotos">Fotos</a>
-      <a class="btn primary" href="javascript:void(0)">Agendar online</a>
-      <a class="btn" href="./painel.html">Painel</a>
-    </nav>
+
+
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>AgendeCampo — Cliente teste novo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&amp;display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#07140f;
+      --bg2:#0b1f17;
+      --line:rgba(255,255,255,.10);
+      --text:rgba(255,255,255,.92);
+      --muted:rgba(255,255,255,.70);
+      --accent:#19c37d;
+      --whats:#25d366;
+      --shadow: 0 14px 40px rgba(0,0,0,.35);
+      --radius: 16px;
+      --radius2: 22px;
+      --max: 1150px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,system-ui,Arial;background:linear-gradient(180deg,var(--bg),var(--bg2));color:var(--text)}
+    a{color:inherit}
+    .wrap{max-width:var(--max);margin:0 auto;padding:0 18px}
+    .topbar{
+      position:sticky;top:0;z-index:10;
+      backdrop-filter: blur(10px);
+      background: rgba(7,20,15,.55);
+      border-bottom:1px solid var(--line);
+    }
+    .topbar .wrap{display:flex;align-items:center;justify-content:space-between;padding:14px 18px}
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo{
+      width:40px;height:40px;border-radius:12px;
+      background: radial-gradient(circle at 30% 30%, #28ff9a, #0a6b45);
+      box-shadow: var(--shadow);
+    }
+    .brand strong{display:block;font-size:14px;letter-spacing:.2px}
+    .brand span{display:block;font-size:12px;color:var(--muted)}
+    .cta{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+    .btn{
+      display:inline-flex;align-items:center;justify-content:center;gap:10px;
+      padding:10px 14px;border-radius:14px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      text-decoration:none;font-weight:700;font-size:13px;
+    }
+    .btn.primary{
+      border-color:rgba(25,195,125,.35);
+      background: linear-gradient(180deg, rgba(25,195,125,.18), rgba(25,195,125,.06));
+    }
+    .hero{
+      min-height:78vh;
+      display:grid;place-items:center;
+      background:
+        linear-gradient(180deg, rgba(0,0,0,.55), rgba(7,20,15,.92)),
+        url('https://images.unsplash.com/photo-1521412644187-c49fa049e84d?auto=format&fit=crop&w=2000&q=70') center/cover no-repeat;
+      border-bottom:1px solid var(--line);
+    }
+    .heroCard{
+      width:min(860px,100%);
+      background: rgba(8,22,16,.55);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius: var(--radius2);
+      box-shadow: var(--shadow);
+      padding: 26px;
+    }
+    .kicker{
+      display:inline-flex;gap:10px;align-items:center;
+      padding:8px 12px;border-radius:999px;
+      border:1px solid rgba(25,195,125,.35);
+      background: rgba(25,195,125,.10);
+      color:rgba(255,255,255,.92);
+      font-weight:700;font-size:12px;
+    }
+    .hero h1{margin:14px 0 8px;font-size: clamp(28px, 4vw, 46px);line-height:1.05}
+    .hero p{margin:0;color:var(--muted);font-size:14px;line-height:1.55}
+    .heroGrid{display:grid;grid-template-columns: 1.2fr .8fr;gap:16px;margin-top:16px;}
+    @media (max-width: 840px){ .heroGrid{grid-template-columns:1fr} }
+    .statRow{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    @media (max-width: 520px){ .statRow{grid-template-columns:1fr} }
+    .stat{
+      background: rgba(255,255,255,.04);
+      border:1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+    }
+    .stat b{display:block;font-size:18px}
+    .stat small{color:var(--muted)}
+    .section{padding:56px 0}
+    .section h2{margin:0 0 10px;font-size:22px}
+    .section p{margin:0;color:var(--muted);line-height:1.6}
+    .grid{
+      margin-top:22px;
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:16px;
+    }
+    @media (max-width: 980px){ .grid{grid-template-columns:repeat(2,1fr)} }
+    @media (max-width: 620px){ .grid{grid-template-columns:1fr} }
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      overflow:hidden;
+      box-shadow: 0 10px 26px rgba(0,0,0,.25);
+    }
+    .card img{width:100%;height:190px;object-fit:cover;display:block}
+    .card .pad{padding:16px}
+    .card h3{margin:0 0 8px;font-size:16px}
+    .card p{margin:0;color:var(--muted);font-size:13px;line-height:1.55}
+    .banner{
+      margin-top:22px;
+      background: linear-gradient(90deg, rgba(25,195,125,.18), rgba(255,255,255,.03));
+      border:1px solid rgba(25,195,125,.25);
+      border-radius: var(--radius2);
+      padding:18px;
+      display:flex;justify-content:space-between;align-items:center;gap:14px;
+      flex-wrap:wrap;
+    }
+    .banner b{font-size:14px}
+    footer{
+      border-top:1px solid var(--line);
+      padding:26px 0;
+      background: rgba(0,0,0,.15);
+    }
+    footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+    footer small{color:var(--muted)}
+.pill{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:8px 10px;border:1px solid var(--line);
+      border-radius:999px;background: rgba(255,255,255,.03);
+      color:var(--muted);font-size:12px;
+    }
+  /* ===== Agendamento (DEMO) ===== */
+.modalBg{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:60;padding:18px}
+.modal{width:min(820px,100%);background:rgba(8,22,16,.92);border:1px solid rgba(255,255,255,.14);border-radius:22px;box-shadow:0 24px 60px rgba(0,0,0,.55);overflow:hidden}
+.modalHead{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.10)}
+.modalHead b{font-size:14px}
+.xBtn{cursor:pointer;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:var(--text);border-radius:12px;padding:8px 10px;font-weight:900}
+.modalBody{padding:16px}
+.steps{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.step{font-size:12px;padding:6px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.12);color:var(--muted);background:rgba(255,255,255,.03)}
+.step.on{border-color:rgba(25,195,125,.35);background:rgba(25,195,125,.10);color:rgba(255,255,255,.92)}
+.formGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:720px){.formGrid{grid-template-columns:1fr}}
+label{font-size:12px;color:var(--muted);display:block;margin:0 0 6px}
+input,select,textarea{
+  width:100%;padding:11px 12px;border-radius:14px;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(255,255,255,.04);color:var(--text);
+  outline:none;
+}
+textarea{min-height:84px;resize:vertical}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.hint{font-size:12px;color:var(--muted);line-height:1.45}
+.warn{border:1px solid rgba(255,205,0,.25);background:rgba(255,205,0,.08);padding:10px 12px;border-radius:14px;color:rgba(255,255,255,.86);font-size:12px}
+.ok{border:1px solid rgba(25,195,125,.25);background:rgba(25,195,125,.10);padding:10px 12px;border-radius:14px;color:rgba(255,255,255,.92);font-size:12px}
+.actions{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:14px}
+.btn2{
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;
+  padding:11px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.14);
+  background:rgba(255,255,255,.05);color:var(--text);font-weight:900;font-size:13px;cursor:pointer
+}
+.btn2.primary{
+  border-color:rgba(25,195,125,.35);
+  background:linear-gradient(180deg, rgba(25,195,125,.22), rgba(25,195,125,.08));
+}
+.mini{font-size:11px;color:var(--muted)}
+.pill2{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.03);color:var(--muted);font-size:12px}
+.copyBtn{padding:9px 10px;border-radius:12px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:var(--text);cursor:pointer;font-weight:900}
+.hidden{display:none}
+  
+    .slots{display:flex;flex-wrap:wrap;gap:10px;padding:10px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.03)}
+    .slotBtn{cursor:pointer;user-select:none;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.04);font-weight:800;font-size:12px}
+    .slotBtn:hover{transform:translateY(-1px)}
+    .slotBtn[disabled]{opacity:.35;cursor:not-allowed}
+    .slotBtn.active{border-color:rgba(25,195,125,.55);background:rgba(25,195,125,.12)}
+    .mini{font-size:12px;color:var(--muted)}
+    .admTabs{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
+    .admTabs .btn{padding:8px 10px;border-radius:12px}
+    .admGrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    @media(max-width:860px){.admGrid{grid-template-columns:1fr}}
+    .table{width:100%;border-collapse:collapse}
+    .table th,.table td{border-bottom:1px solid var(--line);padding:10px;text-align:left;font-size:12px}
+    .badge{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.03);font-size:12px;color:var(--muted)}
+
+
+    .floatBook{
+      position:fixed;right:18px;bottom:18px;z-index:60;
+      border:none;cursor:pointer;
+      background: linear-gradient(180deg, rgba(25,195,125,.85), rgba(25,195,125,.55));
+      color:#052012;
+      padding: 14px 16px;
+      border-radius: 999px;
+      font-weight: 900;
+      box-shadow: 0 14px 30px rgba(0,0,0,.45);
+      display:flex;align-items:center;gap:10px;
+    }
+    .floatBook .dot{width:10px;height:10px;border-radius:50%;background:#fff;opacity:.95}
+    .floatBook:active{transform: translateY(1px)}
+
+  </style>
+
+
+
+  <div class="topbar">
+    <div class="wrap">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <strong>N&amp;V Gestão Digital — AgendeSeuHorario</strong>
+          <span>Cliente DEMO (/teste)</span>
+        </div>
+      </div>
+      <div class="cta">
+        <a class="btn" href="#estrutura">Estrutura</a>
+        <a class="btn primary" href="javascript:void(0)" id="btnAgendarTop">Agendar online</a>
+        <a class="btn" href="#contato">Contato</a>
+        <a class="btn" href="#" id="btnAdm">ADM</a>
+      </div>
+    </div>
+  </div>
+
+  <header class="hero">
+    <div class="wrap">
+      <div class="heroCard">
+        <span class="kicker">⚽ SOCIETY • AGENDAMENTO ONLINE</span>
+        <h1>Society teste novo</h1>
+        <p>
+          Resumo (DEMO): “Campo society com estrutura completa, ótimo atendimento e horários organizados.”
+          <br><span class="pill">📍 Centro • Sua Cidade</span> <span class="pill">🕒 Seg–Dom</span> <span class="pill">⭐ 4,9 (DEMO)</span>
+        </p>
+
+        <div class="heroGrid">
+          <div class="statRow">
+            <div class="stat"><b>Gramado</b><small>Qualidade + manutenção</small></div>
+            <div class="stat"><b>Iluminação</b><small>Jogo noturno tranquilo</small></div>
+            <div class="stat"><b>Estrutura</b><small>Bar, vestiário, etc.</small></div>
+          </div>
+          <div>
+  <a class="btn primary" style="width:100%;justify-content:center" href="javascript:void(0)" id="btnAgendarHero">AGENDE SEU HORÁRIO ONLINE</a>
+  <div style="height:10px"></div>
+<a class="btn" style="width:100%;justify-content:center" href="#estrutura">Ver fotos e detalhes</a>
+</div>
+        </div>
+
+      </div>
+    </div>
   </header>
 
   <main>
-    <section class="hero">
-      <div class="heroIn">
-        <h1>Agendamento online do TESTE NOVO</h1>
-        <p class="sub">Reserve seu horário, pague o sinal e receba o protocolo. Atendimento organizado e sem furos.</p>
-        <div class="info">
-          <span class="tag">Endereço: 1231321231</span>
-          <span class="tag">Telefone: 131233212</span>
-          <span class="tag">Layout: modelo-5-parallax</span>
+    <section id="estrutura" class="section">
+      <div class="wrap">
+        <h2>Conheça a estrutura</h2>
+        <p>6 fotos com resumos (o dono do society te passa os textos). A foto grande do topo destaca o campo.</p>
+
+        <div class="grid">
+          <article class="card">
+            <img src="https://images.unsplash.com/photo-1554254648-2d58a1bc3fd9?auto=format&amp;fit=crop&amp;w=1200&amp;q=70" alt="Foto 1">
+            <div class="pad">
+              <h3>Bar / Lanchonete</h3>
+              <p>Resumo: vende bebidas, porções e lanches para os jogadores.</p>
+            </div>
+          </article>
+
+          <article class="card">
+            <img src="https://images.unsplash.com/photo-1601004890684-d8cbf643f5f2?auto=format&amp;fit=crop&amp;w=1200&amp;q=70" alt="Foto 2">
+            <div class="pad">
+              <h3>Playground</h3>
+              <p>Resumo: espaço para crianças enquanto os pais jogam.</p>
+            </div>
+          </article>
+
+          <article class="card">
+            <img src="https://images.unsplash.com/photo-1520275126937-9506f7dd123c?auto=format&amp;fit=crop&amp;w=1200&amp;q=70" alt="Foto 3">
+            <div class="pad">
+              <h3>Vestiários</h3>
+              <p>Resumo: ambiente limpo e organizado.</p>
+            </div>
+          </article>
+
+          <article class="card">
+            <img src="https://images.unsplash.com/photo-1521412644187-c49fa049e84d?auto=format&amp;fit=crop&amp;w=1200&amp;q=70" alt="Foto 4">
+            <div class="pad">
+              <h3>Iluminação Noturna</h3>
+              <p>Resumo: partidas até tarde com excelente iluminação.</p>
+            </div>
+          </article>
+
+          <article class="card">
+            <img src="https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&amp;fit=crop&amp;w=1200&amp;q=70" alt="Foto 5">
+            <div class="pad">
+              <h3>Estacionamento</h3>
+              <p>Resumo: espaço amplo para clientes.</p>
+            </div>
+          </article>
+
+          <article class="card">
+            <img src="https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&amp;fit=crop&amp;w=1200&amp;q=70" alt="Foto 6">
+            <div class="pad">
+              <h3>Eventos</h3>
+              <p>Resumo: realizamos campeonatos e festas.</p>
+            </div>
+          </article>
+        </div>
+
+        <div class="banner" id="contato">
+          <div>
+            <b>Quer reservar horário online?</b><br>
+            <span style="color:var(--muted)">Use o botão de agendamento online (DEMO) ou chame no WhatsApp.</span>
+          </div>
+          <a class="btn" href="https://wa.me/5599999999999?text=Olá!%20Quero%20informações%20sobre%20o%20Society%20teste novo." target="_blank" rel="noopener">WhatsApp (última opção)</a>
         </div>
       </div>
     </section>
-
-    <section id="fotos" style="margin-top:14px">
-      <div style="font-weight:1000;margin:8px 0 10px">Fotos do society</div>
-      <div class="gallery">
-        
-              <a class="galCard" href="#" target="_blank" rel="noopener">
-                <div class="galImg" style="background-image:url('')"></div>
-                <div class="galTxt">
-                  <b>Foto 1</b>
-                  <small>Toque para ampliar</small>
-                </div>
-              </a>
-            
-              <a class="galCard" href="#" target="_blank" rel="noopener">
-                <div class="galImg" style="background-image:url('')"></div>
-                <div class="galTxt">
-                  <b>Foto 2</b>
-                  <small>Toque para ampliar</small>
-                </div>
-              </a>
-            
-              <a class="galCard" href="#" target="_blank" rel="noopener">
-                <div class="galImg" style="background-image:url('')"></div>
-                <div class="galTxt">
-                  <b>Foto 3</b>
-                  <small>Toque para ampliar</small>
-                </div>
-              </a>
-            
-              <a class="galCard" href="#" target="_blank" rel="noopener">
-                <div class="galImg" style="background-image:url('')"></div>
-                <div class="galTxt">
-                  <b>Foto 4</b>
-                  <small>Toque para ampliar</small>
-                </div>
-              </a>
-            
-              <a class="galCard" href="#" target="_blank" rel="noopener">
-                <div class="galImg" style="background-image:url('')"></div>
-                <div class="galTxt">
-                  <b>Foto 5</b>
-                  <small>Toque para ampliar</small>
-                </div>
-              </a>
-            
-              <a class="galCard" href="#" target="_blank" rel="noopener">
-                <div class="galImg" style="background-image:url('')"></div>
-                <div class="galTxt">
-                  <b>Foto 6</b>
-                  <small>Toque para ampliar</small>
-                </div>
-              </a>
-            
-      </div>
-    </section>
-
-    <footer>
-      <div>© 2026 N&V Gestão Digital</div>
-      <div>AgendeCampo.com.br</div>
-    </footer>
   </main>
+
+  <footer>
+    <div class="wrap">
+      <div>
+        <strong>Society teste novo</strong><br>
+        <small>Endereço: Rua Exemplo, 123 — Bairro — Cidade/UF</small>
+      </div>
+      <div>
+        <small>© N&amp;V Gestão Digital — AgendeSeuHorario</small>
+      </div>
+    </div>
+  </footer>
+<!-- ===== Modal Agendamento (DEMO) ===== -->
+<div class="modalBg" id="agBg" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="agTitle">
+    <div class="modalHead">
+      <div>
+        <b id="agTitle">Agendamento online (DEMO)</b>
+        <div class="mini">Este fluxo é de demonstração para apresentação ao cliente.</div>
+      </div>
+      <button class="xBtn" id="agClose" aria-label="Fechar">✕</button>
+    </div>
+    <div class="modalBody">
+      <div class="steps">
+        <span class="step on" id="st1">1) Data e horário</span>
+        <span class="step" id="st2">2) Cadastro</span>
+        <span class="step" id="st3">3) Pagamento (50%)</span>
+        <span class="step" id="st4">4) Protocolo</span>
+      </div>
+
+      <!-- Step 1 -->
+      <div id="pane1">
+        <div class="formGrid">
+          <div>
+            <label>Data</label>
+            <input type="date" id="agDate">
+          </div>
+          <div>
+            <label>Duração</label>
+            <select id="agDur">
+              <option value="60">60 minutos (mínimo)</option>
+              <option value="90">90 minutos</option>
+              <option value="120">120 minutos</option>
+              <option value="150">150 minutos</option>
+              <option value="180">180 minutos</option>
+            </select>
+          </div>
+          <div>
+            <label>Horário de início</label>
+            <select id="agStart"></select>
+          
+          <div style="grid-column: 1 / -1">
+            <label>Horários disponíveis (clique para selecionar)</label>
+            <div id="agSlots" class="slots">Selecione uma data para ver os horários.</div>
+          </div>
+
+          </div>
+          <div>
+            <label>Disponibilidade</label>
+            <div class="ok" id="agAvail">Selecione uma data e horário.</div>
+          </div>
+        </div>
+
+        <div style="height:10px"></div>
+        <div class="row">
+          <span class="pill2">💰 Valor/hora (DEMO): <b id="agRate">R$ 200,00</b></span>
+          <span class="pill2">🔒 Sinal (50%): <b id="agSignal">—</b></span>
+          <span class="pill2">🧾 Total: <b id="agTotal">—</b></span>
+        </div>
+
+        <div class="actions">
+          <button class="btn2" id="agClear">Limpar agenda (DEMO)</button>
+          <button class="btn2 primary" id="to2">Continuar</button>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div id="pane2" class="hidden">
+        <div class="formGrid">
+          <div>
+            <label>Nome</label>
+            <input id="cName" placeholder="Seu nome">
+          </div>
+          <div>
+            <label>Telefone</label>
+            <input id="cPhone" placeholder="(11) 99999-9999">
+          </div>
+          <div>
+            <label>RG</label>
+            <input id="cRG" placeholder="00.000.000-0">
+          </div>
+          <div>
+            <label>Endereço</label>
+            <input id="cAddr" placeholder="Rua, número, bairro">
+          </div>
+          <div style="grid-column:1/-1">
+            <div class="warn">
+              ⚠️ <b>Termo</b>: não há reembolso em caso de desistência. Só haverá devolução se o campo não tiver condições de jogo (ex.: chuva) por responsabilidade do society.
+            </div>
+            <div style="height:8px"></div>
+            <label style="display:flex;gap:10px;align-items:flex-start;margin:0">
+              <input type="checkbox" id="cTerms" style="width:auto;margin-top:2px">
+              <span class="hint">Li e aceito o termo acima para concluir o agendamento.</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn2" id="back1">Voltar</button>
+          <button class="btn2 primary" id="to3">Ir para pagamento</button>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div id="pane3" class="hidden">
+        <div class="ok">
+          <b>Pagamento via PIX (DEMO)</b><br>
+          Para confirmar o horário, pague <b>50%</b> do valor total. Após “pago”, a agenda é bloqueada automaticamente.
+        </div>
+        <div style="height:10px"></div>
+
+        <div class="formGrid">
+          <div style="grid-column:1/-1">
+            <label>Código PIX (copia e cola)</label>
+            <div class="row">
+              <input id="pixCode" readonly="" value="00020126580014BR.GOV.BCB.PIX0136demo-agendecampo-teste52040000530398654041.005802BR5920Society%20teste novo6009Sua%20Cidade62120508AGDEteste novo6304ABCD">
+              <button class="copyBtn" id="pixCopy">Copiar</button>
+            </div>
+            <div class="mini">* DEMO: código fictício para demonstração ao cliente.</div>
+          </div>
+
+          <div>
+            <label>Valor do sinal</label>
+            <input id="pixValue" readonly="">
+          </div>
+          <div>
+            <label>Status</label>
+            <label style="display:flex;gap:10px;align-items:center;margin:0">
+              <input type="checkbox" id="pixPaid" style="width:auto">
+              <span class="hint"><b>Pago (DEMO)</b> — marque para concluir.</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn2" id="back2">Voltar</button>
+          <button class="btn2 primary" id="confirm">Confirmar agendamento</button>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div id="pane4" class="hidden">
+        <div class="ok" id="doneBox"></div>
+        <div style="height:10px"></div>
+        <div class="hint" id="doneHint"></div>
+
+        <div class="actions">
+          <button class="btn2" id="closeDone">Fechar</button>
+          <a class="btn2" href="#contato" id="goWpp">WhatsApp (opcional)</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
 </div>
 
 <script>
-(function(){
-  const cfg = (window.__AGC_OWNER_DATA && typeof window.__AGC_OWNER_DATA === "object") ? window.__AGC_OWNER_DATA : {dias:["5","6","0"], ini:"18:00", fim:"23:00", slot:60, valor:"120.00", fixos:[]};
+(() => {
+  const TENANT = "teste";
+  const RATE = 200; // R$ por hora (DEMO)
+  const KEY = "agendecampo_reservas_" + TENANT;
 
-  const $ = (id)=>document.getElementById(id);
-  const pad2 = (n)=>String(n).padStart(2,"0");
-  const timeToMin = (hhmm)=>{ const [h,m]=String(hhmm||"0:0").split(":").map(Number); return (h*60)+(m||0); };
-  const minToTime = (min)=>{ const h=Math.floor(min/60), m=min%60; return pad2(h)+":"+pad2(m); };
-  const onlyDigits = (s)=>String(s||"").replace(/D+/g,"");
+  const el = (id) => document.getElementById(id);
 
-  let selectedTime = "";
+  const bg = el("agBg");
+  const openBtns = [el("btnAgendarHero"), el("btnAgendarTop"), el("floatBookBtn")].filter(Boolean);
+  const closeBtn = el("agClose");
+  const closeDone = el("closeDone");
 
-  function setWhatsAppLink(){
-    const telEl = document.querySelector('[data-tel]') || null;
-    const telText = telEl ? (telEl.getAttribute("data-tel") || telEl.textContent || "") : "";
-    const raw = onlyDigits(telText);
-    if(!raw) return;
-    const br = raw.length>=11 ? "55"+raw : "55"+raw;
-    const url = "https://wa.me/" + br;
-    const btn = $("btnWhatsApp");
-    if(btn){ btn.addEventListener("click", ()=> window.open(url, "_blank")); }
+  const panes = [el("pane1"), el("pane2"), el("pane3"), el("pane4")];
+  const steps = [el("st1"), el("st2"), el("st3"), el("st4")];
+
+  const dateI = el("agDate");
+  const durS = el("agDur");
+  const startS = el("agStart");
+  const slotsBox = el("agSlots");
+  const availBox = el("agAvail");
+
+  const rateEl = el("agRate");
+  const sigEl = el("agSignal");
+  const totEl = el("agTotal");
+
+  const to2 = el("to2");
+  const to3 = el("to3");
+  const back1 = el("back1");
+  const back2 = el("back2");
+  const confirm = el("confirm");
+
+  const clearBtn = el("agClear");
+
+  const cName = el("cName");
+  const cPhone = el("cPhone");
+  const cRG = el("cRG");
+  const cAddr = el("cAddr");
+  const cTerms = el("cTerms");
+
+  const pixCode = el("pixCode");
+  const pixCopy = el("pixCopy");
+  const pixValue = el("pixValue");
+  const pixPaid = el("pixPaid");
+
+  const doneBox = el("doneBox");
+  const doneHint = el("doneHint");
+  const goWpp = el("goWpp");
+
+  rateEl.textContent = "R$ " + RATE.toFixed(2).replace(".", ",");
+
+  const nowDateStr = () => {
+    const d = new Date();
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth()+1).padStart(2,'0');
+    const dd = String(d.getDate()).padStart(2,'0');
+    return `${yyyy}-${mm}-${dd}`;
+  };
+
+  const pad2 = (n) => String(n).padStart(2,'0');
+
+  function setStep(n) {
+    panes.forEach((p,i)=> p.classList.toggle("hidden", i!==n));
+    steps.forEach((s,i)=> s.classList.toggle("on", i===n));
   }
 
-  function isReserved(dateStr, timeStr){
-    // fixos: [{d:"YYYY-MM-DD", t:"HH:MM"}]
-    const arr = Array.isArray(cfg.fixos) ? cfg.fixos : [];
-    return arr.some(x => x && x.d === dateStr && x.t === timeStr);
+  function openModal() {
+    if (!dateI.value) dateI.value = nowDateStr();
+    buildTimeOptions();
+    updatePriceAndAvailability();
+    pixPaid.checked = false;
+    setStep(0);
+    bg.style.display = "flex";
+    bg.setAttribute("aria-hidden", "false");
   }
 
-  function renderTimes(){
-    const date = ($("agcDate") && $("agcDate").value) ? $("agcDate").value : "";
-    const wrap = $("agcTimes");
-    const no = $("agcNoTimes");
-    if(!wrap || !no) return;
+  function closeModal() {
+    bg.style.display = "none";
+    bg.setAttribute("aria-hidden", "true");
+  }
 
-    wrap.innerHTML = "";
-    selectedTime = "";
-    if(!date){ no.style.display="none"; return; }
+  openBtns.forEach(b => b.addEventListener("click", openModal));
+  closeBtn.addEventListener("click", closeModal);
+  closeDone.addEventListener("click", closeModal);
+  bg.addEventListener("click", (e) => { if (e.target === bg) closeModal(); });
 
-    const wd = new Date(date+"T00:00:00").getDay(); // 0=Dom
-    const dias = Array.isArray(cfg.dias) ? cfg.dias.map(String) : [];
-    if(!dias.includes(String(wd))){ no.style.display="block"; return; }
+  function reservations() {
+    try {
+      return JSON.parse(localStorage.getItem(KEY) || "[]");
+    } catch(e) {
+      return [];
+    }
+  }
 
-    const ini = timeToMin(cfg.ini);
-    const fim = timeToMin(cfg.fim);
-    const slot = Math.max(15, Number(cfg.slot||60));
-    const times = [];
-    for(let t=ini; t<=fim; t+=slot){
-      times.push(minToTime(t));
+  function saveReservations(list) {
+    localStorage.setItem(KEY, JSON.stringify(list));
+  }
+
+  function minutesFromHHMM(hhmm) {
+    const [h,m] = hhmm.split(":").map(Number);
+    return h*60 + m;
+  }
+
+  function hhmmFromMinutes(mins) {
+    const h = Math.floor(mins/60);
+    const m = mins%60;
+    return `${pad2(h)}:${pad2(m)}`;
+  }
+
+  function buildTimeOptions() {
+    startS.innerHTML = "";
+    // 06:00 até 23:00 (início)
+    for (let t=6*60; t<=23*60; t+=60) {
+      const opt = document.createElement("option");
+      opt.value = hhmmFromMinutes(t);
+      opt.textContent = opt.value;
+      startS.appendChild(opt);
+    }
+  }
+
+  function calcEnd(startHHMM, durMin) {
+    const start = minutesFromHHMM(startHHMM);
+    return start + durMin;
+  }
+
+  function overlaps(aStart, aEnd, bStart, bEnd) {
+    return aStart < bEnd && bStart < aEnd;
+  }
+
+  function isAvailable(date, startHHMM, durMin) {
+    const start = minutesFromHHMM(startHHMM);
+    const end = start + durMin;
+
+    // Limite: até 24:00
+    if (end > 24*60) return false;
+
+    const list = reservations().filter(r => r.date === date);
+    for (const r of list) {
+      const rs = minutesFromHHMM(r.start);
+      const re = minutesFromHHMM(r.end);
+      if (overlaps(start, end, rs, re)) return false;
+    }
+    return true;
+  }
+
+  function updatePriceAndAvailability() {
+    const date = dateI.value;
+    const dur = Number(durS.value);
+    const start = startS.value || "06:00";
+
+    const total = RATE * (dur/60);
+    const signal = total * 0.5;
+
+    totEl.textContent = "R$ " + total.toFixed(2).replace(".", ",");
+    sigEl.textContent = "R$ " + signal.toFixed(2).replace(".", ",");
+    pixValue.value = "R$ " + signal.toFixed(2).replace(".", ",");
+
+    if (!date) {
+      availBox.className = "ok";
+      availBox.textContent = "Selecione uma data e horário.";
+      return;
     }
 
-    let any=false;
-    times.forEach(t=>{
-      const disabled = isReserved(date, t);
-      const b=document.createElement("button");
-      b.type="button";
-      b.textContent=t;
-      b.style.padding="10px 12px";
-      b.style.borderRadius="999px";
-      b.style.border="1px solid rgba(255,255,255,.14)";
-      b.style.background= disabled ? "rgba(255,255,255,.06)" : "rgba(0,0,0,.22)";
-      b.style.color="rgba(238,245,255,.92)";
-      b.style.fontWeight="900";
-      b.style.cursor= disabled ? "not-allowed" : "pointer";
-      b.style.opacity= disabled ? ".45" : "1";
-      if(!disabled){
-        any=true;
-        b.addEventListener("click", ()=>{
-          Array.from(wrap.querySelectorAll("button")).forEach(x=>x.style.outline="none");
-          b.style.outline="2px solid rgba(34,197,94,.65)";
-          selectedTime=t;
-        });
-      }
-      wrap.appendChild(b);
-    });
-    no.style.display = any ? "none" : "block";
+    const ok = isAvailable(date, start, dur);
+    if (ok) {
+      availBox.className = "ok";
+      availBox.innerHTML = "✅ Disponível: <b>" + date.split("-").reverse().join("/") + " • " + start + " • " + dur + " min</b>";
+    } else {
+      availBox.className = "warn";
+      availBox.innerHTML = "⛔ Indisponível para este horário/duração. Escolha outro.";
+    }
   }
 
-  function confirm(){
-    const date = $("agcDate") ? $("agcDate").value : "";
-    const nome = $("agcNome") ? ($("agcNome").value||"").trim() : "";
-    const whats = $("agcWhats") ? ($("agcWhats").value||"").trim() : "";
-    const out = $("agcProto");
-    if(!date || !selectedTime){ alert("Selecione data e horário."); return; }
-    if(!nome || !whats){ alert("Informe nome e WhatsApp."); return; }
+  dateI.addEventListener("change", updatePriceAndAvailability);
+  durS.addEventListener("change", updatePriceAndAvailability);
+  startS.addEventListener("change", updatePriceAndAvailability);
 
-    const proto = "AGC-" + date.replaceAll("-","") + "-" + selectedTime.replace(":","") + "-" + Math.random().toString(16).slice(2,6).toUpperCase();
-    if(out){
-      out.style.display="block";
-      out.textContent = "Protocolo: " + proto + " • Envie no WhatsApp para confirmar.";
+  clearBtn.addEventListener("click", () => {
+    if (confirm("DEMO: deseja limpar todas as reservas do cliente teste novo?")) {
+      localStorage.removeItem(KEY);
+      updatePriceAndAvailability();
+      alert("Agenda limpa (DEMO).");
+    }
+  });
+
+  to2.addEventListener("click", () => {
+    const date = dateI.value;
+    const dur = Number(durS.value);
+    const start = startS.value;
+    if (!date || !start) {
+      alert("Selecione data e horário.");
+      return;
+    }
+    if (!isAvailable(date, start, dur)) {
+      alert("Este horário está indisponível. Escolha outro.");
+      return;
+    }
+    setStep(1);
+  });
+
+  back1.addEventListener("click", () => setStep(0));
+  back2.addEventListener("click", () => setStep(1));
+
+  to3.addEventListener("click", () => {
+    if (!cName.value.trim() || !cPhone.value.trim() || !cRG.value.trim() || !cAddr.value.trim()) {
+      alert("Preencha todos os dados do cadastro.");
+      return;
+    }
+    if (!cTerms.checked) {
+      alert("Você precisa aceitar o termo para continuar.");
+      return;
+    }
+    setStep(2);
+  });
+
+  pixCopy.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(pixCode.value);
+      pixCopy.textContent = "Copiado!";
+      setTimeout(()=> pixCopy.textContent = "Copiar", 1200);
+    } catch(e) {
+      alert("Não foi possível copiar automaticamente. Selecione e copie manualmente.");
+    }
+  });
+
+  function makeProtocol() {
+    const s = Math.random().toString(16).slice(2,6).toUpperCase();
+    const t = Date.now().toString().slice(-6);
+    return "AG-" + t + "-" + s;
+  }
+
+  confirm.addEventListener("click", () => {
+    const date = dateI.value;
+    const dur = Number(durS.value);
+    const start = startS.value;
+    const endMin = calcEnd(start, dur);
+    const end = hhmmFromMinutes(endMin);
+
+    if (!isAvailable(date, start, dur)) {
+      alert("Este horário acabou de ficar indisponível. Escolha outro.");
+      setStep(0);
+      return;
+    }
+    if (!pixPaid.checked) {
+      alert("DEMO: marque 'Pago (DEMO)' para concluir.");
+      return;
     }
 
-    const msg = encodeURIComponent(
-      "Olá! Quero reservar no " + (document.title||"Society") + "\n" +
-      "Data: " + date + "\n" +
-      "Horário: " + selectedTime + "\n" +
-      "Nome: " + nome + "\n" +
-      "WhatsApp: " + whats + "\n" +
-      "Protocolo: " + proto
-    );
+    const protocol = makeProtocol();
+    const item = {
+      id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + "_" + Math.random().toString(16).slice(2),
+      protocol,
+      date,
+      start,
+      end,
+      dur,
+      customer: {
+        name: cName.value.trim(),
+        phone: cPhone.value.trim(),
+        rg: cRG.value.trim(),
+        address: cAddr.value.trim()
+      },
+      createdAt: new Date().toISOString(),
+      paidDemo: true
+    };
 
-    // tenta usar o telefone exibido na página (se existir)
-    const telEl = document.querySelector('[data-tel]') || null;
-    const telText = telEl ? (telEl.getAttribute("data-tel") || telEl.textContent || "") : "";
-    const raw = onlyDigits(telText);
+    const list = reservations();
+    list.push(item);
+    saveReservations(list);
+
+    doneBox.innerHTML = "✅ <b>Agendamento concluído com sucesso!</b><br>" +
+      "Protocolo: <b>" + protocol + "</b><br>" +
+      "Data/Horário: <b>" + date.split("-").reverse().join("/") + " • " + start + " → " + end + "</b><br>" +
+      "Duração: <b>" + dur + " min</b>";
+
+    doneHint.textContent = "DEMO: a agenda foi bloqueada para este horário. Se tentar reservar novamente, vai acusar indisponível.";
+
+    goWpp.href = "#contato";
+    setStep(3);
+  });
+
+  // ESC
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && bg.style.display === "flex") closeModal();
+  });
+
+  // ----------------------------
+  // Horários disponíveis (DEMO)
+  // ----------------------------
+  const CFG_KEY = `ag_cfg_${TENANT}`;
+  const BLOCK_KEY = `ag_block_${TENANT}`;
+  const PASS_KEY = `owner_pass_${TENANT}`;
+  const SESSION_KEY = `owner_session_${TENANT}`;
+  const OWNER_EMAIL = "teste@teste.com.br";
+  const DEFAULT_PASS = ".teste123";
+
+  function loadCfg(){
+    const raw = localStorage.getItem(CFG_KEY);
     if(raw){
-      const br = "55"+raw;
-      window.open("https://wa.me/" + br + "?text=" + msg, "_blank");
+      try { return JSON.parse(raw); } catch(e){}
+    }
+    const cfg = { open:"06:00", close:"23:00", days:[0,1,1,1,1,1,1] }; // 0=Dom...6=Sáb
+    localStorage.setItem(CFG_KEY, JSON.stringify(cfg));
+    return cfg;
+  }
+  function saveCfg(cfg){ localStorage.setItem(CFG_KEY, JSON.stringify(cfg)); }
+
+  function getOwnerPass(){
+    const p = localStorage.getItem(PASS_KEY);
+    if(!p){ localStorage.setItem(PASS_KEY, DEFAULT_PASS); return DEFAULT_PASS; }
+    return p;
+  }
+
+  const toMin = (hhmm) => {
+    const [h,m] = hhmm.split(":").map(Number);
+    return h*60 + m;
+  };
+  const toHHMM = (mins) => `${pad2(Math.floor(mins/60))}:${pad2(mins%60)}`;
+
+  function reservationsForDate(dateStr){
+    return loadRes().filter(r => r.date === dateStr);
+  }
+
+  function overlaps(aStart, aDur, bStart, bDur){
+    const aEnd = aStart + aDur;
+    const bEnd = bStart + bDur;
+    return aStart < bEnd && bStart < aEnd;
+  }
+
+  function isDayEnabled(dateStr, cfg){
+    // JS getDay: 0=Dom..6=Sáb
+    const d = new Date(dateStr + "T00:00:00");
+    const dow = d.getDay();
+    return !!cfg.days[dow];
+  }
+
+  function buildSlots(dateStr, durMin){
+    const cfg = loadCfg();
+    const blocked = localStorage.getItem(BLOCK_KEY) === "1";
+    if(!dateStr){
+      slotsBox.textContent = "Selecione uma data para ver os horários.";
+      return;
+    }
+    if(blocked){
+      slotsBox.textContent = "Agendamento online bloqueado (DEMO).";
+      return;
+    }
+    if(!isDayEnabled(dateStr, cfg)){
+      slotsBox.textContent = "Este dia está indisponível (configuração do dono).";
+      return;
+    }
+    const openM = toMin(cfg.open);
+    const closeM = toMin(cfg.close);
+    const step = 30; // melhor UX
+    const res = reservationsForDate(dateStr);
+
+    // limpa
+    slotsBox.innerHTML = "";
+    let count = 0;
+
+    for(let t = openM; t + durMin <= closeM; t += step){
+      const hhmm = toHHMM(t);
+
+      // conflito com reservas existentes?
+      let ok = true;
+      for(const r of res){
+        const rs = toMin(r.start);
+        const rd = Number(r.dur);
+        if(overlaps(t, durMin, rs, rd)){ ok = false; break; }
+      }
+
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "slotBtn";
+      btn.textContent = hhmm;
+      btn.disabled = !ok;
+
+      btn.addEventListener("click", () => {
+        // marcar ativo
+        slotsBox.querySelectorAll(".slotBtn").forEach(b=>b.classList.remove("active"));
+        btn.classList.add("active");
+        startS.value = hhmm;
+        startS.dispatchEvent(new Event("change"));
+      });
+
+      slotsBox.appendChild(btn);
+      count++;
+    }
+
+    if(count === 0){
+      slotsBox.textContent = "Sem horários disponíveis na configuração atual.";
     }
   }
 
-  // wire
-  if($("agcDate")) $("agcDate").addEventListener("change", renderTimes);
-  if($("agcNextCadastro")) $("agcNextCadastro").addEventListener("click", nextCadastro);
-  if($("agcBack1")) $("agcBack1").addEventListener("click", back1);
-  if($("agcGoPix")) $("agcGoPix").addEventListener("click", goPix);
-  if($("agcBack2")) $("agcBack2").addEventListener("click", back2);
-  if($("agcCopyPix")) $("agcCopyPix").addEventListener("click", copyPix);
-  if($("agcConfirmPay")) $("agcConfirmPay").addEventListener("click", confirmPay);
+  // Ajusta select para refletir slots (mantém compatibilidade)
+  function refreshStartSelect(dateStr, durMin){
+    const cfg = loadCfg();
+    startS.innerHTML = "";
+    const openM = toMin(cfg.open);
+    const closeM = toMin(cfg.close);
+    const step = 30;
+    for(let t=openM; t+durMin<=closeM; t+=step){
+      const opt = document.createElement("option");
+      opt.value = toHHMM(t);
+      opt.textContent = opt.value;
+      startS.appendChild(opt);
+    }
+  }
 
-  setWhatsAppLink();
+  // Hook: quando muda data/duração, mostra os horários disponíveis
+  const refreshSlots = () => {
+    const dateStr = dateI.value;
+    const durMin = Number(durS.value);
+    refreshStartSelect(dateStr, durMin);
+    buildSlots(dateStr, durMin);
+    startS.dispatchEvent(new Event("change"));
+  };
+
+  dateI.addEventListener("change", refreshSlots);
+  durS.addEventListener("change", refreshSlots);
+
+  // Roda uma vez ao abrir
+  refreshSlots();
+
+  // ----------------------------
+  // ADM / Dono do Society (DEMO)
+  // ----------------------------
+  window.addEventListener("DOMContentLoaded", ()=>{
+  const btnAdm = document.getElementById("btnAdm");
+  const admModal = document.getElementById("admModal");
+  const admClose = document.getElementById("admClose");
+  const admLoginBox = document.getElementById("admLoginBox");
+  const admPanel = document.getElementById("admPanel");
+  const admEmail = document.getElementById("admEmail");
+  const admPass = document.getElementById("admPass");
+  const admLogin = document.getElementById("admLogin");
+  const admLoginMsg = document.getElementById("admLoginMsg");
+  const admLogout = document.getElementById("admLogout");
+  const admStatus = document.getElementById("admStatus");
+
+  function openAdm(){
+    admModal.classList.remove("hidden");
+    admModal.setAttribute("aria-hidden","false");
+    const ok = sessionStorage.getItem(SESSION_KEY) === "1";
+    if(ok){ showAdmPanel(); } else { showAdmLogin(); }
+  }
+  function closeAdm(){
+    admModal.classList.add("hidden");
+    admModal.setAttribute("aria-hidden","true");
+  }
+  function showAdmLogin(){
+    admLoginMsg.textContent = "";
+    admLoginBox.classList.remove("hidden");
+    admPanel.classList.add("hidden");
+    admEmail.value = OWNER_EMAIL;
+  }
+  function showAdmPanel(){
+    admLoginBox.classList.add("hidden");
+    admPanel.classList.remove("hidden");
+    renderAdmAll();
+  }
+
+  btnAdm?.addEventListener("click", (e)=>{ e.preventDefault(); openAdm(); });
+  admClose?.addEventListener("click", closeAdm);
+  admModal?.addEventListener("click", (e)=>{ if(e.target === admModal) closeAdm(); });
+
+  admLogin?.addEventListener("click", ()=>{
+    const email = (admEmail.value||"").trim().toLowerCase();
+    const pass = admPass.value || "";
+    const real = getOwnerPass();
+    if(email === OWNER_EMAIL && pass === real){
+      sessionStorage.setItem(SESSION_KEY, "1");
+      showAdmPanel();
+    } else {
+      admLoginMsg.textContent = "Login inválido.";
+    }
+  });
+
+  admLogout?.addEventListener("click", ()=>{
+    sessionStorage.removeItem(SESSION_KEY);
+    showAdmLogin();
+  });
+
+  // Tabs
+  document.querySelectorAll(".admTabs a[data-tab]").forEach(a=>{
+    a.addEventListener("click",(e)=>{
+      e.preventDefault();
+      const id = a.getAttribute("data-tab");
+      document.querySelectorAll(".admTab").forEach(t=>t.classList.add("hidden"));
+      document.getElementById(id)?.classList.remove("hidden");
+    });
+  });
+
+  // Agenda / receitas
+  const admTable = document.getElementById("admTable");
+  const revTotal = document.getElementById("revTotal");
+  const revSignal = document.getElementById("revSignal");
+  const revCount = document.getElementById("revCount");
+  const admClearAgenda = document.getElementById("admClearAgenda");
+
+  function renderAgenda(){
+    const res = loadRes().slice().sort((a,b)=> (a.date+a.start).localeCompare(b.date+b.start));
+    if(!res.length){
+      admTable.innerHTML = "<tr><th>Data</th><th>Horário</th><th>Duração</th><th>Nome</th></tr><tr><td colspan='4'>Sem agendamentos (DEMO).</td></tr>";
+      return;
+    }
+    let h = "<tr><th>Data</th><th>Horário</th><th>Duração</th><th>Cliente</th></tr>";
+    for(const r of res){
+      h += `<tr><td>${r.date}</td><td>${r.start}</td><td>${r.dur} min</td><td>${r.name||"-"}</td></tr>`;
+    }
+    admTable.innerHTML = h;
+  }
+
+  function renderReceitas(){
+    const res = loadRes();
+    const total = res.reduce((s,r)=> s + Number(r.total||0), 0);
+    const sig = res.reduce((s,r)=> s + Number(r.signal||0), 0);
+    revTotal.textContent = "R$ " + total.toFixed(2).replace(".",",");
+    revSignal.textContent = "R$ " + sig.toFixed(2).replace(".",",");
+    revCount.textContent = String(res.length);
+  }
+
+  admClearAgenda?.addEventListener("click", ()=>{
+    localStorage.removeItem(KEY);
+    refreshSlots();
+    renderAdmAll();
+  });
+
+  // Config (horários/dias)
+  const cfgOpen = document.getElementById("cfgOpen");
+  const cfgClose = document.getElementById("cfgClose");
+  const cfgMsg = document.getElementById("cfgMsg");
+  const cfgSave = document.getElementById("cfgSave");
+  const cfgBlockDate = document.getElementById("cfgBlockDate");
+  const cfgBlockDay = document.getElementById("cfgBlockDay");
+
+  function loadCfgToUI(){
+    const cfg = loadCfg();
+    cfgOpen.value = cfg.open;
+    cfgClose.value = cfg.close;
+    for(let i=0;i<=6;i++){
+      const cb = document.getElementById("d"+i);
+      if(cb) cb.checked = !!cfg.days[i];
+    }
+  }
+
+  cfgSave?.addEventListener("click", ()=>{
+    const cfg = loadCfg();
+    cfg.open = cfgOpen.value || "06:00";
+    cfg.close = cfgClose.value || "23:00";
+    cfg.days = cfg.days.map((_,i)=> {
+      const cb = document.getElementById("d"+i);
+      return cb && cb.checked ? 1 : 0;
+    });
+    saveCfg(cfg);
+    cfgMsg.textContent = "Salvo.";
+    refreshSlots();
+    setTimeout(()=> cfgMsg.textContent="", 1200);
+  });
+
+  cfgBlockDay?.addEventListener("click", ()=>{
+    const d = cfgBlockDate.value;
+    if(!d){ cfgMsg.textContent = "Escolha uma data."; return; }
+    // cria bloqueio total preenchendo reservas (DEMO) em todo o horário de trabalho
+    const cfg = loadCfg();
+    const openM = toMin(cfg.open);
+    const closeM = toMin(cfg.close);
+    const dur = 60;
+    const res = loadRes().filter(r=>r.date !== d);
+    for(let t=openM; t+dur<=closeM; t+=60){
+      res.push({ id: `${d}_${toHHMM(t)}`, date:d, start:toHHMM(t), dur:dur, name:"BLOQUEADO", phone:"", rg:"", addr:"", total:0, signal:0 });
+    }
+    saveRes(res);
+    cfgMsg.textContent = "Dia bloqueado (DEMO).";
+    refreshSlots();
+    renderAdmAll();
+  });
+
+  // Mensalistas (DEMO)
+  const ML_KEY = `mensalistas_${TENANT}`;
+  const mName = document.getElementById("mName");
+  const mPhone = document.getElementById("mPhone");
+  const mAdd = document.getElementById("mAdd");
+  const mList = document.getElementById("mList");
+
+  function loadMens(){ 
+    try { return JSON.parse(localStorage.getItem(ML_KEY) || "[]"); } catch(e){ return []; }
+  }
+  function saveMens(v){ localStorage.setItem(ML_KEY, JSON.stringify(v)); }
+
+  function renderMens(){
+    const arr = loadMens();
+    if(!arr.length){ mList.textContent = "Nenhum mensalista cadastrado (DEMO)."; return; }
+    mList.innerHTML = arr.map((m,i)=> `• ${m.name} (${m.phone}) <a href="#" data-del="${i}">remover</a>`).join("<br>");
+    mList.querySelectorAll("a[data-del]").forEach(a=>{
+      a.addEventListener("click",(e)=>{
+        e.preventDefault();
+        const i = Number(a.getAttribute("data-del"));
+        const v = loadMens(); v.splice(i,1); saveMens(v); renderMens();
+      });
+    });
+  }
+
+  mAdd?.addEventListener("click", ()=>{
+    const name = (mName.value||"").trim();
+    const phone = (mPhone.value||"").trim();
+    if(!name){ return; }
+    const v = loadMens(); v.push({name, phone}); saveMens(v);
+    mName.value=""; mPhone.value="";
+    renderMens();
+  });
+
+  // Marketing
+  const mkDate = document.getElementById("mkDate");
+  const mkHour = document.getElementById("mkHour");
+  const mkGen = document.getElementById("mkGen");
+  const mkMsg = document.getElementById("mkMsg");
+
+  mkGen?.addEventListener("click", ()=>{
+    const d = mkDate.value || "";
+    const h = (mkHour.value||"").trim();
+    mkMsg.value = `⚽ HORÁRIO VAGO NO SOCIETY teste novo\n\n📅 Data: ${d}\n🕒 Horário: ${h}\n⏱️ Duração: 60 min (mínimo)\n\n✅ Reserve online agora: https://agendecampo.com.br/teste\n\n*Agende e garanta seu horário.*`;
+  });
+
+  // Acesso (alterar senha / bloquear online)
+  const pwOld = document.getElementById("pwOld");
+  const pwNew = document.getElementById("pwNew");
+  const pwSave = document.getElementById("pwSave");
+  const pwMsg = document.getElementById("pwMsg");
+  const admToggleBlock = document.getElementById("admToggleBlock");
+
+  pwSave?.addEventListener("click", ()=>{
+    const cur = getOwnerPass();
+    if((pwOld.value||"") !== cur){
+      pwMsg.textContent = "Senha atual incorreta.";
+      return;
+    }
+    const nv = pwNew.value || "";
+    if(nv.length < 4){
+      pwMsg.textContent = "Nova senha muito curta.";
+      return;
+    }
+    localStorage.setItem(PASS_KEY, nv);
+    pwOld.value=""; pwNew.value="";
+    pwMsg.textContent = "Senha alterada.";
+    setTimeout(()=> pwMsg.textContent="", 1400);
+  });
+
+  function renderBlockStatus(){
+    const blocked = localStorage.getItem(BLOCK_KEY) === "1";
+    admStatus.textContent = blocked ? "Status: Agendamento BLOQUEADO" : "Status: Agendamento ATIVO";
+  }
+
+  admToggleBlock?.addEventListener("click", ()=>{
+    const blocked = localStorage.getItem(BLOCK_KEY) === "1";
+    localStorage.setItem(BLOCK_KEY, blocked ? "0" : "1");
+    renderBlockStatus();
+    refreshSlots();
+  });
+
+  function renderAdmAll(){
+    loadCfgToUI();
+    renderAgenda();
+    renderReceitas();
+    renderMens();
+    renderBlockStatus();
+  }
+
+  });
+
 })();
 </script>
 
-</body>
-</html>
+  <!-- ADM / DONO DO SOCIETY (DEMO) -->
+  <div class="modal hidden" id="admModal" aria-hidden="true">
+    <div class="modalCard">
+      <div class="modalHead">
+        <div>
+          <strong>ADM do Society (DEMO)</strong><br>
+          <span class="mini">Acesso do dono do society. Login padrão: <b>teste@teste.com.br</b> • senha <b>.teste123</b></span>
+        </div>
+        <button class="x" id="admClose" aria-label="Fechar">×</button>
+      </div>
+
+      <div id="admLoginBox">
+        <div class="grid2">
+          <div>
+            <label>Email</label>
+            <input id="admEmail" type="email" placeholder="teste@teste.com.br">
+          </div>
+          <div>
+            <label>Senha</label>
+            <input id="admPass" type="password" placeholder=".teste123">
+          </div>
+        </div>
+        <div style="height:12px"></div>
+        <div class="row">
+          <button class="btn primary" id="admLogin">Entrar</button>
+          <span class="mini" id="admLoginMsg"></span>
+        </div>
+      </div>
+
+      <div id="admPanel" class="hidden">
+        <div class="row" style="justify-content:space-between;align-items:center">
+          <span class="badge" id="admStatus">Status: —</span>
+          <div class="row">
+            <button class="btn" id="admLogout">Sair</button>
+          </div>
+        </div>
+
+        <div class="admTabs">
+          <a class="btn" href="#" data-tab="tAgenda">Agenda</a>
+          <a class="btn" href="#" data-tab="tReceitas">Receitas</a>
+          <a class="btn" href="#" data-tab="tConfig">Horários &amp; Dias</a>
+          <a class="btn" href="#" data-tab="tMensalistas">Mensalistas</a>
+          <a class="btn" href="#" data-tab="tMarketing">Marketing</a>
+          <a class="btn" href="#" data-tab="tAcesso">Acesso</a>
+        </div>
+
+        <div id="tAgenda" class="admTab">
+          <div class="admGrid">
+            <div class="card">
+              <div class="pad">
+                <h3>Agendamentos (DEMO)</h3>
+                <p class="mini">Lista dos agendamentos feitos no online. Você pode limpar a agenda para demonstração.</p>
+                <div style="height:10px"></div>
+                <button class="btn" id="admClearAgenda">Zerar agenda (DEMO)</button>
+              </div>
+            </div>
+            <div class="card">
+              <div class="pad">
+                <h3>Lista</h3>
+                <div style="max-height:260px;overflow:auto">
+                  <table class="table" id="admTable"></table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="tReceitas" class="admTab hidden">
+          <div class="card">
+            <div class="pad">
+              <h3>Receitas e confirmações</h3>
+              <p class="mini">Somatório DEMO baseado nos agendamentos: sinal (50%) e total.</p>
+              <div style="height:10px"></div>
+              <div class="statRow">
+                <div class="stat"><b id="revTotal">—</b><small>Total (R$)</small></div>
+                <div class="stat"><b id="revSignal">—</b><small>Sinais 50% (R$)</small></div>
+                <div class="stat"><b id="revCount">—</b><small>Agendamentos</small></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="tConfig" class="admTab hidden">
+          <div class="card">
+            <div class="pad">
+              <h3>Horário de trabalho e dias</h3>
+              <p class="mini">Configure janela de horários e dias ativos. Isso afeta os horários disponíveis no agendamento online.</p>
+              <div style="height:10px"></div>
+              <div class="grid2">
+                <div>
+                  <label>Abre (HH:MM)</label>
+                  <input id="cfgOpen" value="06:00">
+                </div>
+                <div>
+                  <label>Fecha (HH:MM)</label>
+                  <input id="cfgClose" value="23:00">
+                </div>
+              </div>
+              <div style="height:10px"></div>
+              <div class="row" style="flex-wrap:wrap">
+                <label class="badge"><input type="checkbox" id="d0"> Dom</label>
+                <label class="badge"><input type="checkbox" id="d1" checked=""> Seg</label>
+                <label class="badge"><input type="checkbox" id="d2" checked=""> Ter</label>
+                <label class="badge"><input type="checkbox" id="d3" checked=""> Qua</label>
+                <label class="badge"><input type="checkbox" id="d4" checked=""> Qui</label>
+                <label class="badge"><input type="checkbox" id="d5" checked=""> Sex</label>
+                <label class="badge"><input type="checkbox" id="d6" checked=""> Sáb</label>
+              </div>
+              <div style="height:10px"></div>
+              <div class="row">
+                <button class="btn primary" id="cfgSave">Salvar configurações</button>
+                <span class="mini" id="cfgMsg"></span>
+              </div>
+              <div style="height:10px"></div>
+              <button class="btn" id="cfgBlockDay">Zerar dia selecionado (bloquear)</button>
+              <span class="mini">Ação rápida: bloqueia todos os horários de uma data específica dentro da agenda.</span>
+              <div style="height:10px"></div>
+              <div class="grid2">
+                <div>
+                  <label>Data para bloquear</label>
+                  <input type="date" id="cfgBlockDate">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="tMensalistas" class="admTab hidden">
+          <div class="card">
+            <div class="pad">
+              <h3>Clientes mensalistas</h3>
+              <p class="mini">DEMO: lista simples para o dono reservar horários manualmente (sem pagamento).</p>
+              <div style="height:10px"></div>
+              <div class="grid2">
+                <div><input id="mName" placeholder="Nome do mensalista"></div>
+                <div><input id="mPhone" placeholder="Telefone"></div>
+              </div>
+              <div style="height:10px"></div>
+              <button class="btn primary" id="mAdd">Adicionar</button>
+              <div style="height:10px"></div>
+              <div id="mList" class="mini"></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="tMarketing" class="admTab hidden">
+          <div class="card">
+            <div class="pad">
+              <h3>Marketing / Horários vagos</h3>
+              <p class="mini">DEMO: gere uma mensagem pronta para WhatsApp com horário vago e cole na sua lista de transmissão.</p>
+              <div style="height:10px"></div>
+              <div class="grid2">
+                <div><input id="mkDate" type="date"></div>
+                <div><input id="mkHour" placeholder="Ex.: 20:00"></div>
+              </div>
+              <div style="height:10px"></div>
+              <button class="btn primary" id="mkGen">Gerar mensagem</button>
+              <div style="height:10px"></div>
+              <textarea id="mkMsg" style="width:100%;min-height:90px;border-radius:16px;background:rgba(255,255,255,.03);border:1px solid var(--line);color:var(--text);padding:12px"></textarea>
+              <div style="height:10px"></div>
+              <span class="mini">Versão PRO futura: disparo automático para contatos cadastrados (com opt-in).</span>
+            </div>
+          </div>
+        </div>
+
+        <div id="tAcesso" class="admTab hidden">
+          <div class="card">
+            <div class="pad">
+              <h3>Acesso do dono</h3>
+              <p class="mini">Quando você liberar o acesso de um society real, você cadastra o email certo e envia uma senha básica. Aqui o dono pode alterar a senha.</p>
+              <div style="height:10px"></div>
+              <div class="grid2">
+                <div>
+                  <label>Senha atual</label>
+                  <input id="pwOld" type="password" placeholder="Senha atual">
+                </div>
+                <div>
+                  <label>Nova senha</label>
+                  <input id="pwNew" type="password" placeholder="Nova senha">
+                </div>
+              </div>
+              <div style="height:10px"></div>
+              <button class="btn primary" id="pwSave">Alterar senha</button>
+              <span class="mini" id="pwMsg"></span>
+              <div style="height:12px"></div>
+              <div class="row">
+                <button class="btn" id="admToggleBlock">Bloquear/Desbloquear agendamento online</button>
+                <span class="mini">Simula bloqueio por inadimplência (como você descreveu no ADM geral).</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Botão flutuante (prioridade: agendamento online) -->
+  <button class="floatBook" id="floatBookBtn" type="button" aria-label="Agendar online">
+    <span class="dot"></span> Agendar online
+  </button>
+
+
+
