@@ -4894,32 +4894,44 @@ function mixGroupStrength(group, sShort, sMed, wShort=0.7, wMed=0.3){
 }
 
 function parityPenalty(line){
-  const pares = line.filter(n=>n%2===0).length;
-  return (pares===2 || pares===3) ? 0 : 6;
+  // MODO AGRESSIVO: não penaliza paridade
+  return 0;
 }
-
 function blockPenalty(line){
+  // MODO AGRESSIVO:
+  // Quanto mais concentrado o bloco, MELHOR
   const b = distribuicaoBlocos(line);
   const maxBlock = Math.max(b.A,b.B,b.C,b.D,b.E);
-  return (maxBlock>=4) ? (maxBlock-3)*10 : 0;
-}
 
+  if(maxBlock >= 5) return -25;   // força explosão
+  if(maxBlock == 4) return -15;   // favorece concentração
+  return 0;
+}
 function colPenalty(line){
+  // MODO AGRESSIVO:
+  // Colunas concentradas agora são bônus
   const cols=[0,0,0,0,0];
   for(const n of line){
     const c = Math.min(4, Math.floor((n-1)/5));
     cols[c]++;
   }
   const maxCol = Math.max(...cols);
-  return (maxCol>=4) ? (maxCol-3)*8 : 0;
-}
 
+  if(maxCol >= 5) return -20;
+  if(maxCol == 4) return -10;
+  return 0;
+}
 function lineQualityScore(line, sShort, sMed){
-  const st = mixGroupStrength(line, sShort, sMed).sum;
-  const pen = parityPenalty(line) + blockPenalty(line) + colPenalty(line);
-  return st - pen;
-}
+  const strength = mixGroupStrength(line, sShort, sMed).sum;
 
+  // bônus repetição do último concurso
+  const reps = repetidasDoUltimo(line, lastPayload?.latest?.dezenas || []);
+  const bonusReps = reps * 12; // muito mais peso
+
+  const adj = parityPenalty(line) + blockPenalty(line) + colPenalty(line);
+
+  return strength + bonusReps - adj;
+}
 function isPrime(n){
   return [2,3,5,7,11,13,17,19,23].includes(n);
 }
