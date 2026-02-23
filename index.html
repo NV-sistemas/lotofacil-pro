@@ -2675,6 +2675,144 @@ function buildPack4JogosPreditivo(payload){
 
     const finalGame = _uniqSort15(game);
 
+// =========================================================
+// 🔥 TWEAK PREDADOR (14/15)
+// - Invertida força repetição (min 11 repetidas do último concurso do payload)
+// - Principal e Técnica1 forçam Bloco dominante com 5 dezenas (Bloco5)
+// - Técnica2 força 2 dezenas FORA do prev4 (cobertura agressiva)
+// =========================================================
+const last = draws[draws.length-1] || [];
+const prev4 = draws.slice(-4);
+const prev4Set = new Set([].concat(...prev4));
+
+function repsCount(arr, base){
+  const s = new Set(base||[]);
+  let k=0; for(const n of arr) if(s.has(n)) k++;
+  return k;
+}
+
+function ensureMinReps(arr, base, minReps){
+  if(!Array.isArray(base) || !base.length) return arr;
+  let out = arr.slice();
+  const baseSet = new Set(base);
+  let reps = repsCount(out, base);
+  if(reps >= minReps) return out;
+
+  // candidatos a entrar: números do último que ainda não estão no jogo, ordenados por score
+  const toAdd = base.filter(n=>!out.includes(n)).sort((a,b)=> (_score(b)-_score(a)) || (a-b));
+  // candidatos a sair: números que NÃO estão no último, pior score primeiro
+  const toRemove = out.filter(n=>!baseSet.has(n)).sort((a,b)=> (_score(a)-_score(b)) || (a-b));
+
+  let i=0, j=0;
+  while(reps < minReps && i<toAdd.length && j<toRemove.length){
+    const addN = toAdd[i++];
+    const remN = toRemove[j++];
+
+    const idx = out.indexOf(remN);
+    if(idx>=0){
+      out[idx] = addN;
+      out = _uniqSort15(out);
+      reps = repsCount(out, base);
+    }
+  }
+  return out;
+}
+
+function dominantBlockFromBase(base){
+  // bloco com maior presença no último concurso; fallback: bloco C
+  const cnt = {A:0,B:0,C:0,D:0,E:0};
+  for(const n of (base||[])){
+    const b = blockOf(n);
+    cnt[b] = (cnt[b]||0)+1;
+  }
+  let best="C", bestV=-1;
+  for(const k of ["A","B","C","D","E"]){
+    if(cnt[k]>bestV){ bestV=cnt[k]; best=k; }
+  }
+  return best;
+}
+
+function ensureBlockDominance(arr, base, target=5){
+  const prefer = dominantBlockFromBase(base);
+  let out = arr.slice();
+
+  const inPrefer = ()=> out.filter(n=>blockOf(n)===prefer).length;
+  if(inPrefer() >= target) return out;
+
+  // candidatos para entrar do bloco preferido (não usados), ordenados por score
+  const candIn = [];
+  for(let n=1;n<=25;n++){
+    if(blockOf(n)===prefer && !out.includes(n)) candIn.push(n);
+  }
+  candIn.sort((a,b)=> (_score(b)-_score(a)) || (a-b));
+
+  // candidatos para sair fora do bloco preferido, pior score primeiro
+  const candOut = out.filter(n=>blockOf(n)!==prefer).sort((a,b)=> (_score(a)-_score(b)) || (a-b));
+
+  let i=0, j=0;
+  while(inPrefer() < target && i<candIn.length && j<candOut.length){
+    const addN = candIn[i++];
+    const remN = candOut[j++];
+
+    const idx = out.indexOf(remN);
+    if(idx>=0){
+      out[idx] = addN;
+      out = _uniqSort15(out);
+    }
+  }
+  return out;
+}
+
+function ensureOutsidePrev4(arr, countOutside=2){
+  let out = arr.slice();
+  const outside = ()=> out.filter(n=>!prev4Set.has(n));
+  if(outside().length >= countOutside) return out;
+
+  // entra: melhores fora do prev4
+  const candIn = [];
+  for(let n=1;n<=25;n++){
+    if(!prev4Set.has(n) && !out.includes(n)) candIn.push(n);
+  }
+  candIn.sort((a,b)=> (_score(b)-_score(a)) || (a-b));
+
+  // sai: piores dentro do prev4
+  const candOut = out.filter(n=>prev4Set.has(n)).sort((a,b)=> (_score(a)-_score(b)) || (a-b));
+
+  let i=0, j=0;
+  while(outside().length < countOutside && i<candIn.length && j<candOut.length){
+    const addN = candIn[i++];
+    const remN = candOut[j++];
+
+    const idx = out.indexOf(remN);
+    if(idx>=0){
+      out[idx] = addN;
+      out = _uniqSort15(out);
+    }
+  }
+  return out;
+}
+
+// aplica por padrão (patIdx: 0 principal, 1 invertida, 2 tecnica1, 3 tecnica2)
+let tweaked = finalGame.slice();
+if(patIdx===1){
+  tweaked = ensureMinReps(tweaked, last, 11);
+}
+if(patIdx===0){
+  tweaked = ensureMinReps(tweaked, last, 10);
+  tweaked = ensureBlockDominance(tweaked, last, 5);
+}
+if(patIdx===2){
+  tweaked = ensureMinReps(tweaked, last, 10);
+  tweaked = ensureBlockDominance(tweaked, last, 5);
+}
+if(patIdx===3){
+  tweaked = ensureOutsidePrev4(tweaked, 2);
+}
+
+const finalGameTweaked = _uniqSort15(tweaked);
+
+    const finalGame = finalGameTweaked;
+
     // Anti-igualdade (mínimo 1 número diferente do já gerado)
     // Se for idêntico a outro jogo, troca o último por melhor fora.
     if(globalAvoidSet && typeof globalAvoidSet === "object"){
@@ -2700,11 +2838,12 @@ function buildPack4JogosPreditivo(payload){
   }
 
   const patterns = [
-    { id:"principal", name:"1 (Dominante)",     q:{R:9,G2:4,G3:2,G4:0,F:0} },
-    { id:"invertida", name:"2 (Agressivo 10R)", q:{R:10,G2:3,G3:2,G4:0,F:0} },
-    { id:"tecnica1",  name:"3 (Profundidade)",  q:{R:9,G2:3,G3:2,G4:1,F:0} },
-    { id:"tecnica2",  name:"4 (Risco control.)",q:{R:9,G2:4,G3:1,G4:0,F:1} }
-  ];
+  // 🔥 MODO PREDADOR 14/15 (mais repetição + mais concentração)
+  { id:"principal", name:"1 (Dominante + Bloco5)",   q:{R:10,G2:3,G3:2,G4:0,F:0} },
+  { id:"invertida", name:"2 (PREDADOR 11R)",         q:{R:11,G2:2,G3:2,G4:0,F:0} },
+  { id:"tecnica1",  name:"3 (PREDADOR Bloco5)",      q:{R:10,G2:3,G3:1,G4:1,F:0} },
+  { id:"tecnica2",  name:"4 (Risco FORA 2F)",        q:{R:9,G2:3,G3:1,G4:0,F:2} }
+];
 
   const avoid = new Set();
   const outGames = {};
@@ -4894,22 +5033,22 @@ function mixGroupStrength(group, sShort, sMed, wShort=0.7, wMed=0.3){
 }
 
 function parityPenalty(line){
-  // MODO AGRESSIVO: não penaliza paridade
+  // 🔥 MODO PREDADOR: não penaliza paridade
   return 0;
 }
+
 function blockPenalty(line){
-  // MODO AGRESSIVO:
-  // Quanto mais concentrado o bloco, MELHOR
+  // 🔥 MODO PREDADOR: concentração em bloco vira bônus
   const b = distribuicaoBlocos(line);
   const maxBlock = Math.max(b.A,b.B,b.C,b.D,b.E);
 
-  if(maxBlock >= 5) return -25;   // força explosão
-  if(maxBlock == 4) return -15;   // favorece concentração
+  if(maxBlock >= 5) return -28;
+  if(maxBlock == 4) return -16;
   return 0;
 }
+
 function colPenalty(line){
-  // MODO AGRESSIVO:
-  // Colunas concentradas agora são bônus
+  // 🔥 MODO PREDADOR: colunas concentradas viram bônus
   const cols=[0,0,0,0,0];
   for(const n of line){
     const c = Math.min(4, Math.floor((n-1)/5));
@@ -4917,21 +5056,22 @@ function colPenalty(line){
   }
   const maxCol = Math.max(...cols);
 
-  if(maxCol >= 5) return -20;
-  if(maxCol == 4) return -10;
+  if(maxCol >= 5) return -22;
+  if(maxCol == 4) return -12;
   return 0;
 }
+
 function lineQualityScore(line, sShort, sMed){
   const strength = mixGroupStrength(line, sShort, sMed).sum;
 
-  // bônus repetição do último concurso
-  const reps = repetidasDoUltimo(line, lastPayload?.latest?.dezenas || []);
-  const bonusReps = reps * 12; // muito mais peso
+  // 🔥 MODO PREDADOR: repetição do último vale MUITO
+  const reps = repetidasDoUltimo(line, (lastPayload?.latest?.dezenas || []));
+  const bonusReps = reps * 16;
 
   const adj = parityPenalty(line) + blockPenalty(line) + colPenalty(line);
-
   return strength + bonusReps - adj;
 }
+
 function isPrime(n){
   return [2,3,5,7,11,13,17,19,23].includes(n);
 }
