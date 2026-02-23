@@ -2673,7 +2673,7 @@ function buildPack4JogosPreditivo(payload){
 
     _fillRemaining(game, used);
 
-    const finalGame = _uniqSort15(game);
+    let finalGame = _uniqSort15(game);
 
 // =========================================================
 // 🔥 TWEAK PREDADOR (14/15)
@@ -2811,7 +2811,7 @@ if(patIdx===3){
 
 const finalGameTweaked = _uniqSort15(tweaked);
 
-    const finalGame = finalGameTweaked;
+    finalGame = finalGameTweaked;
 
     // Anti-igualdade (mínimo 1 número diferente do já gerado)
     // Se for idêntico a outro jogo, troca o último por melhor fora.
@@ -2837,7 +2837,7 @@ const finalGameTweaked = _uniqSort15(tweaked);
     return { jogo: finalGame, motivos };
   }
 
-  const patterns = [
+  const patternsP4 = [
   // 🔥 MODO PREDADOR 14/15 (mais repetição + mais concentração)
   { id:"principal", name:"1 (Dominante + Bloco5)",   q:{R:10,G2:3,G3:2,G4:0,F:0} },
   { id:"invertida", name:"2 (PREDADOR 11R)",         q:{R:11,G2:2,G3:2,G4:0,F:0} },
@@ -2849,7 +2849,7 @@ const finalGameTweaked = _uniqSort15(tweaked);
   const outGames = {};
   const outMotivos = { principal:[], invertida:[], tecnica1:[], tecnica2:[] };
 
-  for(let i=0;i<patterns.length;i++){
+  for(let i=0;i<patternsP4.length;i++){
     const p = patterns[i];
     const built = _applyPattern(p.name, p.q, avoid, i);
     outGames[p.id] = built.jogo;
@@ -2865,7 +2865,7 @@ const finalGameTweaked = _uniqSort15(tweaked);
     motivos: outMotivos,
     meta:{
       window:{ qtd: draws.length, inicio: payload?.inicio, ultimo: payload?.ultimo },
-      quotas: patterns.reduce((acc,p)=>{ acc[p.id]=p.q; return acc; }, {})
+      quotas: patternsP4.reduce((acc,p)=>{ acc[p.id]=p.q; return acc; }, {})
     }
   };
 }
@@ -6535,7 +6535,7 @@ function buildEliteGamesFromPayload(payload){
 
   const seedBase = Number(payload?.latest?.concurso || payload?.ultimo || 0) || 0;
 
-  const patterns = [
+  const patternsElite = [
     // ELITE 1: 11R (ultra repetição)
     { name:"ELITE 1", quota:{R:11,G2:2,G3:1,G4:1, HOT:0, COLD:0, OUT1:0, OUT4:0} },
 
@@ -6553,7 +6553,16 @@ function buildEliteGamesFromPayload(payload){
 
     // ELITE 6: OUT4 agressivo (faltantes nos 4)
     { name:"ELITE 6", quota:{R:9,G2:2,G3:1,G4:0, HOT:0, COLD:0, OUT1:0, OUT4:3} }
-  ];"D","E"];
+  ];
+
+  function dominantBlockFromLast(){
+    const cnt = {A:0,B:0,C:0,D:0,E:0};
+    (R||[]).forEach(n=>{
+      const b = blockOf(n);
+      const k = (b===1?"A":b===2?"B":b===3?"C":b===4?"D":"E");
+      cnt[k] = (cnt[k]||0)+1;
+    });
+    const order=["A","B","C","D","E"];
     order.sort((x,y)=> (cnt[y]-cnt[x]) || (x<y?-1:1));
     return order[0];
   }
@@ -6613,7 +6622,7 @@ function buildEliteGamesFromPayload(payload){
   }
 
 
-  const patterns = [
+  const patternsLegacy = [
     { name:"ELITE 1", quota:{R:9,G2:3,G3:2,G4:1, HOT:0, COLD:0, OUT1:0, OUT4:0} },
     { name:"ELITE 2", quota:{R:8,G2:4,G3:2,G4:0, HOT:0, COLD:1, OUT1:0, OUT4:0} },
     { name:"ELITE 3", quota:{R:10,G2:2,G3:0,G4:2, HOT:1, COLD:0, OUT1:0, OUT4:0} },
@@ -6625,7 +6634,7 @@ function buildEliteGamesFromPayload(payload){
   const games = [];
   const seen = new Set();
 
-  patterns.forEach((p, idx)=>{
+  patternsElite.forEach((p, idx)=>{
     const used = new Set();
     const seed = seedBase + idx*37;
 
