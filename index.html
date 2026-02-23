@@ -2850,7 +2850,7 @@ const finalGameTweaked = _uniqSort15(tweaked);
   const outMotivos = { principal:[], invertida:[], tecnica1:[], tecnica2:[] };
 
   for(let i=0;i<patternsP4.length;i++){
-    const p = patterns[i];
+    const p = patternsP4[i];
     const built = _applyPattern(p.name, p.q, avoid, i);
     outGames[p.id] = built.jogo;
     outMotivos[p.id] = built.motivos;
