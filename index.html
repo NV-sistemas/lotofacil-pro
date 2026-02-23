@@ -5375,8 +5375,84 @@ function buildLines15PFixedPattern(payloadShort, qtdShort){
       return a-b;
     });
 
-  const out1 = remainingRanked.slice(0,5).sort((a,b)=>a-b);
-  const out2 = remainingRanked.slice(5,10).sort((a,b)=>a-b);
+  let out1 = remainingRanked.slice(0,5).sort((a,b)=>a-b);
+  let out2 = remainingRanked.slice(5,10).sort((a,b)=>a-b);
+
+  // ============================================================
+  // 🔥 MODO PREDADOR EXTREMO (15P)
+  // - IN(15) com >=12 dezenas do último concurso
+  // - IN(15) com >=7 dezenas do bloco dominante do último
+  // - OUT segura a variância (vira do nada)
+  // ============================================================
+  function domBlockFromSet(setNums){
+    const cnt={A:0,B:0,C:0,D:0,E:0};
+    Array.from(setNums).forEach(n=>{ const b=blockOf(n); cnt[b]++; });
+    const order=["A","B","C","D","E"];
+    order.sort((x,y)=> (cnt[y]-cnt[x]) || (x<y?-1:1));
+    return order[0];
+  }
+  const __domB15 = domBlockFromSet(lastDrawSet);
+
+  function enforce15P(in1,in2,in3,out1,out2){
+    const IN = [].concat(in1.nums, in2.nums, in3.nums);
+    const OUT = [].concat(out1, out2);
+
+    const countLast = (arr)=> arr.filter(n=> lastDrawSet.has(n)).length;
+    const countBlock = (arr,b)=> arr.filter(n=> blockOf(n)===b).length;
+
+    function swapImprove(targetFn){
+      for(let loop=0; loop<40; loop++){
+        if(targetFn()) return;
+
+        // melhor ADD (em OUT) prioriza: último + bloco dominante
+        let addIdx=-1, best=-1e9;
+        for(let i=0;i<OUT.length;i++){
+          const n=OUT[i];
+          let sc=0;
+          if(lastDrawSet.has(n)) sc += 12;
+          if(blockOf(n)===__domB15) sc += 7;
+          sc += (pres[n]?.freq||0)*0.3;
+          if(sc>best){ best=sc; addIdx=i; }
+        }
+        if(addIdx<0) return;
+        const addN=OUT[addIdx];
+
+        // pior REM (em IN) prioriza remover: não-último + fora do bloco
+        let remIdx=-1, worst=1e9;
+        for(let i=0;i<IN.length;i++){
+          const n=IN[i];
+          let sc=0;
+          if(lastDrawSet.has(n)) sc += 12;
+          if(blockOf(n)===__domB15) sc += 7;
+          sc += (pres[n]?.freq||0)*0.3;
+          if(sc<worst){ worst=sc; remIdx=i; }
+        }
+        if(remIdx<0) return;
+        const remN=IN[remIdx];
+
+        IN[remIdx]=addN;
+        OUT[addIdx]=remN;
+      }
+    }
+
+    swapImprove(()=> countLast(IN) >= 12);
+    swapImprove(()=> countBlock(IN, __domB15) >= 7);
+
+    // redividir em 5x5 mantendo formato
+    in1.nums = IN.slice(0,5).sort((a,b)=>a-b);
+    in2.nums = IN.slice(5,10).sort((a,b)=>a-b);
+    in3.nums = IN.slice(10,15).sort((a,b)=>a-b);
+
+    return {
+      out1: OUT.slice(0,5).sort((a,b)=>a-b),
+      out2: OUT.slice(5,10).sort((a,b)=>a-b)
+    };
+  }
+
+  const __enf = enforce15P(in1,in2,in3,out1,out2);
+  out1 = __enf.out1;
+  out2 = __enf.out2;
+
 
   // Linhas finais no padrão do módulo (IN/OUT alternado para manter compatibilidade visual)
   // Mantém IN nas posições 0,2,4 como no seu layout atual.
@@ -5407,7 +5483,7 @@ function buildLines15PFixedPattern(payloadShort, qtdShort){
     }
   }
 
-  return { lines, map, mode:"15P_LATENTE_AGRESSIVO_FORTE" };
+  return { lines, map, mode:"15P_PREDADOR_EXTREMO_14_15" };
 }
 
 function gerarJogos15P(linhas){
@@ -6460,6 +6536,84 @@ function buildEliteGamesFromPayload(payload){
   const seedBase = Number(payload?.latest?.concurso || payload?.ultimo || 0) || 0;
 
   const patterns = [
+    // ELITE 1: 11R (ultra repetição)
+    { name:"ELITE 1", quota:{R:11,G2:2,G3:1,G4:1, HOT:0, COLD:0, OUT1:0, OUT4:0} },
+
+    // ELITE 2: 10R + variação curta
+    { name:"ELITE 2", quota:{R:10,G2:3,G3:2,G4:0, HOT:0, COLD:0, OUT1:0, OUT4:0} },
+
+    // ELITE 3: 12R (super núcleo) + 2 de variação
+    { name:"ELITE 3", quota:{R:12,G2:1,G3:0,G4:2, HOT:0, COLD:0, OUT1:0, OUT4:0} },
+
+    // ELITE 4: BLOCO5 no bloco dominante
+    { name:"ELITE 4", quota:{R:9,G2:4,G3:2,G4:0, HOT:0, COLD:0, OUT1:0, OUT4:0} },
+
+    // ELITE 5: OUT1 agressivo (faltantes do último)
+    { name:"ELITE 5", quota:{R:8,G2:0,G3:3,G4:2, HOT:0, COLD:0, OUT1:2, OUT4:0} },
+
+    // ELITE 6: OUT4 agressivo (faltantes nos 4)
+    { name:"ELITE 6", quota:{R:9,G2:2,G3:1,G4:0, HOT:0, COLD:0, OUT1:0, OUT4:3} }
+  ];"D","E"];
+    order.sort((x,y)=> (cnt[y]-cnt[x]) || (x<y?-1:1));
+    return order[0];
+  }
+  const __domBlock = dominantBlockFromLast();
+
+  function ensureMinReps(nums, minReps, seed){
+    const set = new Set(nums);
+    let reps = 0; for(const n of nums) if(s1.has(n)) reps++;
+    if(reps >= minReps) return nums;
+    // adiciona mais dezenas do último, removendo não-R de menor prioridade (G4/G3/G2/OUT)
+    const candidatesIn = R.filter(n=>!set.has(n));
+    const removeOrder = nums.slice().reverse(); // determinístico
+    let k=0;
+    while(reps < minReps && k < candidatesIn.length && removeOrder.length){
+      const add = candidatesIn[k++];
+      // remove um número que não está no último, se possível
+      let remIdx = -1;
+      for(let i=0;i<removeOrder.length;i++){
+        const v = removeOrder[i];
+        if(!s1.has(v)){ remIdx = nums.indexOf(v); removeOrder.splice(i,1); break; }
+      }
+      if(remIdx<0) break;
+      nums[remIdx] = add;
+      set.add(add);
+      reps++;
+    }
+    return sortNum(nums).slice(0,15);
+  }
+
+  function ensureBlock5(nums, block, seed){
+    const set = new Set(nums);
+    const countBlock = (arr)=> arr.filter(n=>blockOf(n)===block).length;
+    let ct = countBlock(nums);
+    if(ct >= 5) return nums;
+
+    const pool = []
+      .concat(R, hot, G2, G3, G4, absentLast)
+      .filter(n=>blockOf(n)===block);
+
+    // remove do pool os já usados
+    const addCandidates = pool.filter(n=>!set.has(n));
+    // escolher removíveis: fora do bloco alvo
+    const removable = nums.filter(n=>blockOf(n)!==block);
+
+    let ai=0;
+    while(ct < 5 && ai < addCandidates.length && removable.length){
+      const add = addCandidates[ai++];
+      const rem = removable.shift();
+      const ri = nums.indexOf(rem);
+      if(ri>=0){
+        nums[ri] = add;
+        set.add(add);
+        ct++;
+      }
+    }
+    return sortNum(nums).slice(0,15);
+  }
+
+
+  const patterns = [
     { name:"ELITE 1", quota:{R:9,G2:3,G3:2,G4:1, HOT:0, COLD:0, OUT1:0, OUT4:0} },
     { name:"ELITE 2", quota:{R:8,G2:4,G3:2,G4:0, HOT:0, COLD:1, OUT1:0, OUT4:0} },
     { name:"ELITE 3", quota:{R:10,G2:2,G3:0,G4:2, HOT:1, COLD:0, OUT1:0, OUT4:0} },
@@ -6503,6 +6657,38 @@ function buildEliteGamesFromPayload(payload){
     }
 
     nums = sortNum(nums).slice(0,15);
+    // 🔥 PREDADOR EXTREMO — enforce por jogo (determinístico)
+    if(idx===0){
+      // ELITE 1: força >=11 repetidas do último
+      nums = ensureMinReps(nums, 11, seed);
+    }
+    if(idx===3){
+      // ELITE 4: força bloco dominante com 5 dezenas
+      nums = ensureBlock5(nums, __domBlock, seed);
+    }
+    if(idx===5){
+      // ELITE 6: tenta manter OUT4 alto (se ficou baixo, injeta absent4)
+      const setN = new Set(nums);
+      let out4ct = nums.filter(n=>absent4.includes(n)).length;
+      const add4 = absent4.filter(n=>!setN.has(n));
+      if(out4ct < 3){
+        // troca números que são do último (mantém núcleo? não — aqui é anti-núcleo)
+        const removable = nums.filter(n=>s1.has(n)).slice().reverse();
+        let ai=0;
+        while(out4ct < 3 && ai < add4.length && removable.length){
+          const add = add4[ai++]; 
+          const rem = removable.shift();
+          const ri = nums.indexOf(rem);
+          if(ri>=0){
+            nums[ri] = add;
+            setN.add(add);
+            out4ct++;
+          }
+        }
+        nums = sortNum(nums).slice(0,15);
+      }
+    }
+
 
     // garante não repetir jogos idênticos
     let key = gameKey(nums);
